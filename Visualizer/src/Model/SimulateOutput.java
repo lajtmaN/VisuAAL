@@ -14,9 +14,9 @@ public class SimulateOutput extends UPPAALOutput {
      *        Each list contains list of datapoints
      */
     private Map<String, ArrayList<ArrayList<DataPoint>>> evaluations;
-    private short nrSimulations;
+    private int nrSimulations;
 
-    public SimulateOutput(short numberOfSimulations) {
+    public SimulateOutput(int numberOfSimulations) {
         evaluations = new HashMap<>();
         nrSimulations = numberOfSimulations;
     }

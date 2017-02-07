@@ -88,7 +88,7 @@ public class CHandler {
         Matcher matcher = Pattern.compile(regex).matcher(text);
         if (matcher.find())
             return matcher.group(1);
-        return "";
+        return null;
     }
 }
 
