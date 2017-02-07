@@ -1,32 +1,23 @@
 package tests.parsers;
 
-import org.junit.jupiter.api.*;
+import org.junit.Test;
 import parsers.CHandler;
 import Model.CVar;
 import parsers.UPPAALParser;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Created by batto on 07-Feb-17.
  */
 public class ParseXmlAndCTests {
 
-    @BeforeAll
-    static void initAll() {
-    }
-
-    @BeforeEach
-    void init(){
-
-
-    }
 
     @Test
-    void getXmlDeclarationsTest() {
+    public void getXmlDeclarationsTest() {
         ArrayList<CVar<Integer>> vars = UPPAALParser.getUPPAALConfigConstants("mac_model_test.xml");
 
         assertEquals(5, vars.size());
@@ -38,13 +29,13 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    void parseDeclarationsTest() {
+    public void parseDeclarationsTest() {
         String declarations = "const int abc = 123," +
                 "CONFIG_dhj = 234;" +
                 "\n const int CONFIG_abe = 456;";
         ArrayList<CVar<Integer>> vars = CHandler.getConstants(declarations);
 
-        assertEquals(2, vars.size(), "3 Variables expected");
+        assertEquals(2, vars.size());
         assertCVAR("CONFIG_dhj", 234, vars.get(0));
         assertCVAR("CONFIG_abe", 456, vars.get(1));
     }

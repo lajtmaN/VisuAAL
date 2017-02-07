@@ -32,9 +32,9 @@ public class SimulateParser {
             if((name = parseVariable(verifytaOutput[i])) != null) {
                 i++;
             }
-            else if (){
+            /*else if (){
 
-            }
+            }*/
         }
 
         return null;
