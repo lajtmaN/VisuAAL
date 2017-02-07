@@ -1,9 +1,9 @@
 repositories {
-  mavenCentral()
+    mavenCentral()
 }
 
 apply plugin: 'java'
 
 dependencies {
-    testCompile 'junit:junit:4.1.12'
+    testCompile 'junit:junit:4.12'
 }
