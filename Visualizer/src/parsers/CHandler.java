@@ -63,17 +63,16 @@ public class CHandler {
         ArrayList<CVar<Integer>> constantNames = new ArrayList<>();
 
         //Pattern Name
-        Pattern pName = Pattern.compile("(\\w)+(\\s)*=");
-        Pattern pValue = Pattern.compile("(\\d)+");
+        Pattern pVar = Pattern.compile("CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+");
 
         for(String s : getConstantGroups(decls)) {
-            Matcher mName = pName.matcher(s);
-            Matcher mValue = pValue.matcher(s);
+            Matcher mName = pVar.matcher(s);
 
-            while(mName.find() && mValue.find()) {
+            while(mName.find()) {
                 CVar<Integer> var = new CVar();
-                var.setName(mName.group().replace(" ","").replace("=",""));
-                var.setValue(Integer.parseInt(mValue.group()));
+                String[] nameAndVal = mName.group().replace(" ","").split("=");
+                var.setName(nameAndVal[0]);
+                var.setValue(Integer.parseInt(nameAndVal[1]));
                 constantNames.add(var);
             }
 
