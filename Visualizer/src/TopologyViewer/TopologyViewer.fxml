@@ -5,16 +5,34 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.web.WebView?>
 
-<TabPane xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TopologyViewer.TopologyViewerController">
+<GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TopologyViewer.TopologyViewerController">
+
+    <children>
+<GridPane fx:id="horizontalGrid" prefHeight="48.0">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="385.0" minWidth="10.0" prefWidth="151.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="713.0" minWidth="10.0" prefWidth="649.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <children>
+        <Button fx:id="loadModelButton" mnemonicParsing="false" onAction="#loadModel" text="Load Model" />
+        <TextField fx:id="modelPathField" promptText="Model Path" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" />
+    </children>
+</GridPane>
+<TabPane fx:id="tabPane" GridPane.rowIndex="1">
+
    <tabs>
       <Tab text="View Topology">
          <content>
-            <GridPane alignment="center" hgap="10" vgap="10">
+            <GridPane fx:id="viewerGridPane" alignment="center" hgap="10" vgap="10">
                <columnConstraints>
                   <ColumnConstraints />
                </columnConstraints>
@@ -25,19 +43,38 @@
                </rowConstraints>
                      <children>
                         <WebView fx:id="webView" prefHeight="653.0" GridPane.rowIndex="2" />
-                        <Button fx:id="myBtn" onAction="#loadWebsite" GridPane.rowIndex="2">Knap</Button>
+                        <Button fx:id="myBtn" onAction="#loadWebsite" text="Reload">Knap</Button>
                      </children>
             </GridPane>
          </content>
       </Tab>
       <Tab text="View Constants">
          <content>
-          <TableView fx:id="constantsTable" layoutX="17.0" layoutY="23.0" prefHeight="665.0" prefWidth="769.0">
-            <columns>
-              <TableColumn fx:id="columnName" prefWidth="150.0" text="Name" />
-              <TableColumn fx:id="columnValue" prefWidth="440.0" text="Value" />
-            </columns>
-          </TableView>
+            <GridPane>
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                <TableView fx:id="constantsTable" prefHeight="665.0" prefWidth="769.0" GridPane.rowIndex="0">
+                  <columns>
+                    <TableColumn fx:id="columnName" prefWidth="150.0" text="Name" />
+                    <TableColumn fx:id="columnValue" prefWidth="440.0" text="Value" />
+                  </columns>
+                </TableView>
+               </children>
+            </GridPane>
          </content></Tab>
    </tabs>
 </TabPane>
+    </children>
+   <columnConstraints>
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" prefHeight="30.0" />
+      <RowConstraints />
+   </rowConstraints>
+</GridPane>

@@ -1,6 +1,14 @@
 package parsers;
 
 public class CVar<T> {
+    public CVar(String name, T value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public CVar() {
+    }
+
     public String getName() {
         return name;
     }
