@@ -7,13 +7,13 @@ const int NR_NODES_SQR_ROOT = 8,
           MAX_BEACON_NUMBER = 17;
 
 //Durations
-const int BEACON_PERIOD = 1000,
+const int CONFIG_BEACON_PERIOD = 1000,
           BEACON_SLOT = 1,
           BEACON_SCAN = BEACON_SLOT * NR_BEACON_SLOTS,
           BEACON_SCAN_INTERVAL = 500,
           MAX_INIT_DELAY = 512,
-          MAX_DATA_OFFSET = 63, // Multiplied later by 4 to get mS
-          DATA_INTERVAL = 1000,
+		  CONFIG_MAX_DATA_OFFSET = 63, // Multiplied later by 4 to get mS
+		  CONFIG_DATA_INTERVAL = 1000,
           CONFIG_DATA_DURATION = 1;
 
 //Probability that a beacon is lost
