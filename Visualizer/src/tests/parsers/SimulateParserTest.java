@@ -22,6 +22,10 @@ uppaalquery.q:1: [error] Unknown identifier: as.
 uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
 
  */
+    @Test
+    public void failingTest() {
+        assertEquals("nope", "jeps");
+    }
 
     @Test
     public void parseSimpleVariable() {
