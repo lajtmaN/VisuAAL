@@ -1,19 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.web.WebView?>
-<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TopologyViewer.TopologyViewerController">
-   <columnConstraints>
-      <ColumnConstraints />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints minHeight="10.0" prefHeight="30.0" />
-      <RowConstraints />
-      <RowConstraints />
-   </rowConstraints>
-         <children>
-            <WebView fx:id="webView" prefHeight="653.0" GridPane.rowIndex="2" />
-            <Button fx:id="myBtn" onAction="#loadWebsite" GridPane.rowIndex="2">Knap</Button>
-         </children>
-</GridPane>
+
+<TabPane xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TopologyViewer.TopologyViewerController">
+   <tabs>
+      <Tab text="View Topology">
+         <content>
+            <GridPane alignment="center" hgap="10" vgap="10">
+               <columnConstraints>
+                  <ColumnConstraints />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+                     <children>
+                        <WebView fx:id="webView" prefHeight="653.0" GridPane.rowIndex="2" />
+                        <Button fx:id="myBtn" onAction="#loadWebsite" GridPane.rowIndex="2">Knap</Button>
+                     </children>
+            </GridPane>
+         </content>
+      </Tab>
+      <Tab text="View Constants">
+         <content>
+          <TableView fx:id="constantsTable" layoutX="17.0" layoutY="23.0" prefHeight="665.0" prefWidth="769.0">
+            <columns>
+              <TableColumn fx:id="columnName" prefWidth="150.0" text="Name" />
+              <TableColumn fx:id="columnValue" prefWidth="440.0" text="Value" />
+            </columns>
+          </TableView>
+         </content></Tab>
+   </tabs>
+</TabPane>
