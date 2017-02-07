@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow.UPPAALExecutor">
+   <children>
+      <Button layoutX="222.0" layoutY="135.0" mnemonicParsing="false" onAction="#ExecuteQuery" text="Execute!" />
+      <TextField fx:id="ModelPathField" layoutX="200.0" layoutY="59.0" promptText="ModelPath" />
+      <TextField fx:id="ModelNameField" layoutX="200.0" layoutY="93.0" promptText="ModelName" />
+      <TextArea fx:id="ResultArea" layoutX="22.0" layoutY="171.0" prefHeight="200.0" prefWidth="554.0" promptText="Result" />
+   </children>
+</AnchorPane>
