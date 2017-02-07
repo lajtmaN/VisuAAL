@@ -4,7 +4,6 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.web.WebView?>
 
 <GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow.MainWindowController">
    <columnConstraints>
@@ -16,8 +15,7 @@
       <RowConstraints />
    </rowConstraints>
          <children>
-            <WebView fx:id="webView" prefHeight="653.0" GridPane.rowIndex="2" />
-            <Button fx:id="myBtn" onAction="#loadWebsite" GridPane.rowIndex="2">Knap</Button>
+            <Button fx:id="myBtn" onAction="#showTopologyViewer" text="Show Topology Viewer" GridPane.rowIndex="2">Knap</Button>
             <Button fx:id="showExecuterWindowBtn" onAction="#showExecutor" prefHeight="0.0" prefWidth="140.0" text="Show UPPAAL Executer">Show UPPAAL Executer</Button>
          </children>
 </GridPane>
