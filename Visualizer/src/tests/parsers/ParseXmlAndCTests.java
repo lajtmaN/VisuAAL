@@ -23,43 +23,35 @@ public class ParseXmlAndCTests {
     }
 
     @BeforeEach
-    void init() throws IOException, SAXException, ParserConfigurationException {
+    void init(){
 
 
     }
 
     @Test
-    void getXmlDeclarationsTest() {
-        /*XmlHandler xmlHandler = new XmlHandler("mac_model_test.xml");
+    void getXmlDeclarationsTest() throws IOException, SAXException, ParserConfigurationException {
+        XmlHandler xmlHandler = new XmlHandler("mac_model_test.xml");
         String declarations = xmlHandler.getGlobalDeclarations();
-        ArrayList<CVar<int>> vars = CHandler.getConstants(declarations);*/
-
+        ArrayList<CVar<Integer>> vars = CHandler.getConstants(declarations);
+        
 
     }
 
     @Test
     void parseDeclarationsTest() {
         String declarations = "const int abc = 123," +
-                "dhj = 234;" +
-                "\n const int abe = 456;";
+                "CONFIG_dhj = 234;" +
+                "\n const int CONFIG_abe = 456;";
         ArrayList<CVar<Integer>> vars = CHandler.getConstants(declarations);
 
-        assertEquals(3, vars.size(), "3 Variables expected");
-        assertEquals("abc", vars.get(0).getName(), "Expected other name");
-        assertEquals("dhj", vars.get(1).getName(), "Expected other name");
-        assertEquals("abe", vars.get(2).getName(), "Expected other name");
-
-        assertEquals(123, (int)vars.get(0).getValue(), "Expected other value");
-        assertEquals(234, (int)vars.get(1).getValue(), "Expected other value");
-        assertEquals(456, (int)vars.get(2).getValue(), "Expected other value");
+        assertEquals(2, vars.size(), "3 Variables expected");
+        assertCVAR("CONFIG_dhj", 234, vars.get(0));
+        assertCVAR("CONFIG_abe", 456, vars.get(1));
     }
 
 
-    @AfterEach
-    void tearDown() {
-    }
-
-    @AfterAll
-    static void tearDownAll() {
+    private <T> void assertCVAR(String expectedName, T expectedVal, CVar<T> actual) {
+        assertEquals(expectedName, actual.getName());
+        assertEquals(expectedVal, actual.getValue());
     }
 }
