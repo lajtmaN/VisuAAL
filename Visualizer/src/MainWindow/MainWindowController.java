@@ -6,7 +6,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.SubScene;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
@@ -17,21 +16,18 @@ import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
 
-    @FXML
-    private WebView webView;
-
     private Stage uppaalStage;
+    private Stage topologyViewerStage;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        loadWebsite(null);
-        System.out.println(getArborPageLocation());
+        topologyViewerStage = new Stage();
         uppaalStage = new Stage();
     }
 
     public void showExecutor(ActionEvent actionEvent) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("UPPAALExecutor.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("../UPPAALExecutor/UPPAALExecutor.fxml"));
             uppaalStage.setTitle("UPPAAL Executor");
             uppaalStage.setScene(new Scene(root, 300, 275));
             uppaalStage.show();
@@ -41,11 +37,14 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    public void loadWebsite(ActionEvent actionEvent) {
-        webView.getEngine().load(getArborPageLocation());
-    }
-
-    public String getArborPageLocation() {
-        return "file:///" + Paths.get("src", "Arbor", "index.html").normalize().toAbsolutePath().toString();
+    public void showTopologyViewer(ActionEvent actionEvent) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("../TopologyViewer/TopologyViewer.fxml"));
+            topologyViewerStage.setTitle("Topology Viewer");
+            topologyViewerStage.setScene(new Scene(root, 300, 275));
+            topologyViewerStage.show();        }
+        catch (IOException e){
+            //Handled
+        }
     }
 }
