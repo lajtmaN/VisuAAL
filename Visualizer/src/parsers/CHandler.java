@@ -7,6 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CHandler {
+    private static final String ConfigVariableRegex = "CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+";
+    private static final String ConstDeclarationRegex(String type) {
+        return "const " + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)*;"; }
+
     /**
      * Update a var in the XML decls
      * @param name of the variable
@@ -46,7 +50,7 @@ public class CHandler {
     }
 
     private static Matcher getConstMatcher(String type, String decls) {
-        Pattern patternConstExpr = Pattern.compile("const " + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)*;");
+        Pattern patternConstExpr = Pattern.compile(ConstDeclarationRegex(type));
         return patternConstExpr.matcher(decls);
     }
 
@@ -63,7 +67,7 @@ public class CHandler {
         ArrayList<CVar<Integer>> constantNames = new ArrayList<>();
 
         //Pattern Name
-        Pattern pVar = Pattern.compile("CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+");
+        Pattern pVar = Pattern.compile(ConfigVariableRegex);
 
         for(String s : getConstantGroups(decls)) {
             Matcher mName = pVar.matcher(s);
@@ -75,9 +79,7 @@ public class CHandler {
                 var.setValue(Integer.parseInt(nameAndVal[1]));
                 constantNames.add(var);
             }
-
         }
-
         return constantNames;
     }
 }
