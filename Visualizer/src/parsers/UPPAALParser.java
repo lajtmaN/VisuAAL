@@ -1,5 +1,7 @@
 package parsers;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
@@ -15,5 +17,13 @@ public class UPPAALParser {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static File generateQueryFile(String query) throws IOException {
+        File tempFile = new File("uppaalquery.q");
+        Writer writer = new BufferedWriter(new FileWriter(tempFile));
+        writer.write(query);
+        writer.close();
+        return tempFile;
     }
 }
