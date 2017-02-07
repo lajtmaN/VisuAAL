@@ -1,22 +1,22 @@
 package parsers;
 
-public class CVar {
-    public String get_name() {
-        return _name;
+public class CVar<T> {
+    public String getName() {
+        return name;
     }
 
-    public void set_name(String _name) {
-        this._name = _name;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getValue() {
+    public T getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(T value) {
         this.value = value;
     }
 
-    private String _name;
-    private String value;
+    private String name;
+    private T value;
 }
