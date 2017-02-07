@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.xml.sax.SAXException;
 import parsers.CHandler;
 import parsers.CVar;
+import parsers.UPPAALParser;
 import parsers.XmlHandler;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,10 +30,8 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    void getXmlDeclarationsTest() throws IOException, SAXException, ParserConfigurationException {
-        XmlHandler xmlHandler = new XmlHandler("mac_model_test.xml");
-        String declarations = xmlHandler.getGlobalDeclarations();
-        ArrayList<CVar<Integer>> vars = CHandler.getConstants(declarations);
+    void getXmlDeclarationsTest() {
+        ArrayList<CVar<Integer>> vars = UPPAALParser.getUPPAALConfigConstants("mac_model_test.xml");
 
         assertEquals(5, vars.size());
         assertCVAR("CONFIG_NR_BEACON_SLOTS", 8, vars.get(0));
