@@ -1,14 +1,10 @@
 package tests.parsers;
 
 import org.junit.jupiter.api.*;
-import org.xml.sax.SAXException;
 import parsers.CHandler;
-import parsers.CVar;
+import Model.CVar;
 import parsers.UPPAALParser;
-import parsers.XmlHandler;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

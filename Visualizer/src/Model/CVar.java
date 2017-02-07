@@ -1,4 +1,4 @@
-package parsers;
+package Model;
 
 public class CVar<T> {
     public String getName() {

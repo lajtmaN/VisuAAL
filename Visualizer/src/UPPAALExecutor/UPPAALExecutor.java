@@ -1,6 +1,9 @@
 package UPPAALExecutor;
 
+import parsers.UPPAALParser;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -9,9 +12,11 @@ import java.io.InputStreamReader;
  */
 public class UPPAALExecutor {
 
-    public static String ProvideQueryResult(String modelPathText) {
+    public static String provideQueryResult(String modelPath, String query) throws IOException {
+        File queryFile = UPPAALParser.generateQueryFile(query);
+
         ProcessBuilder builder = new ProcessBuilder(
-                "cmd.exe", "/c", "lib\\verifyta.exe " + modelPathText
+                "cmd.exe", "/c", "lib\\verifyta.exe " + modelPath + " " + queryFile
         );
         builder.redirectErrorStream(true);
         try {

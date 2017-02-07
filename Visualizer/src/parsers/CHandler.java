@@ -1,5 +1,6 @@
 package parsers;
 
+import Model.CVar;
 import com.sun.corba.se.impl.io.TypeMismatchException;
 
 import java.util.ArrayList;
@@ -81,6 +82,13 @@ public class CHandler {
             }
         }
         return constantNames;
+    }
+
+    public static String getFirstMatchedValueFromRegex(String regex, String text) {
+        Matcher matcher = Pattern.compile(regex).matcher(text);
+        if (matcher.find())
+            return matcher.group(1);
+        return "";
     }
 }
 
