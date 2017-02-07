@@ -8,7 +8,8 @@
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="UPPAALExecutor.QueryVisualizer">
    <children>
       <Button layoutX="245.0" layoutY="104.0" mnemonicParsing="false" onAction="#ExecuteQuery" text="Execute!" />
-      <TextField fx:id="ModelPathField" layoutX="200.0" layoutY="33.0" promptText="ModelPath" />
+      <TextField fx:id="UppaalQuery" layoutX="200.0" layoutY="63.0" promptText="Query" />
+      <TextField fx:id="ModelPathField" layoutX="200.0" layoutY="33.0" prefWidth="149.0" promptText="ModelPath" />
       <TextArea fx:id="ResultArea" layoutX="22.0" layoutY="171.0" prefHeight="200.0" prefWidth="554.0" promptText="Result" />
    </children>
 </AnchorPane>
