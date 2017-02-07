@@ -1,16 +1,16 @@
 package tests.parsers;
 
 import Model.SimulateOutput;
-import org.junit.jupiter.api.*;
+import org.junit.Test;
 import parsers.CHandler;
 import parsers.SimulateParser;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by lajtman on 07-02-2017.
  */
-public class SimulateParserTest {
+public class SimulateParserTests {
 /*
 Options for the verification:
   Generating no trace

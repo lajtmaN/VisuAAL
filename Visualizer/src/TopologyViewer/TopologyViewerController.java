@@ -14,7 +14,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Pair;
-import parsers.CVar;
+import Model.CVar;
 import parsers.UPPAALParser;
 
 import java.io.IOException;
