@@ -1,11 +1,5 @@
 package UPPAALExecutor;
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextArea;
-
-import javax.xml.transform.Result;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,9 +9,9 @@ import java.io.InputStreamReader;
  */
 public class UPPAALExecutor {
 
-    public static String ProvideQueryResult(String uppaalPathText, String modelPathText) {
+    public static String ProvideQueryResult(String modelPathText) {
         ProcessBuilder builder = new ProcessBuilder(
-                "cmd.exe", "/c", "cd " + uppaalPathText + "/bin-Win32 && verifyta " + modelPathText
+                "cmd.exe", "/c", "lib\\verifyta.exe " + modelPathText
         );
         builder.redirectErrorStream(true);
         try {
