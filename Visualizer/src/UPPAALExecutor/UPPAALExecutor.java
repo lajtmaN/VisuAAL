@@ -18,21 +18,22 @@ public class UPPAALExecutor {
     @FXML
     private TextField ModelPathField;
     @FXML
-    private TextField ModelNameField;
+    private TextField UPPAALPathField;
     @FXML
     private TextArea ResultArea;
 
     public void ExecuteQuery(ActionEvent event){
-        String modelNameText = ModelNameField.getText();
         String modelPathText = ModelPathField.getText();
-        if(modelNameText.length() == 0 || modelPathText.length() == 0) //Invalid input parameters
+        String uppaalPathText = UPPAALPathField.getText();
+        if(
+           modelPathText.length() == 0 ||
+           uppaalPathText.length() == 0) //Invalid input parameters
         {
             return;
         }
-        ResultArea.setText("Calculating");
 
         ProcessBuilder builder = new ProcessBuilder(
-            "cmd.exe", "/c", "cd " + modelPathText + " && verifyta " + modelNameText
+            "cmd.exe", "/c", "cd " + uppaalPathText + "/bin-Win32 && verifyta " + modelPathText
         );
         builder.redirectErrorStream(true);
         try{
