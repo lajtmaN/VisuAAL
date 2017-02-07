@@ -59,18 +59,24 @@ public class CHandler {
         return groups;
     }
 
-    public static ArrayList<String> getConstants(String decls, String type) {
-        ArrayList<String> constantNames = new ArrayList<>();
+    public static ArrayList<CVar<Integer>> getConstants(String decls) {
+        ArrayList<CVar<Integer>> constantNames = new ArrayList<>();
 
         //Pattern Name
-        Pattern pName = Pattern.compile("(\\w)*(\\s)*=");
-        Pattern pValue = Pattern.compile("(\\d)*");
+        Pattern pName = Pattern.compile("(\\w)+(\\s)*=");
+        Pattern pValue = Pattern.compile("(\\d)+");
 
         for(String s : getConstantGroups(decls)) {
-            Matcher m = pName.matcher(s);
-            while(m.find()) {
-                constantNames.add(m.group().replace(" ","").replace("=",""));
+            Matcher mName = pName.matcher(s);
+            Matcher mValue = pValue.matcher(s);
+
+            while(mName.find() && mValue.find()) {
+                CVar<Integer> var = new CVar();
+                var.setName(mName.group().replace(" ","").replace("=",""));
+                var.setValue(Integer.parseInt(mValue.group()));
+                constantNames.add(var);
             }
+
         }
 
         return constantNames;
