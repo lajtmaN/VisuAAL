@@ -10,11 +10,13 @@ import static parsers.UPPAALParser.generateQueryFile;
 
 public class Main extends Application {
 
+    public static int windowHeight = 600;
+    public static int windowWidth = 600;
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("MainWindow.fxml"));
         primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setScene(new Scene(root, windowHeight, windowWidth));
         primaryStage.show();
     }
 
