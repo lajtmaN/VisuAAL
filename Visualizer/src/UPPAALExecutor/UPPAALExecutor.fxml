@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow.UPPAALExecutor">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="UPPAALExecutor.UPPAALExecutor">
    <children>
       <Button layoutX="222.0" layoutY="135.0" mnemonicParsing="false" onAction="#ExecuteQuery" text="Execute!" />
       <TextField fx:id="ModelPathField" layoutX="200.0" layoutY="59.0" promptText="ModelPath" />

@@ -1,4 +1,4 @@
-package MainWindow;
+package UPPAALExecutor;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,7 +22,6 @@ public class UPPAALExecutor {
     @FXML
     private TextArea ResultArea;
 
-
     public void ExecuteQuery(ActionEvent event){
         String modelNameText = ModelNameField.getText();
         String modelPathText = ModelPathField.getText();
@@ -45,10 +44,14 @@ public class UPPAALExecutor {
                 String line = r.readLine();
                 if(line==null) {break;}
                 result += line + "\n";
-            } catch (Exception e){}
+            } catch (IOException e){
+                e.printStackTrace();
+            }
         }
         ResultArea.setText(result);
         }
-        catch (IOException e) {}
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
