@@ -1,5 +1,6 @@
 package MainWindow;
 
+import TopologyViewer.TopologyViewerController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
