@@ -7,3 +7,11 @@ apply plugin: 'java'
 dependencies {
     testCompile 'junit:junit:4.12'
 }
+
+sourceSets {
+    main {
+        test {
+            java.srcDirs = ['src']
+        }
+    }
+}
