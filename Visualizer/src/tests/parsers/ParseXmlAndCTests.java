@@ -33,8 +33,13 @@ public class ParseXmlAndCTests {
         XmlHandler xmlHandler = new XmlHandler("mac_model_test.xml");
         String declarations = xmlHandler.getGlobalDeclarations();
         ArrayList<CVar<Integer>> vars = CHandler.getConstants(declarations);
-        
 
+        assertEquals(5, vars.size());
+        assertCVAR("CONFIG_NR_BEACON_SLOTS", 8, vars.get(0));
+        assertCVAR("CONFIG_BEACON_PERIOD", 1000, vars.get(1));
+        assertCVAR("CONFIG_MAX_DATA_OFFSET", 63, vars.get(2));
+        assertCVAR("CONFIG_DATA_INTERVAL", 1000, vars.get(3));
+        assertCVAR("CONFIG_DATA_DURATION", 1, vars.get(4));
     }
 
     @Test
