@@ -58,7 +58,7 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
                         "(20,0) (20,1) (22,1) (22,0) (26,0) (26,1) (28,1) (28,0) (32,0) (32,1) (34,1) (34,0) (38,0) " +
                         "(38,1) (40,1) (40,0) (42,0)\n";
 
-        SimulateOutput output = SimulateParser.parse(sampleOutput.split("\n"));
+        SimulateOutput output = SimulateParser.parse(sampleOutput.split("\n"), 2);
 
 
         assertEquals(2, output.getNumVariables());

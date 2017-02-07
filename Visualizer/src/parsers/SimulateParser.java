@@ -1,6 +1,10 @@
 package parsers;
 
+import Model.DataPoint;
 import Model.SimulateOutput;
+
+import javax.xml.crypto.Data;
+import java.util.ArrayList;
 
 /**
  * Created by lajtman on 07-02-2017.
@@ -8,7 +12,7 @@ import Model.SimulateOutput;
 public class SimulateParser {
     public static String variableRegex = "^(((\\w)+\\.)?(\\w)+(\\[\\d+\\])*):";
 
-    public static SimulateOutput parse(String[] verifytaOutput) {
+    public static SimulateOutput parse(String[] verifytaOutput, int nrSimulations) {
         int i;
         for (i = 0; i < verifytaOutput.length; i++) {
             if (verifytaOutput[i].contains("Formula is satisfied")) {
@@ -19,8 +23,19 @@ public class SimulateParser {
         if (i == verifytaOutput.length)
             return null;
 
-        String variable = parseVariable(verifytaOutput[i++]);
+        SimulateOutput simulateOutput = new SimulateOutput(nrSimulations);
 
+        for(;i < verifytaOutput.length; i++) {
+            String name;
+            DataPoint dataPoint;
+            String currentParameter;
+            if((name = parseVariable(verifytaOutput[i])) != null) {
+                i++;
+            }
+            else if (){
+
+            }
+        }
 
         return null;
     }
@@ -29,5 +44,9 @@ public class SimulateParser {
         //s must be of form:  name:
 
         return CHandler.getFirstMatchedValueFromRegex(variableRegex, s);
+    }
+
+    private static ArrayList<DataPoint> parseDataPoints() {
+        return null;
     }
 }
