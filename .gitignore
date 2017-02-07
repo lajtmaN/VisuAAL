@@ -497,6 +497,11 @@ courses/wi/Lecture10Exercise2/Lecture10Exercise2/SentimentTrainingData.txt
 #SWI pdf
 courses/swi_miniproject/swi.pdf
 
+#Android studio
+.idea/
+
+out/
+
 #Arduino
 __vm/
 
