@@ -1,6 +1,7 @@
 package parsers;
 
 import Model.CVar;
+import Model.UPPAALEdge;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -15,6 +16,16 @@ public class UPPAALParser {
             XmlHandler handler = new XmlHandler(uppaalFilename);
             return CHandler.getConstants(handler.getGlobalDeclarations());
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static ArrayList<UPPAALEdge> getUPPAALTopology(String uppaalFilename){
+        try{
+            XmlHandler handler = new XmlHandler(uppaalFilename);
+            return CHandler.getTopology(handler.getGlobalDeclarations());
+        }catch(Exception e){
             e.printStackTrace();
         }
         return null;
