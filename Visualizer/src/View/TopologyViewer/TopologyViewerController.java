@@ -10,6 +10,7 @@ import javafx.scene.web.WebView;
 import Model.CVar;
 import parsers.UPPAALParser;
 
+import java.io.File;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -42,7 +43,6 @@ public class TopologyViewerController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadWebsite(null);
-        System.out.println(getArborPageLocation());
         columnName.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.2));
         columnValue.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.8));
 
@@ -73,7 +73,12 @@ public class TopologyViewerController implements Initializable {
         String modelPathContents = modelPathField.getText();
         if(modelPathContents.length() == 0) return;
 
-        addConstantsToList(UPPAALParser.getUPPAALConfigConstants(modelPathContents));
+        if (!modelPathContents.endsWith(".xml")) modelPathContents += ".xml";
+
+        File f = new File(modelPathContents);
+        if (f.exists() && !f.isDirectory()) {
+            addConstantsToList(UPPAALParser.getUPPAALConfigConstants(modelPathContents));
+        }
     }
 
     public void loadWebsite(ActionEvent actionEvent) {
