@@ -1,10 +1,13 @@
 package parsers;
 
+import Model.DataPoint;
 import Model.SimulateOutput;
 import org.junit.Test;
-import parsers.CHandler;
-import parsers.SimulateParser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -25,7 +28,7 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
     @Test
     public void parseSimpleVariable() {
         String variableDef = "P.s1:";
-        String variableName = CHandler.getFirstMatchedValueFromRegex(SimulateParser.variableRegex, variableDef);
+        String variableName = RegexHelper.getFirstMatchedValueFromRegex(SimulateParser.variableRegex, variableDef);
         assertEquals("P.s1", variableName);
     }
 
@@ -33,7 +36,7 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
     @Test
     public void parseAdvancedVariable() {
         String variableDef = "Paber.data_is_scheduled[30][2]:";
-        String variableName = CHandler.getFirstMatchedValueFromRegex(SimulateParser.variableRegex, variableDef);
+        String variableName = RegexHelper.getFirstMatchedValueFromRegex(SimulateParser.variableRegex, variableDef);
         assertEquals("Paber.data_is_scheduled[30][2]", variableName);
     }
 
@@ -57,10 +60,21 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
                         "(20,0) (20,1) (22,1) (22,0) (26,0) (26,1) (28,1) (28,0) (32,0) (32,1) (34,1) (34,0) (38,0) " +
                         "(38,1) (40,1) (40,0) (42,0)\n";
 
-        SimulateOutput output = SimulateParser.parse(sampleOutput.split("\n"), 2);
-
+        SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")), 1);
 
         assertEquals(2, output.getNumVariables());
+        assertEquals(28, output.getSimulationForVariable("P.s1", 0).size());
+        containsData("P.s1", 12, 1.0, output);
+        containsData("P.s1", 36, 1.0, output);
+        containsData("P.s2", 42, 0.0, output);
+        containsData("P.s2", 34, 1.0, output);
 
+
+    }
+
+    private void containsData(String name, double time, double value, SimulateOutput simulateOutput) {
+        DataPoint d = new DataPoint(time, value);
+        assertTrue("name: " + name + ", time: " + time + " value: " + value,
+                simulateOutput.getSimulationForVariable(name, 0).contains(d));
     }
 }

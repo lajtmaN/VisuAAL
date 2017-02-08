@@ -2,7 +2,6 @@ package parsers;
 
 import Model.CVar;
 import Model.UPPAALEdge;
-import com.sun.corba.se.impl.io.TypeMismatchException;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -26,7 +25,7 @@ public class CHandler {
             //Update value of the variable
             return decls.replaceFirst(name + "( )*=( )*(\\d)*", name + " = " + String.valueOf(value));
         }
-        throw new TypeMismatchException("The variable does not exist or must be the same type as the input variable!");
+        throw new IllegalArgumentException("The variable does not exist or must be the same type as the input variable!");
     }
 
     //Works for int only current. Regex can be updated to match different types
@@ -86,20 +85,10 @@ public class CHandler {
         return constantNames;
     }
 
-    public static String getFirstMatchedValueFromRegex(String regex, String text) {
-        Matcher matcher = Pattern.compile(regex).matcher(text);
-        if (matcher.find())
-            return matcher.group(1);
-        return null;
-    }
-
     public static ArrayList<UPPAALEdge> getTopology(String decls){
         ArrayList<UPPAALEdge> result = new ArrayList<>();
-        Pattern pTopo = Pattern.compile(TopologyRegex);
-        Matcher topologyMatcher = pTopo.matcher(decls);
-        ArrayList<String> StringParts = new ArrayList<>();
-        if(topologyMatcher.find()){
-            String definitionString = topologyMatcher.group(1);
+        String definitionString = RegexHelper.getFirstMatchedValueFromRegex(TopologyRegex, decls);
+        if(!definitionString.equals(null)){
             int source_index = 0;
             for (String s: definitionString.split("}")) {
                 String temp = s.replace(" ","").replace("\n","");
