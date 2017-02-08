@@ -30,6 +30,7 @@ public class MainWindowController implements Initializable {
             Parent root = FXMLLoader.load(getClass().getResource("../UPPAALExecutor/QueryVisualizer.fxml"));
             uppaalStage.setTitle("UPPAAL Executor");
             uppaalStage.setScene(new Scene(root, windowHeight, windowWidth));
+            uppaalStage.setMaximized(true);
             uppaalStage.show();
         }
         catch (IOException e){
@@ -42,6 +43,7 @@ public class MainWindowController implements Initializable {
             Parent root = FXMLLoader.load(getClass().getResource("../TopologyViewer/TopologyViewer.fxml"));
             topologyViewerStage.setTitle("Topology Viewer");
             topologyViewerStage.setScene(new Scene(root, windowHeight, windowWidth));
+            topologyViewerStage.setMaximized(true);
             topologyViewerStage.show();        }
         catch (IOException e){
             //Handled
