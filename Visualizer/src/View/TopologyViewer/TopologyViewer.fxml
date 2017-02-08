@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.web.WebView?>
 
-<GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TopologyViewer.TopologyViewerController">
+<GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.TopologyViewer.TopologyViewerController">
 
     <children>
 <GridPane fx:id="horizontalGrid" prefHeight="48.0">

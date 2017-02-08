@@ -1,4 +1,4 @@
-package UPPAALExecutor;
+package View.UPPAALExecutor;
 
 import parsers.UPPAALParser;
 
