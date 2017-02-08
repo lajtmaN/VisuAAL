@@ -1,5 +1,6 @@
 package View.UPPAALExecutor;
 
+import Model.SimulateOutput;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
@@ -30,10 +31,14 @@ public class QueryVisualizer {
             return;
         }
         try {
-            String result = UPPAALExecutor.provideQueryResult(modelPathText, UppaalQuery.getText());
+            SimulateOutput result = UPPAALExecutor.provideQueryResult(modelPathText, UppaalQuery.getText());
 
             if(result != null) {
-                ResultArea.setText(result);
+                ResultArea.setText(result.toString());
+            }
+            else {
+                //TODO Hvis queriet ikke er satisfiet/kan ikke compile, så håndter den fejl uppaal giver og print den i stedet.
+                ResultArea.setText("UPPAAL kan ikke compile!");
             }
         }
         catch (Exception e) {
