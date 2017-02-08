@@ -1,6 +1,7 @@
 package parsers;
 
 import Model.CVar;
+import Model.UPPAALEdge;
 import com.sun.corba.se.impl.io.TypeMismatchException;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CHandler {
+    private static final String TopologyRegex = "connected\\[\\w+\\]\\[\\w+\\]\\s*=\\s*\\{\\s*((?:\\{\\s*(?:\\d\\s*,\\s*)*\\s*\\d\\s*\\},\\s*)*\\s*(?:\\{\\s*(?:\\d\\s*,\\s*)*\\d\\s*\\})+)\\s*\\}\\;";
     private static final String ConfigVariableRegex = "CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+";
     private static final String ConstDeclarationRegex(String type) {
         return "const " + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)*;"; }
@@ -89,6 +91,30 @@ public class CHandler {
         if (matcher.find())
             return matcher.group(1);
         return null;
+    }
+
+    public static ArrayList<UPPAALEdge> getTopology(String decls){
+        ArrayList<UPPAALEdge> result = new ArrayList<>();
+        Pattern pTopo = Pattern.compile(TopologyRegex);
+        Matcher topologyMatcher = pTopo.matcher(decls);
+        ArrayList<String> StringParts = new ArrayList<>();
+        if(topologyMatcher.find()){
+            String definitionString = topologyMatcher.group(1);
+            int source_index = 0;
+            for (String s: definitionString.split("}")) {
+                String temp = s.replace(" ","").replace("\n","");
+                temp = temp.replace(",{","").replace("}","").replace("{", "");
+                int destination_index = 0;
+                for(String element: temp.split(",")){
+                    if(element.equals("1")){ // TODO: Only binary relations can be defined
+                        result.add(new UPPAALEdge(source_index, destination_index));
+                    }
+                    destination_index++;
+                }
+                source_index++;
+            }
+        }
+        return result;
     }
 }
 
