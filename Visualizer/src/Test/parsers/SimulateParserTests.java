@@ -1,4 +1,4 @@
-package tests.parsers;
+package parsers;
 
 import Model.SimulateOutput;
 import org.junit.Test;
