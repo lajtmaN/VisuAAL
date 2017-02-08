@@ -3,7 +3,6 @@ package parsers;
 import Model.DataPoint;
 import Model.SimulateOutput;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 
 /**
@@ -11,6 +10,7 @@ import java.util.ArrayList;
  */
 public class SimulateParser {
     public static String variableRegex = "^(((\\w)+\\.)?(\\w)+(\\[\\d+\\])*):";
+    private static String simIdRegex = "\\[(\\d+)\\]:";
 
     public static SimulateOutput parse(String[] verifytaOutput, int nrSimulations) {
         int i;
@@ -25,25 +25,36 @@ public class SimulateParser {
 
         SimulateOutput simulateOutput = new SimulateOutput(nrSimulations);
 
+        String name = null;
         for(;i < verifytaOutput.length; i++) {
-            String name;
-            DataPoint dataPoint;
-            String currentParameter;
-            if((name = parseVariable(verifytaOutput[i])) != null) {
-                i++;
-            }
-            /*else if (){
+            String outName = parseVariable(verifytaOutput[i]);
+            int outSimId = parseSimulateDataStart(verifytaOutput[i]);
 
-            }*/
+            if(outName != null) {
+                name = outName;
+            }
+            else if (outSimId >= 0 && name != null){
+                ArrayList<DataPoint> datas = RegexHelper.getDataPointsForString(verifytaOutput[i]);
+                for(DataPoint d : datas) {
+                    simulateOutput.addDatapoint(name, outSimId, d);
+                }
+            }
         }
 
-        return null;
+        return simulateOutput;
+    }
+
+    private static int parseSimulateDataStart(String s) {
+        String res = RegexHelper.getFirstMatchedValueFromRegex(simIdRegex, s);
+        if (res != null)
+            return Integer.parseInt(res);
+        return -1;
     }
 
     private static String parseVariable(String s) {
         //s must be of form:  name:
 
-        return CHandler.getFirstMatchedValueFromRegex(variableRegex, s);
+        return RegexHelper.getFirstMatchedValueFromRegex(variableRegex, s);
     }
 
     private static ArrayList<DataPoint> parseDataPoints() {
