@@ -1,7 +1,6 @@
 package parsers;
 
 import Model.CVar;
-import com.sun.corba.se.impl.io.TypeMismatchException;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -24,7 +23,7 @@ public class CHandler {
             //Update value of the variable
             return decls.replaceFirst(name + "( )*=( )*(\\d)*", name + " = " + String.valueOf(value));
         }
-        throw new TypeMismatchException("The variable does not exist or must be the same type as the input variable!");
+        throw new IllegalArgumentException("The variable does not exist or must be the same type as the input variable!");
     }
 
     //Works for int only current. Regex can be updated to match different types
