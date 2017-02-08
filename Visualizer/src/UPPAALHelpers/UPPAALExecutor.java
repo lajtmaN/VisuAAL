@@ -1,4 +1,4 @@
-package View.UPPAALExecutor;
+package UPPAALHelpers;
 
 import Model.SimulateOutput;
 import parsers.RegexHelper;
