@@ -30,7 +30,7 @@
 <TabPane fx:id="tabPane" GridPane.rowIndex="1">
 
    <tabs>
-      <Tab text="View Topology">
+      <Tab closable="false" text="View Topology">
          <content>
             <GridPane fx:id="viewerGridPane" alignment="center" hgap="10" vgap="10">
                <columnConstraints>
