@@ -1,6 +1,7 @@
 package View.UPPAALExecutor;
 
 import Model.SimulateOutput;
+import UPPAALHelpers.UPPAALExecutor;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
