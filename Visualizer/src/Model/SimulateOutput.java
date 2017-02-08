@@ -23,7 +23,7 @@ public class SimulateOutput extends UPPAALOutput {
 
     private void addVariable(String variable) {
         simulationData.put(variable, new ArrayList<>());
-        for(int i = 0; i < nrSimulations-1; i++) {
+        for(int i = 0; i < nrSimulations; i++) {
             simulationData.get(variable).add(i, new ArrayList<DataPoint>());
         }
     }
