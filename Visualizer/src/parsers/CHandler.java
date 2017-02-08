@@ -84,12 +84,6 @@ public class CHandler {
         return constantNames;
     }
 
-    public static String getFirstMatchedValueFromRegex(String regex, String text) {
-        Matcher matcher = Pattern.compile(regex).matcher(text);
-        if (matcher.find())
-            return matcher.group(1);
-        return null;
-    }
 }
 
 

@@ -13,29 +13,37 @@ public class SimulateOutput extends UPPAALOutput {
      * Value: List of simulations
      *        Each list contains list of datapoints
      */
-    private Map<String, ArrayList<ArrayList<DataPoint>>> evaluations;
+    private Map<String, ArrayList<ArrayList<DataPoint>>> simulationData;
     private int nrSimulations;
 
     public SimulateOutput(int numberOfSimulations) {
-        evaluations = new HashMap<>();
+        simulationData = new HashMap<>();
         nrSimulations = numberOfSimulations;
     }
 
     private void addVariable(String variable) {
-        evaluations.put(variable, new ArrayList<>());
-        for(int i = 0; i < nrSimulations; i++) {
-            evaluations.get(variable).set(i, new ArrayList<DataPoint>());
+        simulationData.put(variable, new ArrayList<>());
+        for(int i = 0; i < nrSimulations-1; i++) {
+            simulationData.get(variable).add(i, new ArrayList<DataPoint>());
         }
     }
 
     public void addDatapoint(String variable, int simNumber, DataPoint data) {
-        if (!evaluations.containsKey(variable))
+        if (!simulationData.containsKey(variable))
             addVariable(variable);
 
-        evaluations.get(variable).get(simNumber).add(data);
+        simulationData.get(variable).get(simNumber).add(data);
     }
 
     public int getNumVariables(){
-        return evaluations.size();
+        return simulationData.size();
+    }
+
+    public ArrayList<DataPoint> getSimulationForVariable(String var, int simId) {
+        return simulationData.get(var).get(simId);
+    }
+
+    public ArrayList<ArrayList<DataPoint>> getSimulationForVariable(String var) {
+        return simulationData.get(var);
     }
 }

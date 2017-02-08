@@ -1,10 +1,10 @@
 package parsers;
 
+import Model.DataPoint;
 import Model.SimulateOutput;
 import org.junit.Test;
-import parsers.CHandler;
-import parsers.SimulateParser;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -25,7 +25,7 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
     @Test
     public void parseSimpleVariable() {
         String variableDef = "P.s1:";
-        String variableName = CHandler.getFirstMatchedValueFromRegex(SimulateParser.variableRegex, variableDef);
+        String variableName = RegexHelper.getFirstMatchedValueFromRegex(SimulateParser.variableRegex, variableDef);
         assertEquals("P.s1", variableName);
     }
 
@@ -33,7 +33,7 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
     @Test
     public void parseAdvancedVariable() {
         String variableDef = "Paber.data_is_scheduled[30][2]:";
-        String variableName = CHandler.getFirstMatchedValueFromRegex(SimulateParser.variableRegex, variableDef);
+        String variableName = RegexHelper.getFirstMatchedValueFromRegex(SimulateParser.variableRegex, variableDef);
         assertEquals("Paber.data_is_scheduled[30][2]", variableName);
     }
 
@@ -59,8 +59,19 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
 
         SimulateOutput output = SimulateParser.parse(sampleOutput.split("\n"), 2);
 
-
         assertEquals(2, output.getNumVariables());
+        assertEquals(28, output.getSimulationForVariable("P.s1", 0).size());
+        containsData("P.s1", 12, 1.0, output);
+        containsData("P.s1", 36, 1.0, output);
+        containsData("P.s2", 42, 0.0, output);
+        containsData("P.s2", 34, 1.0, output);
 
+
+    }
+
+    private void containsData(String name, double time, double value, SimulateOutput simulateOutput) {
+        DataPoint d = new DataPoint(time, value);
+        assertTrue("name: " + name + ", time: " + time + " value: " + value,
+                simulateOutput.getSimulationForVariable(name, 0).contains(d));
     }
 }
