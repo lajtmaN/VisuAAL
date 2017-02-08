@@ -1,4 +1,4 @@
-package tests.parsers;
+package parsers;
 
 import org.junit.Test;
 import parsers.CHandler;
