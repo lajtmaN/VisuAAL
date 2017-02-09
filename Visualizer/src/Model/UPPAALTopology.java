@@ -33,11 +33,11 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
             addNodeToView(String.valueOf(i));
         }
         for (UPPAALEdge edge : this) {
-            addEdgeToView(String.valueOf(edge.get_source()), String.valueOf(edge.get_destination()));
+            //addEdgeToView(String.valueOf(edge.get_source()), String.valueOf(edge.get_destination()));
         }
     }
 
-    public void addEdgeToView(String source, String destination){
+    private void addEdgeToView(String source, String destination){
         getGraph(false).addEdge(source+destination, source, destination);
     }
 
@@ -55,5 +55,18 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
             updateGraph();
 
         return _graphInstance;
+    }
+
+    public void startAddingEdgesOverTime(SimulationEdgePoint[] edges) throws InterruptedException {
+        //Take into account model time units
+        long start = System.currentTimeMillis();
+        for(SimulationEdgePoint s : edges) {
+            double relativeTime = s.getClock() - System.currentTimeMillis();
+            if(relativeTime <= 0) {
+                addEdgeToView(String.valueOf(s.get_source()), String.valueOf(s.get_destination()));
+            } else {
+                Thread.sleep((long)relativeTime);
+            }
+        }
     }
 }
