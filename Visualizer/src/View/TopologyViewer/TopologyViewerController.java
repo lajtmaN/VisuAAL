@@ -8,6 +8,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
 import Model.CVar;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.swingViewer.ViewPanel;
+import org.graphstream.ui.view.Viewer;
 import parsers.UPPAALParser;
 
 import java.io.File;
@@ -43,6 +47,10 @@ public class TopologyViewerController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadWebsite(null);
+        initializeTable();
+    }
+
+    private void initializeTable() {
         columnName.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.2));
         columnValue.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.8));
 
