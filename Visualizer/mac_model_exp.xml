@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
-	<declaration>const int NR_NODES_SQR_ROOT = 2,
-          NR_NODES = 4,
+	<declaration>const int NR_NODES_SQR_ROOT = 4,
+          NR_NODES = 16,
           NR_BEACON_SLOTS = 8,
           MAX_BEACON_NUMBER = 17;
 
