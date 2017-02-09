@@ -3,13 +3,15 @@ package parsers;
 import Model.CVar;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CHandler {
-    private static final String TopologyRegex = "connected\\[\\w+\\]\\[\\w+\\]\\s*=\\s*\\{\\s*((?:\\{\\s*(?:\\d\\s*,\\s*)*\\s*\\d\\s*\\},\\s*)*\\s*(?:\\{\\s*(?:\\d\\s*,\\s*)*\\d\\s*\\})+)\\s*\\}\\;";
+    private static final String TopologyRegex = "connected\\[.+\\n((?:[^;])+)\\};";
+    private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
     private static final String ConfigVariableRegex = "CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+";
     private static final String ConstDeclarationRegex(String type) {
         return "const " + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)*;"; }
@@ -89,22 +91,25 @@ public class CHandler {
     public static UPPAALTopology getTopology(String decls){
         UPPAALTopology result = new UPPAALTopology();
         String definitionString = RegexHelper.getFirstMatchedValueFromRegex(TopologyRegex, decls);
-        if(!definitionString.equals(null)){
-            int source_index = 0;
-            for (String s: definitionString.split("}")) {
-                String temp = s.replace(" ","").replace("\n","");
-                temp = temp.replace(",{","").replace("}","").replace("{", "");
-                int destination_index = 0;
-                for(String element: temp.split(",")){
-                    if(element.equals("1")){ // TODO: Only binary relations can be defined
-                        result.add(new UPPAALEdge(source_index, destination_index));
+        if(!definitionString.equals(null)) {
+            definitionString = definitionString.replace(" ", "").replace("\n", "");
+            if (!RegexHelper.getFirstMatchedValueFromRegex(TopologyFormRegex, definitionString).equals(null)) {
+                int source_index = 0;
+                for (String s : definitionString.split("}")) {
+                    String temp = s.replace(" ", "").replace("\n", "");
+                    temp = temp.replace(",{", "").replace("}", "").replace("{", "");
+                    int destination_index = 0;
+                    for (String element : temp.split(",")) {
+                        if (element.equals("1")) { // TODO: Only binary relations can be defined
+                            result.add(new UPPAALEdge(source_index, destination_index));
+                        }
+                        destination_index++;
                     }
-                    destination_index++;
+                    if (result.get_numberOfNodes() == 0) {
+                        result.set_numberOfNodes(destination_index);
+                    }
+                    source_index++;
                 }
-                if(result.get_numberOfNodes() == 0){
-                    result.set_numberOfNodes(destination_index);
-                }
-                source_index++;
             }
         }
         return result;
