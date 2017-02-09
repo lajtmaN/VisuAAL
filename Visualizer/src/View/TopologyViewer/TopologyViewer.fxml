@@ -5,6 +5,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -39,7 +40,6 @@
                <rowConstraints>
                   <RowConstraints />
                    <RowConstraints prefHeight="30.0" />
-                        <RowConstraints />
                </rowConstraints>
                      <children>
                          <WebView fx:id="webView" prefHeight="1000" GridPane.halignment="CENTER"/>
@@ -69,12 +69,14 @@
          </content></Tab>
    </tabs>
 </TabPane>
+      <TextArea fx:id="tempTopologyTextArea" prefHeight="200.0" prefWidth="200.0" promptText="Relations in Topology" GridPane.rowIndex="2" />
     </children>
    <columnConstraints>
       <ColumnConstraints />
    </columnConstraints>
    <rowConstraints>
       <RowConstraints minHeight="50.0" />
+      <RowConstraints />
       <RowConstraints />
    </rowConstraints>
 </GridPane>

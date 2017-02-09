@@ -1,5 +1,7 @@
 package Model;
 
+import java.util.ArrayList;
+
 /**
  * Created by rasmu on 08/02/2017.
  */
@@ -16,5 +18,10 @@ public class UPPAALEdge {
     public UPPAALEdge(int source, int destination) {
         _source = source;
         _destination = destination;
+    }
+
+    @Override
+    public String toString() {
+        return _source + "->"+ _destination;
     }
 }
