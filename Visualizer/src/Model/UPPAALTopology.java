@@ -2,7 +2,6 @@ package Model;
 
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.MultiGraph;
-import org.graphstream.graph.implementations.SingleGraph;
 
 import java.util.*;
 
@@ -37,18 +36,25 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
         }
     }
 
-    private void addEdgeToView(String source, String destination){
-        getGraph(false).addEdge(source+destination, source, destination);
+    private Edge addEdgeToView(String source, String destination){
+        return getGraph(false).addEdge(source+destination, source, destination);
     }
 
-    private void addNodeToView(String id){
-        getGraph(false).addNode(id);
+    private Node addNodeToView(String id){
+        return getGraph(false).addNode(id);
+    }
+
+    protected void markNode(Node node) {
+        node.setAttribute("ui.class", "marked");
     }
 
     public Graph getGraph() { return getGraph(false); }
     public Graph getGraph(Boolean updateGraph) {
         if (_graphInstance == null) {
             _graphInstance = new MultiGraph("Topology with " + _numberOfNodes + " nodes");
+            _graphInstance.setStrict(false);
+            _graphInstance.addAttribute("ui.stylesheet", styleSheet);
+            _graphInstance.setAutoCreate(true);
         }
 
         if (updateGraph)
@@ -56,4 +62,12 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
 
         return _graphInstance;
     }
+
+    protected String styleSheet =
+            "node {" +
+            "	fill-color: black;" +
+            "}" +
+            "node.marked {" +
+            "	fill-color: red;" +
+            "}";
 }
