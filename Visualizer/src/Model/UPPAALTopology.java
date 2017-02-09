@@ -29,18 +29,19 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
 
         public void updateGraph() {
         for (int i = 0; i < get_numberOfNodes(); i++) {
-            addNodeToView(String.valueOf(i));
+            addNode(String.valueOf(i));
         }
         for (UPPAALEdge edge : this) {
-            addEdgeToView(String.valueOf(edge.get_source()), String.valueOf(edge.get_destination()));
+            //addEdge(String.valueOf(edge.get_source()), String.valueOf(edge.get_destination()));
         }
     }
 
-    public Edge addEdgeToView(String source, String destination){
-        return getGraph(false).addEdge(source+destination, source, destination);
+    private Edge addEdge(String source, String destination){
+        //TODO: Currently only undirected
+        return getGraph(false).addEdge(source+destination, source, destination, true);
     }
 
-    private Node addNodeToView(String id){
+    private Node addNode(String id){
         return getGraph(false).addNode(id);
     }
 
@@ -54,7 +55,9 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
             _graphInstance = new MultiGraph("Topology with " + _numberOfNodes + " nodes");
             _graphInstance.setStrict(false);
             _graphInstance.addAttribute("ui.stylesheet", styleSheet);
-            _graphInstance.setAutoCreate(true);
+            //_graphInstance.setAutoCreate(true);
+            _graphInstance.addAttribute("ui.quality");
+            _graphInstance.addAttribute("ui.antialias");
         }
 
         if (updateGraph)
@@ -63,11 +66,22 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
         return _graphInstance;
     }
 
+    public void startAddingEdgesOverTime(ArrayList<SimulationEdgePoint> edges) throws InterruptedException {
+        //TODO: Take into account model time units
+        long start = System.currentTimeMillis();
+        for(SimulationEdgePoint s : edges) {
+            double relativeTime = s.getClock() - (System.currentTimeMillis() - start);
+            while(relativeTime >= 0) {
+                relativeTime = s.getClock() - (System.currentTimeMillis() - start);
+            }
+            addEdge(String.valueOf(s.getSource()), String.valueOf(s.getDestination()));
+        }
+    }
     protected String styleSheet =
             "node {" +
-            "	fill-color: black;" +
-            "}" +
-            "node.marked {" +
-            "	fill-color: red;" +
-            "}";
+                    "	fill-color: black;" +
+                    "}" +
+                    "node.marked {" +
+                    "	fill-color: red;" +
+                    "}";
 }
