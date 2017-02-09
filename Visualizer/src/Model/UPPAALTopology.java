@@ -55,7 +55,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
             _graphInstance = new MultiGraph("Topology with " + _numberOfNodes + " nodes");
             _graphInstance.setStrict(false);
             _graphInstance.addAttribute("ui.stylesheet", styleSheet);
-            //_graphInstance.setAutoCreate(true);
+            _graphInstance.setAutoCreate(true);
             _graphInstance.addAttribute("ui.quality");
             _graphInstance.addAttribute("ui.antialias");
         }

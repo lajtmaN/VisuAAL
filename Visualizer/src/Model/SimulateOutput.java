@@ -64,7 +64,7 @@ public class SimulateOutput extends UPPAALOutput {
                 }
             }
         }
-        result.sort((o1, o2) -> o1.getClock() < o2.getClock() ? -1 : 1);
+        result.sort((o1, o2) -> o1.getClock() < o2.getClock() ? -1 : (o1.getClock() > o2.getClock() ? 1 : 0));
         return result;
     }
 
