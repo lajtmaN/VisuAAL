@@ -5,7 +5,6 @@ import Model.SimulateOutput;
 import Model.SimulationEdgePoint;
 import org.junit.Test;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -98,7 +97,20 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
         simOut.addDatapoint(from2to1, 0, datas.get(2));
 
         ArrayList<SimulationEdgePoint> expected = new ArrayList<>();
-//        expected.add(new SimulationEdgePoint(1,));
-        ArrayList<SimulationEdgePoint> actual = simOut.getZippedSimulateResult();
+        expected.add(new SimulationEdgePoint(1,1,2,5));
+        expected.add(new SimulationEdgePoint(2,2,1,4));
+        expected.add(new SimulationEdgePoint(3,2,1,3));
+        expected.add(new SimulationEdgePoint(4,1,2,2));
+        expected.add(new SimulationEdgePoint(5,1,2,1));
+        ArrayList<SimulationEdgePoint> actual = simOut.getZippedForSimulate(0);
+
+        AssertArrayList(expected, actual);
+    }
+
+    private void AssertArrayList(ArrayList<SimulationEdgePoint> expected, ArrayList<SimulationEdgePoint> actual){
+        assertEquals(expected.size(), actual.size());
+        for (int i = 0;i < expected.size(); i++) {
+            assertEquals(expected.get(i), actual.get(i));
+        }
     }
 }
