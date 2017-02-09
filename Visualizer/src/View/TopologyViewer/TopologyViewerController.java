@@ -101,7 +101,6 @@ public class TopologyViewerController implements Initializable {
     }
 
     public void showTopology(ActionEvent actionEvent) {
-        uppaalTopology.updateGraph();
-        uppaalTopology.getGraph().display();
+        uppaalTopology.getGraph(true).display();
     }
 }
