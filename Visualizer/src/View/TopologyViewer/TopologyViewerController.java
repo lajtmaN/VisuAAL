@@ -45,6 +45,7 @@ public class TopologyViewerController implements Initializable {
     @FXML
     private TextArea tempTopologyTextArea;
 
+    UPPAALTopology uppaalTopology;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -94,32 +95,13 @@ public class TopologyViewerController implements Initializable {
         File f = new File(modelPathContents);
         if (f.exists() && !f.isDirectory()) {
             addConstantsToList(UPPAALParser.getUPPAALConfigConstants(modelPathContents));
-            UPPAALTopology topology = UPPAALParser.getUPPAALTopology(modelPathContents);
-            addTopologyPairsToTextArea(topology);
-            updateGraph(topology);
+            uppaalTopology = UPPAALParser.getUPPAALTopology(modelPathContents);
+            addTopologyPairsToTextArea(uppaalTopology);
         }
     }
 
     public void showTopology(ActionEvent actionEvent) {
-        
-    }
-
-    public void updateGraph(UPPAALTopology topology) {
-        for (int i = 0; i < topology.get_numberOfNodes(); i++) {
-            addNodeToView(String.valueOf(i));
-        }
-        for (UPPAALEdge edge: topology) {
-            addEdgeToView(String.valueOf(edge.get_source()), String.valueOf(edge.get_destination()));
-        }
-    }
-
-    public void addEdgeToView(String source, String destination){
-        //TODO: Interface with Graph
-        //"NodeGraph".addEdge("", source, destination);
-    }
-
-    public void addNodeToView(String id){
-        //TODO: Interface with Graph
-        //"NodeGraph".addNode(id);
+        uppaalTopology.updateGraph();
+        uppaalTopology.getGraph().display();
     }
 }
