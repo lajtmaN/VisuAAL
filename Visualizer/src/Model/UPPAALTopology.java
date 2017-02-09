@@ -70,11 +70,13 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
         //TODO: Take into account model time units
         long start = System.currentTimeMillis();
         for(SimulationEdgePoint s : edges) {
-            double relativeTime = s.getClock() - (System.currentTimeMillis() - start);
-            while(relativeTime >= 0) {
-                relativeTime = s.getClock() - (System.currentTimeMillis() - start);
+            if(s.getValue() == 1) {
+                double relativeTime = s.getClock() - (System.currentTimeMillis() - start);
+                while (relativeTime >= 0) {
+                    relativeTime = s.getClock() - (System.currentTimeMillis() - start);
+                }
+                addEdge(String.valueOf(s.getSource()), String.valueOf(s.getDestination()));
             }
-            addEdge(String.valueOf(s.getSource()), String.valueOf(s.getDestination()));
         }
     }
     protected String styleSheet =
