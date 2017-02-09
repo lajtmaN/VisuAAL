@@ -47,8 +47,10 @@ public class SimulateOutput extends UPPAALOutput {
         return simulationData.get(var);
     }
 
-    public ArrayList<SimulationEdgePoint> getZippedSimulateResult() {
-        return new ArrayList<>();
+    public ArrayList<SimulationEdgePoint> getZippedForSimulate(int simId) {
+        ArrayList<SimulationEdgePoint> result = new ArrayList<>();
+        
+        return result;
     }
 
     @Override
