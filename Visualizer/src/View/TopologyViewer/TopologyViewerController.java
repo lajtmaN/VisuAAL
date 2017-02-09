@@ -107,7 +107,7 @@ public class TopologyViewerController implements Initializable {
         Viewer viewer =  topology.getGraph().display();
                 //uppaalTopology.getGraph(true).display();
 
-        String q = QueryGenerator.Generate2DQuadraticArrayQuery("data_is_scheduled", 16, 1, 20000);
+        String q = QueryGenerator.Generate2DQuadraticArrayQuery("data_is_scheduled", 16, 1, 40000);
         SimulateOutput out = UPPAALExecutor.provideQueryResult("mac_model_exp.xml", q);
         ArrayList<SimulationEdgePoint> points = out.getZippedForSimulate(0);
 
@@ -122,7 +122,6 @@ public class TopologyViewerController implements Initializable {
 
             }
         }*/
-        Thread.sleep(1000);
         //viewer.disableAutoLayout();
         topology.startAddingEdgesOverTime(points);
         //viewer.enableAutoLayout();
