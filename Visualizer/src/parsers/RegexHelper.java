@@ -12,11 +12,17 @@ import java.util.regex.Pattern;
  */
 public class RegexHelper {
     public static String getFirstMatchedValueFromRegex(String regex, String text) {
+        return getNthMatchedValueFromRegex(regex, text, 1);
+    }
+
+    public static String getNthMatchedValueFromRegex(String regex, String text, int N) {
         Matcher matcher = Pattern.compile(regex).matcher(text);
         if (matcher.find())
-            return matcher.group(1);
+            return matcher.group(N);
         return null;
     }
+
+
 
     public static ArrayList<DataPoint> getDataPointsForString(String text) {
         ArrayList<DataPoint> dataPoints = new ArrayList<>();
