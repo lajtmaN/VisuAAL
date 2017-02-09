@@ -7,7 +7,8 @@ public class SimulationEdgePoint extends DataPoint {
     private int _source;
     private int _destination;
 
-    public SimulationEdgePoint(int _source, int _destination) {
+    public SimulationEdgePoint(double time, int _source, int _destination, double value) {
+        super(time, value);
         this._source = _source;
         this._destination = _destination;
     }
