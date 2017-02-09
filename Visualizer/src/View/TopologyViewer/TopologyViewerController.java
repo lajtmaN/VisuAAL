@@ -25,8 +25,6 @@ import java.util.ResourceBundle;
 public class TopologyViewerController implements Initializable {
 
     @FXML
-    private WebView webView;
-    @FXML
     private TableColumn columnName;
     @FXML
     private TableColumn columnValue;
@@ -71,7 +69,6 @@ public class TopologyViewerController implements Initializable {
         modelPathField.prefWidthProperty().bind(horizontalGrid.widthProperty().multiply(0.8));
         tabPane.prefWidthProperty().bind(rootElement.widthProperty());
         viewerGridPane.prefWidthProperty().bind(tabPane.widthProperty());
-        webView.prefWidthProperty().bind(viewerGridPane.widthProperty());
     }
 
     public void addConstantsToList(ArrayList<CVar<Integer>> constants){
