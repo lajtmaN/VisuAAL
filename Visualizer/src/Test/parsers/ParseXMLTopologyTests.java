@@ -1,10 +1,9 @@
 package parsers;
 
-import Model.CVar;
 import Model.UPPAALEdge;
+import Model.UPPAALTopology;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -18,13 +17,13 @@ public class ParseXMLTopologyTests {
     @Test
     public void parse3by3Topology() {
         String uppaalFileName = "topologytest.xml";
-        ArrayList<UPPAALEdge> expected = generateTopology(3);
-        ArrayList<UPPAALEdge> actual = UPPAALParser.getUPPAALTopology(uppaalFileName);
-        assertArrayList(expected, actual);
+        UPPAALTopology expected = generateTopology(3);
+        UPPAALTopology actual = UPPAALParser.getUPPAALTopology(uppaalFileName);
+        assertUPPAALTopology(expected, actual);
     }
 
-    private ArrayList<UPPAALEdge> generateTopology(int dimension){
-        ArrayList<UPPAALEdge> result = new ArrayList<>();
+    private UPPAALTopology generateTopology(int dimension){
+        UPPAALTopology result = new UPPAALTopology(dimension*dimension);
         for(int y_index = 0; y_index < dimension; y_index++) {
             for(int x_index = 0; x_index < dimension; x_index++){
                 int node_number = x_index+y_index*dimension;
@@ -41,8 +40,9 @@ public class ParseXMLTopologyTests {
         return result;
     }
 
-    public void assertArrayList(ArrayList<UPPAALEdge> expected, ArrayList<UPPAALEdge> actual){
+    public void assertUPPAALTopology(UPPAALTopology expected, UPPAALTopology actual){
         assertEquals(expected.size(), actual.size());
+        assertEquals(expected.get_numberOfNodes(), actual.get_numberOfNodes());
         for (int i = 0; i < expected.size(); i++) {
             assertUPPAALEdge(expected.get(i), actual.get(i));
         }
