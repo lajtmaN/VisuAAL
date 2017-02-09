@@ -37,7 +37,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
         }
     }
 
-    private void addEdgeToView(String source, String destination){
+    public void addEdgeToView(String source, String destination){
         getGraph(false).addEdge(source+destination, source, destination);
     }
 
