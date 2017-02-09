@@ -1,5 +1,6 @@
 package Model;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 
 /**
@@ -11,7 +12,7 @@ public class SimulateOutput extends UPPAALOutput {
     /**
      * Key: observed variable
      * Value: List of simulations
-     *        Each list contains list of datapoints
+     * Each list contains list of datapoints
      */
     private Map<String, ArrayList<ArrayList<DataPoint>>> simulationData;
     private int nrSimulations;
@@ -23,7 +24,7 @@ public class SimulateOutput extends UPPAALOutput {
 
     private void addVariable(String variable) {
         simulationData.put(variable, new ArrayList<>());
-        for(int i = 0; i < nrSimulations; i++) {
+        for (int i = 0; i < nrSimulations; i++) {
             simulationData.get(variable).add(i, new ArrayList<DataPoint>());
         }
     }
@@ -35,15 +36,29 @@ public class SimulateOutput extends UPPAALOutput {
         simulationData.get(variable).get(simNumber).add(data);
     }
 
-    public int getNumVariables(){
+    public int getNumVariables() {
         return simulationData.size();
     }
 
     public ArrayList<DataPoint> getSimulationForVariable(String var, int simId) {
         return simulationData.get(var).get(simId);
     }
-
-    public ArrayList<ArrayList<DataPoint>> getSimulationForVariable(String var) {
+    public ArrayList<ArrayList<DataPoint>> getSimulationForVariable (String var){
         return simulationData.get(var);
+    }
+
+    @Override
+    public String toString() {
+        int simulationIndex = 0;
+        String result = "";
+        for (ArrayList<ArrayList<DataPoint>> simulationsPerVariable : simulationData.values()) {
+            for (ArrayList<DataPoint> simulation : simulationsPerVariable) {
+                result += "Sim " + simulationIndex++ + ":\n";
+                for (DataPoint dataPoint : simulation) {
+                    result += dataPoint.toString() + "\n";
+                }
+            }
+        }
+        return result;
     }
 }
