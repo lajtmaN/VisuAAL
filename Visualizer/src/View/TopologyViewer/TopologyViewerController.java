@@ -1,5 +1,6 @@
 package View.TopologyViewer;
 
+import Model.UPPAALEdge;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -38,6 +39,8 @@ public class TopologyViewerController implements Initializable {
     private GridPane rootElement;
     @FXML
     private GridPane viewerGridPane;
+    @FXML
+    private TextArea tempTopologyTextArea;
 
 
     @Override
@@ -67,6 +70,12 @@ public class TopologyViewerController implements Initializable {
         constantsTable.getItems().addAll(constants);
     }
 
+    public void addTopologyPairsToTextArea(ArrayList<UPPAALEdge> edges) {//TODO: Smid ind i webviewet i stedet - temp, smid i textarea!
+        for (UPPAALEdge e: edges) {
+            tempTopologyTextArea.setText(tempTopologyTextArea.getText()+ e.toString() + "\n");
+        }
+    }
+
     public void loadModel(ActionEvent actionEvent) {
         constantsTable.getItems().clear();
 
@@ -78,6 +87,7 @@ public class TopologyViewerController implements Initializable {
         File f = new File(modelPathContents);
         if (f.exists() && !f.isDirectory()) {
             addConstantsToList(UPPAALParser.getUPPAALConfigConstants(modelPathContents));
+            addTopologyPairsToTextArea(UPPAALParser.getUPPAALTopology(modelPathContents));
         }
     }
 

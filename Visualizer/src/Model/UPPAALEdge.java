@@ -17,4 +17,9 @@ public class UPPAALEdge {
         _source = source;
         _destination = destination;
     }
+
+    @Override
+    public String toString() {
+        return _source + "->"+ _destination;
+    }
 }
