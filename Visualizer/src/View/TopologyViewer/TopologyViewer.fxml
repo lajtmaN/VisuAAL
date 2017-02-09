@@ -10,7 +10,6 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.web.WebView?>
 
 <GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.TopologyViewer.TopologyViewerController">
 
@@ -43,6 +42,7 @@
                </rowConstraints>
                      <children>
                          <Button fx:id="myBtn" onAction="#showTopology" prefWidth="200" text="Show Topology" GridPane.halignment="CENTER" GridPane.rowIndex="1">Knap</Button>
+                        <TextArea fx:id="tempTopologyTextArea" prefHeight="200.0" prefWidth="200.0" promptText="Relations in Topology" GridPane.rowIndex="2" />
                      </children>
             </GridPane>
          </content>
@@ -68,7 +68,6 @@
          </content></Tab>
    </tabs>
 </TabPane>
-      <TextArea fx:id="tempTopologyTextArea" prefHeight="200.0" prefWidth="200.0" promptText="Relations in Topology" GridPane.rowIndex="2" />
     </children>
    <columnConstraints>
       <ColumnConstraints />
