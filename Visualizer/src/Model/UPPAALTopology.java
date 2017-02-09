@@ -74,6 +74,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
                 double relativeTime = s.getClock() - (System.currentTimeMillis() - start);
                 while (relativeTime >= 0) {
                     relativeTime = s.getClock() - (System.currentTimeMillis() - start);
+                    Thread.sleep(100);
                 }
                 addEdge(String.valueOf(s.getSource()), String.valueOf(s.getDestination()));
             }
