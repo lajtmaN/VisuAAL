@@ -1,8 +1,8 @@
 package View.TopologyViewer;
 
-import Model.SimulationEdgePoint;
-import Model.UPPAALEdge;
-import Model.UPPAALTopology;
+import Model.*;
+import UPPAALHelpers.QueryGenerator;
+import UPPAALHelpers.UPPAALExecutor;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,14 +10,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
-import Model.CVar;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+import parsers.SimulateParser;
 import parsers.UPPAALParser;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -101,9 +102,13 @@ public class TopologyViewerController implements Initializable {
         }
     }
 
-    public void showTopology(ActionEvent actionEvent) throws InterruptedException {
+    public void showTopology(ActionEvent actionEvent) throws InterruptedException, IOException {
         Viewer viewer = uppaalTopology.getGraph(true).display();
-        ArrayList<SimulationEdgePoint> edges = new ArrayList<>();
+
+        String q = QueryGenerator.Generate2DQuadraticArrayQuery("data_is_scheduled", 16, 1, 20000);
+        ArrayList<SimulationEdgePoint> points = UPPAALExecutor.provideQueryResult("mac_model_exp", q).getZippedForSimulate(0);
+
+        /*ArrayList<SimulationEdgePoint> edges = new ArrayList<>();
         int t = 0;
         for(int i = 0; i < 6; i++) {
             for(int j = 0; j < 6; j++) {
@@ -113,10 +118,10 @@ public class TopologyViewerController implements Initializable {
                 }
 
             }
-        }
+        }*/
         Thread.sleep(1000);
         viewer.disableAutoLayout();
-        uppaalTopology.startAddingEdgesOverTime(edges);
+        uppaalTopology.startAddingEdgesOverTime(points);
         viewer.enableAutoLayout();
     }
 }
