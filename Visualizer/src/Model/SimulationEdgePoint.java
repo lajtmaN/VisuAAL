@@ -13,19 +13,33 @@ public class SimulationEdgePoint extends DataPoint {
         this._destination = _destination;
     }
 
-    public int get_source() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        SimulationEdgePoint that = (SimulationEdgePoint) o;
+
+        if (getSource() != that.getSource()) return false;
+        if (getClock() != that.getClock()) return false;
+        if (getValue() != that.getValue()) return false;
+        return getDestination() == that.getDestination();
+    }
+
+    public int getSource() {
         return _source;
     }
 
-    public void set_source(int _source) {
+    public void setSource(int _source) {
         this._source = _source;
     }
 
-    public int get_destination() {
+    public int getDestination() {
         return _destination;
     }
 
-    public void set_destination(int _destination) {
+    public void setDestination(int _destination) {
         this._destination = _destination;
     }
 }

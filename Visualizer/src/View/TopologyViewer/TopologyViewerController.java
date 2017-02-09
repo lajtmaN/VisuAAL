@@ -102,15 +102,21 @@ public class TopologyViewerController implements Initializable {
     }
 
     public void showTopology(ActionEvent actionEvent) throws InterruptedException {
-        uppaalTopology.getGraph(true).display();
+        Viewer viewer = uppaalTopology.getGraph(true).display();
         ArrayList<SimulationEdgePoint> edges = new ArrayList<>();
+        int t = 0;
         for(int i = 0; i < 6; i++) {
             for(int j = 0; j < 6; j++) {
-                if(i!=j)
-                    edges.add(new SimulationEdgePoint(i*j*500, i, j, 1));
+                if(i!=j) {
+                    edges.add(new SimulationEdgePoint(t*500, i, j, 1));
+                    t++;
+                }
+
             }
         }
-        //edges.sort();
+        Thread.sleep(1000);
+        viewer.disableAutoLayout();
         uppaalTopology.startAddingEdgesOverTime(edges);
+        viewer.enableAutoLayout();
     }
 }
