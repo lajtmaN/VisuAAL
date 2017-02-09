@@ -2,6 +2,7 @@ package parsers;
 
 import Model.CVar;
 import Model.UPPAALEdge;
+import Model.UPPAALTopology;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -85,8 +86,8 @@ public class CHandler {
         return constantNames;
     }
 
-    public static ArrayList<UPPAALEdge> getTopology(String decls){
-        ArrayList<UPPAALEdge> result = new ArrayList<>();
+    public static UPPAALTopology getTopology(String decls){
+        UPPAALTopology result = new UPPAALTopology();
         String definitionString = RegexHelper.getFirstMatchedValueFromRegex(TopologyRegex, decls);
         if(!definitionString.equals(null)){
             int source_index = 0;
@@ -99,6 +100,9 @@ public class CHandler {
                         result.add(new UPPAALEdge(source_index, destination_index));
                     }
                     destination_index++;
+                }
+                if(result.get_numberOfNodes() == 0){
+                    result.set_numberOfNodes(destination_index);
                 }
                 source_index++;
             }
