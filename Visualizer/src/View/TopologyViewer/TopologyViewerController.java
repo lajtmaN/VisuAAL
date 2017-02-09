@@ -97,11 +97,32 @@ public class TopologyViewerController implements Initializable {
         File f = new File(modelPathContents);
         if (f.exists() && !f.isDirectory()) {
             addConstantsToList(UPPAALParser.getUPPAALConfigConstants(modelPathContents));
-            addTopologyPairsToTextArea(UPPAALParser.getUPPAALTopology(modelPathContents));
+            UPPAALTopology topology = UPPAALParser.getUPPAALTopology(modelPathContents);
+            addTopologyPairsToTextArea(topology);
+            updateGraph(topology);
         }
     }
 
     public void showTopology(ActionEvent actionEvent) {
         
+    }
+
+    public void updateGraph(UPPAALTopology topology) {
+        for (int i = 0; i < topology.get_numberOfNodes(); i++) {
+            addNodeToView(String.valueOf(i));
+        }
+        for (UPPAALEdge edge: topology) {
+            addEdgeToView(String.valueOf(edge.get_source()), String.valueOf(edge.get_destination()));
+        }
+    }
+
+    public void addEdgeToView(String source, String destination){
+        //TODO: Interface with Graph
+        //"NodeGraph".addEdge("", source, destination);
+    }
+
+    public void addNodeToView(String id){
+        //TODO: Interface with Graph
+        //"NodeGraph".addNode(id);
     }
 }
