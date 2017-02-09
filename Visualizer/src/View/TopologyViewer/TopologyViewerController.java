@@ -50,7 +50,6 @@ public class TopologyViewerController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        loadWebsite(null);
         initializeTable();
     }
 
@@ -102,11 +101,7 @@ public class TopologyViewerController implements Initializable {
         }
     }
 
-    public void loadWebsite(ActionEvent actionEvent) {
-        webView.getEngine().load(getArborPageLocation());
-    }
-
-    public String getArborPageLocation() {
-        return "file:///" + Paths.get("src", "Arbor", "index.html").normalize().toAbsolutePath().toString();
+    public void showTopology(ActionEvent actionEvent) {
+        
     }
 }

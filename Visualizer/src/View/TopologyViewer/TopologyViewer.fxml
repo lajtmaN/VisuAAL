@@ -42,8 +42,7 @@
                    <RowConstraints prefHeight="30.0" />
                </rowConstraints>
                      <children>
-                         <WebView fx:id="webView" prefHeight="1000" GridPane.halignment="CENTER"/>
-                         <Button fx:id="myBtn" onAction="#loadWebsite" prefWidth="200" text="Reload Topology" GridPane.halignment="CENTER" GridPane.rowIndex="1">Knap</Button>
+                         <Button fx:id="myBtn" onAction="#showTopology" prefWidth="200" text="Show Topology" GridPane.halignment="CENTER" GridPane.rowIndex="1">Knap</Button>
                      </children>
             </GridPane>
          </content>
