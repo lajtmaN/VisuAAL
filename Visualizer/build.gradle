@@ -6,6 +6,7 @@ apply plugin: 'java'
 
 dependencies {
     testCompile 'junit:junit:4.12'
+    testCompile 'org.graphstream:gs-core:1.3'
 }
 
 sourceSets {
