@@ -13,7 +13,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("MainWindow.fxml"));
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("UPPAAL Visualization Application");
         primaryStage.setScene(new Scene(root, windowHeight, windowWidth));
         primaryStage.setMaximized(true);
         primaryStage.show();
