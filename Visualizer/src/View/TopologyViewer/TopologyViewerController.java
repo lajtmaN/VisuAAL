@@ -100,7 +100,7 @@ public class TopologyViewerController implements Initializable {
         }
     }
 
-    public void showTopology(ActionEvent actionEvent) {
+    public void showTopology(ActionEvent actionEvent) throws InterruptedException {
         uppaalTopology.getGraph(true).display();
     }
 }

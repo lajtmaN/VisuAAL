@@ -2,8 +2,10 @@ package parsers;
 
 import Model.DataPoint;
 import Model.SimulateOutput;
+import Model.SimulationEdgePoint;
 import org.junit.Test;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -76,5 +78,27 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
         DataPoint d = new DataPoint(time, value);
         assertTrue("name: " + name + ", time: " + time + " value: " + value,
                 simulateOutput.getSimulationForVariable(name, 0).contains(d));
+    }
+    @Test
+    public void zipOutput(){
+        SimulateOutput simOut = new SimulateOutput(1);
+        String from1to2 = "data[1][2]";
+        String from2to1 = "data[2][1]";
+        ArrayList<DataPoint> datas = new ArrayList<>();
+        datas.add(new DataPoint(1,5));
+        datas.add(new DataPoint(2,4));
+        datas.add(new DataPoint(3,3));
+        datas.add(new DataPoint(4,2));
+        datas.add(new DataPoint(5,1));
+
+        simOut.addDatapoint(from1to2, 0, datas.get(0));
+        simOut.addDatapoint(from1to2, 0, datas.get(3));
+        simOut.addDatapoint(from1to2, 0, datas.get(4));
+        simOut.addDatapoint(from2to1, 0, datas.get(1));
+        simOut.addDatapoint(from2to1, 0, datas.get(2));
+
+        ArrayList<SimulationEdgePoint> expected = new ArrayList<>();
+//        expected.add(new SimulationEdgePoint(1,));
+        ArrayList<SimulationEdgePoint> actual = simOut.getZippedSimulateResult();
     }
 }
