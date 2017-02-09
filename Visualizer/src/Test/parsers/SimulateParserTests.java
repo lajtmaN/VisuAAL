@@ -107,6 +107,47 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
         AssertArrayList(expected, actual);
     }
 
+    @Test
+    public void zipOutputMultipleSims(){
+        SimulateOutput simOut = new SimulateOutput(2);
+        String from1to2 = "data[1][2]";
+        String from2to1 = "data[2][1]";
+        ArrayList<DataPoint> datas = new ArrayList<>();
+        datas.add(new DataPoint(1,10));
+        datas.add(new DataPoint(2,9));
+        datas.add(new DataPoint(3,8));
+        datas.add(new DataPoint(4,7));
+        datas.add(new DataPoint(5,6));
+        datas.add(new DataPoint(6,5));
+        datas.add(new DataPoint(7,4));
+        datas.add(new DataPoint(8,3));
+        datas.add(new DataPoint(9,2));
+        datas.add(new DataPoint(10,1));
+
+        simOut.addDatapoint(from1to2, 0, datas.get(5));
+        simOut.addDatapoint(from1to2, 0, datas.get(6));
+        simOut.addDatapoint(from1to2, 0, datas.get(7));
+        simOut.addDatapoint(from2to1, 0, datas.get(8));
+        simOut.addDatapoint(from2to1, 0, datas.get(9));
+        simOut.addDatapoint(from1to2, 1, datas.get(0));
+        simOut.addDatapoint(from1to2, 1, datas.get(3));
+        simOut.addDatapoint(from1to2, 1, datas.get(4));
+        simOut.addDatapoint(from2to1, 1, datas.get(1));
+        simOut.addDatapoint(from2to1, 1, datas.get(2));
+
+        ArrayList<SimulationEdgePoint> expected = new ArrayList<>();
+        expected.add(new SimulationEdgePoint(1,1,2,10));
+        expected.add(new SimulationEdgePoint(2,2,1,9));
+        expected.add(new SimulationEdgePoint(3,2,1,8));
+        expected.add(new SimulationEdgePoint(4,1,2,7));
+        expected.add(new SimulationEdgePoint(5,1,2,6));
+
+
+        ArrayList<SimulationEdgePoint> actual = simOut.getZippedForSimulate(1);
+
+        AssertArrayList(expected, actual);
+    }
+
     private void AssertArrayList(ArrayList<SimulationEdgePoint> expected, ArrayList<SimulationEdgePoint> actual){
         assertEquals(expected.size(), actual.size());
         for (int i = 0;i < expected.size(); i++) {
