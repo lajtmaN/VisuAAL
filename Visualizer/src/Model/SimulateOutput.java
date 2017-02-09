@@ -1,5 +1,7 @@
 package Model;
 
+import parsers.RegexHelper;
+
 import javax.xml.crypto.Data;
 import java.util.*;
 
@@ -16,6 +18,8 @@ public class SimulateOutput extends UPPAALOutput {
      */
     private Map<String, ArrayList<ArrayList<DataPoint>>> simulationData;
     private int nrSimulations;
+    private final String srcDstRegex = "\\w*\\[(\\d+)\\]\\[(\\d+)\\]";
+
 
     public SimulateOutput(int numberOfSimulations) {
         simulationData = new HashMap<>();
@@ -49,7 +53,18 @@ public class SimulateOutput extends UPPAALOutput {
 
     public ArrayList<SimulationEdgePoint> getZippedForSimulate(int simId) {
         ArrayList<SimulationEdgePoint> result = new ArrayList<>();
-        
+        ArrayList<DataPoint> points = new ArrayList<>();
+        for(String key : simulationData.keySet()){
+            ArrayList<ArrayList<DataPoint>> simulations = simulationData.get(key);
+            if(!simulations.isEmpty()){
+                for(DataPoint dp : simulations.get(simId)){
+                    int src = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(srcDstRegex, key, 1));
+                    int dst = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(srcDstRegex, key, 2));
+                    result.add(new SimulationEdgePoint(dp.getClock(), src, dst, dp.getValue()));
+                }
+            }
+        }
+        result.sort((o1, o2) -> o1.getClock() < o2.getClock() ? -1 : 1);
         return result;
     }
 
