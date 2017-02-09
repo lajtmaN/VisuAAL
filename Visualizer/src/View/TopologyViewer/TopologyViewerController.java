@@ -1,6 +1,7 @@
 package View.TopologyViewer;
 
 import Model.UPPAALEdge;
+import Model.UPPAALTopology;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -70,8 +71,10 @@ public class TopologyViewerController implements Initializable {
         constantsTable.getItems().addAll(constants);
     }
 
-    public void addTopologyPairsToTextArea(ArrayList<UPPAALEdge> edges) {//TODO: Smid ind i webviewet i stedet - temp, smid i textarea!
-        for (UPPAALEdge e: edges) {
+    public void addTopologyPairsToTextArea(UPPAALTopology topology) {//TODO: Smid ind i webviewet i stedet - temp, smid i textarea!
+        tempTopologyTextArea.clear();
+        tempTopologyTextArea.setText("#Nodes: " + String.valueOf(topology.get_numberOfNodes())+"\n");
+        for (UPPAALEdge e: topology) {
             tempTopologyTextArea.setText(tempTopologyTextArea.getText()+ e.toString() + "\n");
         }
     }

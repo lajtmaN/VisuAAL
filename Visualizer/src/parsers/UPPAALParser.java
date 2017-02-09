@@ -2,6 +2,7 @@ package parsers;
 
 import Model.CVar;
 import Model.UPPAALEdge;
+import Model.UPPAALTopology;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class UPPAALParser {
         return null;
     }
 
-    public static ArrayList<UPPAALEdge> getUPPAALTopology(String uppaalFilename){
+    public static UPPAALTopology getUPPAALTopology(String uppaalFilename){
         try{
             XmlHandler handler = new XmlHandler(uppaalFilename);
             return CHandler.getTopology(handler.getGlobalDeclarations());
