@@ -57,7 +57,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
         return _graphInstance;
     }
 
-    public void startAddingEdgesOverTime(SimulationEdgePoint[] edges) throws InterruptedException {
+    public void startAddingEdgesOverTime(ArrayList<SimulationEdgePoint> edges) throws InterruptedException {
         //Take into account model time units
         long start = System.currentTimeMillis();
         for(SimulationEdgePoint s : edges) {

@@ -1,5 +1,6 @@
 package View.TopologyViewer;
 
+import Model.SimulationEdgePoint;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 import javafx.beans.property.SimpleStringProperty;
@@ -102,6 +103,14 @@ public class TopologyViewerController implements Initializable {
 
     public void showTopology(ActionEvent actionEvent) throws InterruptedException {
         uppaalTopology.getGraph(true).display();
-        //uppaalTopology.startAddingEdgesOverTime();
+        ArrayList<SimulationEdgePoint> edges = new ArrayList<>();
+        for(int i = 0; i < 6; i++) {
+            for(int j = 0; j < 6; j++) {
+                if(i!=j)
+                    edges.add(new SimulationEdgePoint(i*j*500, i, j, 1));
+            }
+        }
+        //edges.sort();
+        uppaalTopology.startAddingEdgesOverTime(edges);
     }
 }
