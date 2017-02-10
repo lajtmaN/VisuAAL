@@ -43,7 +43,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseOutputDataIsScheduled() {
-        String expected1 = "OUTPUT_data_is_scheduled[NR_NODES][NR_NODES]";
+        String expected1 = "OUTPUT_data_is_scheduled[CONFIG_NR_NODES][CONFIG_NR_NODES]";
         String expected2 = "OUTPUT_nr_node_relations";
         ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("mac_model_test.xml");
 
