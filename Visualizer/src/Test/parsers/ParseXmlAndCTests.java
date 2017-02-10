@@ -21,12 +21,13 @@ public class ParseXmlAndCTests {
     public void getXmlDeclarationsTest() {
         ArrayList<CVar<Integer>> vars = UPPAALParser.getUPPAALConfigConstants("mac_model_test.xml");
 
-        assertEquals(5, vars.size());
-        assertCVAR("CONFIG_NR_BEACON_SLOTS", 8, vars.get(0));
-        assertCVAR("CONFIG_BEACON_PERIOD", 1000, vars.get(1));
-        assertCVAR("CONFIG_MAX_DATA_OFFSET", 63, vars.get(2));
-        assertCVAR("CONFIG_DATA_INTERVAL", 1000, vars.get(3));
-        assertCVAR("CONFIG_DATA_DURATION", 1, vars.get(4));
+        assertEquals(6, vars.size());
+        assertCVAR("CONFIG_NR_NODES", 64, vars.get(0));
+        assertCVAR("CONFIG_NR_BEACON_SLOTS", 8, vars.get(1));
+        assertCVAR("CONFIG_BEACON_PERIOD", 1000, vars.get(2));
+        assertCVAR("CONFIG_MAX_DATA_OFFSET", 63, vars.get(3));
+        assertCVAR("CONFIG_DATA_INTERVAL", 1000, vars.get(4));
+        assertCVAR("CONFIG_DATA_DURATION", 1, vars.get(5));
     }
 
     @Test
@@ -43,9 +44,12 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseOutputDataIsScheduled() {
-        String expected1 = "OUTPUT_data_is_scheduled[CONFIG_NR_NODES][CONFIG_NR_NODES]";
+        String expected1 = "OUTPUT_data_is_scheduled[x][x]";
         String expected2 = "OUTPUT_nr_node_relations";
-        ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("mac_model_test.xml");
+        ArrayList<CVar<Integer>> constants = new ArrayList<>();
+        constants.add(new CVar<>("CONFIG_NR_NODES", 5));
+
+        ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("mac_model_test.xml", constants);
 
         assertEquals(expected1, outputVars.get(0).getName());
         assertEquals(expected2, outputVars.get(1).getName());
