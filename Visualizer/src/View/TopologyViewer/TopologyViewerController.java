@@ -69,6 +69,7 @@ public class TopologyViewerController implements Initializable {
         columnName.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.2));
         columnValue.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.8));
         modelPathField.prefWidthProperty().bind(horizontalGrid.widthProperty().multiply(0.8));
+        outputVarName.prefWidthProperty().bind(tableOutputVars.widthProperty().multiply(0.5));
         tabPane.prefWidthProperty().bind(rootElement.widthProperty());
         viewerGridPane.prefWidthProperty().bind(tabPane.widthProperty());
         tableOutputVars.prefWidthProperty().bind(rootElement.widthProperty());

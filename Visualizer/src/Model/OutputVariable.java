@@ -15,7 +15,7 @@ public class OutputVariable {
 
     public OutputVariable(String pName) {
         setName(pName);
-        setEdgeData(true);
+        setEdgeData(false);
         setNodeData(false);
     }
 
