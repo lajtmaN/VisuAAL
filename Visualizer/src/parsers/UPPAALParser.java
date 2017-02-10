@@ -1,11 +1,14 @@
 package parsers;
 
 import Model.CVar;
+import Model.OutputVariable;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Created by lajtman on 07-02-2017.
@@ -40,12 +43,18 @@ public class UPPAALParser {
         return tempFile;
     }
 
-    public static ArrayList<String> getUPPAALOutputVars(String uppaalFilePath) {
+    public static ArrayList<OutputVariable> getUPPAALOutputVars(String uppaalFilePath) {
         try {
-            return CHandler.getOutputVars(new XmlHandler(uppaalFilePath).getGlobalDeclarations());
+            ArrayList<String> vars = CHandler.getOutputVars(new XmlHandler(uppaalFilePath).getGlobalDeclarations());
+            if(vars != null) {
+                ArrayList<OutputVariable> outVars = new ArrayList<>();
+                for(String s : vars)
+                    outVars.add(new OutputVariable(s));
+                return outVars;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 }

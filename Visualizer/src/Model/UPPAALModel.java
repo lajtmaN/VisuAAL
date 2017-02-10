@@ -26,12 +26,7 @@ public class UPPAALModel {
         constantVars = UPPAALParser.getUPPAALConfigConstants(uppaalPath);
         topology = UPPAALParser.getUPPAALTopology(uppaalPath);
 
-        ArrayList<String> outVars = UPPAALParser.getUPPAALOutputVars(uppaalPath);
-        if (outVars != null) {
-            for (String outVar : outVars) {
-                outputVars.add(new OutputVariable(outVar));
-            }
-        }
+        outputVars.setAll(UPPAALParser.getUPPAALOutputVars(uppaalPath));
     }
 
     public UPPAALTopology getTopology() {
