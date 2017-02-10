@@ -38,7 +38,18 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
 
     private Edge addEdge(String source, String destination){
         //TODO: Currently only undirected
-        return getGraph(false).addEdge(source+destination, source, destination, true);
+        Edge e = getGraph().getEdge(source+destination);
+        if(e == null)
+            return getGraph(false).addEdge(source+"-"+destination, source, destination, true);
+        else return e;
+    }
+
+    private Edge removeEdge(String source, String destination) {
+        Graph g = getGraph(false);
+        Edge e = g.getEdge(source+"-"+destination);
+        if(e == null)
+            return e;
+        else return g.removeEdge(e);
     }
 
     private Node addNode(String id){
@@ -70,13 +81,16 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
         //TODO: Take into account model time units
         long start = System.currentTimeMillis();
         for(SimulationEdgePoint s : edges) {
+            double relativeTime = s.getClock() - (System.currentTimeMillis() - start);
+            while (relativeTime >= 0) {
+                relativeTime = s.getClock() - (System.currentTimeMillis() - start);
+                Thread.sleep(100);
+            }
             if(s.getValue() == 1) {
-                double relativeTime = s.getClock() - (System.currentTimeMillis() - start);
-                while (relativeTime >= 0) {
-                    relativeTime = s.getClock() - (System.currentTimeMillis() - start);
-                    Thread.sleep(100);
-                }
                 addEdge(String.valueOf(s.getSource()), String.valueOf(s.getDestination()));
+            }
+            else {
+                removeEdge(String.valueOf(s.getSource()), String.valueOf(s.getDestination()));
             }
         }
     }
