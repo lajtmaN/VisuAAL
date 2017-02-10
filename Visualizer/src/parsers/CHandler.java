@@ -5,6 +5,7 @@ import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +13,8 @@ public class CHandler {
     private static final String TopologyRegex = "connected\\[.+\\n((?:[^;])+)\\};";
     private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
     private static final String ConfigVariableRegex = "CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+";
+    private static final String OutputVarsRegex = "(OUTPUT_(?:\\w)+(?:\\s*\\[\\w+\\])*)";
+
     private static final String ConstDeclarationRegex(String type) {
         return "const " + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)*;"; }
 
@@ -112,6 +115,19 @@ public class CHandler {
             }
         }
         return result;
+    }
+
+    public static ArrayList<String> getOutputVars(String globalDeclarations) {
+        Pattern pVar = Pattern.compile(OutputVarsRegex);
+        ArrayList<String> outputVars = new ArrayList<>();
+
+        Matcher mName = pVar.matcher(globalDeclarations);
+
+        while(mName.find()) {
+            outputVars.add(mName.group(1));
+        }
+
+        return outputVars;
     }
 }
 

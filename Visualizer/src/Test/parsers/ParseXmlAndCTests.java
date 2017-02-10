@@ -40,6 +40,16 @@ public class ParseXmlAndCTests {
         assertCVAR("CONFIG_abe", 456, vars.get(1));
     }
 
+    @Test
+    public void parseOutputDataIsScheduled() {
+        String expected1 = "OUTPUT_data_is_scheduled[NR_NODES][NR_NODES]";
+        String expected2 = "OUTPUT_nr_node_relations";
+        ArrayList<String> outputVars = UPPAALParser.getUPPAALOutputVars("mac_model_test.xml");
+
+        assertEquals(expected1, outputVars.get(0));
+        assertEquals(expected2, outputVars.get(1));
+    }
+
 
     private <T> void assertCVAR(String expectedName, T expectedVal, CVar<T> actual) {
         assertEquals(expectedName, actual.getName());

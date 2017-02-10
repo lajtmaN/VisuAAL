@@ -39,4 +39,13 @@ public class UPPAALParser {
         writer.close();
         return tempFile;
     }
+
+    public static ArrayList<String> getUPPAALOutputVars(String uppaalFilePath) {
+        try {
+            return CHandler.getOutputVars(new XmlHandler(uppaalFilePath).getGlobalDeclarations());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
