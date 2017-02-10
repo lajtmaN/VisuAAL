@@ -75,6 +75,7 @@
                    <children>
                        <TableView fx:id="tableOutputVars" editable="true" prefHeight="200" prefWidth="800.0" GridPane.rowIndex="0">
                            <columns>
+                               <TableColumn fx:id="outputVarUse" text="Use" />
                                <TableColumn fx:id="outputVarName" editable="false" text="Name" />
                                <TableColumn fx:id="outputVarEdge" text="Edge" />
                                <TableColumn fx:id="outputVarNode" text="Node" />

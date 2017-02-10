@@ -1,9 +1,11 @@
 package View.TopologyViewer;
 
+import Helpers.GUIHelper;
 import Model.*;
-import UPPAALHelpers.QueryGenerator;
-import UPPAALHelpers.UPPAALExecutor;
+import Helpers.QueryGenerator;
+import Helpers.UPPAALExecutor;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -50,6 +52,8 @@ public class TopologyViewerController implements Initializable {
     @FXML
     private TableColumn<OutputVariable, Boolean> outputVarNode;
     @FXML
+    private TableColumn<OutputVariable, Boolean> outputVarUse;
+    @FXML
     private TextField txtQueryTimeBound;
     @FXML
     private TextField txtQuerySimulations;
@@ -85,6 +89,10 @@ public class TopologyViewerController implements Initializable {
         outputVarEdge.setCellFactory(p -> new CheckBoxTableCell<>());
         outputVarNode.setCellValueFactory(p -> p.getValue().isNodeData());
         outputVarNode.setCellFactory(p -> new CheckBoxTableCell<>());
+        outputVarUse.setCellFactory(p -> new CheckBoxTableCell<>());
+        outputVarUse.setCellValueFactory(p -> p.getValue().isSelected());
+
+        tableOutputVars.setSelectionModel(null);
     }
 
     public void addConstantsToList(ArrayList<CVar<Integer>> constants){
@@ -120,7 +128,11 @@ public class TopologyViewerController implements Initializable {
     }
 
     public void generateQuery(ActionEvent actionEvent) {
-        
+        FilteredList<OutputVariable> vars = tableOutputVars.getItems().filtered(
+                outputVariable -> outputVariable.isSelected().getValue());
+        if(vars == null || vars.size() == 0) {
+            GUIHelper.showAlert(Alert.AlertType.INFORMATION, "No output variables selected");
+        }
     }
 
     public void showTopology(ActionEvent actionEvent) throws InterruptedException, IOException {
