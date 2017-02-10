@@ -44,7 +44,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseOutputDataIsScheduled() {
-        String expected1 = "OUTPUT_data_is_scheduled[x][x]";
+        String expected1 = "OUTPUT_data_is_scheduled";
         String expected2 = "OUTPUT_nr_node_relations";
         ArrayList<CVar<Integer>> constants = new ArrayList<>();
         constants.add(new CVar<>("CONFIG_NR_NODES", 5));
