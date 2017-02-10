@@ -11,6 +11,7 @@ import java.util.*;
 public class UPPAALTopology extends ArrayList<UPPAALEdge> {
     private int _numberOfNodes;
     private Graph _graphInstance;
+    private ArrayList<SimulationEdgePoint> _edges;
 
     public UPPAALTopology(int numberOfNodes) {
         this._numberOfNodes = numberOfNodes;
@@ -19,37 +20,43 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
         this(0);
     }
 
-    public int get_numberOfNodes() {
+    public void setEdges(ArrayList<SimulationEdgePoint> edges){
+        _edges = edges;
+    }
+
+    public int getNumberOfNodes() {
         return _numberOfNodes;
     }
 
-    public void set_numberOfNodes(int _numberOfNodes) {
+    public void setNumberOfNodes(int _numberOfNodes) {
         this._numberOfNodes = _numberOfNodes;
     }
 
-        public void updateGraph() {
-        for (int i = 0; i < get_numberOfNodes(); i++) {
+    public void updateGraph() {
+        for (int i = 0; i < getNumberOfNodes(); i++) {
             addNode(String.valueOf(i));
         }
-        for (UPPAALEdge edge : this) {
-            //addEdge(String.valueOf(edge.get_source()), String.valueOf(edge.get_destination()));
+        for(SimulationEdgePoint s : _edges){
+            if(s.getValue() == 1)
+                addEdge(s);
         }
     }
 
-    private Edge addEdge(String source, String destination){
+    private Edge addEdge(SimulationEdgePoint s){
         //TODO: Currently only undirected
-        Edge e = getGraph().getEdge(source+destination);
+        Edge e = getGraph().getEdge(s.getIdentifier());
         if(e == null)
-            return getGraph(false).addEdge(source+"-"+destination, source, destination, true);
+            return getGraph(false).addEdge(s.getIdentifier(), String.valueOf(s.getSource()),
+                    String.valueOf(s.getDestination()), true);
         else return e;
     }
-
-    private Edge removeEdge(String source, String destination) {
+    private Edge removeEdge(SimulationEdgePoint s) {
         Graph g = getGraph(false);
-        Edge e = g.getEdge(source+"-"+destination);
-        if(e == null)
+        Edge e = g.getEdge(s.getIdentifier());
+        if(e == null){
             return e;
-        else return g.removeEdge(e);
+        }
+        return g.removeEdge(e);
     }
 
     private Node addNode(String id){
@@ -58,6 +65,25 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
 
     protected void markNode(Node node) {
         node.setAttribute("ui.class", "marked");
+    }
+
+    protected void markEdge(SimulationEdgePoint s) {
+        Edge edge = getGraph().getEdge(s.getIdentifier());
+        if (edge != null){
+            if(edge.getAttribute("ui.class") != "marked"){
+                edge.setAttribute("ui.class", "marked");
+            }
+        }
+    }
+
+    protected void unmarkEdge(SimulationEdgePoint s) {
+        Graph g = getGraph(false);
+        Edge e = g.getEdge(s.getIdentifier());
+        if(e != null){
+            if(e.getAttribute("ui.class") != "unmarked"){
+                e.setAttribute("ui.class", "unmarked");
+            }
+        }
     }
 
     public Graph getGraph() { return getGraph(false); }
@@ -80,17 +106,17 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
     public void startAddingEdgesOverTime(ArrayList<SimulationEdgePoint> edges) throws InterruptedException {
         //TODO: Take into account model time units
         long start = System.currentTimeMillis();
-        for(SimulationEdgePoint s : edges) {
+        for(SimulationEdgePoint s : edges) { //Assumed to be sorted on time.
             double relativeTime = s.getClock() - (System.currentTimeMillis() - start);
             while (relativeTime >= 0) {
                 relativeTime = s.getClock() - (System.currentTimeMillis() - start);
                 Thread.sleep(100);
             }
-            if(s.getValue() == 1) {
-                addEdge(String.valueOf(s.getSource()), String.valueOf(s.getDestination()));
+            if(s.getValue() == 1 ) {
+                markEdge(s);
             }
             else {
-                removeEdge(String.valueOf(s.getSource()), String.valueOf(s.getDestination()));
+                unmarkEdge(s);
             }
         }
     }
@@ -98,7 +124,16 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
             "node {" +
                     "	fill-color: black;" +
                     "}" +
-                    "node.marked {" +
+            "node.marked {" +
                     "	fill-color: red;" +
+                    "}" +
+            "edge {" +
+                    "   fill-color: rgba(0,0,0,32);" +
+                    "}" +
+            "edge.marked {" +
+                    "   fill-color: red;"+
+                    "}" +
+            "edge.unmarked {"+
+                    "   fill-color: rgba(0,0,0,32);" +
                     "}";
 }
