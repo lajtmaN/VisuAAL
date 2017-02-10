@@ -60,6 +60,7 @@ public class TopologyViewerController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        tabPane.setVisible(false);
         initializeConstantTableValues();
         initializeOutputVarsTable();
         initializeWidths();
@@ -116,7 +117,12 @@ public class TopologyViewerController implements Initializable {
             addConstantsToList(uppaalModel.getConstantVars());
             addTopologyPairsToTextArea(uppaalModel.getTopology());
             tableOutputVars.setItems(uppaalModel.getOutputVars());
+            tabPane.setVisible(true);
         }
+    }
+
+    public void generateQuery(ActionEvent actionEvent) {
+        
     }
 
     public void showTopology(ActionEvent actionEvent) throws InterruptedException, IOException {
