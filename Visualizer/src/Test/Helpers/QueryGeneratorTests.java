@@ -36,7 +36,7 @@ public class QueryGeneratorTests {
 
     @Test
     public void testParseOuputVariableArray() {
-        String expectedName = "OUTPUT_data[x]";
+        String expectedName = "OUTPUT_data";
         int expectedSize = 10;
 
         ArrayList<CVar<Integer>> constants = new ArrayList<>();
@@ -52,7 +52,7 @@ public class QueryGeneratorTests {
 
     @Test
     public void testParseOuputVariableArray_2DArray() {
-        String expectedName = "OUTPUT_data[x][x]";
+        String expectedName = "OUTPUT_data";
         int expectedSize = 10;
 
         ArrayList<CVar<Integer>> constants = new ArrayList<>();

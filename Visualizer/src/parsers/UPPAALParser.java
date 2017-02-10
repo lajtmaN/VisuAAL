@@ -64,7 +64,8 @@ public class UPPAALParser {
         if (matchedConstantSize == null)
             return new OutputVariable(name);
 
-        String modifiedName = name.replaceAll("\\[(\\w+)\\]", "[x]");
+
+        String modifiedName = name.substring(0, name.indexOf('[')); //only keep actual name - remove array def
         OutputVariable variable = new OutputVariable(modifiedName);
         int dimensionsInArray = (int)name.chars().filter(p -> p == '[').count(); //count [
         switch (dimensionsInArray) {
