@@ -36,9 +36,9 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
         for (int i = 0; i < getNumberOfNodes(); i++) {
             addNode(String.valueOf(i));
         }
-        for(SimulationEdgePoint s : _edges){
-            if(s.getValue() == 1)
-                addEdge(s);
+        for(UPPAALEdge s : this){
+            SimulationEdgePoint sep = new SimulationEdgePoint(0, s.get_source(), s.get_destination(), 1);
+            addEdge(sep);
         }
     }
 
