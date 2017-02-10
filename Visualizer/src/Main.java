@@ -8,6 +8,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
         Parent root = FXMLLoader.load(getClass().getResource("View/TopologyViewer/TopologyViewer.fxml"));
         primaryStage.setTitle("UPPAAL Visualization Application");
         primaryStage.setScene(new Scene(root, 1000, 800));
