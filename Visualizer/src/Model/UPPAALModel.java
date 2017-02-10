@@ -1,8 +1,12 @@
 package Model;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import parsers.UPPAALParser;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  * Created by batto on 10-Feb-17.
@@ -10,7 +14,7 @@ import java.util.ArrayList;
 public class UPPAALModel {
     private UPPAALTopology topology;
     private ArrayList<CVar<Integer>> constantVars;
-    private ArrayList<String> outputVars;
+    private ObservableList<OutputVariable> outputVars = FXCollections.observableArrayList();
 
     private String uppaalPath;
 
@@ -21,7 +25,13 @@ public class UPPAALModel {
     public void load() {
         constantVars = UPPAALParser.getUPPAALConfigConstants(uppaalPath);
         topology = UPPAALParser.getUPPAALTopology(uppaalPath);
-        outputVars = UPPAALParser.getUPPAALOutputVars(uppaalPath);
+
+        ArrayList<String> outVars = UPPAALParser.getUPPAALOutputVars(uppaalPath);
+        if (outVars != null) {
+            for (String outVar : outVars) {
+                outputVars.add(new OutputVariable(outVar));
+            }
+        }
     }
 
     public UPPAALTopology getTopology() {
@@ -32,7 +42,7 @@ public class UPPAALModel {
         return constantVars;
     }
 
-    public ArrayList<String> getOutputVars() {
+    public ObservableList<OutputVariable> getOutputVars() {
         return outputVars;
     }
 }

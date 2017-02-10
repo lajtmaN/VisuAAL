@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -30,6 +32,15 @@
 <TabPane fx:id="tabPane" GridPane.rowIndex="1">
 
    <tabs>
+      <Tab closable="false" text="View Constants">
+         <content>
+            <TableView fx:id="constantsTable" prefHeight="665.0" prefWidth="769.0" GridPane.rowIndex="0">
+              <columns>
+                <TableColumn fx:id="columnName" editable="false" prefWidth="150.0" text="Name" />
+                <TableColumn fx:id="columnValue" editable="false" prefWidth="440.0" text="Value" />
+              </columns>
+            </TableView>
+         </content></Tab>
       <Tab closable="false" text="View Topology">
          <content>
             <GridPane fx:id="viewerGridPane" hgap="10" vgap="10">
@@ -39,6 +50,7 @@
                <rowConstraints>
                   <RowConstraints />
                    <RowConstraints prefHeight="30.0" />
+                        <RowConstraints />
                </rowConstraints>
                      <children>
                          <Button fx:id="myBtn" onAction="#showTopology" prefWidth="200" text="Show Topology" GridPane.halignment="CENTER" GridPane.rowIndex="1">Knap</Button>
@@ -47,25 +59,54 @@
             </GridPane>
          </content>
       </Tab>
-      <Tab closable="false" text="View Constants">
-         <content>
-            <GridPane>
-               <columnConstraints>
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-               </columnConstraints>
-               <rowConstraints>
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-               </rowConstraints>
-               <children>
-                <TableView fx:id="constantsTable" prefHeight="665.0" prefWidth="769.0" GridPane.rowIndex="0">
-                  <columns>
-                    <TableColumn fx:id="columnName" prefWidth="150.0" text="Name" />
-                    <TableColumn fx:id="columnValue" prefWidth="440.0" text="Value" />
-                  </columns>
-                </TableView>
-               </children>
-            </GridPane>
-         </content></Tab>
+       <Tab closable="false" text="Query Generator">
+           <content>
+               <GridPane fx:id="queryGridPane" hgap="10" vgap="10">
+                   <columnConstraints>
+                       <ColumnConstraints />
+                   </columnConstraints>
+                   <rowConstraints>
+                       <RowConstraints />
+                        <RowConstraints />
+                   </rowConstraints>
+                   <children>
+                       <TableView fx:id="tableOutputVars" editable="true" prefHeight="200" prefWidth="800.0" GridPane.rowIndex="0">
+                           <columns>
+                               <TableColumn fx:id="outputVarName" editable="false" text="Name" />
+                               <TableColumn fx:id="outputVarEdge" text="Edge" />
+                               <TableColumn fx:id="outputVarNode" text="Node" />
+                           </columns>
+                       </TableView>
+                        <GridPane GridPane.rowIndex="1">
+                          <columnConstraints>
+                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                             <ColumnConstraints hgrow="SOMETIMES" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                               <Label text="Options" GridPane.columnIndex="0" GridPane.halignment="CENTER" />
+                               <Label text="Time bound: " GridPane.columnIndex="1" GridPane.halignment="RIGHT">
+                                 <padding>
+                                    <Insets right="10.0" />
+                                 </padding></Label>
+                               <TextField fx:id="txtQueryTimeBound" prefHeight="25.0" prefWidth="213.0" promptText="Time bound" GridPane.columnIndex="2" />
+                               <Label text="Number of simulations: " GridPane.columnIndex="3" GridPane.halignment="RIGHT">
+                                 <padding>
+                                    <Insets right="10.0" />
+                                 </padding></Label>
+                               <TextField fx:id="txtQuerySimulations" prefHeight="25.0" prefWidth="100.0" promptText="Simulations" GridPane.columnIndex="4" />
+                           </children>
+                        </GridPane>
+                   </children>
+               </GridPane>
+           </content>
+       </Tab>
    </tabs>
 </TabPane>
     </children>

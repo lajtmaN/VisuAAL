@@ -3,12 +3,16 @@ package View.TopologyViewer;
 import Model.*;
 import UPPAALHelpers.QueryGenerator;
 import UPPAALHelpers.UPPAALExecutor;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import org.graphstream.ui.view.Viewer;
 
 import java.io.File;
@@ -20,9 +24,9 @@ import java.util.ResourceBundle;
 public class TopologyViewerController implements Initializable {
 
     @FXML
-    private TableColumn columnName;
+    private TableColumn<CVar<String>, String> columnName;
     @FXML
-    private TableColumn columnValue;
+    private TableColumn<CVar<Integer>, String> columnValue;
     @FXML
     private TableView constantsTable;
     @FXML
@@ -39,32 +43,48 @@ public class TopologyViewerController implements Initializable {
     private GridPane viewerGridPane;
     @FXML
     private TextArea tempTopologyTextArea;
+    @FXML
+    private TableView<OutputVariable> tableOutputVars;
+    @FXML
+    private TableColumn<OutputVariable, String> outputVarName;
+    @FXML
+    private TableColumn<OutputVariable, Boolean> outputVarEdge;
+    @FXML
+    private TableColumn<OutputVariable, Boolean> outputVarNode;
+    @FXML
+    private TextField txtQueryTimeBound;
+    @FXML
+    private TextField txtQuerySimulations;
 
-    UPPAALModel uppaalModel;
+    private UPPAALModel uppaalModel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        initializeTable();
+        initializeConstantTableValues();
+        initializeOutputVarsTable();
+        initializeWidths();
     }
 
-    private void initializeTable() {
+    private void initializeWidths() {
         columnName.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.2));
         columnValue.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.8));
-
-        columnName.setCellValueFactory( p -> {
-            CVar<String> x = ((TableColumn.CellDataFeatures<CVar<String>, String>)p).getValue();
-            return new SimpleStringProperty(x.getName());
-        });
-
-        columnValue.setCellValueFactory( p -> {
-            CVar<Integer> x = ((TableColumn.CellDataFeatures<CVar<Integer>, String>)p).getValue();
-            return new SimpleStringProperty(x.getValue().toString());
-        });
-
-        loadModelButton.prefWidthProperty().bind(horizontalGrid.widthProperty().multiply(0.2));
         modelPathField.prefWidthProperty().bind(horizontalGrid.widthProperty().multiply(0.8));
         tabPane.prefWidthProperty().bind(rootElement.widthProperty());
         viewerGridPane.prefWidthProperty().bind(tabPane.widthProperty());
+        tableOutputVars.prefWidthProperty().bind(rootElement.widthProperty());
+    }
+
+    private void initializeConstantTableValues() {
+        columnName.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getName()));
+        columnValue.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getValue().toString()));
+    }
+
+    private void initializeOutputVarsTable() {
+        outputVarName.setCellValueFactory(p -> p.getValue().name());
+        outputVarEdge.setCellValueFactory(p -> p.getValue().isEdgeData());
+        outputVarEdge.setCellFactory(p -> new CheckBoxTableCell<>());
+        outputVarNode.setCellValueFactory(p -> p.getValue().isNodeData());
+        outputVarNode.setCellFactory(p -> new CheckBoxTableCell<>());
     }
 
     public void addConstantsToList(ArrayList<CVar<Integer>> constants){
@@ -83,7 +103,8 @@ public class TopologyViewerController implements Initializable {
         constantsTable.getItems().clear();
 
         String modelPathContents = modelPathField.getText();
-        if(modelPathContents.length() == 0) return;
+        if(modelPathContents.length() == 0)
+            modelPathContents = "mac_model_test";
 
         if (!modelPathContents.endsWith(".xml")) modelPathContents += ".xml";
 
@@ -93,6 +114,7 @@ public class TopologyViewerController implements Initializable {
             uppaalModel.load();
             addConstantsToList(uppaalModel.getConstantVars());
             addTopologyPairsToTextArea(uppaalModel.getTopology());
+            tableOutputVars.setItems(uppaalModel.getOutputVars());
         }
     }
 
