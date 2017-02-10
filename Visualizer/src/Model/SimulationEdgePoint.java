@@ -42,4 +42,6 @@ public class SimulationEdgePoint extends DataPoint {
     public void setDestination(int _destination) {
         this._destination = _destination;
     }
+
+    public String getIdentifier() {return String.valueOf(_source)+"-"+String.valueOf(_destination);}
 }

@@ -3,7 +3,6 @@ package parsers;
 import Model.CVar;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -108,8 +107,8 @@ public class CHandler {
                         }
                         destination_index++;
                     }
-                    if (result.get_numberOfNodes() == 0) {
-                        result.set_numberOfNodes(destination_index);
+                    if (result.getNumberOfNodes() == 0) {
+                        result.setNumberOfNodes(destination_index);
                     }
                     source_index++;
                 }

@@ -3,7 +3,6 @@ package View.TopologyViewer;
 import Model.*;
 import UPPAALHelpers.QueryGenerator;
 import UPPAALHelpers.UPPAALExecutor;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,7 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 import org.graphstream.ui.view.Viewer;
 
 import java.io.File;
@@ -95,7 +93,7 @@ public class TopologyViewerController implements Initializable {
 
     public void addTopologyPairsToTextArea(UPPAALTopology topology) {//TODO: Smid ind i webviewet i stedet - temp, smid i textarea!
         tempTopologyTextArea.clear();
-        tempTopologyTextArea.setText("#Nodes: " + String.valueOf(topology.get_numberOfNodes())+"\n");
+        tempTopologyTextArea.setText("#Nodes: " + String.valueOf(topology.getNumberOfNodes())+"\n");
         for (UPPAALEdge e: topology) {
             tempTopologyTextArea.setText(tempTopologyTextArea.getText()+ e.toString() + "\n");
         }
@@ -127,8 +125,9 @@ public class TopologyViewerController implements Initializable {
 
     public void showTopology(ActionEvent actionEvent) throws InterruptedException, IOException {
         UPPAALTopology topology = new UPPAALTopology();
-        Viewer viewer =  topology.getGraph().display();
+
                 //uppaalTopology.getGraph(true).display();
+
 
         String q = QueryGenerator.Generate2DQuadraticArrayQuery("data_is_scheduled", 16, 1, 40000);
         SimulateOutput out = UPPAALExecutor.provideQueryResult("mac_model_exp.xml", q);
@@ -146,6 +145,9 @@ public class TopologyViewerController implements Initializable {
             }
         }*/
         //viewer.disableAutoLayout();
+        topology.setEdges(points);
+        Viewer viewer =  topology.getGraph(true).display();
+
         topology.startAddingEdgesOverTime(points);
         //viewer.enableAutoLayout();
     }
