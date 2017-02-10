@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int max_race_number = 2;
+const int num_repeats = 0;
+
+const int num_sink_nodes = 1;
+const int num_nodes_sqrt = 8;
+const int num_nodes = num_nodes_sqrt * num_nodes_sqrt;
+//const int num_nodes = 6;
+
+const int min_delay = 37;
+const int max_delay = 50;
+
+const int DATA_LOST_PR = 0;
+const int DATA_NOT_LOST_PR = 100 - DATA_LOST_PR;
+const int RACE_LOST_PR = 1;
+const int RACE_NOT_LOST_PR = 100 - RACE_LOST_PR;
+
+typedef int [0, num_nodes-1] node_id;
+typedef int [0,num_sink_nodes-1] sink_id;
+typedef int [num_sink_nodes,num_nodes-1] non_sink_id;
+typedef int [min_delay, max_delay] delay_range;
+
+int message_sent = 0;
+
+typedef struct {
+    int value;
+    sink_id destination;
+    int jumps;
+} data;
+
+
+bool is_connected(int a, int b) {
+//  line topology
+    //return a-b == 1 || a-b == -1;
+
+//Neocortec testbed - num_nodes_sqrt * num_nodes_sqrt nodes
+    if(a % num_nodes_sqrt == 0)
+        return a-b == -1 || a-b == num_nodes_sqrt || a-b == - num_nodes_sqrt;
+    if(a % num_nodes_sqrt == 7)
+        return a-b == 1 || a-b == num_nodes_sqrt || a-b == - num_nodes_sqrt;
+    return a-b == -1 || a-b == 1 || a-b == num_nodes_sqrt || a-b == - num_nodes_sqrt;
+//  double ring topology  
+/*    int connected[num_nodes][num_nodes] = {
+    {0,0,1,0,0,1,0},
+    {0,0,0,1,0,0,1},
+    {1,0,0,1,1,0,0},
+    {0,1,1,0,1,0,0},
+    {0,0,1,1,0,1,1},
+    {1,0,0,0,1,0,1},
+    {0,1,0,0,1,1,0}
+    };*/
+    /*return connected[a][b];*/
+  //double ring topology without center node being connected to anything
+    /*int connected[num_nodes][num_nodes] = {
+    {0,0,1,0,0,1,0},
+    {0,0,0,1,0,0,1},
+    {1,0,0,1,0,0,0},
+    {0,1,1,0,0,0,0},
+    {0,0,0,0,0,0,0},
+    {1,0,0,0,0,0,1},
+    {0,1,0,0,0,1,0}
+    };*/
+
+//new_topology - 6 nodes
+ /*   int connected[num_nodes][num_nodes] = {
+        {0,0,1,1,1,0},
+		{0,0,0,0,1,1},
+		{1,0,0,1,0,0},
+		{0,0,1,0,1,1},
+		{1,1,0,1,0,1},
+		{0,1,0,1,1,0}
+    };
+
+//new_topology_unconnected - 6 nodes
+/*   int connected[num_nodes][num_nodes] = {
+        {0,0,1,0,1,0},
+		{0,0,0,0,1,1},
+		{1,0,0,0,0,0},
+		{0,0,0,0,0,0},
+		{1,1,0,0,0,1},
+		{0,1,0,0,1,0}
+    };
+
+*/
+
+//Large topology
+    /*int connected[num_nodes][num_nodes] = {
+    {0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+{0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+{0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+{1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };*/
+   // return connected[a][b];
+}
+
+
+broadcast chan send_race [num_nodes];
+broadcast chan send_data [num_nodes];
+
+meta int race_transmit[num_nodes][num_sink_nodes];
+meta data global_data[num_nodes];
+
+data empty_data() {
+    data d;
+    d.value = -1;
+    d.destination = 0;
+    d.jumps = 0;
+    return d;
+}
+</declaration>
+	<template>
+		<name>Node</name>
+		<parameter>node_id id</parameter>
+		<declaration>typedef struct {
+    int race_number;
+    node_id from;
+} routing;
+
+bool has_sent = false;
+int delay = 0;
+int skipped[num_sink_nodes];
+int current_repeat = 0;
+meta bool cycled_through_all_race_numbers = false;
+int latest_received_data = -1;
+int latest_received_route_length = -1;
+
+meta bool received_race[max_race_number];
+
+routing routing_table[sink_id];
+
+clock t;
+clock d;
+
+data rec_data = empty_data(); //data buffer;
+
+bool is_sink() {
+  return id &lt;= num_sink_nodes - 1;
+}
+
+void initialize(int myDelay) {
+  delay = myDelay;
+  for(sid : sink_id) {
+    routing_table[sid].race_number = -1;
+    routing_table[sid].from = 0;
+    skipped[sid] = -1;
+  }
+
+  if (is_sink()) {
+    routing_table[id].race_number = 0;
+    routing_table[id].from = id;
+  }
+}
+
+bool is_newer(int B, int A, int sid) {
+  //pkt. 0079 &amp; 0090 in patent
+  //B = current
+  //A = new
+  int L = max_race_number % 2 ? (max_race_number - 1) / 2 : max_race_number / 2;
+  int X = A - B;
+
+  if (B == -1) //not initialized
+    return true;
+  if( A &lt;= B ) 
+  {
+    X = X + max_race_number;
+  }  
+  if( X &gt; L)
+  {
+    return false;
+  }
+
+  skipped[sid] = X;
+  return true;
+}
+
+void update_race_number(node_id k) {
+    for (sid : sink_id) 
+    {
+        int new_race_number = race_transmit[k][sid];
+        if (new_race_number &gt; -1 &amp;&amp; is_newer(routing_table[sid].race_number, new_race_number, sid)) 
+        {
+            routing_table[sid].race_number = new_race_number;
+            routing_table[sid].from = k;
+            received_race[new_race_number] = true;
+        }
+    }
+}
+
+int sink_next_race(int current) {
+  if (current_repeat &lt; num_repeats) {
+    current_repeat++;
+    return current;
+  }
+  current_repeat = 0;
+  if (current + 1 == max_race_number)
+    cycled_through_all_race_numbers = true;
+  return (current+1) % max_race_number;
+}
+
+bool has_race(sink_id sid) {
+    return routing_table[sid].race_number &gt; -1;
+}
+
+bool has_any_race() {
+    return exists(id:sink_id) has_race(id);
+}
+
+void transmit_race_number() {
+  for (sid : sink_id) {
+    if (has_race(sid)) {
+        race_transmit[id][sid] = routing_table[sid].race_number;
+    }
+  }
+
+  if (is_sink()) {
+    int current_race = routing_table[id].race_number;
+    routing_table[id].race_number = sink_next_race(current_race);
+  }
+}
+
+bool received_all_race_numbers() {
+    return forall(i : int[0,max_race_number-1]) received_race[i];
+}
+
+void reset_global_race()
+{
+    for (sid : sink_id) 
+    {
+        race_transmit[id][sid] = -1;
+    }
+}
+
+bool can_send(data next_data) {
+    bool for_me = next_data.destination == id;
+    bool valid_data = next_data.value &gt; -1; //invalid if -1
+    bool know_route = routing_table[next_data.destination].race_number &gt; -1; //no race number from that node yet.
+    return !for_me &amp;&amp; valid_data &amp;&amp; know_route;
+}    
+
+void receive_data() {
+    rec_data = global_data[id];
+    global_data[id] = empty_data();
+}
+
+data new_data() {
+    // TODO: Generate meaningful data
+    data newdata;
+    newdata.value = id;
+    newdata.destination = 0;
+    newdata.jumps = 0;
+    return newdata;
+}
+
+data next_data() {
+    if (can_send(rec_data))
+        return rec_data;
+    else
+        if(id == 63 &amp;&amp; !has_sent){
+            return new_data();
+        }
+        else
+            return empty_data();
+}
+
+node_id next_receiver(data next_data) {
+    if (next_data.value &gt; -2)
+        return routing_table[next_data.destination].from;
+    return 0;
+}
+
+void send_next_data() {
+    data next = next_data();
+    if (message_sent == -1)
+        message_sent = next.value;
+    next.jumps += 1;
+    global_data[next_receiver(next)] = next;
+    rec_data = empty_data();
+}
+
+void process_data() {
+    if (rec_data.destination == id) {
+        latest_received_data = rec_data.value;
+        if (latest_received_data == message_sent)
+            message_sent = -1;
+        latest_received_route_length = rec_data.jumps;
+        rec_data = empty_data();
+    }   
+}
+
+void data_lost() {
+    rec_data = empty_data();
+}</declaration>
+		<location id="id0" x="246" y="-119">
+			<committed/>
+		</location>
+		<location id="id1" x="246" y="76">
+			<committed/>
+		</location>
+		<location id="id2" x="-323" y="118">
+			<name x="-408" y="110">calc_delay</name>
+			<urgent/>
+		</location>
+		<location id="id3" x="-323" y="0">
+			<name x="-425" y="-25">non_initialized</name>
+			<urgent/>
+		</location>
+		<location id="id4" x="-161" y="118">
+			<committed/>
+		</location>
+		<location id="id5" x="246" y="-34">
+			<committed/>
+		</location>
+		<location id="id6" x="-323" y="-119">
+			<name x="-459" y="-145">non_initialized_node</name>
+		</location>
+		<location id="id7" x="-8" y="0">
+			<name x="-51" y="-42">active</name>
+			<label kind="invariant" x="17" y="-34">t &lt;= delay 
+&amp;&amp; d &lt;= delay</label>
+		</location>
+		<branchpoint id="id8" x="161" y="-119">
+		</branchpoint>
+		<branchpoint id="id9" x="246" y="119">
+		</branchpoint>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id0"/>
+			<label kind="probability" x="144" y="-153">RACE_NOT_LOST_PR</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="255" y="34">send_data[next_receiver(next_data())]!</label>
+			<label kind="assignment" x="255" y="51">send_next_data(), has_sent = true</label>
+			<label kind="comments" x="255" y="17">10/P7-8. Send data</label>
+			<nail x="246" y="17"/>
+			<nail x="51" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="comments" x="17" y="-170">7. Race lost</label>
+			<label kind="probability" x="17" y="-153">RACE_LOST_PR</label>
+			<nail x="8" y="-119"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="guard" x="17" y="-93">has_any_race() 
+&amp;&amp; t == delay</label>
+			<label kind="assignment" x="17" y="-59">t = 0</label>
+			<label kind="comments" x="17" y="-110">6. Prepare send race</label>
+			<nail x="25" y="-42"/>
+			<nail x="161" y="-42"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id1"/>
+			<label kind="probability" x="255" y="93">DATA_NOT_LOST_PR</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id7"/>
+			<label kind="assignment" x="161" y="144">data_lost()</label>
+			<label kind="comments" x="161" y="127">11. Data lost</label>
+			<label kind="probability" x="161" y="161">DATA_LOST_PR</label>
+			<nail x="85" y="119"/>
+			<nail x="25" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="select" x="-416" y="59">k : delay_range</label>
+			<label kind="assignment" x="-416" y="76">initialize(k)</label>
+			<label kind="comments" x="-416" y="42">1. Initialize</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id7"/>
+			<label kind="guard" x="0" y="144">!can_send(next_data()) 
+&amp;&amp; d == delay</label>
+			<label kind="assignment" x="0" y="178">d = 0</label>
+			<label kind="comments" x="0" y="127">12. No data to send</label>
+			<nail x="76" y="118"/>
+			<nail x="0" y="118"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-136" y="17">is_sink()</label>
+			<label kind="assignment" x="-136" y="34">process_data()</label>
+			<nail x="-161" y="17"/>
+			<nail x="-59" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-289" y="25">is_sink()</label>
+			<label kind="assignment" x="-289" y="42">t = 0, d = 0</label>
+			<label kind="comments" x="-289" y="8">Sink: 2. Initialize</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-314" y="-77">!is_sink()</label>
+			<label kind="comments" x="-314" y="-94">Non-sink: 3. Initialize</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-136" y="76">!is_sink()</label>
+			<nail x="-144" y="76"/>
+			<nail x="-34" y="76"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id9"/>
+			<label kind="guard" x="85" y="42">can_send(next_data()) 
+&amp;&amp; d == delay</label>
+			<label kind="assignment" x="85" y="76">d = 0</label>
+			<label kind="comments" x="85" y="25">9. Any data to send?</label>
+			<nail x="76" y="42"/>
+			<nail x="76" y="93"/>
+			<nail x="212" y="93"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-153" y="144">!can_send(rec_data)</label>
+			<label kind="synchronisation" x="-153" y="161">send_data[id]?</label>
+			<label kind="assignment" x="-153" y="178">receive_data()</label>
+			<label kind="comments" x="-153" y="127">13/P5. Receive data</label>
+			<nail x="-17" y="118"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id7"/>
+			<label kind="assignment" x="255" y="-25">reset_global_race()</label>
+			<nail x="246" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="263" y="-76">send_race[id]!</label>
+			<label kind="assignment" x="263" y="-59">transmit_race_number()</label>
+			<label kind="comments" x="263" y="-110">Sink: 8/P8,11. Increase race and send
+Non-sink: 9/P7. Send race</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="select" x="-314" y="-213">k : node_id</label>
+			<label kind="guard" x="-314" y="-196">is_connected(k, id)</label>
+			<label kind="synchronisation" x="-314" y="-179">send_race[k]?</label>
+			<label kind="assignment" x="-314" y="-162">update_race_number(k),
+t = 0, d = 0</label>
+			<label kind="comments" x="-391" y="-230">Non-sink: 4/P4. Receive first race</label>
+			<nail x="-178" y="-119"/>
+			<nail x="-51" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id7"/>
+			<label kind="select" x="-144" y="-196">k : node_id</label>
+			<label kind="guard" x="-144" y="-179">is_connected(k, id)</label>
+			<label kind="synchronisation" x="-144" y="-162">send_race[k]?</label>
+			<label kind="assignment" x="-144" y="-145">update_race_number(k)</label>
+			<label kind="comments" x="-144" y="-213">5/P4. Receive race</label>
+			<nail x="-17" y="-119"/>
+			<nail x="-153" y="-119"/>
+		</transition>
+	</template>
+	<template>
+		<name>SetupTemplate</name>
+		<declaration>clock globaltime;
+
+void SetupSystem() {
+    int i=0, j=0;
+    for(i = 0; i&lt; num_nodes;i++)
+        for(j=0; j&lt;num_sink_nodes;j++)
+            race_transmit[i][j] = -1;
+}</declaration>
+		<location id="id10" x="153" y="0">
+			<name x="143" y="-34">Initialized</name>
+		</location>
+		<location id="id11" x="0" y="0">
+			<committed/>
+		</location>
+		<init ref="id11"/>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id10"/>
+			<label kind="assignment" x="17" y="0">SetupSystem()</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+// List one or more processes to be composed into a system.
+system Node, SetupTemplate;
+    </system>
+	<queries>
+		<query>
+			<formula>message_sent &gt; 0 --&gt; message_sent &lt; 0
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Node(3).active
+			</formula>
+			<comment>Aborted after 60.000 seconds on server..
+			</comment>
+		</query>
+		<query>
+			<formula>A[] !Node(3).active
+			</formula>
+			<comment>Node 3 vil aldrig få et race number i non-connected topologi. Aborted efter 2200 sekunder på server
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; forall (id : node_id) Node(id).active
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A&lt;&gt; forall (sid : sink_id) forall (id : node_id) Node(id).routing_table[sid].race_number &gt; -1 &amp;&amp; !Node(id).non_initialized
+			</formula>
+			<comment>Alle nodes (inkl. sink) skal have et race nummer for hver sink node
+(&gt;2245 sekunder med 6 nodes - på server - ikke kørt færdig)
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; exists(id : non_sink_id) Node(id).skipped &gt; 1
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=100000] (&lt;&gt; exists(id : node_id) exists(sid : sink_id) Node(id).skipped[sid] &gt; 1)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>simulate 10 [&lt;=100] {
+  Node(2).routing_table[0].race_number,
+  Node(3).routing_table[0].race_number,
+  Node(4).routing_table[0].race_number,
+  Node(5).routing_table[0].race_number,
+  Node(6).routing_table[0].race_number
+}
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=2*num_nodes] (&lt;&gt;forall (sid : sink_id) forall (id : non_sink_id) Node(id).routing_table[sid].race_number != -1)
+			</formula>
+			<comment>Sandsynligheden for at alle nodes får race_number fra sink nodes
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; forall (id : non_sink_id) Node(id).received_all_race_numbers()
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; exists (sid : sink_id) SetupTemplate.globaltime == 0 &amp;&amp; SinkNode(sid).cycled_through_all_race_numbers == true &amp;&amp; SetupTemplate.Initialized
+			</formula>
+			<comment>Er det muligt at vi har sendt en hel masse race numbers uden at der er gået tid? - 6910 sekunder på Rasmus' pc.
+			</comment>
+		</query>
+		<query>
+			<formula>simulate 1 [&lt;=30000] {Node(0).latest_received_route_length}
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=2000] (&lt;&gt; Node(63).active &amp;&amp; Node(63).routing_table[0].race_number &gt; -1)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=2000]  (&lt;&gt; Node(0).latest_received_data == 63)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>simulate 1 [&lt;=3000] {Node(0).rec_data.value,Node(1).rec_data.value,Node(2).rec_data.value,Node(3).rec_data.value,Node(4).rec_data.value,Node(5).rec_data.value,Node(6).rec_data.value,Node(7).rec_data.value,Node(8).rec_data.value,Node(9).rec_data.value,Node(10).rec_data.value,Node(11).rec_data.value,Node(12).rec_data.value,Node(13).rec_data.value,Node(14).rec_data.value,Node(15).rec_data.value,Node(16).rec_data.value,Node(17).rec_data.value,Node(18).rec_data.value,Node(19).rec_data.value,Node(20).rec_data.value,Node(21).rec_data.value,Node(22).rec_data.value,Node(23).rec_data.value,Node(24).rec_data.value,Node(25).rec_data.value,Node(26).rec_data.value,Node(27).rec_data.value,Node(28).rec_data.value,Node(29).rec_data.value,Node(30).rec_data.value,Node(31).rec_data.value,Node(32).rec_data.value,Node(33).rec_data.value,Node(34).rec_data.value,Node(35).rec_data.value,Node(36).rec_data.value,Node(37).rec_data.value,Node(38).rec_data.value,Node(39).rec_data.value,Node(40).rec_data.value,Node(41).rec_data.value,Node(42).rec_data.value,Node(43).rec_data.value,Node(44).rec_data.value,Node(45).rec_data.value,Node(46).rec_data.value,Node(47).rec_data.value,Node(48).rec_data.value,Node(49).rec_data.value,Node(50).rec_data.value,Node(51).rec_data.value,Node(52).rec_data.value,Node(53).rec_data.value,Node(54).rec_data.value,Node(55).rec_data.value,Node(56).rec_data.value,Node(57).rec_data.value,Node(58).rec_data.value,Node(59).rec_data.value,Node(60).rec_data.value,Node(61).rec_data.value,Node(62).rec_data.value,Node(63).rec_data.value}
+
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=20000](&lt;&gt; Node(3).routing_table[1].from == 2)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>
