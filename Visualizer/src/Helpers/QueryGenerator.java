@@ -1,4 +1,4 @@
-package UPPAALHelpers;
+package Helpers;
 
 /**
  * Created by batto on 08-Feb-17.

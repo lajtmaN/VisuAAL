@@ -12,11 +12,21 @@ public class OutputVariable {
     private StringProperty name;
     private BooleanProperty isEdgeData;
     private BooleanProperty isNodeData;
+    private BooleanProperty isSelected;
 
     public OutputVariable(String pName) {
         setName(pName);
         setEdgeData(false);
         setNodeData(false);
+        setIsSelected(false);
+    }
+
+    public BooleanProperty isSelected() {
+        return isSelected;
+    }
+
+    public void setIsSelected(boolean isSelected) {
+        this.isSelected = new SimpleBooleanProperty(isSelected);
     }
 
     public StringProperty name() {

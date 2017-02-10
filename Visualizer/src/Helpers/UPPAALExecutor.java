@@ -1,4 +1,4 @@
-package UPPAALHelpers;
+package Helpers;
 
 import Model.SimulateOutput;
 import parsers.RegexHelper;
