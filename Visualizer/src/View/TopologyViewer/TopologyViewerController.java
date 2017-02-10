@@ -9,18 +9,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.web.WebView;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
-import parsers.SimulateParser;
-import parsers.UPPAALParser;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -47,7 +40,7 @@ public class TopologyViewerController implements Initializable {
     @FXML
     private TextArea tempTopologyTextArea;
 
-    UPPAALTopology uppaalTopology;
+    UPPAALModel uppaalModel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -96,9 +89,10 @@ public class TopologyViewerController implements Initializable {
 
         File f = new File(modelPathContents);
         if (f.exists() && !f.isDirectory()) {
-            addConstantsToList(UPPAALParser.getUPPAALConfigConstants(modelPathContents));
-            uppaalTopology = UPPAALParser.getUPPAALTopology(modelPathContents);
-            addTopologyPairsToTextArea(uppaalTopology);
+            uppaalModel = new UPPAALModel(modelPathContents);
+            uppaalModel.load();
+            addConstantsToList(uppaalModel.getConstantVars());
+            addTopologyPairsToTextArea(uppaalModel.getTopology());
         }
     }
 
