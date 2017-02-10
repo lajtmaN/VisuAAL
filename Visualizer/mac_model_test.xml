@@ -59,7 +59,7 @@ int chosen_slot[NR_NODES];                      //Randomly chosen beacon slot
 int beacon_period_counters[NR_NODES];           //Count toward full beacon scan
 int data_intervals[NR_NODES];                   //Interval to send data for nodes
 bool is_busy[NR_NODES];                         //One task at a time
-int OUTPUT_data_is_scheduled[NR_NODES][NR_NODES];      //Data schedules
+int OUTPUT_data_is_scheduled[CONFIG_NR_NODES][CONFIG_NR_NODES];      //Data schedules
 int initialized[NR_NODES];                      //Initialized after initial scan
 
 //Used to extract extra data
