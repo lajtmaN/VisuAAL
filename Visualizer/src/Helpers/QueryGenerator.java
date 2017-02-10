@@ -1,10 +1,18 @@
 package Helpers;
 
+import Model.OutputVariable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * Created by batto on 08-Feb-17.
  */
 public class QueryGenerator {
-    public static String Generate2DQuadraticArrayQuery(String name, int size, int nrSimulations, long time) {
+    public static String generate2DQuadraticArrayQuery(String name, int size, int nrSimulations, long time) {
         String res = "";
         for (int i = 0; i < size; i++)
             for (int j = 0; j < size; j++) {
@@ -12,10 +20,29 @@ public class QueryGenerator {
                 if (i < size-1 || j < size-1) res += ",";
             }
 
-        return GenerateQueryStart(nrSimulations, time, res);
+        return generateQueryStart(nrSimulations, time, res);
     }
 
-    public static String GenerateQueryStart(int nrSimulations, long time, String vars) {
+    private static String generateQueryStart(int nrSimulations, long time, String vars) {
         return "simulate " + nrSimulations + " [<=" + time + "] {" + vars + "}";
+    }
+
+    public static String generateSimulationQuery(int timebound, int nrSimulations, List<OutputVariable> outputVariables) {
+        List<String> vars = outputVariables.stream().map(QueryGenerator::generateSingleVariableQueryPart).
+                collect(Collectors.toList());
+
+        return generateQueryStart(nrSimulations, timebound, String.join(", ", vars));
+    }
+
+    private static String generateSingleVariableQueryPart(OutputVariable var) {
+        if(var.getIsEdgeData()) {
+            //TODO: 2d array
+            return "";
+        } else if(var.getIsNodeData()) {
+            //TODO: 1d array
+            return "";
+        } else {
+            return var.getName();
+        }
     }
 }

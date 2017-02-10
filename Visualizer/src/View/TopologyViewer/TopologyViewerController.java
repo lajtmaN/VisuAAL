@@ -24,6 +24,8 @@ import java.util.ResourceBundle;
 public class TopologyViewerController implements Initializable {
 
     @FXML
+    private TextArea queryGeneratedTextField;
+    @FXML
     private TableColumn<CVar<String>, String> columnName;
     @FXML
     private TableColumn<CVar<Integer>, String> columnValue;
@@ -84,6 +86,7 @@ public class TopologyViewerController implements Initializable {
     }
 
     private void initializeOutputVarsTable() {
+        //TODO: Only 2d arrays should be able to mark edge and 1d to mark node
         outputVarName.setCellValueFactory(p -> p.getValue().name());
         outputVarEdge.setCellValueFactory(p -> p.getValue().isEdgeData());
         outputVarEdge.setCellFactory(p -> new CheckBoxTableCell<>());
@@ -132,6 +135,17 @@ public class TopologyViewerController implements Initializable {
                 outputVariable -> outputVariable.isSelected().getValue());
         if(vars == null || vars.size() == 0) {
             GUIHelper.showAlert(Alert.AlertType.INFORMATION, "No output variables selected");
+        } else {
+            try{
+                int time = Integer.parseInt(txtQueryTimeBound.getText());
+                int nrSimulations = Integer.parseInt(txtQuerySimulations.getText());
+
+                if(time > 0  && nrSimulations > 0) {
+                    queryGeneratedTextField.setText(QueryGenerator.generateSimulationQuery(time, nrSimulations, vars));
+                }
+            } catch (Exception e) {
+                GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Timebound and number of simulations must be positive integers");
+            }
         }
     }
 
@@ -141,7 +155,7 @@ public class TopologyViewerController implements Initializable {
                 //uppaalTopology.getGraph(true).display();
 
 
-        String q = QueryGenerator.Generate2DQuadraticArrayQuery("data_is_scheduled", 16, 1, 40000);
+        String q = QueryGenerator.generate2DQuadraticArrayQuery("data_is_scheduled", 16, 1, 40000);
         SimulateOutput out = UPPAALExecutor.provideQueryResult("mac_model_exp.xml", q);
         ArrayList<SimulationEdgePoint> points = out.getZippedForSimulate(0);
 

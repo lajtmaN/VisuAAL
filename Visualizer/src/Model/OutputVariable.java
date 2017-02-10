@@ -33,6 +33,8 @@ public class OutputVariable {
         return name;
     }
 
+    public String getName() { return name.get(); }
+
     public void setName(String pName) {
         this.name = new SimpleStringProperty(pName);
     }
@@ -41,12 +43,20 @@ public class OutputVariable {
         return isEdgeData;
     }
 
+    public Boolean getIsEdgeData() {
+        return isEdgeData.get();
+    }
+
     public void setEdgeData(boolean edgeData) {
         isEdgeData = new SimpleBooleanProperty(edgeData);
     }
 
     public BooleanProperty isNodeData() {
         return isNodeData;
+    }
+
+    public Boolean getIsNodeData() {
+        return isNodeData.get();
     }
 
     public void setNodeData(boolean nodeData) {
