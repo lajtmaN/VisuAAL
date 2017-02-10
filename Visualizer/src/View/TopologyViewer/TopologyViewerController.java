@@ -7,20 +7,15 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.web.WebView;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
-import parsers.SimulateParser;
 import parsers.UPPAALParser;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -46,6 +41,8 @@ public class TopologyViewerController implements Initializable {
     private GridPane viewerGridPane;
     @FXML
     private TextArea tempTopologyTextArea;
+    @FXML
+    private Canvas topologyViewerCanvas;
 
     UPPAALTopology uppaalTopology;
 
@@ -80,7 +77,7 @@ public class TopologyViewerController implements Initializable {
 
     public void addTopologyPairsToTextArea(UPPAALTopology topology) {//TODO: Smid ind i webviewet i stedet - temp, smid i textarea!
         tempTopologyTextArea.clear();
-        tempTopologyTextArea.setText("#Nodes: " + String.valueOf(topology.get_numberOfNodes())+"\n");
+        tempTopologyTextArea.setText("#Nodes: " + String.valueOf(topology.getNumberOfNodes())+"\n");
         for (UPPAALEdge e: topology) {
             tempTopologyTextArea.setText(tempTopologyTextArea.getText()+ e.toString() + "\n");
         }
@@ -104,8 +101,9 @@ public class TopologyViewerController implements Initializable {
 
     public void showTopology(ActionEvent actionEvent) throws InterruptedException, IOException {
         UPPAALTopology topology = new UPPAALTopology();
-        Viewer viewer =  topology.getGraph().display();
+
                 //uppaalTopology.getGraph(true).display();
+
 
         String q = QueryGenerator.Generate2DQuadraticArrayQuery("data_is_scheduled", 16, 1, 40000);
         SimulateOutput out = UPPAALExecutor.provideQueryResult("mac_model_exp.xml", q);
@@ -123,6 +121,9 @@ public class TopologyViewerController implements Initializable {
             }
         }*/
         //viewer.disableAutoLayout();
+        topology.setEdges(points);
+        Viewer viewer =  topology.getGraph(true).display();
+
         topology.startAddingEdgesOverTime(points);
         //viewer.enableAutoLayout();
     }

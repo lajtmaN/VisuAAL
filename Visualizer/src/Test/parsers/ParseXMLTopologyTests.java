@@ -4,8 +4,6 @@ import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,7 +40,7 @@ public class ParseXMLTopologyTests {
 
     public void assertUPPAALTopology(UPPAALTopology expected, UPPAALTopology actual){
         assertEquals(expected.size(), actual.size());
-        assertEquals(expected.get_numberOfNodes(), actual.get_numberOfNodes());
+        assertEquals(expected.getNumberOfNodes(), actual.getNumberOfNodes());
         for (int i = 0; i < expected.size(); i++) {
             assertUPPAALEdge(expected.get(i), actual.get(i));
         }
