@@ -4,6 +4,13 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import parsers.CHandler;
+import parsers.RegexHelper;
+import parsers.UPPAALParser;
+
+import java.util.ArrayList;
+
+import static parsers.CHandler.getConstants;
 
 /**
  * Created by lajtman on 10-02-2017.
@@ -13,6 +20,9 @@ public class OutputVariable {
     private BooleanProperty isEdgeData;
     private BooleanProperty isNodeData;
     private BooleanProperty isSelected;
+
+    //Only used when it represents an edge or node
+    private int variableArraySize;
 
     public OutputVariable(String pName) {
         setName(pName);
@@ -61,5 +71,13 @@ public class OutputVariable {
 
     public void setNodeData(boolean nodeData) {
         isNodeData = new SimpleBooleanProperty(nodeData);
+    }
+
+    public void setVariableArraySize(int size) {
+        variableArraySize = size;
+    }
+
+    public int getVariableArraySize() {
+        return variableArraySize;
     }
 }

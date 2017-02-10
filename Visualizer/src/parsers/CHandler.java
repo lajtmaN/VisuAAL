@@ -1,6 +1,7 @@
 package parsers;
 
 import Model.CVar;
+import Model.OutputVariable;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 
@@ -119,15 +120,15 @@ public class CHandler {
 
     public static ArrayList<String> getOutputVars(String globalDeclarations) {
         Pattern pVar = Pattern.compile(OutputVarsRegex);
-        ArrayList<String> outputVars = new ArrayList<>();
+        ArrayList<String> vars = new ArrayList<>();
 
         Matcher mName = pVar.matcher(globalDeclarations);
 
         while(mName.find()) {
-            outputVars.add(mName.group(1));
+            vars.add(mName.group(1));
         }
 
-        return outputVars;
+        return vars;
     }
 }
 

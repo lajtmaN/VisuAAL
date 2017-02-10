@@ -2,7 +2,7 @@
 	<declaration>
 
 const int NR_NODES_SQR_ROOT = 8, 
-          NR_NODES = 64,
+          CONFIG_NR_NODES = 64,
           CONFIG_NR_BEACON_SLOTS = 8,
           MAX_BEACON_NUMBER = 17;
 
