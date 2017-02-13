@@ -15,17 +15,7 @@ import static org.junit.Assert.assertEquals;
  * Created by lajtman on 07-02-2017.
  */
 public class SimulateParserTests {
-/*
-Options for the verification:
-  Generating no trace
-  Search order is breadth first
-  Using conservative space optimisation
-  Seed is 1486472853
-  State space representation uses minimal constraint systems
-uppaalquery.q:1: [error] Unknown identifier: as.
-uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
 
- */
     @Test
     public void parseSimpleVariable() {
         String variableDef = "P.s1:";
@@ -69,8 +59,26 @@ uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
         containsData("P.s1", 36, 1.0, output);
         containsData("P.s2", 42, 0.0, output);
         containsData("P.s2", 34, 1.0, output);
+    }
 
+    @Test
+    public void parseSimulateErrorOutput() {
+        String sampleErrorOutput =
+                "Options for the verification:\n" +
+                    "Generating no trace\n" +
+                    "Search order is breadth first\n" +
+                    "Using conservative space optimisation\n" +
+                    "Seed is 1486472853\n" +
+                    "State space representation uses minimal constraint systems\n" +
+                "uppaalquery.q:1: [error] Unknown identifier: as.\n" +
+                "uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'. ";
 
+        String expectedOutput = "Unknown identifier: as.\n" +
+                "syntax error: unexpected end, expecting ',' or '}'. ";
+
+        SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleErrorOutput.split("\n")), 1);
+        assertTrue(output.errorState());
+        assertEquals(expectedOutput, output.getErrorDescription());
     }
 
     private void containsData(String name, double time, double value, SimulateOutput simulateOutput) {
