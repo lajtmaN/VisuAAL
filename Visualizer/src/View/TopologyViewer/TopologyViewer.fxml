@@ -71,7 +71,6 @@
                         <RowConstraints />
                         <RowConstraints />
                         <RowConstraints />
-                        <RowConstraints />
                    </rowConstraints>
                    <children>
                        <TableView fx:id="tableOutputVars" editable="true" prefHeight="200" prefWidth="800.0" GridPane.rowIndex="0">
@@ -108,8 +107,8 @@
                                <TextField fx:id="txtQuerySimulations" prefHeight="25.0" prefWidth="100.0" promptText="Simulations" GridPane.columnIndex="4" />
                            </children>
                         </GridPane>
-                       <Button mnemonicParsing="false" onAction="#generateQuery" text="Generate Query" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-                        <TextArea fx:id="queryGeneratedTextField" editable="false" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="4">
+                       <Button mnemonicParsing="false" onAction="#generateQuery" text="Generate Query" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                        <TextArea fx:id="queryGeneratedTextField" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.rowIndex="3">
                            <padding>
                               <Insets left="20.0" right="20.0" />
                            </padding>

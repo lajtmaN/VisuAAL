@@ -54,7 +54,7 @@ public class OutputVariable {
     }
 
     public Boolean getIsEdgeData() {
-        return isEdgeData.get();
+        return isEdgeData().get();
     }
 
     public void setEdgeData(boolean edgeData) {
@@ -66,7 +66,7 @@ public class OutputVariable {
     }
 
     public Boolean getIsNodeData() {
-        return isNodeData.get();
+        return isNodeData().get();
     }
 
     public void setNodeData(boolean nodeData) {
