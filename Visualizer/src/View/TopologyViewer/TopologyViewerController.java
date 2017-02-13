@@ -115,7 +115,7 @@ public class TopologyViewerController implements Initializable {
 
         String modelPathContents = modelPathField.getText();
         if(modelPathContents.length() == 0)
-            modelPathContents = "mac_model_test";
+            modelPathContents = "mac_model_exp";
 
         if (!modelPathContents.endsWith(".xml")) modelPathContents += ".xml";
 
@@ -153,7 +153,7 @@ public class TopologyViewerController implements Initializable {
         //uppaalTopology.getGraph(true).display();
         UPPAALTopology topology = uppaalModel.getTopology();
 
-        String q = QueryGenerator.generate2DQuadraticArrayQuery("data_is_scheduled", 16, 1, 40000);
+        String q = QueryGenerator.generate2DQuadraticArrayQuery("OUTPUT_data_is_scheduled", 16, 1, 40000);
         SimulateOutput out = UPPAALExecutor.provideQueryResult("mac_model_exp.xml", q);
         ArrayList<SimulationEdgePoint> points = out.getZippedForSimulate(0);
 
