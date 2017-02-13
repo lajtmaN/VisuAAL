@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
-	<declaration>const int NR_NODES_SQR_ROOT = 4,
-          NR_NODES = 16,
+	<declaration>const int CONFIG_NR_NODES_SQR_ROOT = 4,
+          CONFIG_NR_NODES = 16,
           NR_BEACON_SLOTS = 8,
           MAX_BEACON_NUMBER = 17;
 
@@ -25,13 +25,13 @@ const int DATA_LOST_PROB = 1,
           DATA_NOT_LOST_PROB = 99;
 
 //Type for node IDs
-typedef int[0, NR_NODES-1] id_t;
+typedef int[0, CONFIG_NR_NODES-1] id_t;
 
 //Type for beacons
 typedef struct {
     int id;
     //Beacon synchronization is managed through clocks
-    //Data Schedule is managed through array: data_is_scheduled[][]
+    //Data Schedule is managed through array: OUTPsUT_data_is_scheduled[][]
 } beacon_data;
 
 //Global variable, holding sent beacon data
@@ -46,60 +46,69 @@ broadcast chan
 
 //We pass the ID of the node as the index of the array
 broadcast chan 
-    end_initial_scan[NR_NODES],                 //End initial scan
-    do_full_beacon_scan[NR_NODES],              //Begin or end full beacon scan
-    do_initial_full_beacon_scan[NR_NODES],      //Begin initial full beacon scan
-    end_initial_full_beacon_scan[NR_NODES],     //End initial full beacon scan
-    do_beacon_scan[NR_NODES];                   //Initiate beacon scan
+    end_initial_scan[CONFIG_NR_NODES],                 //End initial scan
+    do_full_beacon_scan[CONFIG_NR_NODES],              //Begin or end full beacon scan
+    do_initial_full_beacon_scan[CONFIG_NR_NODES],      //Begin initial full beacon scan
+    end_initial_full_beacon_scan[CONFIG_NR_NODES],     //End initial full beacon scan
+    do_beacon_scan[CONFIG_NR_NODES];                   //Initiate beacon scan
 
 int aux_id = 0;                                 //Used for passing node id's
 int own_sync_id = 0;                            //Own sync ID
 int other_sync_id = 0;                          //Neighbor sync ID
-int chosen_slot[NR_NODES];                      //Randomly chosen beacon slot
-int beacon_period_counters[NR_NODES];           //Count toward full beacon scan
-int data_intervals[NR_NODES];                   //Interval to send data for nodes
-bool is_busy[NR_NODES];                         //One task at a time
-int data_is_scheduled[NR_NODES][NR_NODES];      //Data schedules
-int initialized[NR_NODES];                      //Initialized after initial scan
+int chosen_slot[CONFIG_NR_NODES];                      //Randomly chosen beacon slot
+int beacon_period_counters[CONFIG_NR_NODES];           //Count toward full beacon scan
+int data_intervals[CONFIG_NR_NODES];                   //Interval to send data for nodes
+bool is_busy[CONFIG_NR_NODES];                         //One task at a time
+int OUTPUT_data_is_scheduled[CONFIG_NR_NODES][CONFIG_NR_NODES];      //Data schedules
+int initialized[CONFIG_NR_NODES];                      //Initialized after initial scan
 
 //Used to extract extra data
 int nr_node_relations = 0;                      //Count of total network relations
 
 //Clocks used by several templates
-clock beacon_clocks[NR_NODES];                  //Manages beacon periods
-clock send_data_clock[NR_NODES];                //Manage when the nodes sends data
+clock beacon_clocks[CONFIG_NR_NODES];                  //Manages beacon periods
+clock send_data_clock[CONFIG_NR_NODES];                //Manage when the nodes sends data
 
 //returns true if the nodes are connected
 bool connected_check(int my_id, int other_id) {
 
 //Report topology: Neighbors must be 7
-//new_topology - 6 nodes
-/*int connected[NR_NODES][NR_NODES] = {
-        {0,0,1,1,1,0},
-		{0,0,0,0,1,1},
-		{1,0,0,1,0,0},
-		{1,0,1,0,1,1},
-		{1,1,0,1,0,1},
-		{0,1,0,1,1,0}
+
+int connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
+{0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
+{1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0},
+{0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0},
+{0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0},
+{1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0},
+{0,1,0,0,1,0,1,0,0,1,0,0,0,0,0,0},
+{0,0,1,0,0,1,0,1,0,0,1,0,0,0,0,0},
+{0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0},
+{0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,0},
+{0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0},
+{0,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0},
+{0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1},
+{0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0},
+{0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0},
+{0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1},
+{0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0}
 };
-return connected[my_id][other_id];*/
 
 //Neocortec testbed - num_nodes_quadratic * num_nodes_quadratic nodes
-    if(my_id % NR_NODES_SQR_ROOT == 0)
-        return my_id-other_id == -1 || my_id-other_id == NR_NODES_SQR_ROOT || my_id-other_id == - NR_NODES_SQR_ROOT;
-    if(my_id % NR_NODES_SQR_ROOT == NR_NODES_SQR_ROOT - 1)
-        return my_id-other_id == 1 || my_id-other_id == NR_NODES_SQR_ROOT || my_id-other_id == - NR_NODES_SQR_ROOT;
-    return my_id-other_id == -1 || my_id-other_id == 1 || my_id-other_id == NR_NODES_SQR_ROOT || my_id-other_id == - NR_NODES_SQR_ROOT;
+    if(my_id % CONFIG_NR_NODES_SQR_ROOT == 0)
+        return my_id-other_id == -1 || my_id-other_id == CONFIG_NR_NODES_SQR_ROOT || my_id-other_id == - CONFIG_NR_NODES_SQR_ROOT;
+    if(my_id % CONFIG_NR_NODES_SQR_ROOT == CONFIG_NR_NODES_SQR_ROOT - 1)
+        return my_id-other_id == 1 || my_id-other_id == CONFIG_NR_NODES_SQR_ROOT || my_id-other_id == - CONFIG_NR_NODES_SQR_ROOT;
+    return my_id-other_id == -1 || my_id-other_id == 1 || my_id-other_id == CONFIG_NR_NODES_SQR_ROOT || my_id-other_id == - CONFIG_NR_NODES_SQR_ROOT;
 
 //Two networks O-O
     if(my_id != other_id) {
-        if(my_id &lt;= NR_NODES / 2 &amp;&amp; other_id &lt;= NR_NODES / 2) {
+        if(my_id &lt;= CONFIG_NR_NODES / 2 &amp;&amp; other_id &lt;= CONFIG_NR_NODES / 2) {
             return true;
         } 
-        else if(my_id &gt; NR_NODES / 2 &amp;&amp; other_id &gt; NR_NODES / 2) {
+        else if(my_id &gt; CONFIG_NR_NODES / 2 &amp;&amp; other_id &gt; CONFIG_NR_NODES / 2) {
             return true;
         }
-        else if(my_id == NR_NODES / 2 &amp;&amp; other_id == (NR_NODES / 2) + 1 || my_id == (NR_NODES / 2) + 1 &amp;&amp; other_id == NR_NODES / 2) {
+        else if(my_id == CONFIG_NR_NODES / 2 &amp;&amp; other_id == (CONFIG_NR_NODES / 2) + 1 || my_id == (CONFIG_NR_NODES / 2) + 1 &amp;&amp; other_id == CONFIG_NR_NODES / 2) {
             return true;
         }
     }
@@ -340,9 +349,9 @@ bool is_connected() {
 //Schedule data and sync (first beacon only) when there is no collision
 void handle_beacon(int my_id, int other_id) {
     if(!collision) {
-        if(data_is_scheduled[my_id][other_id] == 0)
+        if(OUTPUT_data_is_scheduled[my_id][other_id] == 0)
         {
-            data_is_scheduled[my_id][other_id] = 1;
+            OUTPUT_data_is_scheduled[my_id][other_id] = 1;
             nr_node_relations++;
         }
         if(sync_id == -1)
@@ -578,9 +587,9 @@ void choose_slot(int k) {
 }
 
 void schedule_data() {
-    if(nr_senders == 1 &amp;&amp; data_is_scheduled[id][received_beacon.id] == 0) {
+    if(nr_senders == 1 &amp;&amp; OUTPUT_data_is_scheduled[id][received_beacon.id] == 0) {
         //Schedule data
-        data_is_scheduled[id][received_beacon.id] = 1;
+        OUTPUT_data_is_scheduled[id][received_beacon.id] = 1;
         nr_node_relations++;
     }
 }
@@ -599,7 +608,7 @@ double nr_collisions = 0.0,
 
     if(chosen_slot[id] == current_slot)
     {
-        for(i = 0; i &lt; NR_NODES; i++) {
+        for(i = 0; i &lt; CONFIG_NR_NODES; i++) {
             if(i != id &amp;&amp; connected_check(id, i)) {
                 send_collision = true;
             }
@@ -910,18 +919,18 @@ bool is_connected(int other_id) {
 //We schedule at most 3 data transmissions at a time
 //When the schedule reaches 0 it is no longer scheduled
 void decrement_data_schedule(int my_id, int other_id) {
-    data_is_scheduled[my_id][other_id]--;
+    OUTPUT_data_is_scheduled[my_id][other_id]--;
 
-    if(data_is_scheduled[my_id][other_id] == 0) 
+    if(OUTPUT_data_is_scheduled[my_id][other_id] == 0) 
         nr_node_relations--;
 }
 
 //Schedule the 3 next data transmissions
 void schedule_data(int my_id, int other_id) {
-    if(data_is_scheduled[my_id][other_id] == 0)
+    if(OUTPUT_data_is_scheduled[my_id][other_id] == 0)
         nr_node_relations++;
 
-    data_is_scheduled[my_id][other_id] = 3;
+    OUTPUT_data_is_scheduled[my_id][other_id] = 3;
 }</declaration>
 		<location id="id39" x="221" y="119">
 			<committed/>
@@ -1032,7 +1041,7 @@ receiving_data_clock = 0</label>
 			<target ref="id39"/>
 			<label kind="guard" x="-92" y="145">!is_busy[id]
 &amp;&amp; initialized[id]
-&amp;&amp; data_is_scheduled[id][aux_id] &gt; 0
+&amp;&amp; OUTPUT_data_is_scheduled[id][aux_id] &gt; 0
 &amp;&amp; is_connected(aux_id)
 &amp;&amp; (beacon_period_counters[id] != BEACON_SCAN_INTERVAL
     || beacon_clocks[id] &lt;= BEACON_PERIOD - DATA_DURATION)</label>
@@ -1080,29 +1089,29 @@ Assumption: Synchronized
 			</comment>
 		</query>
 		<query>
-			<formula>E&lt;&gt; data_is_scheduled[3][0]
+			<formula>E&lt;&gt; OUTPUT_data_is_scheduled[3][0]
 			</formula>
 			<comment>
 			</comment>
 		</query>
 		<query>
 			<formula>simulate 1 [&lt;=50000] { 
-data_is_scheduled[0][0] &gt; 0,
-data_is_scheduled[0][1] &gt; 0,
-data_is_scheduled[0][2] &gt; 0,
-data_is_scheduled[0][3] &gt; 0,
-data_is_scheduled[0][4] &gt; 0,
-data_is_scheduled[0][5] &gt; 0,
-data_is_scheduled[0][6] &gt; 0,
-data_is_scheduled[0][7] &gt; 0,
-data_is_scheduled[0][8] &gt; 0,
-data_is_scheduled[0][9] &gt; 0,
-data_is_scheduled[0][10] &gt; 0,
-data_is_scheduled[0][11] &gt; 0,
-data_is_scheduled[0][12] &gt; 0,
-data_is_scheduled[0][13] &gt; 0,
-data_is_scheduled[0][14] &gt; 0,
-data_is_scheduled[0][15] &gt; 0
+OUTPUT_data_is_scheduled[0][0] &gt; 0,
+OUTPUT_data_is_scheduled[0][1] &gt; 0,
+OUTPUT_data_is_scheduled[0][2] &gt; 0,
+OUTPUT_data_is_scheduled[0][3] &gt; 0,
+OUTPUT_data_is_scheduled[0][4] &gt; 0,
+OUTPUT_data_is_scheduled[0][5] &gt; 0,
+OUTPUT_data_is_scheduled[0][6] &gt; 0,
+OUTPUT_data_is_scheduled[0][7] &gt; 0,
+OUTPUT_data_is_scheduled[0][8] &gt; 0,
+OUTPUT_data_is_scheduled[0][9] &gt; 0,
+OUTPUT_data_is_scheduled[0][10] &gt; 0,
+OUTPUT_data_is_scheduled[0][11] &gt; 0,
+OUTPUT_data_is_scheduled[0][12] &gt; 0,
+OUTPUT_data_is_scheduled[0][13] &gt; 0,
+OUTPUT_data_is_scheduled[0][14] &gt; 0,
+OUTPUT_data_is_scheduled[0][15] &gt; 0
  }
 			</formula>
 			<comment>
