@@ -3,8 +3,11 @@ package Model;
 import Helpers.UPPAALExecutor;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Slider;
 import parsers.UPPAALParser;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +45,11 @@ public class UPPAALModel {
         return outputVars;
     }
 
-    public SimulateOutput runSimulation(String query) throws IOException {
-        return UPPAALExecutor.provideQueryResult(uppaalPath, query);
+    public String getUppaalPath() {
+        return uppaalPath;
+    }
+
+    public Simulation runSimulation(String query) throws IOException {
+        return new Simulation(this, query);
     }
 }

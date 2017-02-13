@@ -76,6 +76,11 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
         }
     }
 
+    protected void unmarkAllEdges() {
+        for (Edge e : getGraph().getEdgeSet())
+            e.setAttribute("ui.class", "unmarked");
+    }
+
     protected void unmarkEdge(SimulationEdgePoint s) {
         Graph g = getGraph(false);
         Edge e = g.getEdge(s.getIdentifier());
@@ -103,14 +108,16 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
         return _graphInstance;
     }
 
-    public void startAddingEdgesOverTime(ArrayList<SimulationEdgePoint> edges) throws InterruptedException {
+    public void startAddingEdgesOverTime(ArrayList<SimulationEdgePoint> edges) {
         //TODO: Take into account model time units
         long start = System.currentTimeMillis();
         for(SimulationEdgePoint s : edges) { //Assumed to be sorted on time.
             double relativeTime = s.getClock() - (System.currentTimeMillis() - start);
             while (relativeTime >= 0) {
                 relativeTime = s.getClock() - (System.currentTimeMillis() - start);
-                Thread.sleep(100);
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {}
             }
             if(s.getValue() == 1 ) {
                 markEdge(s);

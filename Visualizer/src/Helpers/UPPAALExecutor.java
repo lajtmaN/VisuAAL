@@ -16,6 +16,7 @@ import java.util.ArrayList;
  */
 public class UPPAALExecutor {
 
+    //TODO Refactor and use CompletableFuture<T> to run async
     public static SimulateOutput provideQueryResult(String modelPath, String query) throws IOException {
         String simulateCountString = RegexHelper.getFirstMatchedValueFromRegex("simulate (\\d+)", query);
         if (simulateCountString == null)
