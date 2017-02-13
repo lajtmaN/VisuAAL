@@ -9,6 +9,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by lajtman on 07-02-2017.
@@ -58,7 +59,7 @@ public class UPPAALParser {
         return new ArrayList<>();
     }
 
-    public static OutputVariable parseOutputVariableArray(String name, ArrayList<CVar<Integer>> constants) {
+    public static OutputVariable parseOutputVariableArray(String name, List<CVar<Integer>> constants) {
         String ArrayRegex = "(?:\\[(\\w+)\\])\\1*";
         String matchedConstantSize = RegexHelper.getFirstMatchedValueFromRegex(ArrayRegex, name);
         if (matchedConstantSize == null)

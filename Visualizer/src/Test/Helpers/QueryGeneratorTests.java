@@ -6,6 +6,7 @@ import org.junit.Test;
 import parsers.UPPAALParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -17,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 public class QueryGeneratorTests {
     @Test
     public void createRelationshipQuery() {
-        String expected = "simulate 1 [<=1000] { data[0][0] > 0, data[0][1] > 0, data[1][0] > 0, data[1][1] > 0}";
+        String expected = "simulate 1 [<=1000] { data[0][0] > 0, data[0][1] > 0, data[1][0] > 0, data[1][1] > 0 }";
         String actual = QueryGenerator.generate2DQuadraticArrayQuery("data", 2, 1, 1000);
 
         assertEquals(expected, actual);
@@ -25,7 +26,7 @@ public class QueryGeneratorTests {
 
     @Test
     public void testParseQuery() {
-        String expected = "simulate 10 [<=3572] {OUTPUT_nr_node_relations}";
+        String expected = "simulate 10 [<=3572] { OUTPUT_nr_node_relations }";
 
         ArrayList<OutputVariable> outVars = new ArrayList<>();
         outVars.add(new OutputVariable("OUTPUT_nr_node_relations"));
@@ -69,5 +70,20 @@ public class QueryGeneratorTests {
     @Test(expected = IllegalArgumentException.class)
     public void testParseOutputVariableArray_3DArray() {
         UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_test][CONFIG_test][CONFIG_test]", new ArrayList<>());
+    }
+
+    @Test
+    public void testParseQueryVariableArray() {
+        String expectedSimulationQuery = "simulate 5 [<=123] { OUTPUT_data[0] > 0, OUTPUT_data[1] > 0, OUTPUT_data[2] > 0 }";
+        String name = "OUTPUT_data";
+        int constantSize = 3;
+
+        ArrayList<CVar<Integer>> constants = new ArrayList<>();
+        constants.add(new CVar<>("CONFIG_SIZE", constantSize));
+
+        OutputVariable outVar = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE]", constants);
+
+        String actualQuery = QueryGenerator.generateSimulationQuery(123, 5, Arrays.asList(outVar));
+        assertEquals(expectedSimulationQuery, actualQuery);
     }
 }
