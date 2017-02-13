@@ -1,4 +1,4 @@
-package View.TopologyViewer;
+package View;
 
 import Helpers.GUIHelper;
 import Model.*;
@@ -24,7 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-public class TopologyViewerController implements Initializable {
+public class MainWindowController implements Initializable {
 
     @FXML
     private SwingNode embeddedSwingNode;
