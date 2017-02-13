@@ -3,17 +3,26 @@ package View;
 import Helpers.GUIHelper;
 import Model.*;
 import Helpers.QueryGenerator;
-import Helpers.UPPAALExecutor;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 
@@ -26,50 +35,31 @@ import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
 
-    @FXML
-    private SwingNode embeddedSwingNode;
-    @FXML
-    private TextArea queryGeneratedTextField;
-    @FXML
-    private TableColumn<CVar<String>, String> columnName;
-    @FXML
-    private TableColumn<CVar<Integer>, String> columnValue;
-    @FXML
-    private TableView constantsTable;
-    @FXML
-    private TextField modelPathField;
-    @FXML
-    private Button loadModelButton;
-    @FXML
-    private GridPane horizontalGrid;
-    @FXML
-    private TabPane tabPane;
-    @FXML
-    private GridPane rootElement;
-    @FXML
-    private GridPane viewerGridPane;
-    @FXML
-    private TextArea tempTopologyTextArea;
-    @FXML
-    private TableView<OutputVariable> tableOutputVars;
-    @FXML
-    private TableColumn<OutputVariable, String> outputVarName;
-    @FXML
-    private TableColumn<OutputVariable, Boolean> outputVarEdge;
-    @FXML
-    private TableColumn<OutputVariable, Boolean> outputVarNode;
-    @FXML
-    private TableColumn<OutputVariable, Boolean> outputVarUse;
-    @FXML
-    private TextField txtQueryTimeBound;
-    @FXML
-    private TextField txtQuerySimulations;
+    @FXML private ProgressIndicator simulationProgress;
+    @FXML private TextArea txtUppaalOutput;
+    @FXML private TextField txtSimulationName;
+    @FXML private TextArea queryGeneratedTextField;
+    @FXML private TableColumn<CVar<String>, String> columnName;
+    @FXML private TableColumn<CVar<Integer>, String> columnValue;
+    @FXML private TableView constantsTable;
+    @FXML private TextField modelPathField;
+    @FXML private GridPane horizontalGrid;
+    @FXML private TabPane tabPane;
+    @FXML private GridPane rootElement;
+    @FXML private TableView<OutputVariable> tableOutputVars;
+    @FXML private TableColumn<OutputVariable, String> outputVarName;
+    @FXML private TableColumn<OutputVariable, Boolean> outputVarEdge;
+    @FXML private TableColumn<OutputVariable, Boolean> outputVarNode;
+    @FXML private TableColumn<OutputVariable, Boolean> outputVarUse;
+    @FXML private TextField txtQueryTimeBound;
+    @FXML private TextField txtQuerySimulations;
 
     private UPPAALModel uppaalModel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         tabPane.setVisible(false);
+        simulationProgress.setVisible(false);
         initializeConstantTableValues();
         initializeOutputVarsTable();
         initializeWidths();
@@ -81,7 +71,6 @@ public class MainWindowController implements Initializable {
         modelPathField.prefWidthProperty().bind(horizontalGrid.widthProperty().multiply(0.8));
         outputVarName.prefWidthProperty().bind(tableOutputVars.widthProperty().multiply(0.5));
         tabPane.prefWidthProperty().bind(rootElement.widthProperty());
-        viewerGridPane.prefWidthProperty().bind(tabPane.widthProperty());
         tableOutputVars.prefWidthProperty().bind(rootElement.widthProperty());
     }
 
@@ -107,14 +96,6 @@ public class MainWindowController implements Initializable {
         constantsTable.getItems().addAll(constants);
     }
 
-    public void addTopologyPairsToTextArea(UPPAALTopology topology) {//TODO: Smid ind i webviewet i stedet - temp, smid i textarea!
-        tempTopologyTextArea.clear();
-        tempTopologyTextArea.setText("#Nodes: " + String.valueOf(topology.getNumberOfNodes())+"\n");
-        for (UPPAALEdge e: topology) {
-            tempTopologyTextArea.setText(tempTopologyTextArea.getText()+ e.toString() + "\n");
-        }
-    }
-
     public void loadModel(ActionEvent actionEvent) {
         constantsTable.getItems().clear();
 
@@ -129,7 +110,6 @@ public class MainWindowController implements Initializable {
             uppaalModel = new UPPAALModel(modelPathContents);
             uppaalModel.load();
             addConstantsToList(uppaalModel.getConstantVars());
-            addTopologyPairsToTextArea(uppaalModel.getTopology());
             tableOutputVars.setItems(uppaalModel.getOutputVars());
             tabPane.setVisible(true);
         }
@@ -154,25 +134,67 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    public void showTopology(ActionEvent actionEvent) throws InterruptedException, IOException {
+    public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException {
         if(queryGeneratedTextField.getText().length() == 0) {
             GUIHelper.showAlert(Alert.AlertType.ERROR, "Please generate Query first");
             return;
         }
 
         String query = queryGeneratedTextField.getText();
-        SimulateOutput out = uppaalModel.runSimulation(query);
-        ArrayList<SimulationEdgePoint> points = out.getZippedForSimulate(0);
+        txtUppaalOutput.setText("Running following query in UPPAAL: \n" + query );
 
-        UPPAALTopology topology = uppaalModel.getTopology();
-        topology.setEdges(points);
-        topology.updateGraph();
-        Viewer v = new Viewer(topology.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-        ViewPanel swingView = v.addDefaultView(false);
-        SwingUtilities.invokeLater(() -> {
-            embeddedSwingNode.setContent(swingView);
+        simulationProgress.setVisible(true);
+        Simulation out = uppaalModel.runSimulation(query); //Run in uppaal - takes long time
+        simulationProgress.setVisible(false);
+
+        String simulationName = txtSimulationName.getText();
+        if (simulationName.length() == 0) simulationName = "Result";
+
+        addNewResults(simulationName, out);
+    }
+
+    private Tab addNewResults(String tabName, Simulation run) throws InterruptedException, IOException {
+        BorderPane pane = new BorderPane();
+
+        //Slider
+        int maxTime = run.queryTimeBound();
+        Slider timeSlider = new Slider(0, maxTime, 0);
+        timeSlider.setBlockIncrement(maxTime/500);
+        timeSlider.setMajorTickUnit(maxTime/5);
+        timeSlider.setShowTickMarks(true);
+        timeSlider.setSnapToTicks(true);
+        timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            //TODO oldValue could be used to only add/remove the edges not already up-to-date
+            run.markEdgeAtTime(newValue);
         });
-        topology.startAddingEdgesOverTime(points);
+        pane.setTop(timeSlider);
 
+        //Topology
+        final SwingNode swingNode = new SwingNode();
+        pane.setCenter(swingNode);
+        Viewer v = new Viewer(run.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+        v.enableAutoLayout();
+        ViewPanel swingView = v.addDefaultView(false);
+        SwingUtilities.invokeLater(() -> swingNode.setContent(swingView));
+
+        //Animate button
+        Button animateBtn = new Button("Animate in real-time");
+        animateBtn.setOnAction(p -> {
+            Timeline timeline = new Timeline();
+            timeline.setAutoReverse(false);
+            timeSlider.setValue(0);
+            timeline.getKeyFrames().add(new KeyFrame(Duration.millis(maxTime), new KeyValue(timeSlider.valueProperty(), maxTime)));
+            timeline.play();
+        });
+        pane.setBottom(animateBtn);
+        pane.setAlignment(animateBtn, Pos.BOTTOM_CENTER);
+
+        //Tab
+        Tab tab = new Tab();
+        tab.setText(tabName);
+        tab.setContent(pane);
+        tabPane.getTabs().add(tab);
+        tabPane.getSelectionModel().select(tab);
+        return tab;
     }
 }
