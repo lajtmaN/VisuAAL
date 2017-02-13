@@ -1,9 +1,11 @@
 package Model;
 
+import Helpers.UPPAALExecutor;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import parsers.UPPAALParser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -38,5 +40,9 @@ public class UPPAALModel {
 
     public ObservableList<OutputVariable> getOutputVars() {
         return outputVars;
+    }
+
+    public SimulateOutput runSimulation(String query) throws IOException {
+        return UPPAALExecutor.provideQueryResult(uppaalPath, query);
     }
 }
