@@ -73,7 +73,6 @@ clock send_data_clock[CONFIG_NR_NODES];                //Manage when the nodes s
 bool connected_check(int my_id, int other_id) {
 
 //Report topology: Neighbors must be 7
-
 int connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
 {0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
 {1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0},

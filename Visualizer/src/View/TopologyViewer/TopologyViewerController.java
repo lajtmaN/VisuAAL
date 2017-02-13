@@ -150,18 +150,20 @@ public class TopologyViewerController implements Initializable {
     }
 
     public void showTopology(ActionEvent actionEvent) throws InterruptedException, IOException {
-        //uppaalTopology.getGraph(true).display();
-        UPPAALTopology topology = uppaalModel.getTopology();
+        if(queryGeneratedTextField.getText().length() == 0) {
+            GUIHelper.showAlert(Alert.AlertType.ERROR, "Please generate Query first");
+            return;
+        }
 
-        String q = QueryGenerator.generate2DQuadraticArrayQuery("OUTPUT_data_is_scheduled", 16, 1, 40000);
-        SimulateOutput out = UPPAALExecutor.provideQueryResult("mac_model_exp.xml", q);
+        String query = queryGeneratedTextField.getText();
+        SimulateOutput out = uppaalModel.runSimulation(query);
         ArrayList<SimulationEdgePoint> points = out.getZippedForSimulate(0);
 
-        //viewer.disableAutoLayout();
+        UPPAALTopology topology = uppaalModel.getTopology();
         topology.setEdges(points);
-        Viewer viewer =  topology.getGraph(true).display();
+        topology.getGraph(true).display();
 
         topology.startAddingEdgesOverTime(points);
-        //viewer.enableAutoLayout();
+
     }
 }
