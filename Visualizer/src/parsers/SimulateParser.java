@@ -2,6 +2,7 @@ package parsers;
 
 import Model.DataPoint;
 import Model.SimulateOutput;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class SimulateParser {
             }
         }
         if (i == verifytaOutput.size())
-            return null;
+            return parseUPPAALError(verifytaOutput);
 
         SimulateOutput simulateOutput = new SimulateOutput(nrSimulations);
 
@@ -58,7 +59,37 @@ public class SimulateParser {
         return RegexHelper.getFirstMatchedValueFromRegex(variableRegex, s);
     }
 
-    private static ArrayList<DataPoint> parseDataPoints() {
-        return null;
+    private static SimulateOutput parseUPPAALError(List<String> verifytaOutput) {
+        /*
+        Options for the verification:
+          Generating no trace
+          Search order is breadth first
+          Using conservative space optimisation
+          Seed is 1486472853
+          State space representation uses minimal constraint systems
+        uppaalquery.q:1: [error] Unknown identifier: as.
+        uppaalquery.q:1: [error] syntax error: unexpected end, expecting ',' or '}'.
+
+         */
+        int i;
+        for (i = 0; i < verifytaOutput.size(); i++) {
+            if (verifytaOutput.get(i).contains("[error]")) {
+                break;
+            }
+        }
+        if (i == verifytaOutput.size())
+            throw new IllegalArgumentException("Expected an UPPAAL error, but could not parse any");
+
+        String uppaalError = "";
+
+        for (; i < verifytaOutput.size(); i++) {
+            uppaalError += RegexHelper.getFirstMatchedValueFromRegex("\\[error\\]\\s?(.*)", verifytaOutput.get(i));
+            if (i < verifytaOutput.size() - 1)
+                uppaalError += "\n";
+        }
+
+        SimulateOutput output = new SimulateOutput(0);
+        output.setErrorDescription(uppaalError);
+        return output;
     }
 }
