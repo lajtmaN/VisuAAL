@@ -6,6 +6,7 @@ import Helpers.QueryGenerator;
 import Helpers.UPPAALExecutor;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.transformation.FilteredList;
+import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -13,8 +14,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.GridPane;
+import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -23,6 +26,8 @@ import java.util.ResourceBundle;
 
 public class TopologyViewerController implements Initializable {
 
+    @FXML
+    private SwingNode embeddedSwingNode;
     @FXML
     private TextArea queryGeneratedTextField;
     @FXML
@@ -161,8 +166,12 @@ public class TopologyViewerController implements Initializable {
 
         UPPAALTopology topology = uppaalModel.getTopology();
         topology.setEdges(points);
-        topology.getGraph(true).display();
-
+        topology.updateGraph();
+        Viewer v = new Viewer(topology.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+        ViewPanel swingView = v.addDefaultView(false);
+        SwingUtilities.invokeLater(() -> {
+            embeddedSwingNode.setContent(swingView);
+        });
         topology.startAddingEdgesOverTime(points);
 
     }
