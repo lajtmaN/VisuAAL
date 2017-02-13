@@ -19,12 +19,12 @@ public class QueryGenerator {
 
 
     private static String generateQueryStart(int nrSimulations, long time, String vars) {
-        return "simulate " + nrSimulations + " [<=" + time + "] {" + vars + "}";
+        return "simulate " + nrSimulations + " [<=" + time + "] { " + vars + " }";
     }
 
     public static String generateSimulationQuery(int timebound, int nrSimulations, List<OutputVariable> outputVariables) {
-        List<String> vars = outputVariables.stream().map(QueryGenerator::generateSingleVariableQueryPart).
-                collect(Collectors.toList());
+        List<String> vars = outputVariables.stream().map(p -> QueryGenerator.generateSingleVariableQueryPart(p))
+                .collect(Collectors.toList());
 
         return generateQueryStart(nrSimulations, timebound, String.join(", ", vars));
     }
@@ -33,8 +33,7 @@ public class QueryGenerator {
         if(var.getIsEdgeData()) {
             return generate2DQuadraticArrayQueryVariables(var.getName(), var.getVariableArraySize());
         } else if(var.getIsNodeData()) {
-            //TODO: 1d array
-            return "";
+            return generate1DArrayQueryVariables(var.getName(), var.getVariableArraySize());
         } else {
             return var.getName();
         }
@@ -44,10 +43,20 @@ public class QueryGenerator {
         String res = "";
         for (int i = 0; i < size; i++)
             for (int j = 0; j < size; j++) {
-                res += String.format(" %1$s[%2$d][%3$d] > 0", name, i, j);
-                if (i < size-1 || j < size-1) res += ",";
+                res += String.format("%1$s[%2$d][%3$d] > 0", name, i, j);
+                if (i < size-1 || j < size-1) res += ", ";
             }
 
+        return res;
+    }
+
+    private static String generate1DArrayQueryVariables(String name, int size) {
+        String res = "";
+        for (int i = 0; i < size; i++) {
+            res += String.format("%s[%d] > 0", name, i);
+            if (i < size-1)
+                res += ", ";
+        }
         return res;
     }
 }
