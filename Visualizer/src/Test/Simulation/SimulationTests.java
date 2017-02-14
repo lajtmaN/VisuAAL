@@ -1,11 +1,13 @@
 package Simulation;
 
+import Helpers.FileHelper;
 import Model.Simulation;
 import Model.SimulationEdgePoint;
 import Model.UPPAALModel;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ public class SimulationTests  {
 
     @Test
     public void testSerializeAndDeserialize(){
-        String filePath = "testFile1";
+        String filePath = Long.toHexString(Double.doubleToLongBits(Math.random()));
 
         UPPAALModel model = new UPPAALModel("topologytest.xml");
         model.load();
@@ -33,12 +35,11 @@ public class SimulationTests  {
         Simulation sim = new Simulation(model, query, points);
 
         sim.save(filePath);
-
         Simulation sim2 = Simulation.load(filePath);
 
         assertEquals(sim, sim2);
 
-        File file = new File("simulations/"+filePath+".sim");
+        File file = new File(FileHelper.simulationFileName(filePath));
         assertTrue(file.delete());
 
     }

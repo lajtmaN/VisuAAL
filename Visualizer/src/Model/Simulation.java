@@ -1,7 +1,6 @@
 package Model;
 
-import Helpers.UPPAALExecutor;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
+import Helpers.FileHelper;
 import org.graphstream.graph.Graph;
 import parsers.RegexHelper;
 
@@ -45,7 +44,7 @@ public class Simulation implements Serializable {
 
     public void save(String fileName){
         try {
-            File file = new File("simulations/"+fileName+".sim");
+            File file = new File(FileHelper.simulationFileName(fileName));
             file.getParentFile().mkdirs();
             file.createNewFile();
             FileOutputStream fileOut = new FileOutputStream(file,false);
@@ -60,7 +59,7 @@ public class Simulation implements Serializable {
     public static Simulation load(String fileName){
         Simulation sim = null;
         try {
-            FileInputStream fileIn = new FileInputStream("simulations/"+fileName+".sim");
+            FileInputStream fileIn = new FileInputStream(FileHelper.simulationFileName(fileName));
             ObjectInputStream in = new ObjectInputStream(fileIn);
             sim = (Simulation) in.readObject();
             in.close();
