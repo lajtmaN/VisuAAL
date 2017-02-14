@@ -5,23 +5,21 @@ import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.graphstream.graph.Graph;
 import parsers.RegexHelper;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
  * Created by lajtman on 13-02-2017.
  */
-public class Simulation {
-
+public class Simulation implements Serializable {
     private UPPAALModel model;
     private ArrayList<SimulationEdgePoint> run;
     private String query;
 
-    public Simulation(UPPAALModel uppModel, String uppQuery) throws IOException {
+    public Simulation(UPPAALModel uppModel, String uppQuery, ArrayList<SimulationEdgePoint> points) {
         query = uppQuery;
         model = uppModel;
-        //TODO we only use the first simulation
-        run = UPPAALExecutor.provideQueryResult(uppModel.getUppaalPath(), uppQuery).getZippedForSimulate(0);
+        run = points;
         model.getTopology().setEdges(run);
         model.getTopology().updateGraph();
         model.getTopology().unmarkAllEdges();
@@ -44,4 +42,57 @@ public class Simulation {
     public int queryTimeBound() {
         return Integer.parseInt(RegexHelper.getFirstMatchedValueFromRegex("\\[<=(\\d+)\\]", query));
     }
+
+    public void save(String fileName){
+        try {
+            File file = new File("simulations/"+fileName+".sim");
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+            FileOutputStream fileOut = new FileOutputStream(file,false);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(this);
+            out.close();
+            fileOut.close();
+        }catch(IOException i) {
+            i.printStackTrace();
+        }
+    }
+    public static Simulation load(String fileName){
+        Simulation sim = null;
+        try {
+            FileInputStream fileIn = new FileInputStream("simulations/"+fileName+".sim");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            sim = (Simulation) in.readObject();
+            in.close();
+            fileIn.close();
+            sim.model.load();
+            sim.model.getTopology().setEdges(sim.run);
+            sim.model.getTopology().updateGraph();
+            sim.model.getTopology().unmarkAllEdges();
+        }catch(Exception i) {
+            i.printStackTrace();
+            return null;
+        }
+        return sim;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Simulation that = (Simulation) o;
+
+        if (!model.equals(that.model)) return false;
+        if (!run.equals(that.run)) return false;
+        return query.equals(that.query);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = model.hashCode();
+        result = 31 * result + run.hashCode();
+        result = 31 * result + query.hashCode();
+        return result;
+    }
+
 }

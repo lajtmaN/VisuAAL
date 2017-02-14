@@ -148,6 +148,7 @@ public class MainWindowController implements Initializable {
         if (simulationName.length() == 0) simulationName = "Result";
 
         addNewResults(simulationName, out);
+        out.save(simulationName);
     }
 
     private Tab addNewResults(String tabName, Simulation run) throws InterruptedException, IOException {

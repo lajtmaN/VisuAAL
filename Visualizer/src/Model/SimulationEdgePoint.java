@@ -1,9 +1,11 @@
 package Model;
 
+import java.io.Serializable;
+
 /**
  * Created by rasmu on 09/02/2017.
  */
-public class SimulationEdgePoint extends DataPoint {
+public class SimulationEdgePoint extends DataPoint implements Serializable{
     private int _source;
     private int _destination;
 
@@ -44,4 +46,5 @@ public class SimulationEdgePoint extends DataPoint {
     }
 
     public String getIdentifier() {return String.valueOf(_source)+"-"+String.valueOf(_destination);}
+
 }

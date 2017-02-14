@@ -8,6 +8,7 @@ import parsers.CHandler;
 import parsers.RegexHelper;
 import parsers.UPPAALParser;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static parsers.CHandler.getConstants;
@@ -15,7 +16,7 @@ import static parsers.CHandler.getConstants;
 /**
  * Created by lajtman on 10-02-2017.
  */
-public class OutputVariable {
+public class OutputVariable implements Serializable{
     private StringProperty name;
     private BooleanProperty isEdgeData;
     private BooleanProperty isNodeData;
@@ -79,5 +80,29 @@ public class OutputVariable {
 
     public int getVariableArraySize() {
         return variableArraySize;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OutputVariable variable = (OutputVariable) o;
+
+        if (variableArraySize != variable.variableArraySize) return false;
+        if (name != null ? !name.equals(variable.name) : variable.name != null) return false;
+        if (isEdgeData != null ? !isEdgeData.equals(variable.isEdgeData) : variable.isEdgeData != null) return false;
+        if (isNodeData != null ? !isNodeData.equals(variable.isNodeData) : variable.isNodeData != null) return false;
+        return isSelected != null ? isSelected.equals(variable.isSelected) : variable.isSelected == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (isEdgeData != null ? isEdgeData.hashCode() : 0);
+        result = 31 * result + (isNodeData != null ? isNodeData.hashCode() : 0);
+        result = 31 * result + (isSelected != null ? isSelected.hashCode() : 0);
+        result = 31 * result + variableArraySize;
+        return result;
     }
 }

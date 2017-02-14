@@ -51,7 +51,7 @@ public class UPPAALParser {
                 ArrayList<OutputVariable> outVars = new ArrayList<>();
                 for(String s : vars)
                     outVars.add(parseOutputVariableArray(s, constants));
-                return outVars;
+                    return outVars;
             }
         } catch (Exception e) {
             e.printStackTrace();
