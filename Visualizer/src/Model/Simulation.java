@@ -6,6 +6,7 @@ import parsers.RegexHelper;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by lajtman on 13-02-2017.
@@ -56,23 +57,30 @@ public class Simulation implements Serializable {
             i.printStackTrace();
         }
     }
-    public static Simulation load(String fileName){
-        Simulation sim = null;
+
+    public static Simulation load(String fileName) {
+        return load(FileHelper.simulationFileName(fileName));
+    }
+    public static Simulation load(File file){
+        if (!Objects.equals(FileHelper.getExtension(file.getName()), ".sim"))
+            throw new IllegalArgumentException("Only files with named *.sim can be loaded");
+
         try {
-            FileInputStream fileIn = new FileInputStream(FileHelper.simulationFileName(fileName));
+            FileInputStream fileIn = new FileInputStream(file);
             ObjectInputStream in = new ObjectInputStream(fileIn);
-            sim = (Simulation) in.readObject();
+            Simulation sim = (Simulation) in.readObject();
             in.close();
             fileIn.close();
             sim.model.load();
             sim.model.getTopology().setEdges(sim.run);
             sim.model.getTopology().updateGraph();
             sim.model.getTopology().unmarkAllEdges();
-        }catch(Exception i) {
+            return sim;
+        } catch(Exception i) {
             i.printStackTrace();
-            return null;
+
         }
-        return sim;
+        return null;
     }
     @Override
     public boolean equals(Object o) {
