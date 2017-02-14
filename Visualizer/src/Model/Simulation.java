@@ -59,7 +59,7 @@ public class Simulation implements Serializable {
     }
 
     public static Simulation load(String fileName) {
-        return load(FileHelper.simulationFileName(fileName));
+        return load(new File(FileHelper.simulationFileName(fileName)));
     }
     public static Simulation load(File file){
         if (!Objects.equals(FileHelper.getExtension(file.getName()), ".sim"))
