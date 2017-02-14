@@ -20,6 +20,7 @@ public class UPPAALModel {
     private UPPAALTopology topology;
     private ArrayList<CVar<Integer>> constantVars;
     private ObservableList<OutputVariable> outputVars = FXCollections.observableArrayList();
+    private ObservableList<TemplateUpdate> templateUpdates = FXCollections.observableArrayList();
 
     private String uppaalPath;
 
@@ -31,6 +32,7 @@ public class UPPAALModel {
         constantVars = UPPAALParser.getUPPAALConfigConstants(uppaalPath);
         topology = UPPAALParser.getUPPAALTopology(uppaalPath);
         outputVars.setAll(UPPAALParser.getUPPAALOutputVars(uppaalPath, constantVars));
+        templateUpdates.add(new TemplateUpdate());
     }
 
     public UPPAALTopology getTopology() {
@@ -51,5 +53,13 @@ public class UPPAALModel {
 
     public Simulation runSimulation(String query) throws IOException {
         return new Simulation(this, query);
+    }
+
+    public void updateUpdates(ObservableList<TemplateUpdate> items) {
+        templateUpdates = items;
+    }
+
+    public ObservableList<TemplateUpdate> getTemplateUpdates() {
+        return templateUpdates;
     }
 }

@@ -43,6 +43,20 @@
               </columns>
             </TableView>
          </content></Tab>
+       <Tab closable="false" text="Dynamic Constants">
+           <content>
+               <VBox alignment="CENTER">
+               <TableView fx:id="dynamicTable" editable="true" prefHeight="665.0" prefWidth="769.0">
+                   <columns>
+                       <TableColumn fx:id="dynColumnName" prefWidth="440" text="Variable" />
+                       <TableColumn fx:id="dynColumnValue" text="New value" />
+                       <TableColumn fx:id="dynColumnTime" text="Model time:" />
+                   </columns>
+               </TableView>
+                   <Button mnemonicParsing="false" onAction="#addUpdates" text="Add Updates"  />
+               </VBox>
+           </content>
+       </Tab>
       <Tab closable="false" text="Query Generator">
            <content>
                <GridPane fx:id="queryGridPane" hgap="10" vgap="10">

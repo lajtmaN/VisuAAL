@@ -7,8 +7,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
@@ -18,11 +16,12 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import javafx.util.converter.IntegerStringConverter;
+import javafx.util.converter.NumberStringConverter;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 
@@ -53,6 +52,11 @@ public class MainWindowController implements Initializable {
     @FXML private TableColumn<OutputVariable, Boolean> outputVarUse;
     @FXML private TextField txtQueryTimeBound;
     @FXML private TextField txtQuerySimulations;
+    @FXML private TableView<TemplateUpdate> dynamicTable;
+    @FXML private TableColumn<TemplateUpdate, String> dynColumnName;
+    @FXML private TableColumn<TemplateUpdate, Integer> dynColumnValue;
+    @FXML private TableColumn<TemplateUpdate, Integer> dynColumnTime;
+
 
     private UPPAALModel uppaalModel;
 
@@ -63,6 +67,21 @@ public class MainWindowController implements Initializable {
         initializeConstantTableValues();
         initializeOutputVarsTable();
         initializeWidths();
+        initializeDynamicTable();
+    }
+
+    private void initializeDynamicTable() {
+        dynColumnName.setCellValueFactory(p -> p.getValue().variableProperty());
+        dynColumnName.setCellFactory(TextFieldTableCell.forTableColumn());
+        dynColumnName.setOnEditCommit(
+                (TableColumn.CellEditEvent<TemplateUpdate, String> t)
+                -> (t.getTableView().getItems().get(t.getTablePosition().getRow())).setVariable(t.getNewValue()));
+
+        dynColumnValue.setCellValueFactory(p -> p.getValue().theValueProperty().asObject());
+        dynColumnValue.setCellFactory(p -> new IntegerEditingCell());
+
+        dynColumnTime.setCellValueFactory(p -> p.getValue().timeProperty().asObject());
+        dynColumnTime.setCellFactory(p -> new IntegerEditingCell());
     }
 
     private void initializeWidths() {
@@ -112,6 +131,7 @@ public class MainWindowController implements Initializable {
             addConstantsToList(uppaalModel.getConstantVars());
             tableOutputVars.setItems(uppaalModel.getOutputVars());
             tabPane.setVisible(true);
+            dynamicTable.setItems(uppaalModel.getTemplateUpdates());
         }
     }
 
@@ -196,5 +216,10 @@ public class MainWindowController implements Initializable {
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
         return tab;
+    }
+
+    public void addUpdates(ActionEvent actionEvent) {
+        //Add to template ..
+        uppaalModel.updateUpdates(dynamicTable.getItems());
     }
 }
