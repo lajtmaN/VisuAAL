@@ -43,8 +43,8 @@ public class MainWindowController implements Initializable {
     @FXML private TextArea txtUppaalOutput;
     @FXML private TextField txtSimulationName;
     @FXML private TextArea queryGeneratedTextField;
-    @FXML private TableColumn<CVar<String>, String> columnName;
-    @FXML private TableColumn<CVar<Integer>, String> columnValue;
+    @FXML private TableColumn<CVar<Integer>, String> columnName;
+    @FXML private TableColumn<CVar<Integer>, Integer> columnValue;
     @FXML private TableView constantsTable;
     @FXML private GridPane horizontalGrid;
     @FXML private TabPane tabPane;
@@ -94,8 +94,9 @@ public class MainWindowController implements Initializable {
     }
 
     private void initializeConstantTableValues() {
-        columnName.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getName()));
-        columnValue.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getValue().toString()));
+        columnName.setCellValueFactory(p -> p.getValue().nameProperty()); //Readonly, thus no CellFactory
+        columnValue.setCellValueFactory(p -> p.getValue().valueProperty());
+        columnValue.setCellFactory(p -> new IntegerEditingCell());
     }
 
     private void initializeOutputVarsTable() {
