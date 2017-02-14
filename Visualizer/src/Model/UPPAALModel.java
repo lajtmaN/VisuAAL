@@ -9,6 +9,7 @@ import parsers.UPPAALParser;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -16,11 +17,15 @@ import java.util.stream.Collectors;
 /**
  * Created by batto on 10-Feb-17.
  */
-public class UPPAALModel {
+public class UPPAALModel implements Serializable {
     private UPPAALTopology topology;
     private ArrayList<CVar<Integer>> constantVars;
+<<<<<<< HEAD
     private ObservableList<OutputVariable> outputVars = FXCollections.observableArrayList();
     private ObservableList<TemplateUpdate> templateUpdates = FXCollections.observableArrayList();
+=======
+    private transient ObservableList<OutputVariable> outputVars;
+>>>>>>> a15647c2803ba6a0f46045c971b47a7b096372b8
 
     private String uppaalPath;
 
@@ -31,6 +36,7 @@ public class UPPAALModel {
     public void load() {
         constantVars = UPPAALParser.getUPPAALConfigConstants(uppaalPath);
         topology = UPPAALParser.getUPPAALTopology(uppaalPath);
+        outputVars = FXCollections.observableArrayList();
         outputVars.setAll(UPPAALParser.getUPPAALOutputVars(uppaalPath, constantVars));
         templateUpdates.add(new TemplateUpdate());
     }
@@ -52,7 +58,31 @@ public class UPPAALModel {
     }
 
     public Simulation runSimulation(String query) throws IOException {
-        return new Simulation(this, query);
+        //TODO we only use the first simulation
+        ArrayList<SimulationEdgePoint> points = UPPAALExecutor.provideQueryResult(getUppaalPath(), query)
+                .getZippedForSimulate(0);
+        return new Simulation(this, query, points);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UPPAALModel that = (UPPAALModel) o;
+
+        if (!topology.equals(that.topology)) return false;
+        if (!constantVars.equals(that.constantVars)) return false;
+        return uppaalPath.equals(that.uppaalPath);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = topology.hashCode();
+        result = 31 * result + constantVars.hashCode();
+        result = 31 * result + outputVars.hashCode();
+        result = 31 * result + uppaalPath.hashCode();
+        return result;
     }
 
     public void updateUpdates(ObservableList<TemplateUpdate> items) {

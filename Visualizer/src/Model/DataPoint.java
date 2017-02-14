@@ -1,9 +1,11 @@
 package Model;
 
+import java.io.Serializable;
+
 /**
  * Created by lajtman on 07-02-2017.
  */
-public class DataPoint {
+public class DataPoint implements Serializable{
     public DataPoint() {
     }
 
