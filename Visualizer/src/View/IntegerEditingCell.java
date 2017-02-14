@@ -32,10 +32,4 @@ public class IntegerEditingCell<T> extends EditingCell<T, Integer> {
         }
     }
 
-    @Override
-    public void cancelEdit() {
-        super.cancelEdit();
-        setText(getItem().toString());
-        setGraphic(null);
-    }
 }

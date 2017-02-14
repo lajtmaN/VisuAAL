@@ -76,10 +76,7 @@ public class MainWindowController implements Initializable {
 
     private void initializeDynamicTable() {
         dynColumnName.setCellValueFactory(p -> p.getValue().variableProperty());
-        dynColumnName.setCellFactory(TextFieldTableCell.forTableColumn());
-        dynColumnName.setOnEditCommit(
-                (TableColumn.CellEditEvent<TemplateUpdate, String> t)
-                -> (t.getTableView().getItems().get(t.getTablePosition().getRow())).setVariable(t.getNewValue()));
+        dynColumnName.setCellFactory(p -> new StringEditingCell());
 
         dynColumnValue.setCellValueFactory(p -> p.getValue().theValueProperty().asObject());
         dynColumnValue.setCellFactory(p -> new IntegerEditingCell());
