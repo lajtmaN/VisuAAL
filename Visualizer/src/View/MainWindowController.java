@@ -18,10 +18,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.util.Duration;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
@@ -156,18 +153,28 @@ public class MainWindowController implements Initializable {
     private Tab addNewResults(String tabName, Simulation run) throws InterruptedException, IOException {
         BorderPane pane = new BorderPane();
 
+        //Value Label
+        Label lblCurrentTime = new Label("0.0 ms");
         //Slider
         int maxTime = run.queryTimeBound();
         Slider timeSlider = new Slider(0, maxTime, 0);
-        timeSlider.setBlockIncrement(maxTime/500);
-        timeSlider.setMajorTickUnit(maxTime/5);
+        timeSlider.setMajorTickUnit(maxTime > 10000 ? maxTime/4 : 10000);
         timeSlider.setShowTickMarks(true);
-        timeSlider.setSnapToTicks(true);
+        timeSlider.setShowTickLabels(true);
         timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             //TODO oldValue could be used to only add/remove the edges not already up-to-date
+            lblCurrentTime.setText(String.format("%.1f ms", newValue.doubleValue()));
             run.markEdgeAtTime(newValue);
         });
-        pane.setTop(timeSlider);
+        timeSlider.prefWidthProperty().bind(pane.widthProperty().multiply(0.8));
+        lblCurrentTime.prefWidthProperty().bind(pane.widthProperty().multiply(0.1));
+
+        HBox sliderBox = new HBox();
+        sliderBox.prefWidthProperty().bind(pane.widthProperty());
+        sliderBox.getChildren().add(timeSlider);
+        sliderBox.getChildren().add(lblCurrentTime);
+        sliderBox.setAlignment(Pos.TOP_CENTER);
+        pane.setTop(sliderBox);
 
         //Topology
         final SwingNode swingNode = new SwingNode();
