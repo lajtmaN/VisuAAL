@@ -1,5 +1,6 @@
 package View;
 
+import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.*;
 import Helpers.QueryGenerator;
@@ -19,6 +20,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.*;
+import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
@@ -27,7 +29,9 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
@@ -93,23 +97,43 @@ public class MainWindowController implements Initializable {
         constantsTable.getItems().addAll(constants);
     }
 
-    public void loadModel(ActionEvent actionEvent) {
+    public void loadModel(ActionEvent actionEvent) throws IOException, InterruptedException {
         constantsTable.getItems().clear();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select UPPAAL model or simulation");
+        fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Simulation", "*.sim"));
+        File selectedFile = fileChooser.showOpenDialog(rootElement.getScene().getWindow());
+        if (selectedFile == null)
+            return;
 
-        String modelPathContents = modelPathField.getText();
-        if(modelPathContents.length() == 0)
-            modelPathContents = "mac_model_exp";
+        if (selectedFile.exists() && selectedFile.isFile()) {
+            switch (FileHelper.getExtension(selectedFile.getName())) {
+                case ".xml":
+                    loadNewModel(selectedFile);
+                    break;
+                case ".sim":
+                    loadSavedSimulation(selectedFile);
+                    break;
+                default:
+                    throw new IllegalArgumentException(selectedFile.getName() + " could not be used");
+            }
 
-        if (!modelPathContents.endsWith(".xml")) modelPathContents += ".xml";
-
-        File f = new File(modelPathContents);
-        if (f.exists() && !f.isDirectory()) {
-            uppaalModel = new UPPAALModel(modelPathContents);
-            uppaalModel.load();
-            addConstantsToList(uppaalModel.getConstantVars());
-            tableOutputVars.setItems(uppaalModel.getOutputVars());
             tabPane.setVisible(true);
         }
+    }
+
+    private void loadSavedSimulation(File selectedFile) throws IOException, InterruptedException {
+        Simulation loaded = Simulation.load(selectedFile);
+        addNewResults(selectedFile.getName(), loaded);
+    }
+
+    private void loadNewModel(File selectedFile) {
+        uppaalModel = new UPPAALModel(selectedFile.getPath());
+        uppaalModel.load();
+        addConstantsToList(uppaalModel.getConstantVars());
+        tableOutputVars.setItems(uppaalModel.getOutputVars());
     }
 
     public void generateQuery(ActionEvent actionEvent) {
