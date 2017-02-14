@@ -1,16 +1,19 @@
 package Model;
 
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 import java.io.Serializable;
 
 /**
  * Created by batto on 14-Feb-17.
  */
-public class TemplateUpdate implements Serializable {
+public class TemplateUpdate implements Serializable, ObservableValue<String> {
     private IntegerProperty time,
             theValue;
 
@@ -24,7 +27,7 @@ public class TemplateUpdate implements Serializable {
     }
 
     public TemplateUpdate() {
-        setVariable("");
+        setVariable("<Variable_Name>");
         setTheValue(0);
         setTime(0);
     }
@@ -63,5 +66,30 @@ public class TemplateUpdate implements Serializable {
 
     public void setTheValue(int theValue) {
         this.theValue = new SimpleIntegerProperty(theValue);
+    }
+
+    @Override
+    public String getValue() {
+        return null;
+    }
+
+    @Override
+    public void addListener(ChangeListener<? super String> listener) {
+
+    }
+
+    @Override
+    public void removeListener(ChangeListener<? super String> listener) {
+
+    }
+
+    @Override
+    public void addListener(InvalidationListener listener) {
+
+    }
+
+    @Override
+    public void removeListener(InvalidationListener listener) {
+
     }
 }
