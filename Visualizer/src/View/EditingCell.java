@@ -40,5 +40,7 @@ public class EditingCell<T, C> extends TextFieldTableCell<T, C> {
     @Override
     public void cancelEdit() {
         super.cancelEdit();
+        setText(getItem().toString());
+        setGraphic(null);
     }
 }
