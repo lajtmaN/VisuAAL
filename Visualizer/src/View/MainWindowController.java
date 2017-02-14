@@ -1,5 +1,6 @@
 package View;
 
+import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.*;
 import Helpers.QueryGenerator;
@@ -16,9 +17,14 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
+<<<<<<< HEAD
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+=======
+import javafx.scene.layout.*;
+import javafx.stage.FileChooser;
+>>>>>>> a15647c2803ba6a0f46045c971b47a7b096372b8
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.NumberStringConverter;
@@ -29,7 +35,9 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
@@ -41,7 +49,6 @@ public class MainWindowController implements Initializable {
     @FXML private TableColumn<CVar<String>, String> columnName;
     @FXML private TableColumn<CVar<Integer>, String> columnValue;
     @FXML private TableView constantsTable;
-    @FXML private TextField modelPathField;
     @FXML private GridPane horizontalGrid;
     @FXML private TabPane tabPane;
     @FXML private GridPane rootElement;
@@ -87,7 +94,6 @@ public class MainWindowController implements Initializable {
     private void initializeWidths() {
         columnName.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.2));
         columnValue.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.8));
-        modelPathField.prefWidthProperty().bind(horizontalGrid.widthProperty().multiply(0.8));
         outputVarName.prefWidthProperty().bind(tableOutputVars.widthProperty().multiply(0.5));
         tabPane.prefWidthProperty().bind(rootElement.widthProperty());
         tableOutputVars.prefWidthProperty().bind(rootElement.widthProperty());
@@ -115,24 +121,44 @@ public class MainWindowController implements Initializable {
         constantsTable.getItems().addAll(constants);
     }
 
-    public void loadModel(ActionEvent actionEvent) {
+    public void loadModel(ActionEvent actionEvent) throws IOException, InterruptedException {
         constantsTable.getItems().clear();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select UPPAAL model or simulation");
+        fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Simulation", "*.sim"));
+        File selectedFile = fileChooser.showOpenDialog(rootElement.getScene().getWindow());
+        if (selectedFile == null)
+            return;
 
-        String modelPathContents = modelPathField.getText();
-        if(modelPathContents.length() == 0)
-            modelPathContents = "mac_model_exp";
+        if (selectedFile.exists() && selectedFile.isFile()) {
+            switch (FileHelper.getExtension(selectedFile.getName())) {
+                case ".xml":
+                    loadNewModel(selectedFile);
+                    break;
+                case ".sim":
+                    loadSavedSimulation(selectedFile);
+                    break;
+                default:
+                    throw new IllegalArgumentException(selectedFile.getName() + " could not be used");
+            }
 
-        if (!modelPathContents.endsWith(".xml")) modelPathContents += ".xml";
-
-        File f = new File(modelPathContents);
-        if (f.exists() && !f.isDirectory()) {
-            uppaalModel = new UPPAALModel(modelPathContents);
-            uppaalModel.load();
-            addConstantsToList(uppaalModel.getConstantVars());
-            tableOutputVars.setItems(uppaalModel.getOutputVars());
             tabPane.setVisible(true);
             dynamicTable.setItems(uppaalModel.getTemplateUpdates());
         }
+    }
+
+    private void loadSavedSimulation(File selectedFile) throws IOException, InterruptedException {
+        Simulation loaded = Simulation.load(selectedFile);
+        addNewResults(selectedFile.getName(), loaded);
+    }
+
+    private void loadNewModel(File selectedFile) {
+        uppaalModel = new UPPAALModel(selectedFile.getPath());
+        uppaalModel.load();
+        addConstantsToList(uppaalModel.getConstantVars());
+        tableOutputVars.setItems(uppaalModel.getOutputVars());
     }
 
     public void generateQuery(ActionEvent actionEvent) {
@@ -171,23 +197,34 @@ public class MainWindowController implements Initializable {
         if (simulationName.length() == 0) simulationName = "Result";
 
         addNewResults(simulationName, out);
+        out.save(simulationName);
     }
 
     private Tab addNewResults(String tabName, Simulation run) throws InterruptedException, IOException {
         BorderPane pane = new BorderPane();
 
+        //Value Label
+        Label lblCurrentTime = new Label("0.0 ms");
         //Slider
         int maxTime = run.queryTimeBound();
         Slider timeSlider = new Slider(0, maxTime, 0);
-        timeSlider.setBlockIncrement(maxTime/500);
-        timeSlider.setMajorTickUnit(maxTime/5);
+        timeSlider.setMajorTickUnit(maxTime > 10000 ? maxTime/4 : 10000);
         timeSlider.setShowTickMarks(true);
-        timeSlider.setSnapToTicks(true);
+        timeSlider.setShowTickLabels(true);
         timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             //TODO oldValue could be used to only add/remove the edges not already up-to-date
+            lblCurrentTime.setText(String.format("%.1f ms", newValue.doubleValue()));
             run.markEdgeAtTime(newValue);
         });
-        pane.setTop(timeSlider);
+        timeSlider.prefWidthProperty().bind(pane.widthProperty().multiply(0.8));
+        lblCurrentTime.prefWidthProperty().bind(pane.widthProperty().multiply(0.1));
+
+        HBox sliderBox = new HBox();
+        sliderBox.prefWidthProperty().bind(pane.widthProperty());
+        sliderBox.getChildren().add(timeSlider);
+        sliderBox.getChildren().add(lblCurrentTime);
+        sliderBox.setAlignment(Pos.TOP_CENTER);
+        pane.setTop(sliderBox);
 
         //Topology
         final SwingNode swingNode = new SwingNode();

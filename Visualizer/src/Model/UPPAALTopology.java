@@ -3,14 +3,15 @@ package Model;
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.MultiGraph;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by rasmu on 09/02/2017.
  */
-public class UPPAALTopology extends ArrayList<UPPAALEdge> {
+public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializable {
     private int _numberOfNodes;
-    private Graph _graphInstance;
+    private transient Graph _graphInstance;
     private ArrayList<SimulationEdgePoint> _edges;
 
     public UPPAALTopology(int numberOfNodes) {
@@ -143,4 +144,24 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> {
             "edge.unmarked {"+
                     "   fill-color: rgba(0,0,0,32);" +
                     "}";
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        UPPAALTopology that = (UPPAALTopology) o;
+
+        if (_numberOfNodes != that._numberOfNodes) return false;
+        return _edges != null ? _edges.equals(that._edges) : that._edges == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + _numberOfNodes;
+        result = 31 * result + (_edges != null ? _edges.hashCode() : 0);
+        return result;
+    }
 }

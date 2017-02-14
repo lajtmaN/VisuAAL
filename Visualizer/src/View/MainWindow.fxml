@@ -27,8 +27,7 @@
         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
     </rowConstraints>
     <children>
-        <Button fx:id="loadModelButton" mnemonicParsing="false" onAction="#loadModel" prefWidth="200" text="Load Model" GridPane.halignment="CENTER" />
-        <TextField fx:id="modelPathField" prefHeight="25.0" promptText="Model Path" GridPane.columnIndex="1" />
+        <Button fx:id="loadModelButton" mnemonicParsing="false" onAction="#loadModel" prefWidth="200" text="Load Model" GridPane.halignment="LEFT" />
     </children>
 </GridPane>
 <TabPane fx:id="tabPane" GridPane.rowIndex="1">
