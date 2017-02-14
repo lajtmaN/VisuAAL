@@ -37,6 +37,8 @@ public class UPPAALModel implements Serializable {
         outputVars.setAll(UPPAALParser.getUPPAALOutputVars(uppaalPath, constantVars));
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.add(new TemplateUpdate());
+
+
     }
 
     public UPPAALTopology getTopology() {
