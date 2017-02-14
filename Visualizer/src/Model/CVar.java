@@ -1,34 +1,47 @@
 package Model;
 
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 import java.io.Serializable;
 
 public class CVar<T> implements Serializable{
+
+    private StringProperty name;
+    private Property<T> value;
+
     public CVar(String name, T value) {
-        this.name = name;
-        this.value = value;
+        setName(name);
+        setValue(value);
     }
 
     public CVar() {
+        this(null, null);
     }
 
     public String getName() {
-        return name;
+        return name.get();
     }
 
+    public StringProperty nameProperty() { return name; }
+
     public void setName(String name) {
-        this.name = name;
+        this.name = new SimpleStringProperty(name);
     }
 
     public T getValue() {
-        return value;
+        return value.getValue();
     }
+
+    public Property<T> valueProperty() { return value; }
 
     public void setValue(T value) {
-        this.value = value;
+        this.value = new SimpleObjectProperty<>(value);
     }
 
-    private String name;
-    private T value;
+
 
     @Override
     public boolean equals(Object o) {

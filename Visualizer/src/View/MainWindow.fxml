@@ -35,10 +35,10 @@
    <tabs>
       <Tab closable="false" text="Configuration">
          <content>
-            <TableView fx:id="constantsTable" prefHeight="665.0" prefWidth="769.0" GridPane.rowIndex="0">
+            <TableView fx:id="constantsTable" editable="true" prefHeight="665.0" prefWidth="769.0" GridPane.rowIndex="0">
               <columns>
-                <TableColumn fx:id="columnName" editable="false" prefWidth="150.0" text="Name" />
-                <TableColumn fx:id="columnValue" editable="false" prefWidth="440.0" text="Value" />
+                <TableColumn fx:id="columnName"  editable="false" prefWidth="150.0" text="Name" />
+                <TableColumn fx:id="columnValue" prefWidth="440.0" text="Value" />
               </columns>
             </TableView>
          </content></Tab>
