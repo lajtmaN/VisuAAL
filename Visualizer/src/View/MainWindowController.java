@@ -43,7 +43,6 @@ public class MainWindowController implements Initializable {
     @FXML private TableColumn<CVar<String>, String> columnName;
     @FXML private TableColumn<CVar<Integer>, String> columnValue;
     @FXML private TableView constantsTable;
-    @FXML private TextField modelPathField;
     @FXML private GridPane horizontalGrid;
     @FXML private TabPane tabPane;
     @FXML private GridPane rootElement;
@@ -69,7 +68,6 @@ public class MainWindowController implements Initializable {
     private void initializeWidths() {
         columnName.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.2));
         columnValue.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.8));
-        modelPathField.prefWidthProperty().bind(horizontalGrid.widthProperty().multiply(0.8));
         outputVarName.prefWidthProperty().bind(tableOutputVars.widthProperty().multiply(0.5));
         tabPane.prefWidthProperty().bind(rootElement.widthProperty());
         tableOutputVars.prefWidthProperty().bind(rootElement.widthProperty());
