@@ -20,12 +20,9 @@ import java.util.stream.Collectors;
 public class UPPAALModel implements Serializable {
     private UPPAALTopology topology;
     private ArrayList<CVar<Integer>> constantVars;
-<<<<<<< HEAD
-    private ObservableList<OutputVariable> outputVars = FXCollections.observableArrayList();
-    private ObservableList<TemplateUpdate> templateUpdates = FXCollections.observableArrayList();
-=======
+    //TODO: Should maybe not be transient in the future
+    private transient ObservableList<TemplateUpdate> templateUpdates;
     private transient ObservableList<OutputVariable> outputVars;
->>>>>>> a15647c2803ba6a0f46045c971b47a7b096372b8
 
     private String uppaalPath;
 
@@ -38,6 +35,7 @@ public class UPPAALModel implements Serializable {
         topology = UPPAALParser.getUPPAALTopology(uppaalPath);
         outputVars = FXCollections.observableArrayList();
         outputVars.setAll(UPPAALParser.getUPPAALOutputVars(uppaalPath, constantVars));
+        templateUpdates = FXCollections.observableArrayList();
         templateUpdates.add(new TemplateUpdate());
     }
 
