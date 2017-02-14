@@ -5,10 +5,12 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import java.io.Serializable;
+
 /**
  * Created by batto on 14-Feb-17.
  */
-public class TemplateUpdate {
+public class TemplateUpdate implements Serializable {
     private IntegerProperty time,
             theValue;
 

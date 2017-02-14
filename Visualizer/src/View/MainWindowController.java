@@ -17,14 +17,11 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
-<<<<<<< HEAD
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-=======
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
->>>>>>> a15647c2803ba6a0f46045c971b47a7b096372b8
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.NumberStringConverter;
