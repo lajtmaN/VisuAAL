@@ -38,17 +38,6 @@ public class UPPAALModel implements Externalizable {
         outputVars.setAll(UPPAALParser.getUPPAALOutputVars(uppaalPath, constantVars));
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.add(new TemplateUpdate());
-<<<<<<< HEAD
-
-        /*try {
-            XmlHandler handler = new XmlHandler(uppaalPath);
-            handler.addTemplateUpdatesToModel(this.getTemplateUpdates());
-        } catch (Exception e) {
-
-        }*/
-
-=======
->>>>>>> 05708853ceafbdae9e3094ad5f3fac7842909f8f
     }
 
     public UPPAALTopology getTopology() {
