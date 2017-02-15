@@ -8,14 +8,15 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
-import java.io.Serializable;
+import java.io.*;
 
 /**
  * Created by batto on 14-Feb-17.
  */
-public class TemplateUpdate implements Serializable, ObservableValue<String> {
+public class TemplateUpdate implements Externalizable, ObservableValue<String> {
     private IntegerProperty time,
             theValue;
+
 
     private StringProperty variable;
     private boolean used = false;
@@ -91,5 +92,43 @@ public class TemplateUpdate implements Serializable, ObservableValue<String> {
     @Override
     public void removeListener(InvalidationListener listener) {
 
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeInt(getTime());
+        out.writeInt(getTheValue());
+        out.writeObject(getVariable());
+        out.writeBoolean(used);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        setTime(in.readInt());
+        setTheValue(in.readInt());
+        setVariable((String)in.readObject());
+        used = in.readBoolean();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TemplateUpdate that = (TemplateUpdate) o;
+
+        if (used != that.used) return false;
+        if (getTime() != that.getTime()) return false;
+        if (getTheValue() != that.getTheValue()) return false;
+        return getVariable() != null ? getVariable().equals(that.getVariable()) : that.getVariable() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = time != null ? time.hashCode() : 0;
+        result = 31 * result + (theValue != null ? theValue.hashCode() : 0);
+        result = 31 * result + (variable != null ? variable.hashCode() : 0);
+        result = 31 * result + (used ? 1 : 0);
+        return result;
     }
 }
