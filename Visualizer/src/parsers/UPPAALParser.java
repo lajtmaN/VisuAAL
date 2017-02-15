@@ -2,13 +2,10 @@ package parsers;
 
 import Model.CVar;
 import Model.OutputVariable;
-import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,12 +16,23 @@ public class UPPAALParser {
     public static ArrayList<CVar<Integer>> getUPPAALConfigConstants(String uppaalFilename) {
         try {
             XmlHandler handler = new XmlHandler(uppaalFilename);
-            return CHandler.getConstants(handler.getGlobalDeclarations());
+            return CHandler.getConfigVariables(handler.getGlobalDeclarations());
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    public static void updateUPPAALConfigConstants(String uppaalFilename, CVar<Integer> cvarWithNewVal) {
+        try {
+            XmlHandler handler = new XmlHandler(uppaalFilename);
+            String newDecls = CHandler.updateIntConfigVar(cvarWithNewVal.getName(), cvarWithNewVal.getValue(), handler.getGlobalDeclarations());
+            handler.setGlobalDeclarations(newDecls);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static UPPAALTopology getUPPAALTopology(String uppaalFilename){
         try{
