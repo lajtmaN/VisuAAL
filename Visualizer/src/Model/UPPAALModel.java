@@ -92,4 +92,8 @@ public class UPPAALModel implements Serializable {
     public ObservableList<TemplateUpdate> getTemplateUpdates() {
         return templateUpdates;
     }
+
+    public void addEmptyTemplateUpdate() {
+        getTemplateUpdates().add(new TemplateUpdate());
+    }
 }

@@ -27,7 +27,7 @@ public class TemplateUpdate implements Serializable, ObservableValue<String> {
     }
 
     public TemplateUpdate() {
-        setVariable("<Variable_Name>");
+        setVariable("");
         setTheValue(0);
         setTime(0);
     }
