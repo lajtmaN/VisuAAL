@@ -11,6 +11,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -18,6 +20,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.*;
@@ -33,8 +39,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
@@ -83,6 +91,31 @@ public class MainWindowController implements Initializable {
 
         dynColumnTime.setCellValueFactory(p -> p.getValue().timeProperty().asObject());
         dynColumnTime.setCellFactory(p -> new IntegerEditingCell());
+
+        dynamicTable.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        if(event.getButton() == MouseButton.PRIMARY) {
+                            TemplateUpdate last = uppaalModel.getTemplateUpdates().get(uppaalModel.getTemplateUpdates().size()-1);
+                            if(last.getVariable() != "")
+                                uppaalModel.addEmptyTemplateUpdate();
+                        }
+                    }
+                }
+        );
+
+        dynamicTable.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.DELETE && uppaalModel.getTemplateUpdates().size() > 1){
+                    TemplateUpdate focusedItem = dynamicTable.getFocusModel().getFocusedItem();
+                    uppaalModel.getTemplateUpdates().remove(focusedItem);
+                }
+                if (event.getCode() == KeyCode.TAB){
+
+                }
+            }
+        });
     }
 
     private void initializeWidths() {

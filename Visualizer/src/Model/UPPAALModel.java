@@ -109,9 +109,13 @@ public class UPPAALModel implements Externalizable {
         topology = (UPPAALTopology) in.readObject();
         constantVars = (ArrayList<CVar<Integer>>) in.readObject();
         templateUpdates = FXCollections.observableArrayList();
-        templateUpdates.setAll((ArrayList<TemplateUpdate>)in.readObject());
+        templateUpdates.setAll((ArrayList<TemplateUpdate>) in.readObject());
         outputVars = FXCollections.observableArrayList();
-        outputVars.setAll((ArrayList<OutputVariable>)in.readObject());
-        uppaalPath = (String)in.readObject();
+        outputVars.setAll((ArrayList<OutputVariable>) in.readObject());
+        uppaalPath = (String) in.readObject();
+    }
+
+    public void addEmptyTemplateUpdate() {
+        getTemplateUpdates().add(new TemplateUpdate());
     }
 }
