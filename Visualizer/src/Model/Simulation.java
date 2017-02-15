@@ -71,7 +71,7 @@ public class Simulation implements Serializable {
             Simulation sim = (Simulation) in.readObject();
             in.close();
             fileIn.close();
-            sim.model.load();
+            //sim.model.load();
             sim.model.getTopology().setEdges(sim.run);
             sim.model.getTopology().updateGraph();
             sim.model.getTopology().unmarkAllEdges();

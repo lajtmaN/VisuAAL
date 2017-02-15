@@ -7,8 +7,9 @@ import javafx.beans.property.StringProperty;
 import parsers.CHandler;
 import parsers.RegexHelper;
 import parsers.UPPAALParser;
+import sun.java2d.pipe.OutlineTextRenderer;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 
 import static parsers.CHandler.getConstants;
@@ -16,7 +17,7 @@ import static parsers.CHandler.getConstants;
 /**
  * Created by lajtman on 10-02-2017.
  */
-public class OutputVariable implements Serializable{
+public class OutputVariable implements Externalizable{
     private StringProperty name;
     private BooleanProperty isEdgeData;
     private BooleanProperty isNodeData;
@@ -25,6 +26,8 @@ public class OutputVariable implements Serializable{
     //Only used when it represents an edge or node
     private int variableArraySize;
 
+    //Only used for externalization
+    public OutputVariable() {}
     public OutputVariable(String pName) {
         setName(pName);
         setEdgeData(false);
@@ -35,6 +38,8 @@ public class OutputVariable implements Serializable{
     public BooleanProperty isSelected() {
         return isSelected;
     }
+
+    public boolean getIsSelected() {return isSelected().get();}
 
     public void setIsSelected(boolean isSelected) {
         this.isSelected = new SimpleBooleanProperty(isSelected);
@@ -90,10 +95,10 @@ public class OutputVariable implements Serializable{
         OutputVariable variable = (OutputVariable) o;
 
         if (variableArraySize != variable.variableArraySize) return false;
-        if (name != null ? !name.equals(variable.name) : variable.name != null) return false;
-        if (isEdgeData != null ? !isEdgeData.equals(variable.isEdgeData) : variable.isEdgeData != null) return false;
-        if (isNodeData != null ? !isNodeData.equals(variable.isNodeData) : variable.isNodeData != null) return false;
-        return isSelected != null ? isSelected.equals(variable.isSelected) : variable.isSelected == null;
+        if (getName() != null ? !getName().equals(variable.getName()) : variable.getName() != null) return false;
+        if (getIsEdgeData() != variable.getIsEdgeData()) return false;
+        if (getIsNodeData() != variable.getIsNodeData()) return false;
+        return getIsSelected() != variable.getIsSelected();
     }
 
     @Override
@@ -104,5 +109,23 @@ public class OutputVariable implements Serializable{
         result = 31 * result + (isSelected != null ? isSelected.hashCode() : 0);
         result = 31 * result + variableArraySize;
         return result;
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(getName());
+        out.writeBoolean(getIsEdgeData());
+        out.writeBoolean(getIsNodeData());
+        out.writeBoolean(getIsSelected());
+        out.writeInt(getVariableArraySize());
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        setName((String) in.readObject());
+        setEdgeData(in.readBoolean());
+        setNodeData(in.readBoolean());
+        setIsSelected(in.readBoolean());
+        setVariableArraySize(in.readInt());
     }
 }
