@@ -5,9 +5,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-import java.io.Serializable;
+import java.io.*;
 
-public class CVar<T> implements Serializable{
+public class CVar<T> implements Externalizable {
 
     private StringProperty name;
     private Property<T> value;
@@ -25,7 +25,9 @@ public class CVar<T> implements Serializable{
         return name.get();
     }
 
-    public StringProperty nameProperty() { return name; }
+    public StringProperty nameProperty() {
+        return name;
+    }
 
     public void setName(String name) {
         this.name = new SimpleStringProperty(name);
@@ -35,13 +37,25 @@ public class CVar<T> implements Serializable{
         return value.getValue();
     }
 
-    public Property<T> valueProperty() { return value; }
+    public Property<T> valueProperty() {
+        return value;
+    }
 
     public void setValue(T value) {
         this.value = new SimpleObjectProperty<>(value);
     }
 
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(getName());
+        out.writeObject(getValue());
+    }
 
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        setName((String)in.readObject());
+        setValue((T)in.readObject());
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -49,9 +63,8 @@ public class CVar<T> implements Serializable{
         if (o == null || getClass() != o.getClass()) return false;
 
         CVar<?> cVar = (CVar<?>) o;
-
-        if (name != null ? !name.equals(cVar.name) : cVar.name != null) return false;
-        return value != null ? value.equals(cVar.value) : cVar.value == null;
+        if (getName() != null ? !getName().equals(cVar.getName()) : cVar.getName() != null) return false;
+        return getValue() != null ? getValue().equals(cVar.getValue()) : cVar.getValue() == null;
     }
 
     @Override
@@ -60,4 +73,5 @@ public class CVar<T> implements Serializable{
         result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;
     }
+
 }
