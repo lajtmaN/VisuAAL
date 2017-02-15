@@ -1,5 +1,6 @@
 package parsers;
 
+import Model.TemplateUpdate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,8 +17,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class XmlHandler {
+    final private String dynamicTemplateUpdaterName = "visualizer_updater";
     private Document document;
     private String filepath;
 
@@ -68,5 +71,27 @@ public class XmlHandler {
         DOMSource source = new DOMSource(document);
         StreamResult result = new StreamResult(new File(filepath));
         transformer.transform(source, result);
+    }
+
+    public void addTemplateUpdatesToModel(List<TemplateUpdate> templateUpdates) throws TransformerException {
+        NodeList templateList = document.getElementsByTagName("template");
+
+        for(int i = 0; i < templateList.getLength(); i++) {
+            String name = templateList.item(i).getFirstChild().getNextSibling().getFirstChild().getNodeValue();
+            if(name.equals(dynamicTemplateUpdaterName)) {
+                Node n = templateList.item(i);
+                n.getParentNode().removeChild(n);
+                break;
+            }
+        }
+
+        addUpdatesToNode(document.getFirstChild());
+        writeXML();
+        int i = 0;
+    }
+
+    private void addUpdatesToNode(Node parent) {
+        Node n = document.createElement("template");
+        parent.appendChild(n);
     }
 }

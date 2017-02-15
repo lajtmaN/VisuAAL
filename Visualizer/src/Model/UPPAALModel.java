@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Slider;
 import parsers.UPPAALParser;
+import parsers.XmlHandler;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -38,6 +39,12 @@ public class UPPAALModel implements Serializable {
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.add(new TemplateUpdate());
 
+        /*try {
+            XmlHandler handler = new XmlHandler(uppaalPath);
+            handler.addTemplateUpdatesToModel(this.getTemplateUpdates());
+        } catch (Exception e) {
+
+        }*/
 
     }
 
