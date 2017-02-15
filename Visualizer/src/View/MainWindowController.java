@@ -174,7 +174,6 @@ public class MainWindowController implements Initializable {
             }
 
             tabPane.setVisible(true);
-            dynamicTable.setItems(uppaalModel.getTemplateUpdates());
         }
     }
 
@@ -188,6 +187,7 @@ public class MainWindowController implements Initializable {
         uppaalModel.load();
         addConstantsToList(uppaalModel.getConstantVars());
         tableOutputVars.setItems(uppaalModel.getOutputVars());
+        dynamicTable.setItems(uppaalModel.getTemplateUpdates());
     }
 
     public void generateQuery(ActionEvent actionEvent) {

@@ -9,8 +9,7 @@ import parsers.XmlHandler;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -18,15 +17,16 @@ import java.util.stream.Collectors;
 /**
  * Created by batto on 10-Feb-17.
  */
-public class UPPAALModel implements Serializable {
+public class UPPAALModel implements Externalizable {
     private UPPAALTopology topology;
     private ArrayList<CVar<Integer>> constantVars;
     //TODO: Should maybe not be transient in the future
-    private transient ObservableList<TemplateUpdate> templateUpdates;
-    private transient ObservableList<OutputVariable> outputVars;
+    private ObservableList<TemplateUpdate> templateUpdates;
+    private ObservableList<OutputVariable> outputVars;
 
     private String uppaalPath;
 
+    public UPPAALModel() {} //Only needed for Externalizable
     public UPPAALModel(String path) {
         uppaalPath = path;
     }
@@ -38,6 +38,7 @@ public class UPPAALModel implements Serializable {
         outputVars.setAll(UPPAALParser.getUPPAALOutputVars(uppaalPath, constantVars));
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.add(new TemplateUpdate());
+<<<<<<< HEAD
 
         /*try {
             XmlHandler handler = new XmlHandler(uppaalPath);
@@ -46,6 +47,8 @@ public class UPPAALModel implements Serializable {
 
         }*/
 
+=======
+>>>>>>> 05708853ceafbdae9e3094ad5f3fac7842909f8f
     }
 
     public UPPAALTopology getTopology() {
@@ -66,8 +69,8 @@ public class UPPAALModel implements Serializable {
 
     public Simulation runSimulation(String query) throws IOException {
         //TODO we only use the first simulation
-        ArrayList<SimulationEdgePoint> points = UPPAALExecutor.provideQueryResult(getUppaalPath(), query)
-                .getZippedForSimulate(0);
+        SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getUppaalPath(), query);
+        ArrayList<SimulationEdgePoint> points = simulateOutput.getZippedForSimulate(0);
         return new Simulation(this, query, points);
     }
 
@@ -78,17 +81,21 @@ public class UPPAALModel implements Serializable {
 
         UPPAALModel that = (UPPAALModel) o;
 
-        if (!topology.equals(that.topology)) return false;
-        if (!constantVars.equals(that.constantVars)) return false;
-        return uppaalPath.equals(that.uppaalPath);
+        if (topology != null ? !topology.equals(that.topology) : that.topology != null) return false;
+        if (constantVars != null ? !constantVars.equals(that.constantVars) : that.constantVars != null) return false;
+        if (templateUpdates != null ? !templateUpdates.equals(that.templateUpdates) : that.templateUpdates != null)
+            return false;
+        if (outputVars != null ? !outputVars.equals(that.outputVars) : that.outputVars != null) return false;
+        return uppaalPath != null ? uppaalPath.equals(that.uppaalPath) : that.uppaalPath == null;
     }
 
     @Override
     public int hashCode() {
-        int result = topology.hashCode();
-        result = 31 * result + constantVars.hashCode();
-        result = 31 * result + outputVars.hashCode();
-        result = 31 * result + uppaalPath.hashCode();
+        int result = topology != null ? topology.hashCode() : 0;
+        result = 31 * result + (constantVars != null ? constantVars.hashCode() : 0);
+        result = 31 * result + (templateUpdates != null ? templateUpdates.hashCode() : 0);
+        result = 31 * result + (outputVars != null ? outputVars.hashCode() : 0);
+        result = 31 * result + (uppaalPath != null ? uppaalPath.hashCode() : 0);
         return result;
     }
 
@@ -98,6 +105,26 @@ public class UPPAALModel implements Serializable {
 
     public ObservableList<TemplateUpdate> getTemplateUpdates() {
         return templateUpdates;
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(topology);
+        out.writeObject(constantVars);
+        out.writeObject(new ArrayList<>(templateUpdates));
+        out.writeObject(new ArrayList<>(outputVars));
+        out.writeObject(uppaalPath);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        topology = (UPPAALTopology) in.readObject();
+        constantVars = (ArrayList<CVar<Integer>>) in.readObject();
+        templateUpdates = FXCollections.observableArrayList();
+        templateUpdates.setAll((ArrayList<TemplateUpdate>) in.readObject());
+        outputVars = FXCollections.observableArrayList();
+        outputVars.setAll((ArrayList<OutputVariable>) in.readObject());
+        uppaalPath = (String) in.readObject();
     }
 
     public void addEmptyTemplateUpdate() {
