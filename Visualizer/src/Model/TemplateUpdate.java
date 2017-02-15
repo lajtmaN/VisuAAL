@@ -13,12 +13,11 @@ import java.io.Serializable;
 /**
  * Created by batto on 14-Feb-17.
  */
-public class TemplateUpdate implements Serializable, ObservableValue<String> {
+public class TemplateUpdate implements Serializable {
     private IntegerProperty time,
             theValue;
 
     private StringProperty variable;
-    private boolean used = false;
 
     public TemplateUpdate(String variable, int value, int time) {
         setVariable(variable);
@@ -66,30 +65,5 @@ public class TemplateUpdate implements Serializable, ObservableValue<String> {
 
     public void setTheValue(int theValue) {
         this.theValue = new SimpleIntegerProperty(theValue);
-    }
-
-    @Override
-    public String getValue() {
-        return null;
-    }
-
-    @Override
-    public void addListener(ChangeListener<? super String> listener) {
-
-    }
-
-    @Override
-    public void removeListener(ChangeListener<? super String> listener) {
-
-    }
-
-    @Override
-    public void addListener(InvalidationListener listener) {
-
-    }
-
-    @Override
-    public void removeListener(InvalidationListener listener) {
-
     }
 }

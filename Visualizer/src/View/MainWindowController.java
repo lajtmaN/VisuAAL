@@ -33,6 +33,7 @@ import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.NumberStringConverter;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+import parsers.XmlHandler;
 
 import javax.swing.*;
 import java.io.File;
