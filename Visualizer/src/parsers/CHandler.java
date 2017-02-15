@@ -29,9 +29,9 @@ public class CHandler {
     public static String updateIntConfigVar(String name, int value, String decls) {
         if(isCorrectType("int", name, decls)) {
             //Update value of the variable
-            return decls.replaceFirst(name + "( )*=( )*(\\d)*", name + " = " + String.valueOf(value));
+            return decls.replaceFirst(name + "\\s*=\\s*(\\d)+\\s*", name + " = " + String.valueOf(value));
         }
-        throw new IllegalArgumentException("The variable does not exist or must be the same type as the input variable!");
+        throw new IllegalArgumentException("The variable does not exist or must be the same type as the input variable");
     }
 
     //Works for int only current. Regex can be updated to match different types
@@ -71,7 +71,7 @@ public class CHandler {
         return groups;
     }
 
-    public static ArrayList<CVar<Integer>> getConstants(String decls) {
+    public static ArrayList<CVar<Integer>> getConfigVariables(String decls) {
         ArrayList<CVar<Integer>> constantNames = new ArrayList<>();
 
         //Pattern Name

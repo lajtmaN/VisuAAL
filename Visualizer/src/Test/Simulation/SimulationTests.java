@@ -41,7 +41,7 @@ public class SimulationTests  {
         assertEquals(sim, sim2);
 
         File file = new File(FileHelper.simulationFileName(filePath));
-        assertTrue(file.delete());  
+        assertTrue(file.delete());
 
     }
 
