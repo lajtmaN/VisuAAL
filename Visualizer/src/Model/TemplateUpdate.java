@@ -13,11 +13,7 @@ import java.io.*;
 /**
  * Created by batto on 14-Feb-17.
  */
-<<<<<<< HEAD
-public class TemplateUpdate implements Serializable {
-=======
 public class TemplateUpdate implements Externalizable {
->>>>>>> 05708853ceafbdae9e3094ad5f3fac7842909f8f
     private IntegerProperty time,
             theValue;
 
@@ -71,9 +67,6 @@ public class TemplateUpdate implements Externalizable {
     public void setTheValue(int theValue) {
         this.theValue = new SimpleIntegerProperty(theValue);
     }
-<<<<<<< HEAD
-}
-=======
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
@@ -109,4 +102,3 @@ public class TemplateUpdate implements Externalizable {
         return result;
     }
 }
->>>>>>> 05708853ceafbdae9e3094ad5f3fac7842909f8f
