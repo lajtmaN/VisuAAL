@@ -4,15 +4,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import parsers.CHandler;
-import parsers.RegexHelper;
-import parsers.UPPAALParser;
-import sun.java2d.pipe.OutlineTextRenderer;
 
 import java.io.*;
-import java.util.ArrayList;
-
-import static parsers.CHandler.getConstants;
 
 /**
  * Created by lajtman on 10-02-2017.

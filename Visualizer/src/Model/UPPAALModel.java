@@ -70,6 +70,7 @@ public class UPPAALModel implements Externalizable {
     public Simulation runSimulation(String query) throws IOException {
         //TODO we only use the first simulation
         SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getUppaalPath(), query);
+        //TODO use errorState on simulateOutput
         ArrayList<SimulationEdgePoint> points = simulateOutput.getZippedForSimulate(0);
         return new Simulation(this, query, points);
     }
