@@ -27,7 +27,7 @@ public class UPPAALExecutor {
         File queryFile = UPPAALParser.generateQueryFile(query);
 
         ProcessBuilder builder = new ProcessBuilder(
-                "cmd.exe", "/c", "lib\\verifyta.exe " + modelPath + " " + queryFile
+                "cmd.exe", "/c", "lib\\verifyta.exe \"" + modelPath + "\" " + queryFile
         );
         builder.redirectErrorStream(true);
         try {
