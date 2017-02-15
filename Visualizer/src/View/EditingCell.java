@@ -20,6 +20,7 @@ public class EditingCell<T, C> extends TextFieldTableCell<T, C> {
             if (! isNowFocused) {
                 processEdit();
             }
+
         });
         textField.setOnAction(event -> processEdit());
     }
