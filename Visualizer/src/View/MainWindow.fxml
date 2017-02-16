@@ -37,6 +37,7 @@
          <content>
             <TableView fx:id="constantsTable" editable="true" prefHeight="665.0" prefWidth="769.0" GridPane.rowIndex="0">
               <columns>
+                <TableColumn fx:id="columnScope" editable="false" prefWidth="150.0" text="Scope" />
                 <TableColumn fx:id="columnName" editable="false" prefWidth="150.0" text="Name" />
                 <TableColumn fx:id="columnValue" prefWidth="440.0" text="Value" />
               </columns>

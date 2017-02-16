@@ -19,7 +19,10 @@ int CONFIG_connected[9][9] = {
 	</declaration>
 	<template>
 		<name x="5" y="5">Template</name>
-		<declaration>// Place local declarations here.</declaration>
+		<declaration>// Place local declarations here.
+			const int CONFIG_LOCAL = 123,
+					heste_kager = 1;
+		</declaration>
 		<location id="id0" x="119" y="8">
 		</location>
 		<location id="id1" x="0" y="0">

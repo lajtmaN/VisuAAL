@@ -17,6 +17,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 public class XmlHandler {
@@ -53,6 +54,18 @@ public class XmlHandler {
         writeXML();
     }
 
+    public void setDeclarations(HashMap<String, String> allDelcs) throws TransformerException {
+        NodeList listOfDecls = document.getElementsByTagName("declaration");
+        listOfDecls.item(0).getFirstChild().setNodeValue(allDelcs.get(null));// Global decls
+
+        for (int i = 1; i < listOfDecls.getLength(); i++) {
+            String scopeOfDecls = listOfDecls.item(i).getPreviousSibling().getPreviousSibling().getFirstChild().getNodeValue();
+            listOfDecls.item(i).getFirstChild().setNodeValue(allDelcs.get(scopeOfDecls));
+        }
+
+        writeXML();
+    }
+
     //Find the global declarations element
     private Element getGlobalDeclsElement() {
         NodeList listOfDecls = document.getElementsByTagName("declaration");
@@ -62,6 +75,18 @@ public class XmlHandler {
             return (Element) GlobalDecls;
         }
         return null;
+    }
+
+    public HashMap<String, String> getAllDeclarations() {
+        NodeList listOfDecls = document.getElementsByTagName("declaration");
+        HashMap<String, String> allDecls = new HashMap<>();
+        allDecls.put(null, listOfDecls.item(0).getFirstChild().getNodeValue()); // Global decls
+
+        for (int i = 1; i < listOfDecls.getLength(); i++) {
+            String scopeOfDecls = listOfDecls.item(i).getPreviousSibling().getPreviousSibling().getFirstChild().getNodeValue();
+            allDecls.put(scopeOfDecls, listOfDecls.item(i).getFirstChild().getNodeValue());
+        }
+        return allDecls;
     }
 
     // write the content into xml file
