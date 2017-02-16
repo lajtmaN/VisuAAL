@@ -54,11 +54,11 @@ public class SimulateParserTests {
         SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")), 1);
 
         assertEquals(2, output.getNumVariables());
-        assertEquals(28, output.getSimulationForVariable("P.s1", 0).size());
+        assertEquals(14, output.getSimulationForVariable("P.s1", 0).size());
         containsData("P.s1", 12, 1.0, output);
         containsData("P.s1", 36, 1.0, output);
-        containsData("P.s2", 42, 0.0, output);
-        containsData("P.s2", 34, 1.0, output);
+        containsData("P.s2", 40, 0.0, output);
+        containsData("P.s2", 32, 1.0, output);
     }
 
     @Test
