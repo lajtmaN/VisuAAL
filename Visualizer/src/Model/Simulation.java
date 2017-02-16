@@ -6,20 +6,25 @@ import parsers.RegexHelper;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Created by lajtman on 13-02-2017.
  */
 public class Simulation implements Serializable {
     private UPPAALModel model;
-    private ArrayList<SimulationEdgePoint> run;
+    private final ArrayList<SimulationEdgePoint> run;
+    private final ArrayList<SimulationEdgePoint> reverseRun;
     private String query;
 
     public Simulation(UPPAALModel uppModel, String uppQuery, ArrayList<SimulationEdgePoint> points) {
         query = uppQuery;
         model = uppModel;
         run = points;
+        reverseRun = new ArrayList<>(points);
+        reverseRun.sort( (p1, p2) -> Double.compare(p2.getClock(), p1.getClock()));
         model.getTopology().setEdges(run);
         model.getTopology().updateGraph();
         model.getTopology().unmarkAllEdges();
@@ -29,9 +34,24 @@ public class Simulation implements Serializable {
         return model.getTopology().getGraph();
     }
 
-    public void markEdgeAtTime(Number newValue) {
-        model.getTopology().unmarkAllEdges();
-        run.stream().filter(p -> p.getClock() < newValue.doubleValue() && p.getValue() > 0).forEach(p -> model.getTopology().markEdge(p));
+    public void markEdgeAtTime(Number oldValue, Number newValue) {
+        double newTime = newValue.doubleValue();
+        double oldTime = oldValue.doubleValue();
+        if (newTime > oldTime)
+        {
+            run.stream().filter(p -> p.getClock() < newTime && p.getClock() > oldTime)
+                    .forEach( p-> model.getTopology().handleEdgeEdit(p, p.getValue() > 0));
+        }
+        else
+        {
+            reverseRun.stream().filter(p -> p.getClock() < oldTime && p.getClock() > newTime)
+                    .forEach( p-> model.getTopology().handleEdgeEdit(p, p.getValue() == 0));
+        }
+/*        run.stream().filter(p -> p.getValue() > 0 && p.getClock() < newTime && p.getClock() > oldTime)
+                .forEach(p -> model.getTopology().markEdge(p));
+        run.stream().filter(p -> p.getValue() == 0 && p.getClock() < newTime && p.getClock() > oldTime)
+                .forEach(p -> model.getTopology().unmarkEdge(p));*/
+
     }
 
     public void markEdgesInRealTime() {
