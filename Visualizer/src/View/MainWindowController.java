@@ -239,7 +239,7 @@ public class MainWindowController implements Initializable {
         timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             //TODO oldValue could be used to only add/remove the edges not already up-to-date
             lblCurrentTime.setText(String.format("%.1f ms", newValue.doubleValue()));
-            run.markEdgeAtTime(newValue);
+            run.markEdgeAtTime(oldValue, newValue);
         });
         timeSlider.prefWidthProperty().bind(pane.widthProperty().multiply(0.8));
         lblCurrentTime.prefWidthProperty().bind(pane.widthProperty().multiply(0.1));
