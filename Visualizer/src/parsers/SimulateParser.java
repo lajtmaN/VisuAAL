@@ -35,10 +35,15 @@ public class SimulateParser {
             if(outName != null) {
                 name = outName;
             }
-            else if (outSimId >= 0 && name != null){
+            else if (outSimId >= 0 && name != null) {
                 ArrayList<DataPoint> datas = RegexHelper.getDataPointsForString(verifytaOutput.get(i));
+                DataPoint justAddedPoint = null;
+
                 for(DataPoint d : datas) {
-                    simulateOutput.addDatapoint(name, outSimId, d);
+                    if (justAddedPoint == null || d.getValue() != justAddedPoint.getValue()) {
+                        justAddedPoint = d;
+                        simulateOutput.addDatapoint(name, outSimId, d);
+                    }
                 }
             }
         }
