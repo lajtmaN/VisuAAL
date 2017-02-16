@@ -7,6 +7,7 @@ import Model.UPPAALTopology;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,20 +73,28 @@ public class CHandler {
     }
 
     public static ArrayList<CVar<Integer>> getConfigVariables(String decls) {
+        HashMap<String, String> hashmap = new HashMap<>();
+        hashmap.put(null, decls); //null is global decls
+        return getConfigVariables(hashmap);
+    }
+    public static ArrayList<CVar<Integer>> getConfigVariables(HashMap<String, String> allDecls) {
         ArrayList<CVar<Integer>> constantNames = new ArrayList<>();
 
         //Pattern Name
         Pattern pVar = Pattern.compile(ConfigVariableRegex);
 
-        for(String s : getConstantGroups(decls)) {
-            Matcher mName = pVar.matcher(s);
+        for (String scopeKey : allDecls.keySet()) {
+            for (String s : getConstantGroups(allDecls.get(scopeKey))) {
+                Matcher mName = pVar.matcher(s);
 
-            while(mName.find()) {
-                CVar<Integer> var = new CVar();
-                String[] nameAndVal = mName.group().replace(" ","").split("=");
-                var.setName(nameAndVal[0]);
-                var.setValue(Integer.parseInt(nameAndVal[1]));
-                constantNames.add(var);
+                while (mName.find()) {
+                    CVar<Integer> var = new CVar();
+                    String[] nameAndVal = mName.group().replace(" ", "").split("=");
+                    var.setName(nameAndVal[0]);
+                    var.setValue(Integer.parseInt(nameAndVal[1]));
+                    var.setScope(scopeKey);
+                    constantNames.add(var);
+                }
             }
         }
         return constantNames;

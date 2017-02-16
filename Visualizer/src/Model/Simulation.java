@@ -47,11 +47,6 @@ public class Simulation implements Serializable {
             reverseRun.stream().filter(p -> p.getClock() < oldTime && p.getClock() > newTime)
                     .forEach( p-> model.getTopology().handleEdgeEdit(p, p.getValue() == 0));
         }
-/*        run.stream().filter(p -> p.getValue() > 0 && p.getClock() < newTime && p.getClock() > oldTime)
-                .forEach(p -> model.getTopology().markEdge(p));
-        run.stream().filter(p -> p.getValue() == 0 && p.getClock() < newTime && p.getClock() > oldTime)
-                .forEach(p -> model.getTopology().unmarkEdge(p));*/
-
     }
 
     public void markEdgesInRealTime() {
