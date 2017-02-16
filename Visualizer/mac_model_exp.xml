@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<nta>
+<?xml version="1.0" encoding="utf-8" standalone="no"?><nta>
 	<declaration>const int CONFIG_NR_NODES_SQR_ROOT = 4,
           CONFIG_NR_NODES = 16,
           NR_BEACON_SLOTS = 8,

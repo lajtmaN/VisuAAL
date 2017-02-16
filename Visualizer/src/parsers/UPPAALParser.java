@@ -3,9 +3,12 @@ package parsers;
 import Model.CVar;
 import Model.OutputVariable;
 import Model.UPPAALTopology;
+import scala.collection.parallel.ParIterableLike;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -23,10 +26,13 @@ public class UPPAALParser {
         return null;
     }
 
-    public static void updateUPPAALConfigConstants(String uppaalFilename, CVar<Integer> cvarWithNewVal) {
+    public static void updateUPPAALConfigConstants(String uppaalFilename, Collection<CVar<Integer>> cvarsWithNewVal ) {
         try {
             XmlHandler handler = new XmlHandler(uppaalFilename);
-            String newDecls = CHandler.updateIntConfigVar(cvarWithNewVal.getName(), cvarWithNewVal.getValue(), handler.getGlobalDeclarations());
+            String newDecls = handler.getGlobalDeclarations();
+            for (CVar<Integer> cvar : cvarsWithNewVal) {
+                newDecls = CHandler.updateIntConfigVar(cvar.getName(), cvar.getValue(), newDecls);
+            }
             handler.setGlobalDeclarations(newDecls);
         } catch (Exception e) {
             e.printStackTrace();
