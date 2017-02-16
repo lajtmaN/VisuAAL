@@ -5,7 +5,7 @@
 clock x;
 const int CONFIG_TESTING_CONSTANT = 1337;
 
-connected[9][9] = {
+int CONFIG_connected[9][9] = {
     {0, 1, 0, 1, 0, 0, 0, 0, 0}, 
     {1, 0, 1, 0, 1, 0, 0, 0, 0}, 
     {0, 1, 0, 0, 0, 1, 0, 0, 0}, 
