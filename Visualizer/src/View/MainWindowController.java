@@ -7,6 +7,8 @@ import Helpers.QueryGenerator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
@@ -18,6 +20,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -26,6 +29,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
 import javafx.util.Duration;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
@@ -41,12 +45,14 @@ import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
 
+
     @FXML private ProgressIndicator simulationProgress;
     @FXML private TextArea txtUppaalOutput;
     @FXML private TextField txtSimulationName;
     @FXML private TextArea queryGeneratedTextField;
     @FXML private TableColumn<CVar<Integer>, String> columnName;
     @FXML private TableColumn<CVar<Integer>, Integer> columnValue;
+    @FXML private TableColumn<CVar<Integer>, String> columnScope;
     @FXML private TableView constantsTable;
     @FXML private GridPane horizontalGrid;
     @FXML private TabPane tabPane;
@@ -115,14 +121,20 @@ public class MainWindowController implements Initializable {
     }
 
     private void initializeWidths() {
+        columnScope.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.2));
         columnName.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.2));
-        columnValue.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.8));
+        columnValue.prefWidthProperty().bind(constantsTable.widthProperty().multiply(0.6));
         outputVarName.prefWidthProperty().bind(tableOutputVars.widthProperty().multiply(0.5));
         tabPane.prefWidthProperty().bind(rootElement.widthProperty());
         tableOutputVars.prefWidthProperty().bind(rootElement.widthProperty());
     }
 
     private void initializeConstantTableValues() {
+        columnScope.setCellValueFactory(cell -> ((Callback<CVar<Integer>, StringProperty>) cellValue -> {
+            if (cellValue.getScope() == null)
+                return new SimpleStringProperty("Global");
+            return cellValue.scopeProperty();
+        }).call(cell.getValue()));
         columnName.setCellValueFactory(p -> p.getValue().nameProperty()); //Readonly, thus no CellFactory
         columnValue.setCellValueFactory(p -> p.getValue().valueProperty());
         columnValue.setCellFactory(p -> new IntegerEditingCell());

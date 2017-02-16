@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <nta>
 	<declaration>const int CONFIG_NR_NODES_SQR_ROOT = 4,
           CONFIG_NR_NODES = 16,
