@@ -20,7 +20,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -193,7 +192,7 @@ public class MainWindowController implements Initializable {
     private void loadNewModel(File selectedFile) {
         uppaalModel = new UPPAALModel(selectedFile.getPath());
         uppaalModel.load();
-        addConstantsToList(uppaalModel.getConstantVars());
+        addConstantsToList(uppaalModel.getConfigVars());
         tableOutputVars.setItems(uppaalModel.getOutputVars());
         dynamicTable.setItems(uppaalModel.getTemplateUpdates());
     }
@@ -299,9 +298,9 @@ public class MainWindowController implements Initializable {
     public void onLeaveConfigurationTab(Event event) {
         Tab selectedTab = (event.getSource() instanceof Tab ? (Tab)event.getSource() : null);
         if(selectedTab != null && !selectedTab.isSelected() && constantsChanged){
-            UPPAALParser.updateUPPAALConfigConstants(uppaalModel.getModelPath(), uppaalModel.getConstantVars());
+            UPPAALParser.updateUPPAALConfigConstants(uppaalModel.getModelPath(), uppaalModel.getConfigVars());
             //TODO reload appropriate views and update. Save stuff that should not be updated (i.e. selection in outputvars)
-            uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath(), uppaalModel.getConstantVars()));
+            uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath(), uppaalModel.getConfigVars()));
             constantsChanged = false;
         }
     }
