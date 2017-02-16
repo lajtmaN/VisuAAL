@@ -99,7 +99,7 @@ public class ParseXmlAndCTests {
         //Update value on config var
         CVar<Integer> updatedCVar = orgConfigs.get(0);
         updatedCVar.setValue(1000);
-        UPPAALParser.updateUPPAALConfigConstants(f.getPath(), updatedCVar);
+        UPPAALParser.updateUPPAALConfigConstants(f.getPath(), orgConfigs);
 
         //assert updated
         ArrayList<CVar<Integer>> updatedConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
