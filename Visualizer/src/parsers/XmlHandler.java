@@ -94,4 +94,8 @@ public class XmlHandler {
         Node n = document.createElement("template");
         parent.appendChild(n);
     }
+
+    public int getNumberOfTemplates() {
+        return document.getElementsByTagName("template").getLength();
+    }
 }

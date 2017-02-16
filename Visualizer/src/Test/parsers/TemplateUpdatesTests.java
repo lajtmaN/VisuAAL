@@ -1,8 +1,12 @@
 package parsers;
 
+import Helpers.FileHelper;
 import Model.TemplateUpdate;
 import Model.UPPAALModel;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by batto on 15-Feb-17.
@@ -10,8 +14,9 @@ import org.junit.Test;
 public class TemplateUpdatesTests {
 
     @Test
-    public void RemoveTemplateAndAddNew() {
-        String uppaalPath = "mac_model_exp.xml";
+    public void RemoveTemplateAndAddNew() throws IOException {
+        File f = FileHelper.copyFileIntoTempFile(new File("mac_model_exo.xml"));
+        String uppaalPath = f.getPath();
         UPPAALModel uppaalModel = new UPPAALModel(uppaalPath);
         uppaalModel.load();
         uppaalModel.getTemplateUpdates().add(new TemplateUpdate("test", 17, 21));
@@ -23,6 +28,6 @@ public class TemplateUpdatesTests {
             e.printStackTrace();
         }
 
-        //Asserts
+        //Asserts. Evt tæl antal templates før og efter fjernelse af template
     }
 }
