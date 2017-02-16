@@ -7,19 +7,17 @@ import Helpers.QueryGenerator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -29,21 +27,16 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
-import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.NumberStringConverter;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
-import parsers.XmlHandler;
+import parsers.UPPAALParser;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.security.Key;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
@@ -69,9 +62,11 @@ public class MainWindowController implements Initializable {
     @FXML private TableColumn<TemplateUpdate, String> dynColumnName;
     @FXML private TableColumn<TemplateUpdate, Integer> dynColumnValue;
     @FXML private TableColumn<TemplateUpdate, Integer> dynColumnTime;
+    @FXML private Tab configurationTab;
 
 
     private UPPAALModel uppaalModel;
+    private boolean constantsChanged;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -131,6 +126,7 @@ public class MainWindowController implements Initializable {
         columnName.setCellValueFactory(p -> p.getValue().nameProperty()); //Readonly, thus no CellFactory
         columnValue.setCellValueFactory(p -> p.getValue().valueProperty());
         columnValue.setCellFactory(p -> new IntegerEditingCell());
+        columnValue.addEventHandler(TableColumn.CellEditEvent.ANY, p -> constantsChanged = true);
     }
 
     private void initializeOutputVarsTable() {
@@ -287,5 +283,15 @@ public class MainWindowController implements Initializable {
     public void addUpdates(ActionEvent actionEvent) {
         //Add to template ..
         uppaalModel.updateUpdates(dynamicTable.getItems());
+    }
+
+    public void onLeaveConfigurationTab(Event event) {
+        Tab selectedTab = (event.getSource() instanceof Tab ? (Tab)event.getSource() : null);
+        if(selectedTab != null && !selectedTab.isSelected() && constantsChanged){
+            UPPAALParser.updateUPPAALConfigConstants(uppaalModel.getModelPath(), uppaalModel.getConstantVars());
+            //TODO reload appropriate views and update. Save stuff that should not be updated (i.e. selection in outputvars)
+            uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath(), uppaalModel.getConstantVars()));
+            constantsChanged = false;
+        }
     }
 }

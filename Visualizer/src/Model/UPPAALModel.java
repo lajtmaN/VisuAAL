@@ -3,16 +3,10 @@ package Model;
 import Helpers.UPPAALExecutor;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Slider;
 import parsers.UPPAALParser;
-import parsers.XmlHandler;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.stream.Collectors;
 
 /**
  * Created by batto on 10-Feb-17.
@@ -24,18 +18,18 @@ public class UPPAALModel implements Externalizable {
     private ObservableList<TemplateUpdate> templateUpdates;
     private ObservableList<OutputVariable> outputVars;
 
-    private String uppaalPath;
+    private String modelPath;
 
     public UPPAALModel() {} //Only needed for Externalizable
     public UPPAALModel(String path) {
-        uppaalPath = path;
+        modelPath = path;
     }
 
     public void load() {
-        constantVars = UPPAALParser.getUPPAALConfigConstants(uppaalPath);
-        topology = UPPAALParser.getUPPAALTopology(uppaalPath);
+        constantVars = UPPAALParser.getUPPAALConfigConstants(modelPath);
+        topology = UPPAALParser.getUPPAALTopology(modelPath);
         outputVars = FXCollections.observableArrayList();
-        outputVars.setAll(UPPAALParser.getUPPAALOutputVars(uppaalPath, constantVars));
+        outputVars.setAll(UPPAALParser.getUPPAALOutputVars(modelPath, constantVars));
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.add(new TemplateUpdate());
     }
@@ -52,13 +46,13 @@ public class UPPAALModel implements Externalizable {
         return outputVars;
     }
 
-    public String getUppaalPath() {
-        return uppaalPath;
+    public String getModelPath() {
+        return modelPath;
     }
 
     public Simulation runSimulation(String query) throws IOException {
         //TODO we only use the first simulation
-        SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getUppaalPath(), query);
+        SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getModelPath(), query);
         //TODO use errorState on simulateOutput
         ArrayList<SimulationEdgePoint> points = simulateOutput.getZippedForSimulate(0);
         return new Simulation(this, query, points);
@@ -76,7 +70,7 @@ public class UPPAALModel implements Externalizable {
         if (templateUpdates != null ? !templateUpdates.equals(that.templateUpdates) : that.templateUpdates != null)
             return false;
         if (outputVars != null ? !outputVars.equals(that.outputVars) : that.outputVars != null) return false;
-        return uppaalPath != null ? uppaalPath.equals(that.uppaalPath) : that.uppaalPath == null;
+        return modelPath != null ? modelPath.equals(that.modelPath) : that.modelPath == null;
     }
 
     @Override
@@ -85,7 +79,7 @@ public class UPPAALModel implements Externalizable {
         result = 31 * result + (constantVars != null ? constantVars.hashCode() : 0);
         result = 31 * result + (templateUpdates != null ? templateUpdates.hashCode() : 0);
         result = 31 * result + (outputVars != null ? outputVars.hashCode() : 0);
-        result = 31 * result + (uppaalPath != null ? uppaalPath.hashCode() : 0);
+        result = 31 * result + (modelPath != null ? modelPath.hashCode() : 0);
         return result;
     }
 
@@ -103,7 +97,7 @@ public class UPPAALModel implements Externalizable {
         out.writeObject(constantVars);
         out.writeObject(new ArrayList<>(templateUpdates));
         out.writeObject(new ArrayList<>(outputVars));
-        out.writeObject(uppaalPath);
+        out.writeObject(modelPath);
     }
 
     @Override
@@ -114,7 +108,7 @@ public class UPPAALModel implements Externalizable {
         templateUpdates.setAll((ArrayList<TemplateUpdate>) in.readObject());
         outputVars = FXCollections.observableArrayList();
         outputVars.setAll((ArrayList<OutputVariable>) in.readObject());
-        uppaalPath = (String) in.readObject();
+        modelPath = (String) in.readObject();
     }
 
     public void addEmptyTemplateUpdate() {

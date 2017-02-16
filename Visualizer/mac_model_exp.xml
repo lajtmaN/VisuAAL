@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<nta>
+<?xml version="1.0" encoding="utf-8" standalone="no"?><nta>
 	<declaration>const int CONFIG_NR_NODES_SQR_ROOT = 4,
           CONFIG_NR_NODES = 16,
           NR_BEACON_SLOTS = 8,
@@ -234,40 +233,7 @@ initialized[id] = true</label>
 			<nail x="-960" y="-697"/>
 		</transition>
 	</template>
-	<template>
-		<name>visualizer_updater</name>
-		<declaration>clock visualizer_updater_clock;</declaration>
-		<location id="id6" x="-416" y="212">
-		</location>
-		<location id="id7" x="-416" y="144">
-			<label kind="invariant" x="-399" y="144">visualizer_updater_clock &lt;= 1636</label>
-		</location>
-		<location id="id8" x="-416" y="76">
-			<label kind="invariant" x="-399" y="68">visualizer_updater_clock &lt;= 166</label>
-		</location>
-		<location id="id9" x="-416" y="8">
-			<label kind="invariant" x="-399" y="0">visualizer_updater_clock &lt;= 17</label>
-		</location>
-		<init ref="id9"/>
-		<transition>
-			<source ref="id7"/>
-			<target ref="id6"/>
-			<label kind="guard" x="-399" y="161">visualizer_updater_clock == 1636</label>
-			<label kind="assignment" x="-399" y="178">connected[7][5] = 0</label>
-		</transition>
-		<transition>
-			<source ref="id8"/>
-			<target ref="id7"/>
-			<label kind="guard" x="-399" y="85">visualizer_updater_clock == 166</label>
-			<label kind="assignment" x="-399" y="102">connected[2][5] = 0</label>
-		</transition>
-		<transition>
-			<source ref="id9"/>
-			<target ref="id8"/>
-			<label kind="guard" x="-399" y="17">visualizer_updater_clock == 17</label>
-			<label kind="assignment" x="-399" y="34">connected[2][5] = 0</label>
-		</transition>
-	</template>
+	
 	<template>
 		<name>initial_full_beacon_scan</name>
 		<parameter>id_t id</parameter>
@@ -1234,4 +1200,4 @@ beacon_interval(19).collision_percentage
 			</comment>
 		</query>
 	</queries>
-</nta>
+<template/></nta>
