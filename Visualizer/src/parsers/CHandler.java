@@ -1,12 +1,10 @@
 package parsers;
 
 import Model.CVar;
-import Model.OutputVariable;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,8 +15,9 @@ public class CHandler {
     private static final String OutputVarsRegex = "(OUTPUT_(?:\\w)+(?:\\s*\\[\\w+\\])*)";
 
     private static final String ConstDeclarationRegex(String type) {
-        return "const " + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)*;"; }
+        return type + "(\\s)*CONFIG((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)*;"; }
 
+    private static final String dummy = "^int";
     /**
      * Update a var in the XML decls
      * @param name of the variable
@@ -37,7 +36,7 @@ public class CHandler {
     //Works for int only current. Regex can be updated to match different types
     private static boolean isCorrectType(String type, String name, String decls) {
         //Match full const expression
-        Matcher matcher = getConstMatcher(type, decls);
+        Matcher matcher = getConfigMatcher(type, decls);
 
         //Match 'name' var
         Pattern patternVar = Pattern.compile(name + "( )*=");
@@ -57,14 +56,14 @@ public class CHandler {
         return false;
     }
 
-    private static Matcher getConstMatcher(String type, String decls) {
+    private static Matcher getConfigMatcher(String type, String decls) {
         Pattern patternConstExpr = Pattern.compile(ConstDeclarationRegex(type));
         return patternConstExpr.matcher(decls);
     }
 
-    private static ArrayList<String> getConstantGroups(String decls) {
+    private static ArrayList<String> getConfigGroups(String decls) {
         ArrayList<String> groups = new ArrayList<>();
-        Matcher matcher = getConstMatcher("int", decls);
+        Matcher matcher = getConfigMatcher("int", decls);
         while(matcher.find()) {
             groups.add(matcher.group());
         }
@@ -77,7 +76,7 @@ public class CHandler {
         //Pattern Name
         Pattern pVar = Pattern.compile(ConfigVariableRegex);
 
-        for(String s : getConstantGroups(decls)) {
+        for(String s : getConfigGroups(decls)) {
             Matcher mName = pVar.matcher(s);
 
             while(mName.find()) {
@@ -88,6 +87,7 @@ public class CHandler {
                 constantNames.add(var);
             }
         }
+
         return constantNames;
     }
 
