@@ -15,12 +15,12 @@ const int BEACON_PERIOD = 1000,
           DATA_DURATION = 1;
 
 //Probability that a beacon is lost
-const int BCN_LOST_PROB = 1,
-          BCN_NOT_LOST_PROB = 99;
+const int CONFIG_BCN_LOST_PROB = 1,
+          CONFIG_BCN_NOT_LOST_PROB = 99;
 
 //Probability that a data package is lost
-const int DATA_LOST_PROB = 1,
-          DATA_NOT_LOST_PROB = 99;
+const int CONFIG_DATA_LOST_PROB = 1,
+          CONFIG_DATA_NOT_LOST_PROB = 99;
 
 //Type for node IDs
 typedef int[0, CONFIG_NR_NODES-1] id_t;
@@ -61,7 +61,7 @@ int OUTPUT_data_is_scheduled[CONFIG_NR_NODES][CONFIG_NR_NODES];      //Data sche
 int initialized[CONFIG_NR_NODES];                      //Initialized after initial scan
 
 //Used to extract extra data
-int nr_node_relations = 0;                      //Count of total network relations
+int OUTPUT_nr_node_relations = 0;                      //Count of total network relations
 
 //Clocks used by several templates
 clock beacon_clocks[CONFIG_NR_NODES];                  //Manages beacon periods
@@ -71,7 +71,7 @@ clock send_data_clock[CONFIG_NR_NODES];                //Manage when the nodes s
 bool connected_check(int my_id, int other_id) {
 
 //Report topology: Neighbors must be 7
-int connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
+int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
 {0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
 {1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0},
 {0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0},
@@ -89,6 +89,8 @@ int connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
 {0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1},
 {0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0}
 };
+
+return CONFIG_connected[my_id][other_id];
 
 //Neocortec testbed - num_nodes_quadratic * num_nodes_quadratic nodes
     if(my_id % CONFIG_NR_NODES_SQR_ROOT == 0)
@@ -115,7 +117,7 @@ int connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
     return my_id - other_id == 1 || my_id - other_id == -1;
 
 }</declaration>
-	<template>
+<template>
 		<name x="5" y="5">beacon_schedule</name>
 		<parameter>id_t id</parameter>
 		<location id="id0" x="-603" y="-510">
@@ -349,7 +351,7 @@ void handle_beacon(int my_id, int other_id) {
         if(OUTPUT_data_is_scheduled[my_id][other_id] == 0)
         {
             OUTPUT_data_is_scheduled[my_id][other_id] = 1;
-            nr_node_relations++;
+            OUTPUT_nr_node_relations++;
         }
         if(sync_id == -1)
             sync_id = other_id;
@@ -414,14 +416,14 @@ collision = true</label>
 			<source ref="id24"/>
 			<target ref="id16"/>
 			<label kind="comments" x="501" y="-187">Collision</label>
-			<label kind="probability" x="501" y="-170">BCN_NOT_LOST_PROB</label>
+			<label kind="probability" x="501" y="-170">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="646" y="-195"/>
 		</transition>
 		<transition>
 			<source ref="id24"/>
 			<target ref="id23"/>
 			<label kind="comments" x="374" y="-238">Beacon lost</label>
-			<label kind="probability" x="373" y="-221">BCN_LOST_PROB</label>
+			<label kind="probability" x="373" y="-221">CONFIG_BCN_LOST_PROB</label>
 			<nail x="364" y="-195"/>
 		</transition>
 		<transition>
@@ -430,14 +432,14 @@ collision = true</label>
 			<label kind="assignment" x="272" y="-603">slot_clock = 0,
 local_beacon = sent_beacon</label>
 			<label kind="comments" x="272" y="-637">Beacon received</label>
-			<label kind="probability" x="272" y="-620">BCN_NOT_LOST_PROB</label>
+			<label kind="probability" x="272" y="-620">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="339" y="-561"/>
 		</transition>
 		<transition>
 			<source ref="id25"/>
 			<target ref="id19"/>
 			<label kind="comments" x="17" y="-603">Beacon lost</label>
-			<label kind="probability" x="17" y="-587">BCN_LOST_PROB</label>
+			<label kind="probability" x="17" y="-587">CONFIG_BCN_LOST_PROB</label>
 			<nail x="8" y="-561"/>
 		</transition>
 		<transition>
@@ -587,7 +589,7 @@ void schedule_data() {
     if(nr_senders == 1 &amp;&amp; OUTPUT_data_is_scheduled[id][received_beacon.id] == 0) {
         //Schedule data
         OUTPUT_data_is_scheduled[id][received_beacon.id] = 1;
-        nr_node_relations++;
+        OUTPUT_nr_node_relations++;
     }
 }
 
@@ -668,7 +670,7 @@ double nr_collisions = 0.0,
 			<source ref="id36"/>
 			<target ref="id33"/>
 			<label kind="comments" x="-187" y="331">6/P12. Bacon lost</label>
-			<label kind="probability" x="-187" y="348">BCN_LOST_PROB</label>
+			<label kind="probability" x="-187" y="348">CONFIG_BCN_LOST_PROB</label>
 			<nail x="-221" y="323"/>
 		</transition>
 		<transition>
@@ -677,7 +679,7 @@ double nr_collisions = 0.0,
 			<label kind="assignment" x="-187" y="263">retrieve_beacon(),
 nr_senders++</label>
 			<label kind="comments" x="-187" y="246">5/P12. Beacon not lost</label>
-			<label kind="probability" x="-187" y="297">BCN_NOT_LOST_PROB</label>
+			<label kind="probability" x="-187" y="297">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="-8" y="238"/>
 			<nail x="-204" y="238"/>
 		</transition>
@@ -919,13 +921,13 @@ void decrement_data_schedule(int my_id, int other_id) {
     OUTPUT_data_is_scheduled[my_id][other_id]--;
 
     if(OUTPUT_data_is_scheduled[my_id][other_id] == 0) 
-        nr_node_relations--;
+        OUTPUT_nr_node_relations--;
 }
 
 //Schedule the 3 next data transmissions
 void schedule_data(int my_id, int other_id) {
     if(OUTPUT_data_is_scheduled[my_id][other_id] == 0)
-        nr_node_relations++;
+        OUTPUT_nr_node_relations++;
 
     OUTPUT_data_is_scheduled[my_id][other_id] = 3;
 }</declaration>
@@ -982,7 +984,7 @@ is_busy[id] = true</label>
 			<source ref="id50"/>
 			<target ref="id48"/>
 			<label kind="comments" x="510" y="-119">Data is not lost</label>
-			<label kind="probability" x="510" y="-102">DATA_NOT_LOST_PROB</label>
+			<label kind="probability" x="510" y="-102">CONFIG_DATA_NOT_LOST_PROB</label>
 			<nail x="501" y="-136"/>
 			<nail x="399" y="-136"/>
 		</transition>
@@ -990,7 +992,7 @@ is_busy[id] = true</label>
 			<source ref="id50"/>
 			<target ref="id46"/>
 			<label kind="comments" x="102" y="-51">Data is lost</label>
-			<label kind="probability" x="102" y="-34">DATA_LOST_PROB</label>
+			<label kind="probability" x="102" y="-34">CONFIG_DATA_LOST_PROB</label>
 			<nail x="450" y="-8"/>
 			<nail x="17" y="-8"/>
 		</transition>
@@ -1115,7 +1117,7 @@ OUTPUT_data_is_scheduled[0][15] &gt; 0
 			</comment>
 		</query>
 		<query>
-			<formula>Pr [&lt;= 60000] (&lt;&gt; nr_node_relations == 18)
+			<formula>Pr [&lt;= 60000] (&lt;&gt; OUTPUT_nr_node_relations == 18)
 			</formula>
 			<comment>
 			</comment>
@@ -1133,7 +1135,7 @@ OUTPUT_data_is_scheduled[0][15] &gt; 0
 			</comment>
 		</query>
 		<query>
-			<formula>simulate 10 [&lt;=300000] { nr_node_relations }
+			<formula>simulate 10 [&lt;=300000] { OUTPUT_nr_node_relations }
 			</formula>
 			<comment>
 			</comment>

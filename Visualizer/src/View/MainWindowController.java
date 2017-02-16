@@ -281,8 +281,7 @@ public class MainWindowController implements Initializable {
     }
 
     public void addUpdates(ActionEvent actionEvent) {
-        //Add to template ..
-        uppaalModel.updateUpdates(dynamicTable.getItems());
+        uppaalModel.saveTemplateUpdatesToXml();
     }
 
     public void onLeaveConfigurationTab(Event event) {

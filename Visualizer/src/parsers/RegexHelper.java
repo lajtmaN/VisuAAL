@@ -35,4 +35,15 @@ public class RegexHelper {
         }
         return dataPoints;
     }
+
+    public static boolean variableNameMatches(String var1, String var2) {
+        Pattern p = Pattern.compile("(\\w*).*");
+        Matcher m1 = p.matcher(var1);
+        Matcher m2 = p.matcher(var2);
+
+        m1.find();
+        m2.find();
+
+        return m1.group(1).equals(m2.group(1));
+    }
 }
