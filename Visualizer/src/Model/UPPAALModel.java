@@ -1,9 +1,14 @@
 package Model;
 
+import Helpers.GUIHelper;
 import Helpers.UPPAALExecutor;
+import com.lowagie.text.Paragraph;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+import parsers.RegexHelper;
 import parsers.UPPAALParser;
+import parsers.XmlHandler;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -113,5 +118,36 @@ public class UPPAALModel implements Externalizable {
 
     public void addEmptyTemplateUpdate() {
         getTemplateUpdates().add(new TemplateUpdate());
+    }
+
+    public void saveTemplateUpdatesToXml() {
+        String errorMsg = "The output variables are not found:";
+
+        try{
+            XmlHandler handler = new XmlHandler(modelPath);
+            ArrayList<TemplateUpdate> out = new ArrayList<>();
+            ArrayList<TemplateUpdate> notFound = new ArrayList<>();
+
+            for (TemplateUpdate t : this.getTemplateUpdates()) {
+                boolean exists = false;
+                for (OutputVariable v : outputVars) {
+                    if(RegexHelper.variableNameMatches(t.getVariable(), v.getName()))
+                        exists = true;
+                }
+                if(exists)
+                    out.add(t);
+                else {
+                    notFound.add(t);
+                    errorMsg += " " + t.getVariable() + " ";
+                }
+            }
+
+            GUIHelper.showAlert(Alert.AlertType.INFORMATION, errorMsg);
+            if(out.size() > 0)
+                handler.addTemplateUpdatesToModel(out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

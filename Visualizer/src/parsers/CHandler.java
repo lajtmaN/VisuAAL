@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CHandler {
-    private static final String TopologyRegex = "connected\\[.+\\n((?:[^;])+)\\};";
+    private static final String TopologyRegex = "CONFIG_connected\\[.+\\n((?:[^;])+)\\};";
     private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
     private static final String ConfigVariableRegex = "CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+";
     private static final String OutputVarsRegex = "(OUTPUT_(?:\\w)+(?:\\s*\\[\\w+\\])*)";
