@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <nta>
-	<declaration>const int CONFIG_NR_NODES_SQR_ROOT = 4,
+	<declaration>const int CONFIG_NR_NODES_SQR_ROOT = 5,
           CONFIG_NR_NODES = 16,
           NR_BEACON_SLOTS = 8,
           MAX_BEACON_NUMBER = 17;
@@ -239,18 +239,28 @@ initialized[id] = true</label>
 	<template>
 		<name>initial_full_beacon_scan</name>
 		<parameter>id_t id</parameter>
-		<declaration>const int NR_MAX_FULL_BEACON = 16,            //Max number of full beacon scans
-          NR_BEACON_PERIOD_PER_SCAN = 3,      //Number of beacon periods per scan
-          //The max number of beacon periods before initial full beacon scan ends
-          NR_MAX_PERIOD = NR_MAX_FULL_BEACON 
-                            * NR_BEACON_PERIOD_PER_SCAN 
-                            - (NR_BEACON_PERIOD_PER_SCAN - 1);
+		<declaration>clock receiving_data_clock;   //Receives data for a duration
+int local_sender_id = 0;      //Save senders id locally
 
-int beacon_period_count = 0;                  //Count of beacon periods
+bool is_connected(int other_id) {
+    return connected_check(id, other_id);
+}
 
-//Return if it is time for full beacon scan or standard beacon period
-bool is_full_beacon_scan() {
-    return beacon_period_count % (NR_BEACON_PERIOD_PER_SCAN) == 0;
+//We schedule at most 3 data transmissions at a time
+//When the schedule reaches 0 it is no longer scheduled
+void decrement_data_schedule(int my_id, int other_id) {
+    OUTPUT_data_is_scheduled[my_id][other_id]--;
+
+    if(OUTPUT_data_is_scheduled[my_id][other_id] == 0) 
+        OUTPUT_nr_node_relations--;
+}
+
+//Schedule the 3 next data transmissions
+void schedule_data(int my_id, int other_id) {
+    if(OUTPUT_data_is_scheduled[my_id][other_id] == 0)
+        OUTPUT_nr_node_relations++;
+
+    OUTPUT_data_is_scheduled[my_id][other_id] = 3;
 }</declaration>
 		<location id="id8" x="-799" y="-680">
 			<committed/>
@@ -337,31 +347,28 @@ bool is_full_beacon_scan() {
 	<template>
 		<name>full_beacon_scan</name>
 		<parameter>id_t id</parameter>
-		<declaration>clock slot_clock;           //Handling slot timing
-beacon_data local_beacon;   //Sent beacon saved locally
-bool collision = false;     //True after collision
-int sync_id = -1;           //Id to synchronize to 
+		<declaration>clock receiving_data_clock;   //Receives data for a duration
+int local_sender_id = 0;      //Save senders id locally
 
-bool is_connected() {
-    return connected_check(id, sent_beacon.id);
+bool is_connected(int other_id) {
+    return connected_check(id, other_id);
 }
 
-//Schedule data and sync (first beacon only) when there is no collision
-void handle_beacon(int my_id, int other_id) {
-    if(!collision) {
-        if(OUTPUT_data_is_scheduled[my_id][other_id] == 0)
-        {
-            OUTPUT_data_is_scheduled[my_id][other_id] = 1;
-            OUTPUT_nr_node_relations++;
-        }
-        if(sync_id == -1)
-            sync_id = other_id;
-    }
+//We schedule at most 3 data transmissions at a time
+//When the schedule reaches 0 it is no longer scheduled
+void decrement_data_schedule(int my_id, int other_id) {
+    OUTPUT_data_is_scheduled[my_id][other_id]--;
+
+    if(OUTPUT_data_is_scheduled[my_id][other_id] == 0) 
+        OUTPUT_nr_node_relations--;
 }
 
-void reset_vars() {
-    local_beacon.id = 0;
-    collision = false;
+//Schedule the 3 next data transmissions
+void schedule_data(int my_id, int other_id) {
+    if(OUTPUT_data_is_scheduled[my_id][other_id] == 0)
+        OUTPUT_nr_node_relations++;
+
+    OUTPUT_data_is_scheduled[my_id][other_id] = 3;
 }</declaration>
 		<location id="id13" x="272" y="-374">
 			<committed/>
@@ -544,85 +551,29 @@ reset_vars()</label>
 	<template>
 		<name>beacon_scan</name>
 		<parameter>id_t id</parameter>
-		<declaration>//Nr beacon periods without sending
-const int NR_BEACON_PERIODS_ONLY_LISTEN = 3;
+		<declaration>clock receiving_data_clock;   //Receives data for a duration
+int local_sender_id = 0;      //Save senders id locally
 
-clock beacon_slot_clock;     //Timing for a single beacon slot
-beacon_data received_beacon; //Save received beacon
-int current_slot = 0,        //The current slot in the interval
-    nr_senders = 0,          //Track nr of beacons send to node
-    nr_beacon_period = 0;    //Count toward sending
-
-//Put beacon data global for receivers to retrieve
-void put_beacon_global() {
-    sent_beacon.id = id;
+bool is_connected(int other_id) {
+    return connected_check(id, other_id);
 }
 
-//Retreive beacon from global data
-void retrieve_beacon() {
-    received_beacon = sent_beacon;
+//We schedule at most 3 data transmissions at a time
+//When the schedule reaches 0 it is no longer scheduled
+void decrement_data_schedule(int my_id, int other_id) {
+    OUTPUT_data_is_scheduled[my_id][other_id]--;
+
+    if(OUTPUT_data_is_scheduled[my_id][other_id] == 0) 
+        OUTPUT_nr_node_relations--;
 }
 
-void reset_beacon_global() {
-    sent_beacon.id = 0;
-}
-
-void reset_local_beacon() {
-    received_beacon.id = 0;
-}
-
-//Neighbor connected check
-bool is_connected() {
-    return connected_check(id, sent_beacon.id);
-}
-
-//Choose a a beacon slot to send in 
-void choose_slot(int k) {
-    if(nr_beacon_period &gt;= NR_BEACON_PERIODS_ONLY_LISTEN || initialized[id])
-        chosen_slot[id] = k;
-    else {
-        chosen_slot[id] = -1;
-        nr_beacon_period++;
-    }   
-}
-
-void schedule_data() {
-    if(nr_senders == 1 &amp;&amp; OUTPUT_data_is_scheduled[id][received_beacon.id] == 0) {
-        //Schedule data
-        OUTPUT_data_is_scheduled[id][received_beacon.id] = 1;
+//Schedule the 3 next data transmissions
+void schedule_data(int my_id, int other_id) {
+    if(OUTPUT_data_is_scheduled[my_id][other_id] == 0)
         OUTPUT_nr_node_relations++;
-    }
-}
 
-//Count to calculate percentage of beacon collisions
-double nr_collisions = 0.0,
-       nr_slots = 0.0,
-       collision_percentage = 0.0;
-
-//Update collision percentage for the beacon
-/*void do_performance_calculations() {
-    int i;
-    bool send_collision = false;
-
-    nr_slots = nr_slots + 1.0;
-
-    if(chosen_slot[id] == current_slot)
-    {
-        for(i = 0; i &lt; CONFIG_NR_NODES; i++) {
-            if(i != id &amp;&amp; connected_check(id, i)) {
-                send_collision = true;
-            }
-        }
-    }
-
-    if(send_collision || nr_senders &gt;= 2) {
-        nr_collisions = nr_collisions + 1.0;
-    }
-
-    if(nr_slots &gt; 0.0) {
-            collision_percentage = 100*(nr_collisions / nr_slots);
-    }
-}*/</declaration>
+    OUTPUT_data_is_scheduled[my_id][other_id] = 3;
+}</declaration>
 		<location id="id24" x="25" y="161">
 			<committed/>
 		</location>

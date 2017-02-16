@@ -30,6 +30,8 @@ public class XmlHandler {
 
         //Find and prepare document
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+        //TODO: Ku være det sku fixes?
+        documentFactory.setValidating(false);
         DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
         document = documentBuilder.parse(filepath);
         document.getDocumentElement().normalize();
