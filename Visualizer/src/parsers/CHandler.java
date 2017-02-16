@@ -15,8 +15,12 @@ public class CHandler {
     private static final String ConfigVariableRegex = "CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+";
     private static final String OutputVarsRegex = "(OUTPUT_(?:\\w)+(?:\\s*\\[\\w+\\])*)";
 
-    private static final String ConstDeclarationRegex(String type) {
-        return type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)+;"; }
+    private static final String ConfigDeclarationRegex(String type) {
+        return "(const\\s)?" + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)+;"; }
+
+    private static final String ConstRegex(String type) {
+        return "const\\s+" + type + "\\s+(\\w)+(\\s)*=(\\s)*(\\d)+";
+    }
 
     private static final String dummy = "^int";
     /**
@@ -58,7 +62,7 @@ public class CHandler {
     }
 
     private static Matcher getConfigMatcher(String type, String decls) {
-        Pattern patternConstExpr = Pattern.compile(ConstDeclarationRegex(type));
+        Pattern patternConstExpr = Pattern.compile(ConfigDeclarationRegex(type));
         return patternConstExpr.matcher(decls);
     }
 
@@ -85,6 +89,13 @@ public class CHandler {
         for (String scopeKey : allDecls.keySet()) {
             for (String s : getConfigGroups(allDecls.get(scopeKey))) {
                 Matcher mName = pVar.matcher(s);
+                Matcher constVars = Pattern.compile("const\\s+int\\s+(\\w)+(\\s)*=(\\s)*(\\d)+").matcher(s);
+
+                boolean isConst;
+                if(constVars.find())
+                    isConst = true;
+                else
+                    isConst = false;
 
                 while (mName.find()) {
                     CVar<Integer> var = new CVar();
@@ -92,6 +103,7 @@ public class CHandler {
                     var.setName(nameAndVal[0]);
                     var.setValue(Integer.parseInt(nameAndVal[1]));
                     var.setScope(scopeKey);
+                    var.setIsConst(isConst);
                     constantNames.add(var);
                 }
             }

@@ -1,9 +1,6 @@
 package Model;
 
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
 import java.io.*;
 
@@ -11,6 +8,7 @@ public class CVar<T> implements Externalizable {
     private StringProperty scope;
     private StringProperty name;
     private Property<T> value;
+    private BooleanProperty isConst;
 
     public CVar(String scope, String name, T value) {
         this(name, value);
@@ -97,4 +95,15 @@ public class CVar<T> implements Externalizable {
         return result;
     }
 
+    public boolean isIsConst() {
+        return isConst.get();
+    }
+
+    public BooleanProperty isConstProperty() {
+        return isConst;
+    }
+
+    public void setIsConst(boolean isConst) {
+        this.isConst = new SimpleBooleanProperty(isConst);
+    }
 }
