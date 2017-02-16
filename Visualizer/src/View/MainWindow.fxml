@@ -33,11 +33,11 @@
 <TabPane fx:id="tabPane" GridPane.rowIndex="1">
 
    <tabs>
-      <Tab closable="false" text="Configuration">
+      <Tab fx:id="configurationTab" closable="false" onSelectionChanged="#onLeaveConfigurationTab" text="Configuration">
          <content>
             <TableView fx:id="constantsTable" editable="true" prefHeight="665.0" prefWidth="769.0" GridPane.rowIndex="0">
               <columns>
-                <TableColumn fx:id="columnName"  editable="false" prefWidth="150.0" text="Name" />
+                <TableColumn fx:id="columnName" editable="false" prefWidth="150.0" text="Name" />
                 <TableColumn fx:id="columnValue" prefWidth="440.0" text="Value" />
               </columns>
             </TableView>
@@ -52,7 +52,7 @@
                        <TableColumn fx:id="dynColumnTime" text="Model time:" />
                    </columns>
                </TableView>
-                   <Button mnemonicParsing="false" onAction="#addUpdates" text="Add Updates"  />
+                   <Button mnemonicParsing="false" onAction="#addUpdates" text="Add Updates" />
                </VBox>
            </content>
        </Tab>
