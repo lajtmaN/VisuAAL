@@ -2,7 +2,6 @@ package Model;
 
 import Helpers.GUIHelper;
 import Helpers.UPPAALExecutor;
-import com.lowagie.text.Paragraph;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
  */
 public class UPPAALModel implements Externalizable {
     private UPPAALTopology topology;
-    private ArrayList<CVar<Integer>> constantVars;
+    private ArrayList<CVar<Integer>> configVars;
     //TODO: Should maybe not be transient in the future
     private ObservableList<TemplateUpdate> templateUpdates;
     private ObservableList<OutputVariable> outputVars;
@@ -31,10 +30,10 @@ public class UPPAALModel implements Externalizable {
     }
 
     public void load() {
-        constantVars = UPPAALParser.getUPPAALConfigConstants(modelPath);
+        configVars = UPPAALParser.getUPPAALConfigConstants(modelPath);
         topology = UPPAALParser.getUPPAALTopology(modelPath);
         outputVars = FXCollections.observableArrayList();
-        outputVars.setAll(UPPAALParser.getUPPAALOutputVars(modelPath, constantVars));
+        outputVars.setAll(UPPAALParser.getUPPAALOutputVars(modelPath, configVars));
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.add(new TemplateUpdate());
     }
@@ -43,8 +42,8 @@ public class UPPAALModel implements Externalizable {
         return topology;
     }
 
-    public ArrayList<CVar<Integer>> getConstantVars() {
-        return constantVars;
+    public ArrayList<CVar<Integer>> getConfigVars() {
+        return configVars;
     }
 
     public ObservableList<OutputVariable> getOutputVars() {
@@ -71,7 +70,7 @@ public class UPPAALModel implements Externalizable {
         UPPAALModel that = (UPPAALModel) o;
 
         if (topology != null ? !topology.equals(that.topology) : that.topology != null) return false;
-        if (constantVars != null ? !constantVars.equals(that.constantVars) : that.constantVars != null) return false;
+        if (configVars != null ? !configVars.equals(that.configVars) : that.configVars != null) return false;
         if (templateUpdates != null ? !templateUpdates.equals(that.templateUpdates) : that.templateUpdates != null)
             return false;
         if (outputVars != null ? !outputVars.equals(that.outputVars) : that.outputVars != null) return false;
@@ -81,7 +80,7 @@ public class UPPAALModel implements Externalizable {
     @Override
     public int hashCode() {
         int result = topology != null ? topology.hashCode() : 0;
-        result = 31 * result + (constantVars != null ? constantVars.hashCode() : 0);
+        result = 31 * result + (configVars != null ? configVars.hashCode() : 0);
         result = 31 * result + (templateUpdates != null ? templateUpdates.hashCode() : 0);
         result = 31 * result + (outputVars != null ? outputVars.hashCode() : 0);
         result = 31 * result + (modelPath != null ? modelPath.hashCode() : 0);
@@ -99,7 +98,7 @@ public class UPPAALModel implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(topology);
-        out.writeObject(constantVars);
+        out.writeObject(configVars);
         out.writeObject(new ArrayList<>(templateUpdates));
         out.writeObject(new ArrayList<>(outputVars));
         out.writeObject(modelPath);
@@ -108,7 +107,7 @@ public class UPPAALModel implements Externalizable {
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         topology = (UPPAALTopology) in.readObject();
-        constantVars = (ArrayList<CVar<Integer>>) in.readObject();
+        configVars = (ArrayList<CVar<Integer>>) in.readObject();
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.setAll((ArrayList<TemplateUpdate>) in.readObject());
         outputVars = FXCollections.observableArrayList();
@@ -121,7 +120,7 @@ public class UPPAALModel implements Externalizable {
     }
 
     public void saveTemplateUpdatesToXml() {
-        String errorMsg = "The output variables are not found:";
+        String errorMsg = "The output variables are not found or are constants:";
 
         try{
             XmlHandler handler = new XmlHandler(modelPath);
@@ -129,12 +128,12 @@ public class UPPAALModel implements Externalizable {
             ArrayList<TemplateUpdate> notFound = new ArrayList<>();
 
             for (TemplateUpdate t : this.getTemplateUpdates()) {
-                boolean exists = false;
-                for (CVar v : constantVars) {
-                    if(RegexHelper.variableNameMatches(t.getVariable(), v.getName()))
-                        exists = true;
+                boolean isValid = false;
+                for (CVar v : configVars) {
+                    if(RegexHelper.variableNameMatches(t.getVariable(), v.getName()) && !v.isIsConst() )
+                        isValid = true;
                 }
-                if(exists)
+                if(isValid)
                     out.add(t);
                 else if(!t.getVariable().equals("")){
                     notFound.add(t);
