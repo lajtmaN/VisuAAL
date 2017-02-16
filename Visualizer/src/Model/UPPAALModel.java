@@ -130,19 +130,21 @@ public class UPPAALModel implements Externalizable {
 
             for (TemplateUpdate t : this.getTemplateUpdates()) {
                 boolean exists = false;
-                for (OutputVariable v : outputVars) {
+                for (CVar v : constantVars) {
                     if(RegexHelper.variableNameMatches(t.getVariable(), v.getName()))
                         exists = true;
                 }
                 if(exists)
                     out.add(t);
-                else {
+                else if(!t.getVariable().equals("")){
                     notFound.add(t);
                     errorMsg += " " + t.getVariable() + " ";
                 }
             }
 
-            GUIHelper.showAlert(Alert.AlertType.INFORMATION, errorMsg);
+            if(notFound.size() > 0)
+                GUIHelper.showAlert(Alert.AlertType.INFORMATION,
+                        errorMsg + ". \nThe valid variables are used.");
             if(out.size() > 0)
                 handler.addTemplateUpdatesToModel(out);
         } catch (Exception e) {
