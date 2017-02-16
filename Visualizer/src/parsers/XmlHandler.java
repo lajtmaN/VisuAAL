@@ -6,6 +6,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import scala.xml.Elem;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,6 +18,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.List;
 
 public class XmlHandler {
@@ -74,28 +76,133 @@ public class XmlHandler {
     }
 
     public void addTemplateUpdatesToModel(List<TemplateUpdate> templateUpdates) throws TransformerException {
-        NodeList templateList = document.getElementsByTagName("template");
-
-        for(int i = 0; i < templateList.getLength(); i++) {
-            String name = templateList.item(i).getFirstChild().getNextSibling().getFirstChild().getNodeValue();
-            if(name.equals(dynamicTemplateUpdaterName)) {
-                Node n = templateList.item(i);
-                n.getParentNode().removeChild(n);
-                break;
-            }
+        Node n = getDynamicTemplate();
+        if(n != null) {
+            n.getParentNode().removeChild(n);
         }
 
-        addUpdatesToNode(document.getFirstChild());
+        addUpdatesToNode(document.getFirstChild(), templateUpdates);
+
         writeXML();
-        int i = 0;
     }
 
-    private void addUpdatesToNode(Node parent) {
-        Node n = document.createElement("template");
-        parent.appendChild(n);
+    private void addUpdatesToNode(Node parent, List<TemplateUpdate> templateUpdates) {
+        Node template = document.createElement("template");
+
+        Node name = document.createElement("name");
+        name.setTextContent("visualizer_updater");
+        template.appendChild(name);
+
+        Node decl = document.createElement("declaration");
+        String clockName = "visualizer_updater_clock";
+        decl.setTextContent("clock " + clockName + ";");
+        template.appendChild(decl);
+
+        int startId = 2000;
+        int nextId = startId;
+        int yPos = 0;
+
+        for(int i = 0; i <= templateUpdates.size(); i++) {
+            Node location = document.createElement("location");
+            ((Element)location).setAttribute("id", "id" + nextId++);
+            ((Element)location).setAttribute("x", "0");
+            ((Element)location).setAttribute("y", String.valueOf(yPos));
+
+            if(i < templateUpdates.size()) {
+                Node label = document.createElement("label");
+                ((Element) label).setAttribute("kind", "invariant");
+                ((Element) label).setAttribute("x", "20");
+                ((Element) label).setAttribute("y", String.valueOf(yPos));
+
+                label.setTextContent(clockName + " <= " + templateUpdates.get(i).getTime());
+
+                location.appendChild(label);
+            }
+
+            yPos += 70;
+            template.appendChild(location);
+        }
+
+        Node initLoc = document.createElement("init");
+        ((Element)initLoc).setAttribute("ref", "id" + startId);
+        template.appendChild(initLoc);
+        yPos = 0;
+        for(int i = 0; i < templateUpdates.size(); i++) {
+            Node transition = document.createElement("transition");
+
+            Node src = document.createElement("source");
+            ((Element)src).setAttribute("ref", "id" + (startId + i));
+            transition.appendChild(src);
+
+            Node target = document.createElement("target");
+            ((Element)target).setAttribute("ref", "id" + (startId + i + 1));
+            transition.appendChild(target);
+
+            Node label1 = document.createElement("label");
+            ((Element)label1).setAttribute("kind", "guard");
+            ((Element)label1).setAttribute("x", "20");
+            ((Element)label1).setAttribute("y", String.valueOf(yPos + 15));
+            label1.setTextContent(clockName + " == " + templateUpdates.get(i).getTime());
+            transition.appendChild(label1);
+
+            Node label2 = document.createElement("label");
+            ((Element)label2).setAttribute("kind", "assignment");
+            ((Element)label2).setAttribute("x", "20");
+            ((Element)label2).setAttribute("y", String.valueOf(yPos + 30));
+            label2.setTextContent(templateUpdates.get(i).getVariable() + " = " + templateUpdates.get(i).getTheValue());
+            transition.appendChild(label2);
+
+            yPos += 70;
+            template.appendChild(transition);
+        }
+
+        NodeList templateList = document.getElementsByTagName("template");
+        parent.insertBefore(template, templateList.item(0));
     }
 
-    public int getNumberOfTemplates() {
+    private Node getDynamicTemplate() {
+        NodeList templateList = document.getElementsByTagName("template");
+
+        String name = null;
+        Node n = templateList.item(0).getFirstChild();
+        if(n.hasChildNodes()) {
+            name = n.getFirstChild().getNodeValue();
+        }
+
+        if(name != null && name.equals(dynamicTemplateUpdaterName))
+            return templateList.item(0);
+        else
+            return null;
+    }
+
+    public boolean existVisualizerTemplate() {
+        return (getDynamicTemplate() != null);
+    }
+
+    public int getTemplateCount() {
         return document.getElementsByTagName("template").getLength();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
