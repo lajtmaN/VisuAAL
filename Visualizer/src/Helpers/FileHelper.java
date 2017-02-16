@@ -18,7 +18,7 @@ public class FileHelper {
     public static File copyFileIntoTempFile(File original) throws IOException {
         String content = "";
         for (String s : Files.readAllLines(original.toPath())) {
-            content += s;
+            content += s + "\n";
         }
         return generateAutoDeletedTempFile(content);
     }

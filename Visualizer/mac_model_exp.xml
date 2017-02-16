@@ -233,7 +233,6 @@ initialized[id] = true</label>
 			<nail x="-960" y="-697"/>
 		</transition>
 	</template>
-	
 	<template>
 		<name>initial_full_beacon_scan</name>
 		<parameter>id_t id</parameter>
@@ -1200,4 +1199,4 @@ beacon_interval(19).collision_percentage
 			</comment>
 		</query>
 	</queries>
-<template/></nta>
+</nta>
