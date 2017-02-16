@@ -68,6 +68,15 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         node.setAttribute("ui.class", "marked");
     }
 
+    protected void handleEdgeEdit(SimulationEdgePoint s, boolean mark) {
+        if (mark){
+            markEdge(s);
+        }
+        else {
+            unmarkEdge(s);
+        }
+    }
+
     protected void markEdge(SimulationEdgePoint s) {
         Edge edge = getGraph().getEdge(s.getIdentifier());
         if (edge != null){
