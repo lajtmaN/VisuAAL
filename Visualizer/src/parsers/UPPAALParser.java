@@ -6,10 +6,7 @@ import Model.UPPAALTopology;
 import scala.collection.parallel.ParIterableLike;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by lajtman on 07-02-2017.
@@ -19,7 +16,7 @@ public class UPPAALParser {
     public static ArrayList<CVar<Integer>> getUPPAALConfigConstants(String uppaalFilename) {
         try {
             XmlHandler handler = new XmlHandler(uppaalFilename);
-            return CHandler.getConfigVariables(handler.getGlobalDeclarations());
+            return CHandler.getConfigVariables(handler.getAllDeclarations());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -29,11 +26,12 @@ public class UPPAALParser {
     public static void updateUPPAALConfigConstants(String uppaalFilename, Collection<CVar<Integer>> cvarsWithNewVal ) {
         try {
             XmlHandler handler = new XmlHandler(uppaalFilename);
-            String newDecls = handler.getGlobalDeclarations();
+            HashMap<String, String> newDecls = handler.getAllDeclarations();
             for (CVar<Integer> cvar : cvarsWithNewVal) {
-                newDecls = CHandler.updateIntConfigVar(cvar.getName(), cvar.getValue(), newDecls);
+                String updatedDecls = CHandler.updateIntConfigVar(cvar.getName(), cvar.getValue(), newDecls.get(cvar.getScope()));
+                newDecls.replace(cvar.getScope(), updatedDecls);
             }
-            handler.setGlobalDeclarations(newDecls);
+            handler.setDeclarations(newDecls);
         } catch (Exception e) {
             e.printStackTrace();
         }
