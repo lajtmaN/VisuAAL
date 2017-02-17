@@ -860,6 +860,7 @@ send_data_clock[id] = 0</label>
 		<name>receive_data</name>
 		<parameter>id_t id</parameter>
 		<declaration>clock receiving_data_clock;   //Receives data for a duration
+int CONFIG_local_sender_id = 0;      //Save senders id locally
 int local_sender_id = 0;      //Save senders id locally
 
 bool is_connected(int other_id) {
