@@ -15,7 +15,7 @@ public class Main extends Application {
         primaryStage.show();
 
         //Get matrix for connected graph square topology. Input nr of nodes
-        //Helpers.ConnectedGraphGenerator.matrix(32);)
+        Helpers.ConnectedGraphGenerator.matrix(36);
     }
 
     public static void main(String[] args) {

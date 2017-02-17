@@ -5,7 +5,7 @@ package Helpers;
  */
 public class ConnectedGraphGenerator {
     public static void matrix(int size) {
-        String s = "int connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {";
+        String s = "int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {";
         for(int i= 0 ; i < size; i++) {
             s += "\n{";
             for(int j= 0 ; j < size; j++) {
