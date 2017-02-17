@@ -122,7 +122,20 @@ public class XmlHandler {
 
         addUpdatesToNode(document.getFirstChild(), templateUpdates);
 
+        addSystemDecl();
+
         writeXML();
+    }
+
+    private void addSystemDecl() {
+        Node systemDecls = document.getElementsByTagName("system").item(0).getFirstChild();
+        String sysDeclsValue = systemDecls.getNodeValue();
+
+        if(!sysDeclsValue.contains(dynamicTemplateUpdaterName)) {
+            String newSysDeclsValue = sysDeclsValue.substring(0, sysDeclsValue.length()-1) + ", "
+                    + dynamicTemplateUpdaterName + ";";
+            systemDecls.setNodeValue(newSysDeclsValue);
+        }
     }
 
     private void addUpdatesToNode(Node parent, List<TemplateUpdate> templateUpdates) {
