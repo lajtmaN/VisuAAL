@@ -27,13 +27,14 @@ public class ParseXmlAndCTests {
     public void getXmlDeclarationsTest() {
         ArrayList<CVar<Integer>> vars = UPPAALParser.getUPPAALConfigConstants("mac_model_test.xml");
 
-        assertEquals(6, vars.size());
-        assertCVAR(null, "CONFIG_NR_NODES", 64, vars.get(0));
+        assertEquals(7, vars.size());
+        assertCVAR(null, "CONFIG_NR_NODES", 36, vars.get(0));
         assertCVAR(null, "CONFIG_NR_BEACON_SLOTS", 8, vars.get(1));
         assertCVAR(null, "CONFIG_BEACON_PERIOD", 1000, vars.get(2));
         assertCVAR(null, "CONFIG_MAX_DATA_OFFSET", 63, vars.get(3));
         assertCVAR(null, "CONFIG_DATA_INTERVAL", 1000, vars.get(4));
         assertCVAR(null, "CONFIG_DATA_DURATION", 1, vars.get(5));
+        assertCVAR(null, "CONFIG_BCN_LOST_PROB", 1, vars.get(6));
     }
 
     @Test
