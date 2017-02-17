@@ -85,7 +85,15 @@ public class XmlHandler {
         allDecls.put(null, listOfDecls.item(0).getFirstChild().getNodeValue()); // Global decls
 
         for (int i = 1; i < listOfDecls.getLength(); i++) {
-            String scopeOfDecls = listOfDecls.item(i).getPreviousSibling().getPreviousSibling().getFirstChild().getNodeValue();
+            NodeList templateElements = listOfDecls.item(i).getParentNode().getChildNodes();
+            String scopeOfDecls = "<unknown>";
+            for(int j=0; j < templateElements.getLength(); j++ ){
+                if(templateElements.item(j).getNodeName() == "name"){
+                    scopeOfDecls = templateElements.item(j).getFirstChild().getNodeValue();
+                    break;
+                }
+            }
+            //scopeOfDecls = listOfDecls.item(i).getPreviousSibling().getPreviousSibling().getFirstChild().getNodeValue();
             allDecls.put(scopeOfDecls, listOfDecls.item(i).getFirstChild().getNodeValue());
         }
         return allDecls;

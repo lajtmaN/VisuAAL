@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
@@ -94,31 +96,39 @@ public class ParseXmlAndCTests {
     public void updateVariablesInXMLFile() throws IOException {
         File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
         ArrayList<CVar<Integer>> orgConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
-        assertEquals(2, orgConfigs.size());
-        assertCVAR(null, "CONFIG_TESTING_CONSTANT", 1337, orgConfigs.get(0));
-        assertCVAR("Template", "CONFIG_LOCAL", 123, orgConfigs.get(1));
+        assertEquals(3, orgConfigs.size());
+
+        assertTrue(orgConfigs.contains(new CVar<>(null,"CONFIG_TESTING_CONSTANT", 1337)));
+        assertTrue(orgConfigs.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
+        assertTrue(orgConfigs.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
+
 
         //Update value on config var
-        CVar<Integer> updatedCVar = orgConfigs.get(0);
+        CVar<Integer> updatedCVar = orgConfigs.get(
+                orgConfigs.indexOf(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
         updatedCVar.setValue(1000);
-        CVar<Integer> updatedLocalCVar = orgConfigs.get(1);
+        CVar<Integer> updatedLocalCVar = orgConfigs.get(
+                orgConfigs.indexOf(new CVar<>("Template", "CONFIG_LOCAL", 123)));
         updatedLocalCVar.setValue(999);
         UPPAALParser.updateUPPAALConfigConstants(f.getPath(), orgConfigs);
 
         //assert updated
         ArrayList<CVar<Integer>> updatedConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
-        assertEquals(2, updatedConfigs.size());
-        assertCVAR(null, "CONFIG_TESTING_CONSTANT", 1000, updatedConfigs.get(0));
-        assertCVAR("Template", "CONFIG_LOCAL", 999, updatedConfigs.get(1));
+        assertEquals(3, updatedConfigs.size());
+
+        assertTrue(updatedConfigs.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1000)));
+        assertTrue(updatedConfigs.contains(new CVar<>("Template", "CONFIG_LOCAL", 999)));
+        assertTrue(updatedConfigs.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
     }
 
     @Test
     public void parseLocalConfigVarsInXMLFile() throws IOException {
         File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
         ArrayList<CVar<Integer>> vars = UPPAALParser.getUPPAALConfigConstants(f.getPath());
-        assertEquals(2, vars.size());
-        assertCVAR(null, "CONFIG_TESTING_CONSTANT", 1337, vars.get(0));
-        assertCVAR("Template", "CONFIG_LOCAL", 123, vars.get(1));
+        assertEquals(3, vars.size());
+        assertTrue(vars.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
+        assertTrue(vars.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
+        assertTrue(vars.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
     }
 
     private <T> void assertCVAR(String expectedScope, String expectedName, T expectedVal, CVar<T> actual) {

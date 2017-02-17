@@ -5,6 +5,8 @@ import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,7 +110,6 @@ public class CHandler {
                 }
             }
         }
-
         return constantNames;
     }
 
@@ -152,15 +153,3 @@ public class CHandler {
         return vars;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
