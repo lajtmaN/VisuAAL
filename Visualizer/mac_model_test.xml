@@ -139,23 +139,8 @@ return CONFIG_connected[my_id][other_id];
     return my_id - other_id == 1 || my_id - other_id == -1;
 
 }</declaration>
-	<template>
-		<name>visualizer_updater</name>
-		<declaration>clock visualizer_updater_clock;</declaration>
-		<location id="id0" x="0" y="0">
-			<label kind="invariant" x="20" y="0">visualizer_updater_clock &lt;= 0</label>
-		</location>
-		<location id="id1" x="0" y="70">
-		</location>
-		<init ref="id0"/>
-		<transition>
-			<source ref="id0"/>
-			<target ref="id1"/>
-			<label kind="guard" x="20" y="15">visualizer_updater_clock == 0</label>
-			<label kind="assignment" x="20" y="30">CONFIG_BCN_LOST_PROB = 0</label>
-		</transition>
-	</template>
-	<template>
+    
+	<template><name>visualizer_updater</name><declaration>clock visualizer_updater_clock;</declaration><location id="id2000" x="0" y="0"><label kind="invariant" x="20" y="0">visualizer_updater_clock &lt;= 0</label></location><location id="id2001" x="0" y="70"/><init ref="id2000"/><transition><source ref="id2000"/><target ref="id2001"/><label kind="guard" x="20" y="15">visualizer_updater_clock == 0</label><label kind="assignment" x="20" y="30">CONFIG_BCN_LOST_PROB = 50</label></transition></template><template>
 		<name x="5" y="5">beacon_schedule</name>
 		<parameter>id_t id</parameter>
 		<location id="id2" x="-603" y="-510">

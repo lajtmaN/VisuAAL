@@ -204,6 +204,11 @@ public class XmlHandler {
 
         String name = null;
         Node n = templateList.item(0).getFirstChild();
+
+        //In case of new new line etc. Skip it
+        if(n.getFirstChild() == null) {
+            n = n.getNextSibling();
+        }
         if(n.hasChildNodes()) {
             name = n.getFirstChild().getNodeValue();
         }
