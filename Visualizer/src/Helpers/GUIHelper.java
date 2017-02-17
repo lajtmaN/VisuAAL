@@ -7,9 +7,14 @@ import javafx.scene.control.Alert;
  */
 public class GUIHelper {
     public static void showAlert(Alert.AlertType alertType, String message) {
+        showAlert(alertType, message, "");
+    }
+
+    public static void showAlert(Alert.AlertType alertType, String message, String alertTitle){
         Alert alert = new Alert(alertType);
         alert.setHeaderText(message);
-        alert.setTitle("");
+        alert.setTitle(alertTitle);
         alert.show();
     }
 }
+

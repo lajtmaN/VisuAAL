@@ -120,35 +120,53 @@ public class UPPAALModel implements Externalizable {
     }
 
     public void saveTemplateUpdatesToXml() {
-        String errorMsg = "The output variables are not found or are constants:";
+        String notFoundMsg = "The output variables are not found:";
+        String constMsg = "The following variables are constants:";
+        boolean addNotFoundMsg = false;
+        boolean addIsConstMsg = false;
 
-        try{
+
+        try {
             XmlHandler handler = new XmlHandler(modelPath);
             ArrayList<TemplateUpdate> out = new ArrayList<>();
-            ArrayList<TemplateUpdate> notFound = new ArrayList<>();
 
             for (TemplateUpdate t : this.getTemplateUpdates()) {
-                boolean isValid = false;
+                boolean foundAsNonConst = false,
+                        foundAsConst = false;
                 for (CVar v : configVars) {
-                    if(RegexHelper.variableNameMatches(t.getVariable(), v.getName()) && !v.isIsConst() )
-                        isValid = true;
+                    if (RegexHelper.variableNameMatches(t.getVariable(), v.getName())) {
+                        if (v.isIsConst())
+                            foundAsConst = true;
+                        else
+                            foundAsNonConst = true;
+                    }
                 }
-                if(isValid)
+                if (foundAsConst) {
+                    addIsConstMsg = true;
+                    constMsg += " " + t.getVariable();
+                } else if (foundAsNonConst)
                     out.add(t);
-                else if(!t.getVariable().equals("")){
-                    notFound.add(t);
-                    errorMsg += " " + t.getVariable() + " ";
+                else if (!t.getVariable().equals("")) {
+                    addNotFoundMsg = true;
+                    notFoundMsg += " " + t.getVariable();
                 }
             }
 
-            if(notFound.size() > 0)
-                GUIHelper.showAlert(Alert.AlertType.INFORMATION,
-                        errorMsg + ". \nThe valid variables are used.");
-            if(out.size() > 0)
+            String msg = "";
+            if (addIsConstMsg)
+                msg += constMsg;
+            if (addNotFoundMsg)
+                msg += "\n" + notFoundMsg;
+            if (!msg.equals(""))
+                GUIHelper.showAlert(Alert.AlertType.INFORMATION, msg + "\nNo variables used", "Invalid Variables");
+            else if (out.size() != 0) {
+                out.sort((o1, o2) -> o1.getTime() > o2.getTime() ? 1 : (o2.getTime() > o1.getTime() ? -1 : 0));
                 handler.addTemplateUpdatesToModel(out);
+                GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Variables updates are added to the model", "Success");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 }
