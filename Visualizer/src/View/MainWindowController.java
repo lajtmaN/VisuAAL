@@ -292,7 +292,9 @@ public class MainWindowController implements Initializable {
     }
 
     public void addUpdates(ActionEvent actionEvent) {
-        uppaalModel.saveTemplateUpdatesToXml();
+        AlertData alert = uppaalModel.saveTemplateUpdatesToXml();
+        if(alert != null)
+            alert.showAlert();
     }
 
     public void onLeaveConfigurationTab(Event event) {

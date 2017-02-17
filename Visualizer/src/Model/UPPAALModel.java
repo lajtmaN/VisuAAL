@@ -2,6 +2,7 @@ package Model;
 
 import Helpers.GUIHelper;
 import Helpers.UPPAALExecutor;
+import View.AlertData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -119,12 +120,12 @@ public class UPPAALModel implements Externalizable {
         getTemplateUpdates().add(new TemplateUpdate());
     }
 
-    public void saveTemplateUpdatesToXml() {
+    public AlertData saveTemplateUpdatesToXml() {
+        AlertData alert = null;
         String notFoundMsg = "The output variables are not found:";
         String constMsg = "The following variables are constants:";
         boolean addNotFoundMsg = false;
         boolean addIsConstMsg = false;
-
 
         try {
             XmlHandler handler = new XmlHandler(modelPath);
@@ -157,9 +158,9 @@ public class UPPAALModel implements Externalizable {
                 msg += constMsg;
             if (addNotFoundMsg)
                 msg += "\n" + notFoundMsg;
-            if (!msg.equals(""))
-                GUIHelper.showAlert(Alert.AlertType.INFORMATION, msg + "\nNo variables used", "Invalid Variables");
-            else if (out.size() != 0) {
+            if (!msg.equals("")) {
+                alert = new AlertData(Alert.AlertType.INFORMATION, "Invalid variables - No changes made", msg);
+            } else if (out.size() != 0) {
                 out.sort((o1, o2) -> o1.getTime() > o2.getTime() ? 1 : (o2.getTime() > o1.getTime() ? -1 : 0));
                 handler.addTemplateUpdatesToModel(out);
                 GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Variables updates are added to the model", "Success");
@@ -168,5 +169,7 @@ public class UPPAALModel implements Externalizable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return alert;
     }
 }
