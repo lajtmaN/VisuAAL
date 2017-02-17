@@ -98,15 +98,17 @@ public class ParseXmlAndCTests {
         ArrayList<CVar<Integer>> orgConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
         assertEquals(3, orgConfigs.size());
 
-        orgConfigs.contains(new CVar<>(null,"CONFIG_TESTING_CONSTANT", 1337));
-        orgConfigs.contains(new CVar<>("Template", "CONFIG_LOCAL", 123));
-        orgConfigs.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123));
+        assertTrue(orgConfigs.contains(new CVar<>(null,"CONFIG_TESTING_CONSTANT", 1337)));
+        assertTrue(orgConfigs.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
+        assertTrue(orgConfigs.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
 
 
         //Update value on config var
-        CVar<Integer> updatedCVar = orgConfigs.get(0);
+        CVar<Integer> updatedCVar = orgConfigs.get(
+                orgConfigs.indexOf(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
         updatedCVar.setValue(1000);
-        CVar<Integer> updatedLocalCVar = orgConfigs.get(1);
+        CVar<Integer> updatedLocalCVar = orgConfigs.get(
+                orgConfigs.indexOf(new CVar<>("Template", "CONFIG_LOCAL", 123)));
         updatedLocalCVar.setValue(999);
         UPPAALParser.updateUPPAALConfigConstants(f.getPath(), orgConfigs);
 
@@ -114,9 +116,9 @@ public class ParseXmlAndCTests {
         ArrayList<CVar<Integer>> updatedConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
         assertEquals(3, updatedConfigs.size());
 
-        updatedConfigs.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1000));
-        updatedConfigs.contains(new CVar<>("Template", "CONFIG_LOCAL", 999));
-        updatedConfigs.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123));
+        assertTrue(updatedConfigs.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1000)));
+        assertTrue(updatedConfigs.contains(new CVar<>("Template", "CONFIG_LOCAL", 999)));
+        assertTrue(updatedConfigs.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
     }
 
     @Test
@@ -124,9 +126,9 @@ public class ParseXmlAndCTests {
         File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
         ArrayList<CVar<Integer>> vars = UPPAALParser.getUPPAALConfigConstants(f.getPath());
         assertEquals(3, vars.size());
-        vars.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337));
-        vars.contains(new CVar<>("Template", "CONFIG_LOCAL", 123));
-        vars.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123));
+        assertTrue(vars.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
+        assertTrue(vars.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
+        assertTrue(vars.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
     }
 
     private <T> void assertCVAR(String expectedScope, String expectedName, T expectedVal, CVar<T> actual) {
