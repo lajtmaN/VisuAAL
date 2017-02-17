@@ -18,11 +18,11 @@ const int CONFIG_BEACON_PERIOD = 1000,
 
 //Probability that a beacon is lost
 int CONFIG_BCN_LOST_PROB = 1,
-          BCN_NOT_LOST_PROB = 99;
+          CONFIG_BCN_NOT_LOST_PROB = 99;
 
 //Probability that a data package is lost
-const int DATA_LOST_PROB = 1,
-          DATA_NOT_LOST_PROB = 99;
+int CONFIG_DATA_LOST_PROB = 1,
+          CONFIG_DATA_NOT_LOST_PROB = 99;
 
 //Type for node IDs
 typedef int[0, CONFIG_NR_NODES-1] id_t;
@@ -139,8 +139,7 @@ return CONFIG_connected[my_id][other_id];
     return my_id - other_id == 1 || my_id - other_id == -1;
 
 }</declaration>
-    
-	<template><name>visualizer_updater</name><declaration>clock visualizer_updater_clock;</declaration><location id="id2000" x="0" y="0"><label kind="invariant" x="20" y="0">visualizer_updater_clock &lt;= 0</label></location><location id="id2001" x="0" y="70"/><init ref="id2000"/><transition><source ref="id2000"/><target ref="id2001"/><label kind="guard" x="20" y="15">visualizer_updater_clock == 0</label><label kind="assignment" x="20" y="30">CONFIG_BCN_LOST_PROB = 50</label></transition></template><template>
+	<template>
 		<name x="5" y="5">beacon_schedule</name>
 		<parameter>id_t id</parameter>
 		<location id="id2" x="-603" y="-510">
@@ -439,7 +438,7 @@ collision = true</label>
 			<source ref="id22"/>
 			<target ref="id14"/>
 			<label kind="comments" x="501" y="-187">Collision</label>
-			<label kind="probability" x="501" y="-170">BCN_NOT_LOST_PROB</label>
+			<label kind="probability" x="501" y="-170">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="646" y="-195"/>
 		</transition>
 		<transition>
@@ -455,7 +454,7 @@ collision = true</label>
 			<label kind="assignment" x="272" y="-603">slot_clock = 0,
 local_beacon = sent_beacon</label>
 			<label kind="comments" x="272" y="-637">Beacon received</label>
-			<label kind="probability" x="272" y="-620">BCN_NOT_LOST_PROB</label>
+			<label kind="probability" x="272" y="-620">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="339" y="-561"/>
 		</transition>
 		<transition>
@@ -702,7 +701,7 @@ double nr_collisions = 0.0,
 			<label kind="assignment" x="-187" y="263">retrieve_beacon(),
 nr_senders++</label>
 			<label kind="comments" x="-187" y="246">5/P12. Beacon not lost</label>
-			<label kind="probability" x="-187" y="297">BCN_NOT_LOST_PROB</label>
+			<label kind="probability" x="-187" y="297">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="-8" y="238"/>
 			<nail x="-204" y="238"/>
 		</transition>
@@ -1007,7 +1006,7 @@ is_busy[id] = true</label>
 			<source ref="id48"/>
 			<target ref="id46"/>
 			<label kind="comments" x="510" y="-119">Data is not lost</label>
-			<label kind="probability" x="510" y="-102">DATA_NOT_LOST_PROB</label>
+			<label kind="probability" x="510" y="-102">CONFIG_DATA_NOT_LOST_PROB</label>
 			<nail x="501" y="-136"/>
 			<nail x="399" y="-136"/>
 		</transition>
@@ -1015,7 +1014,7 @@ is_busy[id] = true</label>
 			<source ref="id48"/>
 			<target ref="id44"/>
 			<label kind="comments" x="102" y="-51">Data is lost</label>
-			<label kind="probability" x="102" y="-34">DATA_LOST_PROB</label>
+			<label kind="probability" x="102" y="-34">CONFIG_DATA_LOST_PROB</label>
 			<nail x="450" y="-8"/>
 			<nail x="17" y="-8"/>
 		</transition>
