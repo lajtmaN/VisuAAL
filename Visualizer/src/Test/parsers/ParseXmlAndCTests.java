@@ -179,9 +179,10 @@ public class ParseXmlAndCTests {
     public void parseModelTimeUnitConstants() throws IOException {
         File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
 
-        double constant = UPPAALParser.getModelTimeUnitConstant(f.getPath());
+        UPPAALModel model = new UPPAALModel(f.getPath());
+        model.load();
 
-        assertEquals(20, constant, 0.001);
+        assertEquals(20, model.getModelTimeUnit(), 0.001);
     }
 
     private <T> void assertCVAR(String expectedScope, String expectedName, T expectedVal, CVar<T> actual) {

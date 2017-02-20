@@ -271,7 +271,7 @@ public class MainWindowController implements Initializable {
         //Value Label
         Label lblCurrentTime = new Label("0.0 ms");
         //Slider
-        int maxTime = run.queryTimeBound();
+        int maxTime = (int)(run.queryTimeBound() * run.getModelTimeUnit());
         Slider timeSlider = new Slider(0, maxTime, 0);
         timeSlider.setMajorTickUnit(maxTime > 10000 ? maxTime/4 : 10000);
         timeSlider.setShowTickMarks(true);

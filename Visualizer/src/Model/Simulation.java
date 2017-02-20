@@ -34,6 +34,10 @@ public class Simulation implements Serializable {
         return model.getTopology().getGraph();
     }
 
+    public double getModelTimeUnit() {
+        return model.getModelTimeUnit();
+    }
+
     public void markEdgeAtTime(Number oldValue, Number newValue) {
         double newTime = newValue.doubleValue();
         double oldTime = oldValue.doubleValue();
