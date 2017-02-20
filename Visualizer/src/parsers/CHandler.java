@@ -116,9 +116,9 @@ public class CHandler {
     public static UPPAALTopology getTopology(String decls){
         UPPAALTopology result = new UPPAALTopology();
         String definitionString = RegexHelper.getFirstMatchedValueFromRegex(TopologyRegex, decls);
-        if(!definitionString.equals(null)) {
+        if(definitionString != null) {
             definitionString = definitionString.replace(" ", "").replace("\n", "");
-            if (!RegexHelper.getFirstMatchedValueFromRegex(TopologyFormRegex, definitionString).equals(null)) {
+            if (RegexHelper.getFirstMatchedValueFromRegex(TopologyFormRegex, definitionString) != null) {
                 int source_index = 0;
                 for (String s : definitionString.split("}")) {
                     String temp = s.replace(" ", "").replace("\n", "");

@@ -22,9 +22,9 @@ import java.util.ArrayList;
 public class UPPAALModel implements Externalizable {
     private UPPAALTopology topology;
     private ArrayList<CVar<Integer>> configVars;
-    //TODO: Should maybe not be transient in the future
     private ObservableList<TemplateUpdate> templateUpdates;
     private ObservableList<OutputVariable> outputVars;
+    private double modelTimeUnit = 1;
 
     private String modelPath;
 
@@ -37,6 +37,7 @@ public class UPPAALModel implements Externalizable {
         configVars = UPPAALParser.getUPPAALConfigConstants(modelPath);
         topology = UPPAALParser.getUPPAALTopology(modelPath);
         outputVars = FXCollections.observableArrayList();
+        modelTimeUnit = UPPAALParser.getModelTimeUnitConstant(modelPath);
         outputVars.setAll(UPPAALParser.getUPPAALOutputVars(modelPath, configVars));
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.add(new TemplateUpdate());
@@ -56,6 +57,10 @@ public class UPPAALModel implements Externalizable {
 
     public String getModelPath() {
         return modelPath;
+    }
+
+    public double getModelTimeUnit() {
+        return modelTimeUnit;
     }
 
     public Simulation runSimulation(String query) throws IOException {
@@ -78,6 +83,7 @@ public class UPPAALModel implements Externalizable {
         if (templateUpdates != null ? !templateUpdates.equals(that.templateUpdates) : that.templateUpdates != null)
             return false;
         if (outputVars != null ? !outputVars.equals(that.outputVars) : that.outputVars != null) return false;
+        if (modelTimeUnit  != that.modelTimeUnit) return false;
         return modelPath != null ? modelPath.equals(that.modelPath) : that.modelPath == null;
     }
 
@@ -88,6 +94,7 @@ public class UPPAALModel implements Externalizable {
         result = 31 * result + (templateUpdates != null ? templateUpdates.hashCode() : 0);
         result = 31 * result + (outputVars != null ? outputVars.hashCode() : 0);
         result = 31 * result + (modelPath != null ? modelPath.hashCode() : 0);
+        result = 31 * result + (int)modelTimeUnit;
         return result;
     }
 
@@ -106,6 +113,7 @@ public class UPPAALModel implements Externalizable {
         out.writeObject(new ArrayList<>(templateUpdates));
         out.writeObject(new ArrayList<>(outputVars));
         out.writeObject(modelPath);
+        out.writeDouble(modelTimeUnit);
     }
 
     @Override
@@ -117,6 +125,7 @@ public class UPPAALModel implements Externalizable {
         outputVars = FXCollections.observableArrayList();
         outputVars.setAll((ArrayList<OutputVariable>) in.readObject());
         modelPath = (String) in.readObject();
+        modelTimeUnit = in.readDouble();
     }
 
     public void addEmptyTemplateUpdate() {
@@ -181,4 +190,5 @@ public class UPPAALModel implements Externalizable {
         modelPath = newPath;
         handler.writeXMLToFilePath(modelPath);
     }
+
 }
