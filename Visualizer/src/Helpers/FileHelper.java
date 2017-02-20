@@ -24,10 +24,14 @@ public class FileHelper {
         for (String s : Files.readAllLines(original.toPath())) {
             content += s + "\n";
         }
-        return generateAutoDeletedTempFile(content);
+        return generateAutoDeletedTempFile(content, getExtension(original.getName()));
     }
+
     public static File generateAutoDeletedTempFile(String content) throws IOException {
-        File f = File.createTempFile("uppaalvisualizer_", ".tmp");
+        return generateAutoDeletedTempFile(content, ".tmp");
+    }
+    public static File generateAutoDeletedTempFile(String content, String extension) throws IOException {
+        File f = File.createTempFile("uppaalvisualizer_", extension);
         f.deleteOnExit();
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
             writer.write(content);
@@ -35,17 +39,24 @@ public class FileHelper {
         return f;
     }
 
-    public static File chooseSaveFile() throws IOException {
+    public static File chooseSaveFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select destination file");
         fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml"));
         File selectedFile = fileChooser.showSaveDialog(MainWindowController.getInstance().getWindow());
-        if(!selectedFile.exists()){
-            selectedFile.createNewFile();
+
+        if (selectedFile == null) {
+            return null; //abort
         }
-        if(selectedFile == null || !selectedFile.exists()) {
-            throw new IOException("Error in file creation. File does not exist.");
+        try {
+            if (!selectedFile.exists()) {
+                if (!selectedFile.createNewFile()) {
+                    return null;
+                }
+            }
+        } catch (IOException e) {
+            return null;
         }
         return selectedFile;
     }

@@ -187,8 +187,6 @@ public class UPPAALModel implements Externalizable {
 
     public void saveToPath(String newPath) throws IOException, SAXException, ParserConfigurationException, TransformerException {
         XmlHandler handler = new XmlHandler(modelPath);
-        modelPath = newPath;
-        handler.writeXMLToFilePath(modelPath);
+        handler.writeXMLToFilePath(newPath);
     }
-
 }
