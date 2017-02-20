@@ -1,7 +1,11 @@
 package Helpers;
 
+import View.MainWindowController;
+import javafx.stage.FileChooser;
+
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Created by lajtman on 14-02-2017.
@@ -29,5 +33,20 @@ public class FileHelper {
             writer.write(content);
         }
         return f;
+    }
+
+    public static File chooseSaveFile(File defaultfile) {
+        File selectedFile = null;
+        if(!GUIHelper.showPrompt("Do you want to overwrite the file?")){
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select destination file");
+            fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml"));
+            selectedFile = fileChooser.showSaveDialog(MainWindowController.getInstance().getWindow());
+        }
+        if(selectedFile == null || !selectedFile.exists()) {
+            return defaultfile;
+        }
+        return selectedFile;
     }
  }
