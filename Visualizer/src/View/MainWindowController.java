@@ -203,6 +203,7 @@ public class MainWindowController implements Initializable {
 
     public void saveModel(ActionEvent actionEvent) throws IOException, TransformerException, SAXException, ParserConfigurationException {
         File selectedFile = FileHelper.chooseSaveFile();
+        if (selectedFile == null) return;
         uppaalModel.saveToPath(selectedFile.getPath());
         GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Model succesfully saved");
     }
