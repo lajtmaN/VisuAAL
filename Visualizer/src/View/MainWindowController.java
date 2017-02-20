@@ -28,11 +28,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
+import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import parsers.UPPAALParser;
+import sun.applet.Main;
 
 import javax.swing.*;
 import java.io.File;
@@ -72,6 +74,15 @@ public class MainWindowController implements Initializable {
 
     private UPPAALModel uppaalModel;
     private boolean constantsChanged;
+    private static MainWindowController instance;
+
+    public static MainWindowController getInstance(){
+        return instance;
+    }
+
+    public Window getWindow() {
+        return rootElement.getScene().getWindow();
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -81,6 +92,7 @@ public class MainWindowController implements Initializable {
         initializeOutputVarsTable();
         initializeWidths();
         initializeDynamicTable();
+        instance = this;
     }
 
     private void initializeDynamicTable() {

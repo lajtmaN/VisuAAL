@@ -1,6 +1,9 @@
 package parsers;
 
+import Helpers.GUIHelper;
 import Model.TemplateUpdate;
+import View.MainWindowController;
+import javafx.stage.FileChooser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -17,6 +20,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,9 +30,8 @@ public class XmlHandler {
     private String filepath;
 
     public XmlHandler(String _filepath) throws ParserConfigurationException, IOException, SAXException {
-        filepath = _filepath;
-
         //Find and prepare document
+        filepath = _filepath;
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
         //TODO: Ku være det sku fixes?
         documentFactory.setValidating(false);
@@ -95,7 +98,7 @@ public class XmlHandler {
     }
 
     private String getNameOfTemplate(NodeList templateElements) {
-        String scopeOfDecls = "<unknown>";;
+        String scopeOfDecls = "<unknown>";
         for(int j=0; j < templateElements.getLength(); j++ ){
             if(templateElements.item(j).getNodeName().equals("name")){
                 scopeOfDecls = templateElements.item(j).getFirstChild().getNodeValue();
