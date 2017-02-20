@@ -33,10 +33,13 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+import org.xml.sax.SAXException;
 import parsers.UPPAALParser;
 import sun.applet.Main;
 
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -70,6 +73,7 @@ public class MainWindowController implements Initializable {
     @FXML private TableColumn<TemplateUpdate, Integer> dynColumnValue;
     @FXML private TableColumn<TemplateUpdate, Integer> dynColumnTime;
     @FXML private Tab configurationTab;
+    @FXML private Button saveModelButton;
 
 
     private UPPAALModel uppaalModel;
@@ -184,6 +188,7 @@ public class MainWindowController implements Initializable {
             switch (FileHelper.getExtension(selectedFile.getName())) {
                 case ".xml":
                     loadNewModel(selectedFile);
+                    saveModelButton.setVisible(true);
                     break;
                 case ".sim":
                     loadSavedSimulation(selectedFile);
@@ -196,13 +201,25 @@ public class MainWindowController implements Initializable {
         }
     }
 
+    public void saveModel(ActionEvent actionEvent) throws IOException, TransformerException, SAXException, ParserConfigurationException {
+        File selectedFile = FileHelper.chooseSaveFile();
+        uppaalModel.saveToPath(selectedFile.getPath());
+        GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Model succesfully saved");
+    }
+
     private void loadSavedSimulation(File selectedFile) throws IOException, InterruptedException {
         Simulation loaded = Simulation.load(selectedFile);
         addNewResults(selectedFile.getName(), loaded);
     }
 
     private void loadNewModel(File selectedFile) {
-        uppaalModel = new UPPAALModel(selectedFile.getPath());
+        File tempFile = null;
+        try {
+            tempFile = FileHelper.copyFileIntoTempFile(selectedFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        uppaalModel = new UPPAALModel(tempFile.getPath());
         uppaalModel.load();
         addConstantsToList(uppaalModel.getConfigVars());
         tableOutputVars.setItems(uppaalModel.getOutputVars());

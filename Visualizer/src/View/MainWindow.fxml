@@ -20,14 +20,15 @@
     <children>
 <GridPane fx:id="horizontalGrid" prefHeight="48.0">
     <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" prefWidth="200.0" />
-        <ColumnConstraints hgrow="SOMETIMES" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="468.0" minWidth="200.0" prefWidth="399.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="600.0" minWidth="332.0" prefWidth="401.0" />
     </columnConstraints>
     <rowConstraints>
         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
     </rowConstraints>
     <children>
         <Button fx:id="loadModelButton" mnemonicParsing="false" onAction="#loadModel" prefWidth="200" text="Load Model" GridPane.halignment="LEFT" />
+        <Button fx:id="saveModelButton" mnemonicParsing="false" onAction="#saveModel" prefWidth="200" text="Save Model" visible="false" GridPane.columnIndex="1" GridPane.halignment="LEFT" />
     </children>
 </GridPane>
 <TabPane fx:id="tabPane" GridPane.rowIndex="1">

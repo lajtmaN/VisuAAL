@@ -6,10 +6,13 @@ import View.AlertData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
+import org.xml.sax.SAXException;
 import parsers.RegexHelper;
 import parsers.UPPAALParser;
 import parsers.XmlHandler;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -171,5 +174,11 @@ public class UPPAALModel implements Externalizable {
         }
 
         return alert;
+    }
+
+    public void saveToPath(String newPath) throws IOException, SAXException, ParserConfigurationException, TransformerException {
+        XmlHandler handler = new XmlHandler(modelPath);
+        modelPath = newPath;
+        handler.writeXMLToFilePath(modelPath);
     }
 }

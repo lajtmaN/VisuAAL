@@ -2,9 +2,13 @@ package parsers;
 
 import Helpers.FileHelper;
 import Model.OutputVariable;
+import Model.UPPAALModel;
 import org.junit.Test;
 import Model.CVar;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -133,6 +137,33 @@ public class ParseXmlAndCTests {
         assertTrue(vars.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
         assertTrue(vars.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
         assertTrue(vars.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
+    }
+
+    @Test
+    public void parseModel_ChangeAndSaveAsNewFile() throws IOException, TransformerException, SAXException, ParserConfigurationException {
+        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
+        UPPAALModel uppaalModel = new UPPAALModel(f.getPath());
+        uppaalModel.load();
+
+        ArrayList<CVar<Integer>> vars = uppaalModel.getConfigVars();
+
+        assertEquals(3, vars.size());
+        assertTrue(vars.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
+        assertTrue(vars.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
+        assertTrue(vars.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
+
+        File tmp = FileHelper.generateAutoDeletedTempFile("");
+        uppaalModel.saveToPath(tmp.getPath());
+
+        UPPAALModel uppaalModel2 = new UPPAALModel(tmp.getPath());
+        uppaalModel2.load();
+
+        ArrayList<CVar<Integer>> vars2 =uppaalModel2.getConfigVars();
+
+        assertEquals(3, vars2.size());
+        assertTrue(vars2.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
+        assertTrue(vars2.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
+        assertTrue(vars2.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
     }
 
     private <T> void assertCVAR(String expectedScope, String expectedName, T expectedVal, CVar<T> actual) {
