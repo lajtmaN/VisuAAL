@@ -108,6 +108,11 @@ public class XmlHandler {
         return scopeOfDecls;
     }
 
+    public void writeXMLToFilePath(String newPath) throws TransformerException {
+        filepath = newPath;
+        writeXML();
+    }
+
     // write the content into xml file
     private void writeXML() throws TransformerException {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();

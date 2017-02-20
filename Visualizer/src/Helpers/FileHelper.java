@@ -35,17 +35,17 @@ public class FileHelper {
         return f;
     }
 
-    public static File chooseSaveFile(File defaultfile) {
-        File selectedFile = null;
-        if(!GUIHelper.showPrompt("Do you want to overwrite the file?")){
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Select destination file");
-            fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml"));
-            selectedFile = fileChooser.showSaveDialog(MainWindowController.getInstance().getWindow());
+    public static File chooseSaveFile() throws IOException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select destination file");
+        fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml"));
+        File selectedFile = fileChooser.showSaveDialog(MainWindowController.getInstance().getWindow());
+        if(!selectedFile.exists()){
+            selectedFile.createNewFile();
         }
         if(selectedFile == null || !selectedFile.exists()) {
-            return defaultfile;
+            throw new IOException("Error in file creation. File does not exist.");
         }
         return selectedFile;
     }
