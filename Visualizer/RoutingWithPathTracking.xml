@@ -18,6 +18,8 @@ const int DATA_NOT_LOST_PR = 100 - DATA_LOST_PR;
 const int RACE_LOST_PR = 1;
 const int RACE_NOT_LOST_PR = 100 - RACE_LOST_PR;
 
+const double CONFIG_MODEL_TIME_UNIT = 20;
+
 typedef int [0, num_nodes-1] node_id;
 typedef int [0,num_sink_nodes-1] sink_id;
 typedef int [num_sink_nodes,num_nodes-1] non_sink_id;
