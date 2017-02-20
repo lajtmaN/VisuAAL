@@ -3,7 +3,6 @@ package parsers;
 import Model.CVar;
 import Model.OutputVariable;
 import Model.UPPAALTopology;
-import scala.collection.parallel.ParIterableLike;
 
 import java.io.*;
 import java.util.*;
@@ -94,8 +93,28 @@ public class UPPAALParser {
 
         Integer constantValue = constants.stream().filter(p -> p.getName().equals(matchedConstantSize)).findFirst().get().getValue();
         variable.setVariableArraySize(constantValue);
-
-
         return variable;
+    }
+
+
+    /**
+     * Get the CONFIG_MODEL_TIME_UNIT constant from model.
+     * CONFIG_MODEL_TIME_UNIT * 1ms = real-time
+     * @param path uppaal file
+     * @return The constant specified in the model or 1 as default if not present
+     */
+    public static double getModelTimeUnitConstant(String path) {
+
+        String ModelTimeUnitConstantRegex = "const\\s+double\\s+CONFIG_MODEL_TIME_UNIT\\s+=\\s+(\\d+(?:\\.\\d+)?)\\s*;";
+        try {
+            XmlHandler handler = new XmlHandler(path);
+            String globalDecls = handler.getGlobalDeclarations();
+            String res = RegexHelper.getFirstMatchedValueFromRegex(ModelTimeUnitConstantRegex, globalDecls);
+            if (res != null && res.length() > 0)
+                return Double.parseDouble(res);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return 1;
     }
 }

@@ -166,6 +166,24 @@ public class ParseXmlAndCTests {
         assertTrue(vars2.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
     }
 
+    @Test
+    public void parseModelTimeUnitConstantsDefaultsTo1() throws IOException {
+        File f = FileHelper.copyFileIntoTempFile(new File("eksempel.xml"));
+
+        double constant = UPPAALParser.getModelTimeUnitConstant(f.getPath());
+
+        assertEquals(1, constant, 0.001);
+    }
+
+    @Test
+    public void parseModelTimeUnitConstants() throws IOException {
+        File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
+
+        double constant = UPPAALParser.getModelTimeUnitConstant(f.getPath());
+
+        assertEquals(20, constant, 0.001);
+    }
+
     private <T> void assertCVAR(String expectedScope, String expectedName, T expectedVal, CVar<T> actual) {
         assertEquals(expectedScope, actual.getScope());
         assertEquals(expectedName, actual.getName());
