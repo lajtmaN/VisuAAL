@@ -7,8 +7,7 @@ const int num_repeats = 0;
 
 const int num_sink_nodes = 1;
 const int num_nodes_sqrt = 8;
-const int num_nodes = num_nodes_sqrt * num_nodes_sqrt;
-//const int num_nodes = 6;
+const int CONFIG_num_nodes = 64;
 
 const int min_delay = 37;
 const int max_delay = 50;
@@ -20,9 +19,9 @@ const int RACE_NOT_LOST_PR = 100 - RACE_LOST_PR;
 
 const double CONFIG_MODEL_TIME_UNIT = 20;
 
-typedef int [0, num_nodes-1] node_id;
+typedef int [0, CONFIG_num_nodes-1] node_id;
 typedef int [0,num_sink_nodes-1] sink_id;
-typedef int [num_sink_nodes,num_nodes-1] non_sink_id;
+typedef int [num_sink_nodes,CONFIG_num_nodes-1] non_sink_id;
 typedef int [min_delay, max_delay] delay_range;
 
 int message_sent = 0;
@@ -45,7 +44,7 @@ bool is_connected(int a, int b) {
         return a-b == 1 || a-b == num_nodes_sqrt || a-b == - num_nodes_sqrt;
     return a-b == -1 || a-b == 1 || a-b == num_nodes_sqrt || a-b == - num_nodes_sqrt;
 //  double ring topology  
-/*    int connected[num_nodes][num_nodes] = {
+/*    int connected[CONFIG_num_nodes][CONFIG_num_nodes] = {
     {0,0,1,0,0,1,0},
     {0,0,0,1,0,0,1},
     {1,0,0,1,1,0,0},
@@ -56,7 +55,7 @@ bool is_connected(int a, int b) {
     };*/
     /*return connected[a][b];*/
   //double ring topology without center node being connected to anything
-    /*int connected[num_nodes][num_nodes] = {
+    /*int connected[CONFIG_num_nodes][CONFIG_num_nodes] = {
     {0,0,1,0,0,1,0},
     {0,0,0,1,0,0,1},
     {1,0,0,1,0,0,0},
@@ -67,7 +66,7 @@ bool is_connected(int a, int b) {
     };*/
 
 //new_topology - 6 nodes
- /*   int connected[num_nodes][num_nodes] = {
+ /*   int connected[CONFIG_num_nodes][CONFIG_num_nodes] = {
         {0,0,1,1,1,0},
 		{0,0,0,0,1,1},
 		{1,0,0,1,0,0},
@@ -77,7 +76,7 @@ bool is_connected(int a, int b) {
     };
 
 //new_topology_unconnected - 6 nodes
-/*   int connected[num_nodes][num_nodes] = {
+/*   int connected[CONFIG_num_nodes][CONFIG_num_nodes] = {
         {0,0,1,0,1,0},
 		{0,0,0,0,1,1},
 		{1,0,0,0,0,0},
@@ -89,7 +88,7 @@ bool is_connected(int a, int b) {
 */
 
 //Large topology
-    /*int connected[num_nodes][num_nodes] = {
+    /*int connected[CONFIG_num_nodes][CONFIG_num_nodes] = {
     {0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 {1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -131,11 +130,11 @@ bool is_connected(int a, int b) {
 }
 
 
-broadcast chan send_race [num_nodes];
-broadcast chan send_data [num_nodes];
+broadcast chan send_race [CONFIG_num_nodes];
+broadcast chan send_data [CONFIG_num_nodes];
 
-meta int race_transmit[num_nodes][num_sink_nodes];
-meta data global_data[num_nodes];
+meta int race_transmit[CONFIG_num_nodes][num_sink_nodes];
+meta data global_data[CONFIG_num_nodes];
 
 data empty_data() {
     data d;
@@ -514,7 +513,7 @@ t = 0, d = 0</label>
 
 void SetupSystem() {
     int i=0, j=0;
-    for(i = 0; i&lt; num_nodes;i++)
+    for(i = 0; i&lt; CONFIG_num_nodes;i++)
         for(j=0; j&lt;num_sink_nodes;j++)
             race_transmit[i][j] = -1;
 }</declaration>
@@ -592,7 +591,7 @@ system Node, SetupTemplate;
 			</comment>
 		</query>
 		<query>
-			<formula>Pr[&lt;=2*num_nodes] (&lt;&gt;forall (sid : sink_id) forall (id : non_sink_id) Node(id).routing_table[sid].race_number != -1)
+			<formula>Pr[&lt;=2*CONFIG_num_nodes] (&lt;&gt;forall (sid : sink_id) forall (id : non_sink_id) Node(id).routing_table[sid].race_number != -1)
 			</formula>
 			<comment>Sandsynligheden for at alle nodes får race_number fra sink nodes
 			</comment>

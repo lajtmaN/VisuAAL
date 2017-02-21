@@ -5,6 +5,7 @@ import Model.OutputVariable;
 import Model.UPPAALTopology;
 import org.xml.sax.SAXException;
 
+import javax.swing.event.ChangeListener;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.*;
@@ -121,14 +122,25 @@ public class UPPAALParser {
         return 1;
     }
 
-    public static List<String> getUPPAALProcesses(String path) {
+    public static List<String> getUPPAALProcesses(String path, List<CVar<Integer>> constants) {
         try {
+            ArrayList<String> out = new ArrayList<>();
+
             XmlHandler handler = new XmlHandler(path);
             String systemDecl = handler.getSystemDeclaration();
-            List<String> processNames = RegexHelper.parseProcessesFromSystem(systemDecl);
-            //handler.get
+            for (String proc : RegexHelper.parseProcessesFromSystem(systemDecl)) {
+                String paramForProc = handler.getParamaterForTemplate(proc);
+                if (paramForProc == null)
+                    out.add(proc);
+                else {
+                    int sizeOfParam = CHandler.getSizeOfParam(paramForProc, handler.getGlobalDeclarations(), constants);
+                    for (int i = 0; i <= sizeOfParam; i++) {
+                        out.add(String.format("%s(%d)", proc, i));
+                    }
+                }
+            }
 
-            return processNames;
+            return out;
         } catch (Exception e) {
             e.printStackTrace();
         }

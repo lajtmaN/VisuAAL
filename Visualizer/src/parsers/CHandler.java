@@ -4,10 +4,7 @@ import Model.CVar;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +15,9 @@ public class CHandler {
     private static final String OutputVarsRegex = "(OUTPUT_(?:\\w)+(?:\\s*\\[\\w+\\])*)";
     private static final String ConfigDeclarationRegex(String type) {
         return "(const\\s)?" + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)+;"; }
+    private static final String TypedefRegex(String typedefName) {
+        return "typedef\\s+int\\s+\\[\\s*0,\\s*(CONFIG_\\w+)([*+-]\\d+)?\\]\\s+" + typedefName;
+    }
 
     private static final String ConstRegex(String type) {
         return "const\\s+" + type + "\\s+(\\w)+(\\s)*=(\\s)*(\\d)+";
@@ -148,5 +148,23 @@ public class CHandler {
         }
 
         return vars;
+    }
+
+
+    public static int getSizeOfParam(String paramForProc, String globalDecls, List<CVar<Integer>> constants) {
+        String regex = TypedefRegex(paramForProc);
+        String constantName = RegexHelper.getNthMatchedValueFromRegex(regex, globalDecls, 1);
+        String optionalExpression = RegexHelper.getNthMatchedValueFromRegex(regex, globalDecls, 2);
+
+        Optional<CVar<Integer>> matchedConstant = constants.stream().filter(p -> p.getName().equals(constantName)).findFirst();
+        if (matchedConstant.isPresent()) {
+            int constValue = matchedConstant.get().getValue();
+
+            if (optionalExpression != null) {
+                /* TODO: Parse optionalExpression */
+            }
+            return constValue;
+        }
+        return 0;
     }
 }
