@@ -62,6 +62,20 @@ public class SimulateParserTests {
     }
 
     @Test
+    public void removeUnnecessaryDataPoints() {
+        String sampleOutput =
+                        "[2K -- Formula is satisfied.\n" +
+                        "P.s1:\n" +
+                        "[0]: (0,0) (1,0) (1,1) (2,1) (2,0) (3,0)";
+
+        SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")), 1);
+
+        assertEquals(2, output.getSimulationForVariable("P.s1", 0). size());
+        containsData("P.s1", 1, 1.0, output);
+        containsData("P.s1", 2, 0.0, output);
+    }
+
+    @Test
     public void parseSimulateErrorOutput() {
         String sampleErrorOutput =
                 "Options for the verification:\n" +

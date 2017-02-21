@@ -38,6 +38,14 @@ public class Simulation implements Serializable {
         return model.getModelTimeUnit();
     }
 
+    public ArrayList<SimulationEdgePoint> getRun() {
+        return run;
+    }
+
+    public ArrayList<SimulationEdgePoint> getReverseRun() {
+        return reverseRun;
+    }
+
     public void markEdgeAtTime(Number oldValue, Number newValue) {
         double newTime = newValue.doubleValue();
         double oldTime = oldValue.doubleValue();
@@ -101,6 +109,7 @@ public class Simulation implements Serializable {
         }
         return null;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -110,6 +119,7 @@ public class Simulation implements Serializable {
 
         if (!model.equals(that.model)) return false;
         if (!run.equals(that.run)) return false;
+        if (!reverseRun.equals(that.reverseRun)) return false;
         return query.equals(that.query);
     }
 
@@ -117,6 +127,7 @@ public class Simulation implements Serializable {
     public int hashCode() {
         int result = model.hashCode();
         result = 31 * result + run.hashCode();
+        result = 31 * result + reverseRun.hashCode();
         result = 31 * result + query.hashCode();
         return result;
     }
