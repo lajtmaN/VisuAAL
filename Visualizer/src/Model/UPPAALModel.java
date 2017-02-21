@@ -45,7 +45,7 @@ public class UPPAALModel implements Externalizable {
         constConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> p.isIsConst()).collect(Collectors.toList()));
         nonConstConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> !p.isIsConst()).collect(Collectors.toList()));
         topology = UPPAALParser.getUPPAALTopology(modelPath);
-        processes = UPPAALParser.getUPPAALProcesses(modelPath);
+        processes = UPPAALParser.getUPPAALProcesses(modelPath, constConfigVars);
         outputVars = FXCollections.observableArrayList();
         modelTimeUnit = UPPAALParser.getModelTimeUnitConstant(modelPath);
         outputVars.setAll(UPPAALParser.getUPPAALOutputVars(modelPath, allConfigVars));

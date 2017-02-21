@@ -11,14 +11,6 @@ import static org.junit.Assert.assertEquals;
 public class RegexHelperTests {
 
     @Test
-    public void testVariableMather() {
-        String s1 = "hest[2][3]";
-        String s2 = "hest";
-
-        assert(RegexHelper.variableNameMatches(s1, s2));
-    }
-
-    @Test
     public void testGetAllMatchedGroups(){
         String input = "// Place template instantiations here.\n" +
                 "\n" +
