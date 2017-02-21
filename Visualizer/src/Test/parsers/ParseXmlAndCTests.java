@@ -12,10 +12,7 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -145,7 +142,7 @@ public class ParseXmlAndCTests {
         UPPAALModel uppaalModel = new UPPAALModel(f.getPath());
         uppaalModel.load();
 
-        ArrayList<CVar<Integer>> vars = uppaalModel.getConfigVars();
+        List<CVar<Integer>> vars = uppaalModel.getConstConfigVars();
 
         assertEquals(3, vars.size());
         assertTrue(vars.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
@@ -158,7 +155,7 @@ public class ParseXmlAndCTests {
         UPPAALModel uppaalModel2 = new UPPAALModel(tmp.getPath());
         uppaalModel2.load();
 
-        ArrayList<CVar<Integer>> vars2 =uppaalModel2.getConfigVars();
+        List<CVar<Integer>> vars2 =uppaalModel2.getConstConfigVars();
 
         assertEquals(3, vars2.size());
         assertTrue(vars2.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
@@ -183,6 +180,25 @@ public class ParseXmlAndCTests {
         model.load();
 
         assertEquals(20, model.getModelTimeUnit(), 0.001);
+    }
+
+    @Test
+    public void getProcessesFromModel() throws IOException {
+        File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
+
+        UPPAALModel model = new UPPAALModel(f.getPath());
+        model.load();
+
+        assertEquals(2, model.getProcesses().size());
+        assertEquals("Node", model.getProcesses().get(0));
+        assertEquals("SetupTemplate", model.getProcesses().get(1));
+    }
+
+    @Test
+    public void getSystemDeclarationFromFile() throws IOException {
+        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
+        List<String> actual = UPPAALParser.getUPPAALProcesses(f.getPath());
+        assertEquals("Template", actual.get(0));
     }
 
     private <T> void assertCVAR(String expectedScope, String expectedName, T expectedVal, CVar<T> actual) {

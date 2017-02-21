@@ -11,22 +11,29 @@ import parsers.RegexHelper;
 import parsers.UPPAALParser;
 import parsers.XmlHandler;
 
+import javax.sound.midi.MidiDevice;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by batto on 10-Feb-17.
  */
 public class UPPAALModel implements Externalizable {
     private UPPAALTopology topology;
-    private ArrayList<CVar<Integer>> configVars;
+    private ObservableList<CVar<Integer>> constConfigVars;
+    private ObservableList<CVar<Integer>> nonConstConfigVars;
     private ObservableList<TemplateUpdate> templateUpdates;
     private ObservableList<OutputVariable> outputVars;
     private double modelTimeUnit = 1;
 
     private String modelPath;
+    private List<String> processes;
 
     public UPPAALModel() {} //Only needed for Externalizable
     public UPPAALModel(String path) {
@@ -34,11 +41,14 @@ public class UPPAALModel implements Externalizable {
     }
 
     public void load() {
-        configVars = UPPAALParser.getUPPAALConfigConstants(modelPath);
+        ArrayList<CVar<Integer>> allConfigVars = UPPAALParser.getUPPAALConfigConstants(modelPath);
+        constConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> p.isIsConst()).collect(Collectors.toList()));
+        nonConstConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> !p.isIsConst()).collect(Collectors.toList()));
         topology = UPPAALParser.getUPPAALTopology(modelPath);
+        processes = UPPAALParser.getUPPAALProcesses(modelPath);
         outputVars = FXCollections.observableArrayList();
         modelTimeUnit = UPPAALParser.getModelTimeUnitConstant(modelPath);
-        outputVars.setAll(UPPAALParser.getUPPAALOutputVars(modelPath, configVars));
+        outputVars.setAll(UPPAALParser.getUPPAALOutputVars(modelPath, allConfigVars));
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.add(new TemplateUpdate());
     }
@@ -47,8 +57,16 @@ public class UPPAALModel implements Externalizable {
         return topology;
     }
 
-    public ArrayList<CVar<Integer>> getConfigVars() {
-        return configVars;
+    public ObservableList<CVar<Integer>> getConstConfigVars() {
+        return constConfigVars;
+    }
+
+    public ObservableList<CVar<Integer>> getNonConstConfigVars() {
+        return nonConstConfigVars;
+    }
+
+    public ObservableList<String> getNonConstConfigVarNames() {
+        return FXCollections.observableArrayList(nonConstConfigVars.stream().map(p -> p.getName()).collect(Collectors.toList()));
     }
 
     public ObservableList<OutputVariable> getOutputVars() {
@@ -79,9 +97,9 @@ public class UPPAALModel implements Externalizable {
         UPPAALModel that = (UPPAALModel) o;
 
         if (topology != null ? !topology.equals(that.topology) : that.topology != null) return false;
-        if (configVars != null ? !configVars.equals(that.configVars) : that.configVars != null) return false;
-        if (templateUpdates != null ? !templateUpdates.equals(that.templateUpdates) : that.templateUpdates != null)
-            return false;
+        if (constConfigVars != null ? !constConfigVars.equals(that.constConfigVars) : that.constConfigVars != null) return false;
+        if (nonConstConfigVars != null ? !nonConstConfigVars.equals(that.nonConstConfigVars) : that.nonConstConfigVars != null) return false;
+        if (templateUpdates != null ? !templateUpdates.equals(that.templateUpdates) : that.templateUpdates != null) return false;
         if (outputVars != null ? !outputVars.equals(that.outputVars) : that.outputVars != null) return false;
         if (modelTimeUnit  != that.modelTimeUnit) return false;
         return modelPath != null ? modelPath.equals(that.modelPath) : that.modelPath == null;
@@ -90,16 +108,13 @@ public class UPPAALModel implements Externalizable {
     @Override
     public int hashCode() {
         int result = topology != null ? topology.hashCode() : 0;
-        result = 31 * result + (configVars != null ? configVars.hashCode() : 0);
+        result = 31 * result + (constConfigVars != null ? constConfigVars.hashCode() : 0);
+        result = 31 * result + (nonConstConfigVars != null ? nonConstConfigVars.hashCode() : 0);
         result = 31 * result + (templateUpdates != null ? templateUpdates.hashCode() : 0);
         result = 31 * result + (outputVars != null ? outputVars.hashCode() : 0);
         result = 31 * result + (modelPath != null ? modelPath.hashCode() : 0);
         result = 31 * result + (int)modelTimeUnit;
         return result;
-    }
-
-    public void updateUpdates(ObservableList<TemplateUpdate> items) {
-        templateUpdates = items;
     }
 
     public ObservableList<TemplateUpdate> getTemplateUpdates() {
@@ -109,7 +124,8 @@ public class UPPAALModel implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(topology);
-        out.writeObject(configVars);
+        out.writeObject(new ArrayList<>(constConfigVars));
+        out.writeObject(new ArrayList<>(nonConstConfigVars));
         out.writeObject(new ArrayList<>(templateUpdates));
         out.writeObject(new ArrayList<>(outputVars));
         out.writeObject(modelPath);
@@ -119,7 +135,10 @@ public class UPPAALModel implements Externalizable {
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         topology = (UPPAALTopology) in.readObject();
-        configVars = (ArrayList<CVar<Integer>>) in.readObject();
+        constConfigVars = FXCollections.observableArrayList();
+        constConfigVars.setAll((ArrayList<CVar<Integer>>) in.readObject());
+        nonConstConfigVars = FXCollections.observableArrayList();
+        nonConstConfigVars.setAll((ArrayList<CVar<Integer>>) in.readObject());
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.setAll((ArrayList<TemplateUpdate>) in.readObject());
         outputVars = FXCollections.observableArrayList();
@@ -133,60 +152,26 @@ public class UPPAALModel implements Externalizable {
     }
 
     public AlertData saveTemplateUpdatesToXml() {
-        AlertData alert = null;
-        String notFoundMsg = "The output variables are not found:";
-        String constMsg = "The following variables are constants:";
-        boolean addNotFoundMsg = false;
-        boolean addIsConstMsg = false;
+        List<TemplateUpdate> updates = templateUpdates.stream().filter(p -> p.getVariable().length() > 0).collect(Collectors.toList());
+        if (updates.size() != 0) {
+            updates.sort((o1, o2) -> Integer.compare(o1.getTime(), o2.getTime()));
 
-        try {
-            XmlHandler handler = new XmlHandler(modelPath);
-            ArrayList<TemplateUpdate> out = new ArrayList<>();
-
-            for (TemplateUpdate t : this.getTemplateUpdates()) {
-                boolean foundAsNonConst = false,
-                        foundAsConst = false;
-                for (CVar v : configVars) {
-                    if (RegexHelper.variableNameMatches(t.getVariable(), v.getName())) {
-                        if (v.isIsConst())
-                            foundAsConst = true;
-                        else
-                            foundAsNonConst = true;
-                    }
-                }
-                if (foundAsConst) {
-                    addIsConstMsg = true;
-                    constMsg += " " + t.getVariable();
-                } else if (foundAsNonConst)
-                    out.add(t);
-                else if (!t.getVariable().equals("")) {
-                    addNotFoundMsg = true;
-                    notFoundMsg += " " + t.getVariable();
-                }
+            try {
+                XmlHandler handler = new XmlHandler(modelPath);
+                handler.addTemplateUpdatesToModel(updates);
+            } catch (Exception e) {
+                return new AlertData(Alert.AlertType.ERROR, "Error", "Could not save updates to the model");
             }
-
-            String msg = "";
-            if (addIsConstMsg)
-                msg += constMsg;
-            if (addNotFoundMsg)
-                msg += "\n" + notFoundMsg;
-            if (!msg.equals("")) {
-                alert = new AlertData(Alert.AlertType.INFORMATION, "Invalid variables - No changes made", msg);
-            } else if (out.size() != 0) {
-                out.sort((o1, o2) -> o1.getTime() > o2.getTime() ? 1 : (o2.getTime() > o1.getTime() ? -1 : 0));
-                handler.addTemplateUpdatesToModel(out);
-                GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Variables updates are added to the model", "Success");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
-        return alert;
+        return new AlertData(Alert.AlertType.INFORMATION, "Success", "Updates successfully saved to the model");
     }
 
     public void saveToPath(String newPath) throws IOException, SAXException, ParserConfigurationException, TransformerException {
         XmlHandler handler = new XmlHandler(modelPath);
         handler.writeXMLToFilePath(newPath);
+    }
+
+    public List<String> getProcesses() {
+        return processes;
     }
 }

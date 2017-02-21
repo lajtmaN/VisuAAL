@@ -3,9 +3,12 @@ package parsers;
 import Model.CVar;
 import Model.OutputVariable;
 import Model.UPPAALTopology;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by lajtman on 07-02-2017.
@@ -55,7 +58,7 @@ public class UPPAALParser {
         return tempFile;
     }
 
-    public static ArrayList<OutputVariable> getUPPAALOutputVars(String uppaalFilePath, ArrayList<CVar<Integer>> constants) {
+    public static ArrayList<OutputVariable> getUPPAALOutputVars(String uppaalFilePath, List<CVar<Integer>> constants) {
         try {
             ArrayList<String> vars = CHandler.getOutputVars(new XmlHandler(uppaalFilePath).getGlobalDeclarations());
             if (vars != null) {
@@ -116,5 +119,16 @@ public class UPPAALParser {
             e.printStackTrace();
         }
         return 1;
+    }
+
+    public static List<String> getUPPAALProcesses(String path) {
+        try {
+            XmlHandler handler = new XmlHandler(path);
+            String systemDecl = handler.getSystemDeclaration();
+            return RegexHelper.parseProcessesFromSystem(systemDecl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

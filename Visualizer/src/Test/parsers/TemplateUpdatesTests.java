@@ -38,7 +38,6 @@ public class TemplateUpdatesTests {
         uppaalModel.getTemplateUpdates().add(new TemplateUpdate("test2", 21, 37));
 
         handler.addTemplateUpdatesToModel(uppaalModel.getTemplateUpdates());
-        handler.addTemplateUpdatesToModel(uppaalModel.getTemplateUpdates());
 
         assertEquals(8, handler.getTemplateCount());
     }

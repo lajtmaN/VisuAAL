@@ -240,6 +240,11 @@ public class XmlHandler {
             return null;
     }
 
+    public String getSystemDeclaration (){
+        NodeList systemNode = document.getElementsByTagName("system");
+        return systemNode.item(0).getFirstChild().getNodeValue();
+    }
+
     public boolean existVisualizerTemplate() {
         return (getDynamicTemplate() != null);
     }

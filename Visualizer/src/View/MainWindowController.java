@@ -20,6 +20,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -46,6 +48,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class MainWindowController implements Initializable {
 
@@ -92,16 +95,12 @@ public class MainWindowController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         tabPane.setVisible(false);
         simulationProgress.setVisible(false);
-        initializeConstantTableValues();
-        initializeOutputVarsTable();
-        initializeWidths();
-        initializeDynamicTable();
         instance = this;
     }
 
     private void initializeDynamicTable() {
         dynColumnName.setCellValueFactory(p -> p.getValue().variableProperty());
-        dynColumnName.setCellFactory(p -> new StringEditingCell());
+        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getNonConstConfigVarNames()));
 
         dynColumnValue.setCellValueFactory(p -> p.getValue().theValueProperty().asObject());
         dynColumnValue.setCellFactory(p -> new IntegerEditingCell());
@@ -169,10 +168,6 @@ public class MainWindowController implements Initializable {
         tableOutputVars.setSelectionModel(null);
     }
 
-    public void addConstantsToList(ArrayList<CVar<Integer>> constants){
-        constantsTable.getItems().addAll(constants);
-    }
-
     public void loadModel(ActionEvent actionEvent) throws IOException, InterruptedException {
         constantsTable.getItems().clear();
         FileChooser fileChooser = new FileChooser();
@@ -198,6 +193,10 @@ public class MainWindowController implements Initializable {
             }
 
             tabPane.setVisible(true);
+            initializeConstantTableValues();
+            initializeOutputVarsTable();
+            initializeWidths();
+            initializeDynamicTable();
         }
     }
 
@@ -222,7 +221,7 @@ public class MainWindowController implements Initializable {
         }
         uppaalModel = new UPPAALModel(tempFile.getPath());
         uppaalModel.load();
-        addConstantsToList(uppaalModel.getConfigVars());
+        constantsTable.setItems(uppaalModel.getConstConfigVars());
         tableOutputVars.setItems(uppaalModel.getOutputVars());
         dynamicTable.setItems(uppaalModel.getTemplateUpdates());
     }
@@ -330,9 +329,9 @@ public class MainWindowController implements Initializable {
     public void onLeaveConfigurationTab(Event event) {
         Tab selectedTab = (event.getSource() instanceof Tab ? (Tab)event.getSource() : null);
         if(selectedTab != null && !selectedTab.isSelected() && constantsChanged){
-            UPPAALParser.updateUPPAALConfigConstants(uppaalModel.getModelPath(), uppaalModel.getConfigVars());
+            UPPAALParser.updateUPPAALConfigConstants(uppaalModel.getModelPath(), uppaalModel.getConstConfigVars());
             //TODO reload appropriate views and update. Save stuff that should not be updated (i.e. selection in outputvars)
-            uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath(), uppaalModel.getConfigVars()));
+            uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath(), uppaalModel.getConstConfigVars()));
             constantsChanged = false;
         }
     }
