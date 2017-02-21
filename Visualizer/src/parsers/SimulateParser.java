@@ -37,10 +37,10 @@ public class SimulateParser {
             }
             else if (outSimId >= 0 && name != null) {
                 ArrayList<DataPoint> datas = RegexHelper.getDataPointsForString(verifytaOutput.get(i));
-                DataPoint justAddedPoint = null;
+                DataPoint justAddedPoint = new DataPoint(0,0); //exclude (0,0) datapoints
 
                 for(DataPoint d : datas) {
-                    if (justAddedPoint == null || d.getValue() != justAddedPoint.getValue()) {
+                    if (d.getValue() != justAddedPoint.getValue()) {
                         justAddedPoint = d;
                         simulateOutput.addDatapoint(name, outSimId, d);
                     }
