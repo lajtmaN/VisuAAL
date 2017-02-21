@@ -125,7 +125,10 @@ public class UPPAALParser {
         try {
             XmlHandler handler = new XmlHandler(path);
             String systemDecl = handler.getSystemDeclaration();
-            return RegexHelper.parseProcessesFromSystem(systemDecl);
+            List<String> processNames = RegexHelper.parseProcessesFromSystem(systemDecl);
+            //handler.get
+
+            return processNames;
         } catch (Exception e) {
             e.printStackTrace();
         }
