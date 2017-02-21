@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 
@@ -200,6 +201,21 @@ public class ParseXmlAndCTests {
         List<String> actual = UPPAALParser.getUPPAALProcesses(f.getPath());
         assertEquals("Template", actual.get(0));
     }
+
+    @Test
+    public void getParameterFromTemplate() throws IOException, ParserConfigurationException, SAXException {
+        File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
+
+        String expected = "node_id id";
+
+        XmlHandler handler = new XmlHandler(f.getPath());
+        String actual = handler.getParamaterForTemplate("Node");
+        assertEquals(expected, actual);
+
+        assertNull(handler.getParamaterForTemplate("SetupTemplate"));
+        assertNull(handler.getParamaterForTemplate("BLA"));
+    }
+
 
     private <T> void assertCVAR(String expectedScope, String expectedName, T expectedVal, CVar<T> actual) {
         assertEquals(expectedScope, actual.getScope());

@@ -97,15 +97,28 @@ public class XmlHandler {
         return allDecls;
     }
 
-    private String getNameOfTemplate(NodeList templateElements) {
-        String scopeOfDecls = "<unknown>";
-        for(int j=0; j < templateElements.getLength(); j++ ){
-            if(templateElements.item(j).getNodeName().equals("name")){
-                scopeOfDecls = templateElements.item(j).getFirstChild().getNodeValue();
-                break;
+    public String getParamaterForTemplate(String template) {
+        NodeList templates = document.getElementsByTagName("template");
+        for (int i = 0; i < templates.getLength(); i++) {
+            NodeList templateNodes = templates.item(i).getChildNodes();
+            if (getNameOfTemplate(templateNodes).equals(template)){
+                return getTagOfTemplate("parameter", templateNodes);
             }
         }
-        return scopeOfDecls;
+        return null;
+    }
+
+    private String getNameOfTemplate(NodeList templateElements) {
+        return getTagOfTemplate("name", templateElements);
+    }
+
+    private String getTagOfTemplate(String tag, NodeList templateElements) {
+        for (int j=0; j < templateElements.getLength(); j++ ){
+            if (templateElements.item(j).getNodeName().equals(tag)){
+                return templateElements.item(j).getFirstChild().getNodeValue();
+            }
+        }
+        return null;
     }
 
     public void writeXMLToFilePath(String newPath) throws TransformerException {
