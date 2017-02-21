@@ -65,9 +65,9 @@ int CONFIG_connected[9][9] = {
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
-Process = Template();
+
 // List one or more processes to be composed into a system.
-system Process;
+system Template;
     </system>
 	<queries>
 	</queries>

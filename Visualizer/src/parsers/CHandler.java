@@ -16,15 +16,12 @@ public class CHandler {
     private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
     private static final String ConfigVariableRegex = "CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+";
     private static final String OutputVarsRegex = "(OUTPUT_(?:\\w)+(?:\\s*\\[\\w+\\])*)";
-
     private static final String ConfigDeclarationRegex(String type) {
         return "(const\\s)?" + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)+;"; }
 
     private static final String ConstRegex(String type) {
         return "const\\s+" + type + "\\s+(\\w)+(\\s)*=(\\s)*(\\d)+";
     }
-
-    private static final String dummy = "^int";
     /**
      * Update a var in the XML decls
      * @param name of the variable
