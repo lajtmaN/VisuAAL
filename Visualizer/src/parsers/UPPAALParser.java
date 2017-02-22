@@ -62,29 +62,43 @@ public class UPPAALParser {
 
     public static ArrayList<OutputVariable> getUPPAALOutputVars(String uppaalFilePath, List<CVar<Integer>> constants) {
         try {
-            ArrayList<String> vars = CHandler.getOutputVars(new XmlHandler(uppaalFilePath).getGlobalDeclarations());
-            if (vars != null) {
-                ArrayList<OutputVariable> outVars = new ArrayList<>();
-                for(String s : vars)
-                    outVars.add(parseOutputVariableArray(s, constants));
-                    return outVars;
+            ArrayList<OutputVariable> outVars = new ArrayList<>();
+            HashMap<String, String> allDecls = new XmlHandler(uppaalFilePath).getAllDeclarations();
+            for (String key : allDecls.keySet()) {
+                ArrayList<String> vars = CHandler.getOutputVars(allDecls.get(key));
+                if (vars != null) {
+                    for (String s : vars)
+                        outVars.add(parseOutputVariableArray(s, key, constants));
+                }
             }
+            return outVars;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new ArrayList<>();
     }
 
-    public static OutputVariable parseOutputVariableArray(String name, List<CVar<Integer>> constants) {
+    public static OutputVariable parseOutputVariableArray(String name, String scope, List<CVar<Integer>> constants) {
+        boolean inScope = scope != null && scope.length() > 0;
         String ArrayRegex = "(?:\\[(\\w+)\\])\\1*";
         String matchedConstantSize = RegexHelper.getFirstMatchedValueFromRegex(ArrayRegex, name);
-        if (matchedConstantSize == null)
+        boolean isArray = matchedConstantSize != null && matchedConstantSize.length() > 0;
+        if (!isArray && !inScope)
             return new OutputVariable(name);
 
+        if (!isArray && inScope) {
+            OutputVariable outputVariable = new OutputVariable(name, scope);
+            outputVariable.setNodeData(true);
+            return outputVariable;
+        }
 
         String modifiedName = name.substring(0, name.indexOf('[')); //only keep actual name - remove array def
-        OutputVariable variable = new OutputVariable(modifiedName);
+        OutputVariable variable = new OutputVariable(modifiedName, scope);
         int dimensionsInArray = (int)name.chars().filter(p -> p == '[').count(); //count [
+
+        if (inScope)
+            dimensionsInArray++;
+
         switch (dimensionsInArray) {
             case 1:
                 variable.setNodeData(true);
