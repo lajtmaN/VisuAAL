@@ -1,8 +1,6 @@
 package parsers;
 
-import Model.DataPoint;
-import Model.SimulateOutput;
-import Model.SimulationEdgePoint;
+import Model.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -70,7 +68,8 @@ public class SimulateParserTests {
 
         SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")), 1);
 
-        assertEquals(2, output.getSimulationForVariable("P.s1", 0). size());
+        assertEquals(3, output.getSimulationForVariable("P.s1", 0). size());
+        containsData("P.s1", 0, 0.0, output);
         containsData("P.s1", 1, 1.0, output);
         containsData("P.s1", 2, 0.0, output);
     }
@@ -175,5 +174,31 @@ public class SimulateParserTests {
         for (int i = 0;i < expected.size(); i++) {
             assertEquals(expected.get(i), actual.get(i));
         }
+    }
+    @Test
+    public void testRunMayNeverHaveMultipleValuesForSameClock() {
+        String sampleOutput =
+                "[2K -- Formula is satisfied.\n" +
+                        "P.s1:\n" +
+                        "[0]: (0,0) (0,1) (0,0) (0,1)";
+
+        SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")), 1);
+
+        assertEquals(1, output.getSimulationForVariable("P.s1", 0).size());
+        containsData("P.s1", 0, 1.0, output);
+    }
+
+    @Test
+    public void testNeverTwoFollowingDataPointsWithSameValue(){
+        String sampleOutput =
+                "[2K -- Formula is satisfied.\n" +
+                        "P.s1:\n" +
+                        "[0]: (0,0) (6150.92,0) (6150.92,0) (6150.92,1) (6150.92,1) (16951.9,1) (16951.9,1) (16952.9,0) (16952.9,1) (20071.9,1)";
+
+        SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")),1);
+
+        assertEquals(2,output.getSimulationForVariable("P.s1", 0).size());
+        containsData("P.s1", 0, 0.0, output);
+        containsData("P.s1", 6150.92, 1.0, output);
     }
 }

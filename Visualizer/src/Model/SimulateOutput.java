@@ -82,4 +82,12 @@ public class SimulateOutput extends UPPAALOutput {
         }
         return result;
     }
+
+    public void replaceValueOfLastDataPoint(String variable, int simNumber, DataPoint data) {
+        if (!simulationData.containsKey(variable))
+            addVariable(variable);
+
+        ArrayList<DataPoint> points = simulationData.get(variable).get(simNumber);
+        points.get(points.size()-1).setValue(data.getValue()); //Replace datapoint with same clock
+    }
 }
