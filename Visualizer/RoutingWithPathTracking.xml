@@ -7,7 +7,7 @@ const int num_repeats = 0;
 
 const int num_sink_nodes = 1;
 const int num_nodes_sqrt = 8;
-const int CONFIG_num_nodes = 64;
+const int CONFIG_num_nodes = 36;
 
 const int min_delay = 37;
 const int max_delay = 50;
@@ -17,7 +17,7 @@ const int DATA_NOT_LOST_PR = 100 - DATA_LOST_PR;
 const int RACE_LOST_PR = 1;
 const int RACE_NOT_LOST_PR = 100 - RACE_LOST_PR;
 
-const double CONFIG_MODEL_TIME_UNIT = 20;
+const double CONFIG_MODEL_TIME_UNIT = 20.0;
 
 typedef int [0, CONFIG_num_nodes-1] node_id;
 typedef int [0,num_sink_nodes-1] sink_id;
@@ -73,7 +73,7 @@ bool is_connected(int a, int b) {
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
-   return connected[a][b];
+   return CONFIG_connected[a][b];
 }
 
 
@@ -115,6 +115,8 @@ clock t;
 clock d;
 
 data OUTPUT_rec_data = empty_data(); //data buffer;
+int OUTPUT_current_data;
+
 
 bool is_sink() {
   return id &lt;= num_sink_nodes - 1;
@@ -223,6 +225,7 @@ bool can_send(data next_data) {
 void receive_data() {
     OUTPUT_rec_data = global_data[id];
     global_data[id] = empty_data();
+    OUTPUT_current_data = OUTPUT_rec_data.value;
 }
 
 data new_data() {
@@ -238,7 +241,7 @@ data next_data() {
     if (can_send(OUTPUT_rec_data))
         return OUTPUT_rec_data;
     else
-        if(id == 63 &amp;&amp; !has_sent){
+        if(id == CONFIG_num_nodes-1 &amp;&amp; !has_sent){
             return new_data();
         }
         else
@@ -258,6 +261,7 @@ void send_next_data() {
     next.jumps += 1;
     global_data[next_receiver(next)] = next;
     OUTPUT_rec_data = empty_data();
+    OUTPUT_current_data = OUTPUT_rec_data.value;
 }
 
 void process_data() {
@@ -267,11 +271,13 @@ void process_data() {
             message_sent = -1;
         latest_received_route_length = OUTPUT_rec_data.jumps;
         OUTPUT_rec_data = empty_data();
+        OUTPUT_current_data = OUTPUT_rec_data.value;
     }   
 }
 
 void data_lost() {
     OUTPUT_rec_data = empty_data();
+    OUTPUT_current_data = OUTPUT_rec_data.value;
 }</declaration>
 		<location id="id0" x="246" y="-119">
 			<committed/>
@@ -574,8 +580,7 @@ system Node, SetupTemplate;
 			</comment>
 		</query>
 		<query>
-			<formula>simulate 1 [&lt;=3000] {Node(0).OUTPUT_rec_data.value,Node(1).OUTPUT_rec_data.value,Node(2).OUTPUT_rec_data.value,Node(3).OUTPUT_rec_data.value,Node(4).OUTPUT_rec_data.value,Node(5).OUTPUT_rec_data.value,Node(6).OUTPUT_rec_data.value,Node(7).OUTPUT_rec_data.value,Node(8).OUTPUT_rec_data.value,Node(9).OUTPUT_rec_data.value,Node(10).OUTPUT_rec_data.value,Node(11).OUTPUT_rec_data.value,Node(12).OUTPUT_rec_data.value,Node(13).OUTPUT_rec_data.value,Node(14).OUTPUT_rec_data.value,Node(15).OUTPUT_rec_data.value,Node(16).OUTPUT_rec_data.value,Node(17).OUTPUT_rec_data.value,Node(18).OUTPUT_rec_data.value,Node(19).OUTPUT_rec_data.value,Node(20).OUTPUT_rec_data.value,Node(21).OUTPUT_rec_data.value,Node(22).OUTPUT_rec_data.value,Node(23).OUTPUT_rec_data.value,Node(24).OUTPUT_rec_data.value,Node(25).OUTPUT_rec_data.value,Node(26).OUTPUT_rec_data.value,Node(27).OUTPUT_rec_data.value,Node(28).OUTPUT_rec_data.value,Node(29).OUTPUT_rec_data.value,Node(30).OUTPUT_rec_data.value,Node(31).OUTPUT_rec_data.value,Node(32).OUTPUT_rec_data.value,Node(33).OUTPUT_rec_data.value,Node(34).OUTPUT_rec_data.value,Node(35).OUTPUT_rec_data.value,Node(36).OUTPUT_rec_data.value,Node(37).OUTPUT_rec_data.value,Node(38).OUTPUT_rec_data.value,Node(39).OUTPUT_rec_data.value,Node(40).OUTPUT_rec_data.value,Node(41).OUTPUT_rec_data.value,Node(42).OUTPUT_rec_data.value,Node(43).OUTPUT_rec_data.value,Node(44).OUTPUT_rec_data.value,Node(45).OUTPUT_rec_data.value,Node(46).OUTPUT_rec_data.value,Node(47).OUTPUT_rec_data.value,Node(48).OUTPUT_rec_data.value,Node(49).OUTPUT_rec_data.value,Node(50).OUTPUT_rec_data.value,Node(51).OUTPUT_rec_data.value,Node(52).OUTPUT_rec_data.value,Node(53).OUTPUT_rec_data.value,Node(54).OUTPUT_rec_data.value,Node(55).OUTPUT_rec_data.value,Node(56).OUTPUT_rec_data.value,Node(57).OUTPUT_rec_data.value,Node(58).OUTPUT_rec_data.value,Node(59).OUTPUT_rec_data.value,Node(60).OUTPUT_rec_data.value,Node(61).OUTPUT_rec_data.value,Node(62).OUTPUT_rec_data.value,Node(63).OUTPUT_rec_data.value}
-
+			<formula>simulate 1 [&lt;=300] {Node(0).OUTPUT_rec_data.value,Node(1).OUTPUT_rec_data.value,Node(2).OUTPUT_rec_data.value,Node(3).OUTPUT_rec_data.value,Node(4).OUTPUT_rec_data.value,Node(5).OUTPUT_rec_data.value,Node(6).OUTPUT_rec_data.value,Node(7).OUTPUT_rec_data.value,Node(8).OUTPUT_rec_data.value,Node(9).OUTPUT_rec_data.value,Node(10).OUTPUT_rec_data.value,Node(11).OUTPUT_rec_data.value,Node(12).OUTPUT_rec_data.value,Node(13).OUTPUT_rec_data.value,Node(14).OUTPUT_rec_data.value,Node(15).OUTPUT_rec_data.value,Node(16).OUTPUT_rec_data.value,Node(17).OUTPUT_rec_data.value,Node(18).OUTPUT_rec_data.value,Node(19).OUTPUT_rec_data.value,Node(20).OUTPUT_rec_data.value,Node(21).OUTPUT_rec_data.value,Node(22).OUTPUT_rec_data.value,Node(23).OUTPUT_rec_data.value,Node(24).OUTPUT_rec_data.value,Node(25).OUTPUT_rec_data.value,Node(26).OUTPUT_rec_data.value,Node(27).OUTPUT_rec_data.value,Node(28).OUTPUT_rec_data.value,Node(29).OUTPUT_rec_data.value,Node(30).OUTPUT_rec_data.value,Node(31).OUTPUT_rec_data.value,Node(32).OUTPUT_rec_data.value,Node(33).OUTPUT_rec_data.value,Node(34).OUTPUT_rec_data.value,Node(35).OUTPUT_rec_data.value}
 			</formula>
 			<comment>
 			</comment>
