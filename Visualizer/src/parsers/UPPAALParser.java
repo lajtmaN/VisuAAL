@@ -2,6 +2,7 @@ package parsers;
 
 import Model.CVar;
 import Model.OutputVariable;
+import Model.TemplateUpdate;
 import Model.UPPAALTopology;
 import org.xml.sax.SAXException;
 
@@ -155,6 +156,19 @@ public class UPPAALParser {
             }
 
             return out;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static ArrayList<TemplateUpdate> getDynamicTemplateUpdates(String modelPath) {
+        try {
+            XmlHandler handler = new XmlHandler(modelPath);
+            if(handler.existVisualizerTemplate())
+                return handler.getVisualizerUpdates();
+            else
+                return new ArrayList<>();
         } catch (Exception e) {
             e.printStackTrace();
         }
