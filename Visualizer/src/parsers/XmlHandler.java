@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class XmlHandler {
-    final private String dynamicTemplateUpdaterName = "visualizer_updater";
+    final private String dynamicTemplateUpdaterName = "visualizer_updater_AUTO_GENERATED_DO_NOT_CHANGE";
     private Document document;
     private String filepath;
 
@@ -164,7 +164,7 @@ public class XmlHandler {
         Node template = document.createElement("template");
 
         Node name = document.createElement("name");
-        name.setTextContent("visualizer_updater");
+        name.setTextContent(dynamicTemplateUpdaterName);
         template.appendChild(name);
 
         Node decl = document.createElement("declaration");
