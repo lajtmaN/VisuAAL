@@ -191,12 +191,11 @@ public class ParseXmlAndCTests {
         UPPAALModel model = new UPPAALModel(f.getPath());
         model.load();
 
-        //TODO Update test such that CONFIG_num_nodes - 1 is calculated (now -1 is not included)
-        assertEquals(66, model.getProcesses().size());
+        assertEquals(65, model.getProcesses().size());
         assertEquals("Node(0)", model.getProcesses().get(0));
         assertEquals("Node(35)", model.getProcesses().get(35));
-        assertEquals("Node(64)", model.getProcesses().get(64));
-        assertEquals("SetupTemplate", model.getProcesses().get(65));
+        assertEquals("Node(63)", model.getProcesses().get(63));
+        assertEquals("SetupTemplate", model.getProcesses().get(64));
     }
 
     @Test
@@ -221,7 +220,7 @@ public class ParseXmlAndCTests {
     public void calculateCorrectParameterSize() throws IOException, ParserConfigurationException, SAXException {
         File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
 
-        int expected = 64;
+        int expected = 63;
 
         XmlHandler handler = new XmlHandler(f.getPath());
         String parameter = handler.getParamaterForTemplate("Node");
