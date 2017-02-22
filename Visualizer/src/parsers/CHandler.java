@@ -161,7 +161,16 @@ public class CHandler {
             int constValue = matchedConstant.get().getValue();
 
             if (optionalExpression != null) {
-                /* TODO: Parse optionalExpression */
+                String operator = RegexHelper.getFirstMatchedValueFromRegex("([*+-])", optionalExpression);
+                int num = Integer.parseInt(RegexHelper.getFirstMatchedValueFromRegex("(\\d+)", optionalExpression));
+                switch (operator) {
+                    case "*":
+                        return constValue * num;
+                    case "+":
+                        return constValue + num;
+                    case "-":
+                        return constValue - num;
+                }
             }
             return constValue;
         }
