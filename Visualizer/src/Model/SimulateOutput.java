@@ -53,11 +53,11 @@ public class SimulateOutput extends UPPAALOutput {
 
     public ArrayList<SimulationEdgePoint> getZippedForSimulate(int simId) {
         ArrayList<SimulationEdgePoint> result = new ArrayList<>();
-        ArrayList<DataPoint> points = new ArrayList<>();
         for(String key : simulationData.keySet()){
             ArrayList<ArrayList<DataPoint>> simulations = simulationData.get(key);
             if(!simulations.isEmpty()){
                 for(DataPoint dp : simulations.get(simId)){
+                    //TODO: if single-array parse as simulation edgePoint
                     int src = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(srcDstRegex, key, 1));
                     int dst = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(srcDstRegex, key, 2));
                     result.add(new SimulationEdgePoint(dp.getClock(), src, dst, dp.getValue()));
