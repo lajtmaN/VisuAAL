@@ -30,8 +30,54 @@ public class QueryGeneratorTests {
 
         ArrayList<OutputVariable> outVars = new ArrayList<>();
         outVars.add(new OutputVariable("OUTPUT_nr_node_relations"));
-        String actual = QueryGenerator.generateSimulationQuery(3572, 10, outVars);
+        String actual = QueryGenerator.generateSimulationQuery(3572, 10, outVars, new ArrayList<>());
 
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testParseQueryWithProcessNames() {
+        String expected = "simulate 1 [<=100] { Node(0).OUTPUT_test, Node(1).OUTPUT_test, OUTPUT_nr_node_relations }";
+
+        //Setup
+        ArrayList<OutputVariable> outVars = new ArrayList<>();
+        OutputVariable out = new OutputVariable("OUTPUT_test", "Node");
+        out.setNodeData(true);
+        outVars.add(out);
+
+        outVars.add(new OutputVariable("OUTPUT_nr_node_relations"));
+
+        ArrayList<String> processes = new ArrayList<>();
+        processes.add("Node(0)");
+        processes.add("Node(1)");
+
+        //ACT
+        String actual = QueryGenerator.generateSimulationQuery(100, 1, outVars, processes);
+
+        //Assert
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testParseArrayQueryWithProcessNames() {
+        String expected = "simulate 1 [<=100] { Node(0).OUTPUT_test[0] > 0, Node(0).OUTPUT_test[1] > 0, Node(1).OUTPUT_test[0] > 0, Node(1).OUTPUT_test[1] > 0, OUTPUT_nr_node_relations }";
+
+        //Setup
+        ArrayList<CVar<Integer>> constants = new ArrayList<>();
+        constants.add(new CVar<>("CONFIG_SIZE", 2));
+
+        ArrayList<OutputVariable> outVars = new ArrayList<>();
+        outVars.add(UPPAALParser.parseOutputVariableArray("OUTPUT_test[CONFIG_SIZE]", "Node", constants));
+        outVars.add(new OutputVariable("OUTPUT_nr_node_relations"));
+
+        ArrayList<String> processes = new ArrayList<>();
+        processes.add("Node(0)");
+        processes.add("Node(1)");
+
+        //ACT
+        String actual = QueryGenerator.generateSimulationQuery(100, 1, outVars, processes);
+
+        //Assert
         assertEquals(expected, actual);
     }
 
@@ -43,12 +89,28 @@ public class QueryGeneratorTests {
         ArrayList<CVar<Integer>> constants = new ArrayList<>();
         constants.add(new CVar<>("CONFIG_SIZE", expectedSize));
 
-        OutputVariable actual = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE]", constants);
+        OutputVariable actual = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE]", null, constants);
 
         assertEquals(expectedSize, actual.getVariableArraySize());
         assertEquals(expectedName, actual.getName());
         assertFalse(actual.getIsEdgeData()); //false because 2d array
         assertTrue(actual.getIsNodeData());  //true because 2d array
+    }
+
+    @Test
+    public void testParseScopedOuputVariable() {
+        String expectedName = "OUTPUT_data";
+        int expectedSize = 12;
+
+        ArrayList<CVar<Integer>> constants = new ArrayList<>();
+        constants.add(new CVar<>("CONFIG_SIZE", expectedSize));
+
+        OutputVariable actual = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE]", "Node", constants);
+
+        assertEquals(expectedSize, actual.getVariableArraySize());
+        assertEquals(expectedName, actual.getName());
+        assertTrue(actual.getIsEdgeData()); //true because scoped array
+        assertFalse(actual.getIsNodeData());
     }
 
     @Test
@@ -59,7 +121,7 @@ public class QueryGeneratorTests {
         ArrayList<CVar<Integer>> constants = new ArrayList<>();
         constants.add(new CVar<>("CONFIG_SIZE", expectedSize));
 
-        OutputVariable actual = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE][CONFIG_SIZE]", constants);
+        OutputVariable actual = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE][CONFIG_SIZE]", null, constants);
 
         assertEquals(expectedSize, actual.getVariableArraySize());
         assertEquals(expectedName, actual.getName());
@@ -69,7 +131,7 @@ public class QueryGeneratorTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseOutputVariableArray_3DArray() {
-        UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_test][CONFIG_test][CONFIG_test]", new ArrayList<>());
+        UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_test][CONFIG_test][CONFIG_test]", null, new ArrayList<>());
     }
 
     @Test
@@ -81,9 +143,9 @@ public class QueryGeneratorTests {
         ArrayList<CVar<Integer>> constants = new ArrayList<>();
         constants.add(new CVar<>("CONFIG_SIZE", constantSize));
 
-        OutputVariable outVar = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE]", constants);
+        OutputVariable outVar = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE]", null, constants);
 
-        String actualQuery = QueryGenerator.generateSimulationQuery(123, 5, Arrays.asList(outVar));
+        String actualQuery = QueryGenerator.generateSimulationQuery(123, 5, Arrays.asList(outVar), new ArrayList<>());
         assertEquals(expectedSimulationQuery, actualQuery);
     }
 }

@@ -66,7 +66,6 @@ public class XmlHandler {
         for (int i = 1; i < listOfDecls.getLength(); i++) {
             NodeList templateElements = listOfDecls.item(i).getParentNode().getChildNodes();
             String scopeOfDecls = getNameOfTemplate(templateElements);
-            //String scopeOfDecls = listOfDecls.item(i).getPreviousSibling().getPreviousSibling().getFirstChild().getNodeValue();
             listOfDecls.item(i).getFirstChild().setNodeValue(allDelcs.get(scopeOfDecls));
         }
 

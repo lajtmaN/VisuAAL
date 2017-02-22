@@ -59,13 +59,23 @@ public class ParseXmlAndCTests {
     public void parseOutputDataIsScheduled() {
         String expected1 = "OUTPUT_data_is_scheduled";
         String expected2 = "OUTPUT_nr_node_relations";
-        ArrayList<CVar<Integer>> constants = new ArrayList<>();
-        constants.add(new CVar<>("CONFIG_NR_NODES", 5));
 
+        ArrayList<CVar<Integer>> constants = new ArrayList<>();
+        constants.add(new CVar<>("CONFIG_NR_NODES", 2));
         ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("mac_model_test.xml", constants);
 
         assertEquals(expected1, outputVars.get(0).getName());
         assertEquals(expected2, outputVars.get(1).getName());
+    }
+
+    @Test
+    public void parseScopedOutputVariables() {
+        String expected = "OUTPUT_current_repeat";
+        ArrayList<CVar<Integer>> constants = new ArrayList<>();
+        ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("RoutingWithPathTracking.xml", constants);
+
+        assertEquals(1, outputVars.size());
+        assertEquals(expected, outputVars.get(0).getName());
     }
 
     @Test
