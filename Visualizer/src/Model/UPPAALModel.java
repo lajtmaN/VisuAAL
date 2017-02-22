@@ -49,7 +49,10 @@ public class UPPAALModel implements Externalizable {
         outputVars = FXCollections.observableArrayList();
         modelTimeUnit = UPPAALParser.getModelTimeUnitConstant(modelPath);
         outputVars.setAll(UPPAALParser.getUPPAALOutputVars(modelPath, allConfigVars));
+
         templateUpdates = FXCollections.observableArrayList();
+
+        templateUpdates.addAll(UPPAALParser.getDynamicTemplateUpdates(modelPath));
         templateUpdates.add(new TemplateUpdate());
     }
 
