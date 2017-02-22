@@ -3,6 +3,7 @@ package parsers;
 import Helpers.FileHelper;
 import Model.OutputVariable;
 import Model.UPPAALModel;
+import org.junit.Ignore;
 import org.junit.Test;
 import Model.CVar;
 import org.xml.sax.SAXException;
@@ -190,30 +191,41 @@ public class ParseXmlAndCTests {
         UPPAALModel model = new UPPAALModel(f.getPath());
         model.load();
 
-        assertEquals(2, model.getProcesses().size());
-        assertEquals("Node", model.getProcesses().get(0));
-        assertEquals("SetupTemplate", model.getProcesses().get(1));
+        assertEquals(65, model.getProcesses().size());
+        assertEquals("Node(0)", model.getProcesses().get(0));
+        assertEquals("Node(35)", model.getProcesses().get(35));
+        assertEquals("Node(63)", model.getProcesses().get(63));
+        assertEquals("SetupTemplate", model.getProcesses().get(64));
     }
 
     @Test
     public void getSystemDeclarationFromFile() throws IOException {
         File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
-        List<String> actual = UPPAALParser.getUPPAALProcesses(f.getPath());
+        List<String> actual = UPPAALParser.getUPPAALProcesses(f.getPath(), UPPAALParser.getUPPAALConfigConstants(f.getPath()));
         assertEquals("Template", actual.get(0));
     }
 
     @Test
     public void getParameterFromTemplate() throws IOException, ParserConfigurationException, SAXException {
         File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
-
-        String expected = "node_id id";
-
         XmlHandler handler = new XmlHandler(f.getPath());
         String actual = handler.getParamaterForTemplate("Node");
-        assertEquals(expected, actual);
+        assertEquals("node_id", actual);
 
         assertNull(handler.getParamaterForTemplate("SetupTemplate"));
         assertNull(handler.getParamaterForTemplate("BLA"));
+    }
+
+    @Test
+    public void calculateCorrectParameterSize() throws IOException, ParserConfigurationException, SAXException {
+        File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
+
+        int expected = 63;
+
+        XmlHandler handler = new XmlHandler(f.getPath());
+        String parameter = handler.getParamaterForTemplate("Node");
+        int actual = CHandler.getSizeOfParam(parameter, handler.getGlobalDeclarations(), UPPAALParser.getUPPAALConfigConstants(f.getPath()));
+        assertEquals(expected, actual);
     }
 
 
