@@ -101,12 +101,16 @@ public class XmlHandler {
         NodeList templates = document.getElementsByTagName("template");
         for (int i = 0; i < templates.getLength(); i++) {
             NodeList templateNodes = templates.item(i).getChildNodes();
-            if (getNameOfTemplate(templateNodes).equals(template)){
-                return getTagOfTemplate("parameter", templateNodes);
+            if (getNameOfTemplate(templateNodes).equals(template)) {
+                String typeNameAndId = getTagOfTemplate("parameter", templateNodes); //ex: node_id id
+                if (typeNameAndId == null)
+                    return null;
+                return RegexHelper.getFirstMatchedValueFromRegex("(\\w+)", typeNameAndId); //node_id
             }
         }
         return null;
     }
+
 
     private String getNameOfTemplate(NodeList templateElements) {
         return getTagOfTemplate("name", templateElements);
