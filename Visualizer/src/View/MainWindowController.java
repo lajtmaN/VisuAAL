@@ -237,7 +237,7 @@ public class MainWindowController implements Initializable {
                 int nrSimulations = Integer.parseInt(txtQuerySimulations.getText());
 
                 if(time > 0  && nrSimulations > 0) {
-                    queryGeneratedTextField.setText(QueryGenerator.generateSimulationQuery(time, nrSimulations, vars));
+                    queryGeneratedTextField.setText(QueryGenerator.generateSimulationQuery(time, nrSimulations, vars, uppaalModel.getProcesses()));
                 }
             } catch (Exception e) {
                 GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Timebound and number of simulations must be positive integers");

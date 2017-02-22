@@ -12,7 +12,7 @@ public class CHandler {
     private static final String TopologyRegex = "CONFIG_connected\\[.+\\n((?:[^;])+)\\};";
     private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
     private static final String ConfigVariableRegex = "CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+";
-    private static final String OutputVarsRegex = "(OUTPUT_(?:\\w)+(?:\\s*\\[\\w+\\])*)";
+    private static final String OutputVarsRegex = "int\\s+(OUTPUT_(?:\\w)+(?:\\s*\\[\\w+\\])*)";
     private static final String ConfigDeclarationRegex(String type) {
         return "(const\\s)?" + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)+;"; }
     private static final String TypedefRegex(String typedefName) {
@@ -137,11 +137,11 @@ public class CHandler {
         return result;
     }
 
-    public static ArrayList<String> getOutputVars(String globalDeclarations) {
+    public static ArrayList<String> getOutputVars(String declarations) {
         Pattern pVar = Pattern.compile(OutputVarsRegex);
         ArrayList<String> vars = new ArrayList<>();
 
-        Matcher mName = pVar.matcher(globalDeclarations);
+        Matcher mName = pVar.matcher(declarations);
 
         while(mName.find()) {
             vars.add(mName.group(1));
