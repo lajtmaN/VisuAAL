@@ -59,13 +59,23 @@ public class ParseXmlAndCTests {
     public void parseOutputDataIsScheduled() {
         String expected1 = "OUTPUT_data_is_scheduled";
         String expected2 = "OUTPUT_nr_node_relations";
-        ArrayList<CVar<Integer>> constants = new ArrayList<>();
-        constants.add(new CVar<>("CONFIG_NR_NODES", 5));
 
+        ArrayList<CVar<Integer>> constants = new ArrayList<>();
+        constants.add(new CVar<>("CONFIG_NR_NODES", 2));
         ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("mac_model_test.xml", constants);
 
         assertEquals(expected1, outputVars.get(0).getName());
         assertEquals(expected2, outputVars.get(1).getName());
+    }
+
+    @Test
+    public void parseScopedOutputVariables() {
+        ArrayList<CVar<Integer>> constants = new ArrayList<>();
+        ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("RoutingWithPathTracking.xml", constants);
+
+        assertEquals(2, outputVars.size());
+        assertEquals("OUTPUT_current_repeat", outputVars.get(0).getName());
+        assertEquals("OUTPUT_current_data", outputVars.get(1).getName());
     }
 
     @Test
@@ -191,11 +201,10 @@ public class ParseXmlAndCTests {
         UPPAALModel model = new UPPAALModel(f.getPath());
         model.load();
 
-        assertEquals(65, model.getProcesses().size());
+        assertEquals(37, model.getProcesses().size());
         assertEquals("Node(0)", model.getProcesses().get(0));
         assertEquals("Node(35)", model.getProcesses().get(35));
-        assertEquals("Node(63)", model.getProcesses().get(63));
-        assertEquals("SetupTemplate", model.getProcesses().get(64));
+        assertEquals("SetupTemplate", model.getProcesses().get(36));
     }
 
     @Test
@@ -220,7 +229,7 @@ public class ParseXmlAndCTests {
     public void calculateCorrectParameterSize() throws IOException, ParserConfigurationException, SAXException {
         File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
 
-        int expected = 63;
+        int expected = 35;
 
         XmlHandler handler = new XmlHandler(f.getPath());
         String parameter = handler.getParamaterForTemplate("Node");
