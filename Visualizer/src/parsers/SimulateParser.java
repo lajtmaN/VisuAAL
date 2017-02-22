@@ -2,8 +2,8 @@ package parsers;
 
 import Model.DataPoint;
 import Model.SimulateOutput;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,12 +37,16 @@ public class SimulateParser {
             }
             else if (outSimId >= 0 && name != null) {
                 ArrayList<DataPoint> datas = RegexHelper.getDataPointsForString(verifytaOutput.get(i));
-                DataPoint justAddedPoint = new DataPoint(0,0); //exclude (0,0) datapoints
-
-                for(DataPoint d : datas) {
-                    if (d.getValue() != justAddedPoint.getValue()) {
-                        justAddedPoint = d;
-                        simulateOutput.addDatapoint(name, outSimId, d);
+                DataPoint justAddedPoint = null;
+                for(int j = 0; j < datas.size(); j++){
+                    DataPoint startPointOfTimeStep = datas.get(j);
+                    while(j+1 < datas.size() && datas.get(j+1).getClock() == startPointOfTimeStep.getClock()){
+                        j++;
+                    }
+                    DataPoint endPointOfTimeStep = datas.get(j);
+                    if(justAddedPoint == null || justAddedPoint.getValue() != endPointOfTimeStep.getValue()){
+                        simulateOutput.addDatapoint(name, outSimId, endPointOfTimeStep);
+                        justAddedPoint = endPointOfTimeStep;
                     }
                 }
             }
