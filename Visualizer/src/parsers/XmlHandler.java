@@ -4,10 +4,7 @@ import Helpers.GUIHelper;
 import Model.TemplateUpdate;
 import View.MainWindowController;
 import javafx.stage.FileChooser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -21,6 +18,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -267,6 +265,43 @@ public class XmlHandler {
 
     public int getTemplateCount() {
         return document.getElementsByTagName("template").getLength();
+    }
+
+    public ArrayList<TemplateUpdate> getVisualizerUpdates() {
+        Node node = getDynamicTemplate().getFirstChild();
+        ArrayList<TemplateUpdate> outputUpdates = new ArrayList<>();
+
+        while(node != null) {
+            if(node.getNodeName().equals("transition")) {
+                Node child = node.getFirstChild();
+                String guard = "",
+                       assignment = "";
+                while(child != null) {
+                    if(child.getNodeName().equals("label")) {
+                        NamedNodeMap attributes = child.getAttributes();
+                        String labelKind = attributes.getNamedItem("kind").getNodeValue();
+                        if(labelKind.equals("guard")) {
+                            guard = child.getFirstChild().getNodeValue();
+                        } else if(labelKind.equals("assignment")) {
+                            assignment = child.getFirstChild().getNodeValue();
+                        }
+                    }
+                    child = child.getNextSibling();
+                }
+                outputUpdates.add(parseGuardAndAssignment(guard, assignment));
+            }
+            node = node.getNextSibling();
+        }
+
+        return outputUpdates;
+    }
+
+    private TemplateUpdate parseGuardAndAssignment(String guard, String assignment) {
+        String[] guardParts = guard.replace(" ", "").split("==");
+        String[] assigmentParts = assignment.replace(" ", "").split("=");
+        return new TemplateUpdate(assigmentParts[0],
+                                  Integer.parseInt(assigmentParts[1]),
+                                  Integer.parseInt(guardParts[1]));
     }
 }
 
