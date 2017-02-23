@@ -4,6 +4,7 @@ import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.*;
 import Helpers.QueryGenerator;
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -21,7 +22,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -37,7 +37,6 @@ import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.xml.sax.SAXException;
 import parsers.UPPAALParser;
-import sun.applet.Main;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,9 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class MainWindowController implements Initializable {
 
@@ -245,7 +242,7 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException {
+    public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException, InvalidArgumentException {
         if(queryGeneratedTextField.getText().length() == 0) {
             GUIHelper.showAlert(Alert.AlertType.ERROR, "Please generate Query first");
             return;
@@ -279,7 +276,7 @@ public class MainWindowController implements Initializable {
         timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             //TODO oldValue could be used to only add/remove the edges not already up-to-date
             lblCurrentTime.setText(String.format("%.1f ms", newValue.doubleValue()));
-            run.markEdgeAtTime(oldValue, newValue);
+            run.markGraphAtTime(oldValue, newValue);
         });
         timeSlider.prefWidthProperty().bind(pane.widthProperty().multiply(0.8));
         lblCurrentTime.prefWidthProperty().bind(pane.widthProperty().multiply(0.1));

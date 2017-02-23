@@ -3,8 +3,10 @@ package Model;
 import Helpers.GUIHelper;
 import Helpers.UPPAALExecutor;
 import View.AlertData;
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Alert;
 import org.xml.sax.SAXException;
 import parsers.RegexHelper;
@@ -81,40 +83,27 @@ public class UPPAALModel implements Externalizable {
         return modelTimeUnit;
     }
 
-    public Simulation runSimulation(String query) throws IOException {
-        //TODO we only use the first simulation
+    public Simulation runSimulation(String query) throws IOException, InvalidArgumentException {
+        FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
+        if (vars.size() > 2)
+            throw new InvalidArgumentException(new String[]{"We cannot handle multiple outputs yet."});
+
+        OutputVariable variable = vars.get(0);
+
         SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getModelPath(), query);
         //TODO use errorState on simulateOutput
-        ArrayList<SimulationEdgePoint> points = simulateOutput.getZippedForSimulate(0);
-        return new Simulation(this, query, points);
-    }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        UPPAALModel that = (UPPAALModel) o;
-
-        if (topology != null ? !topology.equals(that.topology) : that.topology != null) return false;
-        if (constConfigVars != null ? !constConfigVars.equals(that.constConfigVars) : that.constConfigVars != null) return false;
-        if (nonConstConfigVars != null ? !nonConstConfigVars.equals(that.nonConstConfigVars) : that.nonConstConfigVars != null) return false;
-        if (templateUpdates != null ? !templateUpdates.equals(that.templateUpdates) : that.templateUpdates != null) return false;
-        if (outputVars != null ? !outputVars.equals(that.outputVars) : that.outputVars != null) return false;
-        if (modelTimeUnit  != that.modelTimeUnit) return false;
-        return modelPath != null ? modelPath.equals(that.modelPath) : that.modelPath == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = topology != null ? topology.hashCode() : 0;
-        result = 31 * result + (constConfigVars != null ? constConfigVars.hashCode() : 0);
-        result = 31 * result + (nonConstConfigVars != null ? nonConstConfigVars.hashCode() : 0);
-        result = 31 * result + (templateUpdates != null ? templateUpdates.hashCode() : 0);
-        result = 31 * result + (outputVars != null ? outputVars.hashCode() : 0);
-        result = 31 * result + (modelPath != null ? modelPath.hashCode() : 0);
-        result = 31 * result + (int)modelTimeUnit;
-        return result;
+        //TODO we only use the first simulation
+        if (variable.getIsEdgeData()) {
+            ArrayList<? extends SimulationPoint> edgePoints = simulateOutput.getZippedForSimulate(0);
+            return new Simulation(this, query, edgePoints);
+        }
+        else if (variable.getIsNodeData()) {
+            ArrayList<? extends SimulationPoint> nodePoints = simulateOutput.getZippedNodePoints(0);
+            return new Simulation(this, query, nodePoints);
+        }
+        else
+            throw new InvalidArgumentException(new String[]{"We do not support showing this yet"});
     }
 
     public ObservableList<TemplateUpdate> getTemplateUpdates() {
@@ -173,5 +162,33 @@ public class UPPAALModel implements Externalizable {
 
     public List<String> getProcesses() {
         return processes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UPPAALModel that = (UPPAALModel) o;
+
+        if (topology != null ? !topology.equals(that.topology) : that.topology != null) return false;
+        if (constConfigVars != null ? !constConfigVars.equals(that.constConfigVars) : that.constConfigVars != null) return false;
+        if (nonConstConfigVars != null ? !nonConstConfigVars.equals(that.nonConstConfigVars) : that.nonConstConfigVars != null) return false;
+        if (templateUpdates != null ? !templateUpdates.equals(that.templateUpdates) : that.templateUpdates != null) return false;
+        if (outputVars != null ? !outputVars.equals(that.outputVars) : that.outputVars != null) return false;
+        if (modelTimeUnit  != that.modelTimeUnit) return false;
+        return modelPath != null ? modelPath.equals(that.modelPath) : that.modelPath == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = topology != null ? topology.hashCode() : 0;
+        result = 31 * result + (constConfigVars != null ? constConfigVars.hashCode() : 0);
+        result = 31 * result + (nonConstConfigVars != null ? nonConstConfigVars.hashCode() : 0);
+        result = 31 * result + (templateUpdates != null ? templateUpdates.hashCode() : 0);
+        result = 31 * result + (outputVars != null ? outputVars.hashCode() : 0);
+        result = 31 * result + (modelPath != null ? modelPath.hashCode() : 0);
+        result = 31 * result + (int)modelTimeUnit;
+        return result;
     }
 }

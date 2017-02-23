@@ -116,7 +116,7 @@ clock d;
 
 data OUTPUT_rec_data = empty_data(); //data buffer;
 int OUTPUT_current_data;
-
+int OUTPUT_has_race;
 
 bool is_sink() {
   return id &lt;= num_sink_nodes - 1;
@@ -164,6 +164,7 @@ void update_race_number(node_id k) {
         int new_race_number = race_transmit[k][sid];
         if (new_race_number &gt; -1 &amp;&amp; is_newer(routing_table[sid].race_number, new_race_number, sid)) 
         {
+            OUTPUT_has_race = 1;
             routing_table[sid].race_number = new_race_number;
             routing_table[sid].from = k;
             received_race[new_race_number] = true;
@@ -241,7 +242,7 @@ data next_data() {
     if (can_send(OUTPUT_rec_data))
         return OUTPUT_rec_data;
     else
-        if(id == CONFIG_num_nodes-1 &amp;&amp; !has_sent){
+        if(id == 30 &amp;&amp; !has_sent){
             return new_data();
         }
         else
@@ -580,7 +581,7 @@ system Node, SetupTemplate;
 			</comment>
 		</query>
 		<query>
-			<formula>simulate 1 [&lt;=300] {Node(0).OUTPUT_rec_data.value,Node(1).OUTPUT_rec_data.value,Node(2).OUTPUT_rec_data.value,Node(3).OUTPUT_rec_data.value,Node(4).OUTPUT_rec_data.value,Node(5).OUTPUT_rec_data.value,Node(6).OUTPUT_rec_data.value,Node(7).OUTPUT_rec_data.value,Node(8).OUTPUT_rec_data.value,Node(9).OUTPUT_rec_data.value,Node(10).OUTPUT_rec_data.value,Node(11).OUTPUT_rec_data.value,Node(12).OUTPUT_rec_data.value,Node(13).OUTPUT_rec_data.value,Node(14).OUTPUT_rec_data.value,Node(15).OUTPUT_rec_data.value,Node(16).OUTPUT_rec_data.value,Node(17).OUTPUT_rec_data.value,Node(18).OUTPUT_rec_data.value,Node(19).OUTPUT_rec_data.value,Node(20).OUTPUT_rec_data.value,Node(21).OUTPUT_rec_data.value,Node(22).OUTPUT_rec_data.value,Node(23).OUTPUT_rec_data.value,Node(24).OUTPUT_rec_data.value,Node(25).OUTPUT_rec_data.value,Node(26).OUTPUT_rec_data.value,Node(27).OUTPUT_rec_data.value,Node(28).OUTPUT_rec_data.value,Node(29).OUTPUT_rec_data.value,Node(30).OUTPUT_rec_data.value,Node(31).OUTPUT_rec_data.value,Node(32).OUTPUT_rec_data.value,Node(33).OUTPUT_rec_data.value,Node(34).OUTPUT_rec_data.value,Node(35).OUTPUT_rec_data.value}
+			<formula>simulate 1 [&lt;=500] {Node(0).OUTPUT_rec_data.value,Node(1).OUTPUT_rec_data.value,Node(2).OUTPUT_rec_data.value,Node(3).OUTPUT_rec_data.value,Node(4).OUTPUT_rec_data.value,Node(5).OUTPUT_rec_data.value,Node(6).OUTPUT_rec_data.value,Node(7).OUTPUT_rec_data.value,Node(8).OUTPUT_rec_data.value,Node(9).OUTPUT_rec_data.value,Node(10).OUTPUT_rec_data.value,Node(11).OUTPUT_rec_data.value,Node(12).OUTPUT_rec_data.value,Node(13).OUTPUT_rec_data.value,Node(14).OUTPUT_rec_data.value,Node(15).OUTPUT_rec_data.value,Node(16).OUTPUT_rec_data.value,Node(17).OUTPUT_rec_data.value,Node(18).OUTPUT_rec_data.value,Node(19).OUTPUT_rec_data.value,Node(20).OUTPUT_rec_data.value,Node(21).OUTPUT_rec_data.value,Node(22).OUTPUT_rec_data.value,Node(23).OUTPUT_rec_data.value,Node(24).OUTPUT_rec_data.value,Node(25).OUTPUT_rec_data.value,Node(26).OUTPUT_rec_data.value,Node(27).OUTPUT_rec_data.value,Node(28).OUTPUT_rec_data.value,Node(29).OUTPUT_rec_data.value,Node(30).OUTPUT_rec_data.value,Node(31).OUTPUT_rec_data.value,Node(32).OUTPUT_rec_data.value,Node(33).OUTPUT_rec_data.value,Node(34).OUTPUT_rec_data.value,Node(35).OUTPUT_rec_data.value}
 			</formula>
 			<comment>
 			</comment>

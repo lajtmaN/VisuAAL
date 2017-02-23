@@ -114,12 +114,11 @@ public class CHandler {
         UPPAALTopology result = new UPPAALTopology();
         String definitionString = RegexHelper.getFirstMatchedValueFromRegex(TopologyRegex, decls);
         if(definitionString != null) {
-            definitionString = definitionString.replace(" ", "").replace("\n", "");
+            definitionString = definitionString.replace(" ", "").replace("\n", "").replace("\t", "");
             if (RegexHelper.getFirstMatchedValueFromRegex(TopologyFormRegex, definitionString) != null) {
                 int source_index = 0;
                 for (String s : definitionString.split("}")) {
-                    String temp = s.replace(" ", "").replace("\n", "");
-                    temp = temp.replace(",{", "").replace("}", "").replace("{", "");
+                    String temp = s.replace(",{", "").replace("}", "").replace("{", "");
                     int destination_index = 0;
                     for (String element : temp.split(",")) {
                         if (element.equals("1")) { // TODO: Only binary relations can be defined
