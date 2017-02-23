@@ -1,25 +1,19 @@
 package Model;
 
-import Helpers.GUIHelper;
 import Helpers.UPPAALExecutor;
 import View.AlertData;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Alert;
 import org.xml.sax.SAXException;
-import parsers.RegexHelper;
 import parsers.UPPAALParser;
 import parsers.XmlHandler;
 
-import javax.sound.midi.MidiDevice;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
