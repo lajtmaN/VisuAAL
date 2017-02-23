@@ -587,6 +587,12 @@ system Node, SetupTemplate;
 			</comment>
 		</query>
 		<query>
+			<formula>simulate 1 [&lt;=500] {Node(0).OUTPUT_has_race,Node(1).OUTPUT_has_race,Node(2).OUTPUT_has_race,Node(3).OUTPUT_has_race,Node(4).OUTPUT_has_race,Node(5).OUTPUT_has_race,Node(6).OUTPUT_has_race,Node(7).OUTPUT_has_race,Node(8).OUTPUT_has_race,Node(9).OUTPUT_has_race,Node(10).OUTPUT_has_race,Node(11).OUTPUT_has_race,Node(12).OUTPUT_has_race,Node(13).OUTPUT_has_race,Node(14).OUTPUT_has_race,Node(15).OUTPUT_has_race,Node(16).OUTPUT_has_race,Node(17).OUTPUT_has_race,Node(18).OUTPUT_has_race,Node(19).OUTPUT_has_race,Node(20).OUTPUT_has_race,Node(21).OUTPUT_has_race,Node(22).OUTPUT_has_race,Node(23).OUTPUT_has_race,Node(24).OUTPUT_has_race,Node(25).OUTPUT_has_race,Node(26).OUTPUT_has_race,Node(27).OUTPUT_has_race,Node(28).OUTPUT_has_race,Node(29).OUTPUT_has_race,Node(30).OUTPUT_has_race,Node(31).OUTPUT_has_race,Node(32).OUTPUT_has_race,Node(33).OUTPUT_has_race,Node(34).OUTPUT_has_race,Node(35).OUTPUT_has_race}
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
 			<formula>Pr[&lt;=20000](&lt;&gt; Node(3).routing_table[1].from == 2)
 			</formula>
 			<comment>
