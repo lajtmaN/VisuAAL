@@ -12,17 +12,12 @@ import java.util.*;
 public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializable {
     private int _numberOfNodes;
     private transient Graph _graphInstance;
-    private ArrayList<SimulationEdgePoint> _edges;
 
     public UPPAALTopology(int numberOfNodes) {
         this._numberOfNodes = numberOfNodes;
     }
     public UPPAALTopology() {
         this(0);
-    }
-
-    public void setEdges(ArrayList<SimulationEdgePoint> edges){
-        _edges = edges;
     }
 
     public int getNumberOfNodes() {
@@ -60,29 +55,41 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         return g.removeEdge(e);
     }
 
-    private Node addNode(String id){
-        return getGraph(false).addNode(id);
+    protected void handleUpdate(SimulationPoint s, boolean mark) {
+        switch (s.getType()) {
+            case EdgePoint:
+                handleEdgeEdit((SimulationEdgePoint) s, mark);
+                break;
+            case NodePoint:
+                handleNodeEdit((SimulationNodePoint) s, mark);
+                break;
+        }
     }
 
-    protected void markNode(Node node) {
-        node.setAttribute("ui.class", "marked");
+    private void handleNodeEdit(SimulationNodePoint point, boolean mark) {
+        Node node = getGraph().getNode(point.getIdentifier());
+        if (node == null) return;
+        if (mark)
+            markNode(node);
+        else
+            unmarkNode(node);
     }
 
     protected void handleEdgeEdit(SimulationEdgePoint s, boolean mark) {
+        Edge edge = getGraph().getEdge(s.getIdentifier());
+        if (edge == null)
+            return;
         if (mark){
-            markEdge(s);
+            markEdge(edge);
         }
         else {
-            unmarkEdge(s);
+            unmarkEdge(edge);
         }
     }
 
-    protected void markEdge(SimulationEdgePoint s) {
-        Edge edge = getGraph().getEdge(s.getIdentifier());
-        if (edge != null){
-            if(edge.getAttribute("ui.class") != "marked"){
-                edge.setAttribute("ui.class", "marked");
-            }
+    protected void markEdge(Edge edge) {
+        if(edge.getAttribute("ui.class") != "marked"){
+            edge.setAttribute("ui.class", "marked");
         }
     }
 
@@ -91,15 +98,28 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             e.setAttribute("ui.class", "unmarked");
     }
 
-    protected void unmarkEdge(SimulationEdgePoint s) {
-        Graph g = getGraph(false);
-        Edge e = g.getEdge(s.getIdentifier());
-        if(e != null){
-            if(e.getAttribute("ui.class") != "unmarked"){
-                e.setAttribute("ui.class", "unmarked");
-            }
+    protected void unmarkEdge(Edge edge) {
+        if(edge.getAttribute("ui.class") != "unmarked"){
+            edge.setAttribute("ui.class", "unmarked");
         }
     }
+
+    private Node addNode(String id){
+        return getGraph(false).addNode(id);
+    }
+
+    protected void markNode(Node node) {
+        if(node.getAttribute("ui.class") != "marked") {
+            node.setAttribute("ui.class", "marked");
+        }
+    }
+
+    protected void unmarkNode(Node node) {
+        if(node.getAttribute("ui.class") != "unmarked"){
+            node.setAttribute("ui.class", "unmarked");
+        }
+    }
+
 
     public Graph getGraph() { return getGraph(false); }
     public Graph getGraph(Boolean updateGraph) {
@@ -129,12 +149,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
                     Thread.sleep(100);
                 } catch (Exception e) {}
             }
-            if(s.getValue() == 1 ) {
-                markEdge(s);
-            }
-            else {
-                unmarkEdge(s);
-            }
+            handleEdgeEdit(s, s.getValue() == 1);
         }
     }
     protected String styleSheet =
@@ -144,6 +159,9 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             "node.marked {" +
                     "	fill-color: red;" +
                     "}" +
+            "node.unmarked {"+
+                    "   fill-color: black;" +
+                    "}"+
             "edge {" +
                     "   fill-color: rgba(0,0,0,32);" +
                     "}" +
@@ -162,15 +180,13 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
 
         UPPAALTopology that = (UPPAALTopology) o;
 
-        if (_numberOfNodes != that._numberOfNodes) return false;
-        return _edges != null ? _edges.equals(that._edges) : that._edges == null;
+        return _numberOfNodes == that._numberOfNodes;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + _numberOfNodes;
-        result = 31 * result + (_edges != null ? _edges.hashCode() : 0);
         return result;
     }
 }

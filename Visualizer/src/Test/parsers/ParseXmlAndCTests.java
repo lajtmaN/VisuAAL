@@ -73,9 +73,10 @@ public class ParseXmlAndCTests {
         ArrayList<CVar<Integer>> constants = new ArrayList<>();
         ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("RoutingWithPathTracking.xml", constants);
 
-        assertEquals(2, outputVars.size());
+        assertEquals(3, outputVars.size());
         assertEquals("OUTPUT_current_repeat", outputVars.get(0).getName());
         assertEquals("OUTPUT_current_data", outputVars.get(1).getName());
+        assertEquals("OUTPUT_has_race", outputVars.get(2).getName());
     }
 
     @Test

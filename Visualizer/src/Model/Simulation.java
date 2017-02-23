@@ -5,10 +5,7 @@ import org.graphstream.graph.Graph;
 import parsers.RegexHelper;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -16,19 +13,19 @@ import java.util.stream.Stream;
  */
 public class Simulation implements Serializable {
     private UPPAALModel model;
-    private final ArrayList<SimulationEdgePoint> run;
-    private final ArrayList<SimulationEdgePoint> reverseRun;
+    private final ArrayList<? extends SimulationPoint> run;
+    private final ArrayList<? extends SimulationPoint> reverseRun;
     private String query;
 
-    public Simulation(UPPAALModel uppModel, String uppQuery, ArrayList<SimulationEdgePoint> points) {
+    public Simulation(UPPAALModel uppModel, String uppQuery, ArrayList<? extends SimulationPoint> points) {
         query = uppQuery;
         model = uppModel;
+        model.getTopology().updateGraph();
+        model.getTopology().unmarkAllEdges();
+
         run = points;
         reverseRun = new ArrayList<>(points);
         reverseRun.sort( (p1, p2) -> Double.compare(p2.getClock(), p1.getClock()));
-        model.getTopology().setEdges(run);
-        model.getTopology().updateGraph();
-        model.getTopology().unmarkAllEdges();
     }
 
     public Graph getGraph() {
@@ -39,32 +36,27 @@ public class Simulation implements Serializable {
         return model.getModelTimeUnit();
     }
 
-    public ArrayList<SimulationEdgePoint> getRun() {
+    public ArrayList<? extends SimulationPoint> getRun() {
         return run;
     }
 
-    public ArrayList<SimulationEdgePoint> getReverseRun() {
+    public ArrayList<? extends SimulationPoint> getReverseRun() {
         return reverseRun;
     }
 
-    public void markEdgeAtTime(Number oldValue, Number newValue) {
+    public void markGraphAtTime(Number oldValue, Number newValue) {
         double newTime = newValue.doubleValue();
         double oldTime = oldValue.doubleValue();
         if (newTime > oldTime)
         {
             run.stream().filter(p -> p.getClock() < newTime && p.getClock() > oldTime)
-                    .forEach( p-> model.getTopology().handleEdgeEdit(p, p.getValue() > 0));
+                    .forEach( p-> model.getTopology().handleUpdate(p, p.getValue() > 0));
         }
         else
         {
             reverseRun.stream().filter(p -> p.getClock() < oldTime && p.getClock() > newTime)
-                    .forEach( p-> model.getTopology().handleEdgeEdit(p, p.getValue() == 0));
+                    .forEach( p-> model.getTopology().handleUpdate(p, p.getValue() == 0));
         }
-    }
-
-    public void markEdgesInRealTime() {
-        model.getTopology().unmarkAllEdges();
-        model.getTopology().startAddingEdgesOverTime(run);
     }
 
     public int queryTimeBound() {
@@ -99,8 +91,6 @@ public class Simulation implements Serializable {
             Simulation sim = (Simulation) in.readObject();
             in.close();
             fileIn.close();
-            //sim.model.load();
-            sim.model.getTopology().setEdges(sim.run);
             sim.model.getTopology().updateGraph();
             sim.model.getTopology().unmarkAllEdges();
             return sim;

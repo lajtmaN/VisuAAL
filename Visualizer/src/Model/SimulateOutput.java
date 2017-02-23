@@ -19,6 +19,7 @@ public class SimulateOutput extends UPPAALOutput {
     private Map<String, ArrayList<ArrayList<DataPoint>>> simulationData;
     private int nrSimulations;
     private final String srcDstRegex = "\\w*\\[(\\d+)\\]\\[(\\d+)\\]";
+    private final String nodeIdRegex = "\\w*\\[(\\d+)\\]";
 
 
     public SimulateOutput(int numberOfSimulations) {
@@ -68,6 +69,22 @@ public class SimulateOutput extends UPPAALOutput {
         return result;
     }
 
+
+    public ArrayList<SimulationNodePoint> getZippedNodePoints(int simId) {
+        ArrayList<SimulationNodePoint> result = new ArrayList<>();
+        for(String key : simulationData.keySet()){
+            ArrayList<ArrayList<DataPoint>> simulations = simulationData.get(key);
+            if(!simulations.isEmpty()){
+                for(DataPoint dp : simulations.get(simId)){
+                    int nodeId = Integer.valueOf(RegexHelper.getFirstMatchedValueFromRegex(nodeIdRegex, key));
+                    result.add(new SimulationNodePoint(dp.getClock(), nodeId, dp.getValue()));
+                }
+            }
+        }
+        result.sort((o1, o2) -> o1.getClock() < o2.getClock() ? -1 : (o1.getClock() > o2.getClock() ? 1 : 0));
+        return result;
+    }
+
     @Override
     public String toString() {
         int simulationIndex = 0;
@@ -90,4 +107,5 @@ public class SimulateOutput extends UPPAALOutput {
         ArrayList<DataPoint> points = simulationData.get(variable).get(simNumber);
         points.get(points.size()-1).setValue(data.getValue()); //Replace datapoint with same clock
     }
+
 }

@@ -5,12 +5,12 @@ import java.io.Serializable;
 /**
  * Created by rasmu on 09/02/2017.
  */
-public class SimulationEdgePoint extends DataPoint implements Serializable{
+public class SimulationEdgePoint extends SimulationPoint implements Serializable{
     private int _source;
     private int _destination;
 
     public SimulationEdgePoint(double time, int _source, int _destination, double value) {
-        super(time, value);
+        super(time, value, SimulationPointType.EdgePoint);
         this._source = _source;
         this._destination = _destination;
     }
@@ -24,9 +24,8 @@ public class SimulationEdgePoint extends DataPoint implements Serializable{
         SimulationEdgePoint that = (SimulationEdgePoint) o;
 
         if (getSource() != that.getSource()) return false;
-        if (getClock() != that.getClock()) return false;
-        if (getValue() != that.getValue()) return false;
-        return getDestination() == that.getDestination();
+        if (getDestination() != that.getDestination()) return false;
+        return super.equals(that);
     }
 
     public int getSource() {
