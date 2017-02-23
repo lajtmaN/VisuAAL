@@ -83,10 +83,10 @@ public class UPPAALModel implements Externalizable {
         return modelTimeUnit;
     }
 
-    public Simulation runSimulation(String query) throws IOException, InvalidArgumentException {
+    public Simulation runSimulation(String query) throws IOException {
         FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
         if (vars.size() > 2)
-            throw new InvalidArgumentException(new String[]{"We cannot handle multiple outputs yet."});
+            throw new InvalidObjectException("We cannot handle multiple outputs yet.");
 
         OutputVariable variable = vars.get(0);
 
@@ -103,7 +103,7 @@ public class UPPAALModel implements Externalizable {
             return new Simulation(this, query, nodePoints);
         }
         else
-            throw new InvalidArgumentException(new String[]{"We do not support showing this yet"});
+            throw new InvalidObjectException("We do not support showing this yet");
     }
 
     public ObservableList<TemplateUpdate> getTemplateUpdates() {

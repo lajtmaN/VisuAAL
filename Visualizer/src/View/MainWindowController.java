@@ -242,7 +242,7 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException, InvalidArgumentException {
+    public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException {
         if(queryGeneratedTextField.getText().length() == 0) {
             GUIHelper.showAlert(Alert.AlertType.ERROR, "Please generate Query first");
             return;
