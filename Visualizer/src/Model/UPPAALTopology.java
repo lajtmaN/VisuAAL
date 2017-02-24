@@ -30,12 +30,17 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
 
     public void updateGraph() {
         for (int i = 0; i < getNumberOfNodes(); i++) {
-            addNode(String.valueOf(i));
+            Node n = addNode(String.valueOf(i));
+            showLabelOnNode(n, String.valueOf(i));
         }
         for(UPPAALEdge s : this){
             SimulationEdgePoint sep = new SimulationEdgePoint(0, s.get_source(), s.get_destination(), 1);
             addEdge(sep);
         }
+    }
+
+    private void showLabelOnNode(Node n, String nodeName) {
+        n.addAttribute("ui.label", nodeName);
     }
 
     private Edge addEdge(SimulationEdgePoint s){
@@ -155,6 +160,8 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     protected String styleSheet =
             "node {" +
                     "	fill-color: black;" +
+                    "   text-alignment: under;" +
+                    "   text-background-mode: rounded-box;" +
                     "}" +
             "node.marked {" +
                     "	fill-color: red;" +
