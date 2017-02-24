@@ -13,6 +13,5 @@
     <orderEntry type="library" name="org.graphstream:gs-core:1.3" level="project" />
     <orderEntry type="library" name="org.graphstream:gs-ui:1.3" level="project" />
     <orderEntry type="library" name="org.antlr:antlr4:4.6" level="project" />
-    <orderEntry type="library" name="uppaal" level="project" />
   </component>
 </module>
