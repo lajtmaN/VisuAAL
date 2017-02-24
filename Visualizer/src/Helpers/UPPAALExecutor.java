@@ -1,6 +1,9 @@
 package Helpers;
 
 import Model.SimulateOutput;
+import com.uppaal.model.core2.Document;
+import com.uppaal.model.core2.PrototypeDocument;
+import com.uppaal.model.system.UppaalSystem;
 import parsers.RegexHelper;
 import parsers.SimulateParser;
 import parsers.UPPAALParser;
@@ -9,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -25,6 +29,10 @@ public class UPPAALExecutor {
         int simulateCount = Integer.parseInt(simulateCountString);
 
         File queryFile = UPPAALParser.generateQueryFile(query);
+
+        Document uppaalDocument = new PrototypeDocument().load(new URL("file", null, modelPath));
+        UppaalSystem upp = new UppaalSystem(uppaalDocument);
+
 
         ProcessBuilder builder = new ProcessBuilder(
                 "cmd.exe", "/c", "lib\\verifyta.exe \"" + modelPath + "\" " + queryFile
