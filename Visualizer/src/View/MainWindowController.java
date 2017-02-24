@@ -4,7 +4,6 @@ import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.*;
 import Helpers.QueryGenerator;
-import com.uppaal.engine.EngineException;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -242,7 +241,7 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException, EngineException {
+    public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException {
         if(queryGeneratedTextField.getText().length() == 0) {
             GUIHelper.showAlert(Alert.AlertType.ERROR, "Please generate Query first");
             return;

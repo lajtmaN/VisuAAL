@@ -2,7 +2,6 @@ package Model;
 
 import Helpers.UPPAALExecutor;
 import View.AlertData;
-import com.uppaal.engine.EngineException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -78,7 +77,7 @@ public class UPPAALModel implements Externalizable {
         return modelTimeUnit;
     }
 
-    public Simulation runSimulation(String query) throws IOException, EngineException {
+    public Simulation runSimulation(String query) throws IOException {
         FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
         if (vars.size() > 2)
             throw new InvalidObjectException("We cannot handle multiple outputs yet.");
