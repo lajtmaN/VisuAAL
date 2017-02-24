@@ -3,12 +3,15 @@ package parsers;
 import Model.CVar;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
+import Model.UPPAALVariable;
+import parsers.Declaration.ANTLRGenerated.VariableParser;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CHandler {
+    private static final String ConfigVariablePrefix = "CONFIG_";
     private static final String TopologyRegex = "CONFIG_connected\\[.+\\n((?:[^;])+)\\};";
     private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
     private static final String ConfigVariableRegex = "CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+";
@@ -74,19 +77,27 @@ public class CHandler {
         return groups;
     }
 
-    public static ArrayList<CVar<Integer>> getConfigVariables(String decls) {
-        HashMap<String, String> hashmap = new HashMap<>();
-        hashmap.put(null, decls); //null is global decls
-        return getConfigVariables(hashmap);
+    public static ArrayList<CVar<Integer>> getConfigVariables(String decls, String scope) {
+        ArrayList<CVar<Integer>> returnvals = new ArrayList<>();
+        ArrayList<UPPAALVariable> vars = VariableParser.getInstantiations(decls);
+        vars.removeIf(uppaalVariable -> !uppaalVariable.getName().startsWith(ConfigVariablePrefix)
+                    && uppaalVariable.getConst());
+        for(UPPAALVariable var : vars){
+            if(var.getType().equals("int") && var.getArraySizes().size() == 0){
+                returnvals.add(new CVar<Integer>(scope, var.getName(), Integer.parseInt(var.getValue()), var.getConst()));
+            }
+        }
+        return returnvals;
     }
     public static ArrayList<CVar<Integer>> getConfigVariables(HashMap<String, String> allDecls) {
         ArrayList<CVar<Integer>> constantNames = new ArrayList<>();
+        /*for (String scopeKey : allDecls.keySet()) {
+            constantNames.addAll(getConfigVariables(allDecls.get(scopeKey), scopeKey));*/
 
-        //Pattern Name
         Pattern pVar = Pattern.compile(ConfigVariableRegex);
 
-        for (String scopeKey : allDecls.keySet()) {
-            for (String s : getConfigGroups(allDecls.get(scopeKey))) {
+        for(String scopeKey: allDecls.keySet()){
+            for(String s : getConfigGroups(allDecls.get(scopeKey))){
                 Matcher mName = pVar.matcher(s);
                 Matcher constVars = Pattern.compile("const\\s+int\\s+(\\w)+(\\s)*=(\\s)*(\\d)+").matcher(s);
 

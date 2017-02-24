@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><nta>
+	<declaration>// Place global declarations here.
+
+clock x;
+const int CONFIG_TESTING_CONSTANT = 1337;
+
+int CONFIG_connected[9][9] = {
+    {0, 1, 0, 1, 0, 0, 0, 0, 0}, 
+    {1, 0, 1, 0, 1, 0, 0, 0, 0}, 
+    {0, 1, 0, 0, 0, 1, 0, 0, 0}, 
+    {1, 0, 0, 0, 1, 0, 1, 0, 0}, 
+    {0, 1, 0, 1, 0, 1, 0, 1, 0}, 
+    {0, 0, 1, 0, 1, 0, 0, 0, 1}, 
+    {0, 0, 0, 1, 0, 0, 0, 1, 0}, 
+    {0, 0, 0, 0, 1, 0, 1, 0, 1}, 
+    {0, 0, 0, 0, 0, 1, 0, 1, 0}
+};
+	</declaration>
+	<template>
+		<name x="5" y="5">Template</name>
+		<declaration>// Place local declarations here.
+			const int CONFIG_LOCAL = 123,
+					heste_kager = 1;
+		</declaration>
+		<location id="id0" x="119" y="8">
+		</location>
+		<location id="id1" x="0" y="0">
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="51" y="-161">x &gt;= 4</label>
+			<label kind="assignment" x="51" y="-144">x = 0</label>
+			<nail x="66" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="34" y="8">x &gt;= 2</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Template2</name>
+		<declaration>// Place local declarations here.
+			const int CONFIG_LOCAL2 = 123,
+					heste_kager2 = 1;
+		</declaration>
+		<location id="id0" x="119" y="8">
+		</location>
+		<location id="id1" x="0" y="0">
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="51" y="-161">x &gt;= 4</label>
+			<label kind="assignment" x="51" y="-144">x = 0</label>
+			<nail x="66" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="34" y="8">x &gt;= 2</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+// List one or more processes to be composed into a system.
+system Template;
+    </system>
+	<queries>
+	</queries>
+</nta>
