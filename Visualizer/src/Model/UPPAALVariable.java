@@ -1,17 +1,25 @@
 package Model;
 
+import java.util.ArrayList;
+
 /**
  * Created by rasmu on 24/02/2017.
  */
 public class UPPAALVariable {
-    String type, name, value;
-    Boolean isConst;
+    private String type, name, value;
+    private Boolean isConst;
+    private ArrayList<String> arraySizes;
 
     public UPPAALVariable(String type, String name, String value, Boolean isConst) {
+        this();
         this.type = type;
         this.name = name;
         this.value = value;
         this.isConst = isConst;
+    }
+
+    public UPPAALVariable() {
+        this.arraySizes = new ArrayList<>();
     }
 
     @Override
@@ -67,5 +75,9 @@ public class UPPAALVariable {
 
     public void setConst(Boolean aConst) {
         isConst = aConst;
+    }
+
+    public ArrayList<String> getArraySizes() {
+        return arraySizes;
     }
 }
