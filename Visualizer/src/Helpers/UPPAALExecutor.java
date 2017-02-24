@@ -25,7 +25,7 @@ public class UPPAALExecutor {
         int simulateCount = Integer.parseInt(simulateCountString);
 
         File queryFile = UPPAALParser.generateQueryFile(query);
-        
+
         ProcessBuilder builder = new ProcessBuilder(
                 "cmd.exe", "/c", "lib\\verifyta.exe \"" + modelPath + "\" " + queryFile
         );
