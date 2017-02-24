@@ -48,7 +48,7 @@ public class ParseXmlAndCTests {
         String declarations = "const int CONFIG_abc = 123," +
                 "dhj = 234;" +
                 "\n const int CONFIG_abe = 456;";
-        ArrayList<CVar<Integer>> vars = CHandler.getConfigVariables(declarations);
+        ArrayList<CVar<Integer>> vars = CHandler.getConfigVariables(declarations, null);
 
         assertEquals(2, vars.size());
         assertCVAR(null, "CONFIG_abc", 123, vars.get(0));
@@ -81,7 +81,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void updateVariableInText() {
-        String decls = "<nta><declaration>\n" +
+        String decls =
                 "const int CONFIG_NR_NODES_SQR_ROOT = 4,\n" +
                 "          CONFIG_NR_NODES = 16,\n" +
                 "          NR_BEACON_SLOTS = 8,\n" +
@@ -93,9 +93,8 @@ public class ParseXmlAndCTests {
                 "          MAX_INIT_DELAY = 512,\n" +
                 "          MAX_DATA_OFFSET = 63, // Multiplied later by 4 to get mS\n" +
                 "          DATA_INTERVAL = 1000,\n" +
-                "          DATA_DURATION = 1;\n" +
-                "</declaration></nta>";
-        ArrayList<CVar<Integer>> orginalVars = CHandler.getConfigVariables(decls);
+                "          DATA_DURATION = 1;";
+        ArrayList<CVar<Integer>> orginalVars = CHandler.getConfigVariables(decls,null);
         assertEquals(2, orginalVars.size());
         assertCVAR(null, "CONFIG_NR_NODES_SQR_ROOT", 4, orginalVars.get(0));
         assertCVAR(null, "CONFIG_NR_NODES", 16, orginalVars.get(1));
@@ -103,7 +102,7 @@ public class ParseXmlAndCTests {
         //Update "XML" with new value to CONFIG_NR_NODES
         String actual = CHandler.updateIntConfigVar("CONFIG_NR_NODES", 300, decls);
 
-        ArrayList<CVar<Integer>> updatedVars = CHandler.getConfigVariables(actual);
+        ArrayList<CVar<Integer>> updatedVars = CHandler.getConfigVariables(actual, null);
         assertEquals(2, updatedVars.size());
         assertCVAR(null, "CONFIG_NR_NODES_SQR_ROOT", 4, updatedVars.get(0));
         assertCVAR(null, "CONFIG_NR_NODES", 300, updatedVars.get(1));

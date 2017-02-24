@@ -10,6 +10,11 @@ public class CVar<T> implements Externalizable {
     private Property<T> value;
     private BooleanProperty isConst;
 
+    public CVar(String scope, String name, T value, Boolean isConst) {
+        this(scope, name, value);
+        setIsConst(isConst);
+    }
+
     public CVar(String scope, String name, T value) {
         this(name, value);
         setScope(scope);

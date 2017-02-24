@@ -49,7 +49,7 @@ grammar uppaal;
       fieldDecl : type fieldDeclId (',' fieldDeclId)* ';' ;
     fieldDeclId : ID arrayDecl* ;
 
-         prefix : ( ( 'urgent' )? ( 'broadcast' )? | ('const' )? ) ;
+         prefix : ( ( 'urgent' )? ( 'broadcast' )? | ('const' )? | ('meta')? ) ;
           range : '[' expression ',' expression ']' ;
 
 block : '{' ( variableDecl | typeDecl )* statement* '}' ;
@@ -58,6 +58,7 @@ statement : block
            | ';'
            |  expression ';'
            |  'for' '(' exprList ';' exprList ';' exprList ')' statement
+		   |  'for' '(' ID ':' ID ')' statement
            |  'while' '(' exprList ')' statement
            |  'do' statement 'while' '(' exprList ')' ';'
            |  'if' '(' exprList ')' statement ( 'else' statement )?
@@ -91,6 +92,8 @@ caseExpr       : 'case' expression ':' statement*
             |   expression binBoolOp expression
             |   expression '?' expression ':' expression
             |   expression '.' ID
+            |  'exists' '('ID ':' ID ')' expression
+            |  'forall' '('ID ':' ID ')' expression
             ; 
 
     argList : (expression ( ',' expression )* )? ;
