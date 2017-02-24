@@ -10,7 +10,9 @@ public class VariableReaderListener extends uppaalBaseListener {
     @Override
     public void enterVariableDecl(uppaalParser.VariableDeclContext ctx) {
         super.enterVariableDecl(ctx);
-        System.out.println(ctx.declId(0).ID());
+        for(uppaalParser.DeclIdContext id : ctx.declId()) {
+            System.out.println(id.ID());
+        }
     }
 
 
