@@ -90,19 +90,13 @@ public class CHandler {
                 Matcher mName = pVar.matcher(s);
                 Matcher constVars = Pattern.compile("const\\s+int\\s+(\\w)+(\\s)*=(\\s)*(\\d)+").matcher(s);
 
-                boolean isConst;
-                if(constVars.find())
-                    isConst = true;
-                else
-                    isConst = false;
-
                 while (mName.find()) {
                     CVar<Integer> var = new CVar();
                     String[] nameAndVal = mName.group().replace(" ", "").split("=");
                     var.setName(nameAndVal[0]);
                     var.setValue(Integer.parseInt(nameAndVal[1]));
                     var.setScope(scopeKey);
-                    var.setIsConst(isConst);
+                    var.setIsConst(constVars.find());
                     constantNames.add(var);
                 }
             }
