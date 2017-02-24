@@ -1,5 +1,5 @@
 grammar uppaal;
-            xta : declaration* instantiation* system ;
+            xta : declaration* EOF;
     declaration : functionDecl | variableDecl | typeDecl | procDecl ;
   instantiation : ID '=' ID '(' argList ')' ';' ;
          system : 'system' ID (',' ID)* ';'  ;
