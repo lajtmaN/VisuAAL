@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
 import java.util.ArrayList;
 
 /**
@@ -52,8 +51,11 @@ public class UPPAALExecutor {
         eng.query(upp, options, query, new UppaalQueryFeedback());
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         /*ProcessBuilder builder = new ProcessBuilder(
 =======
+=======
+>>>>>>> parent of ac894bd... SW-139: Included uppaal models in application
         ProcessBuilder builder = new ProcessBuilder(
 >>>>>>> parent of ac894bd... SW-139: Included uppaal models in application
                 "cmd.exe", "/c", "lib\\verifyta.exe \"" + modelPath + "\" " + queryFile
