@@ -1,0 +1,1 @@
+ java -jar antlr-4.6-complete.jar uppaal.g4
