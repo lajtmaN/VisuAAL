@@ -23,6 +23,12 @@ public class Simulation implements Serializable {
         model.getTopology().updateGraph();
         model.getTopology().unmarkAllEdges();
 
+        if (getModelTimeUnit() != 1) {
+            for (SimulationPoint p : points) {
+                p.setClock(p.getClock() * getModelTimeUnit());
+            }
+        }
+
         run = points;
         reverseRun = new ArrayList<>(points);
         reverseRun.sort( (p1, p2) -> Double.compare(p2.getClock(), p1.getClock()));
