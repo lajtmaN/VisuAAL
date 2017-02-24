@@ -1,11 +1,6 @@
 package Helpers;
 
 import Model.SimulateOutput;
-import com.uppaal.engine.*;
-import com.uppaal.model.core2.Document;
-import com.uppaal.model.core2.PrototypeDocument;
-import com.uppaal.model.system.UppaalSystem;
-import com.uppaal.model.system.symbolic.SymbolicTransition;
 import parsers.RegexHelper;
 import parsers.SimulateParser;
 import parsers.UPPAALParser;
@@ -14,8 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
+
 import java.util.ArrayList;
 
 /**
@@ -57,7 +51,11 @@ public class UPPAALExecutor {
         String options = "";
         eng.query(upp, options, query, new UppaalQueryFeedback());
 
+<<<<<<< HEAD
         /*ProcessBuilder builder = new ProcessBuilder(
+=======
+        ProcessBuilder builder = new ProcessBuilder(
+>>>>>>> parent of ac894bd... SW-139: Included uppaal models in application
                 "cmd.exe", "/c", "lib\\verifyta.exe \"" + modelPath + "\" " + queryFile
         );
         builder.redirectErrorStream(true);
