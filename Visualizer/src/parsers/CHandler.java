@@ -13,58 +13,11 @@ public class CHandler {
     private static final String ConfigVariablePrefix = "CONFIG_";
     private static final String TopologyRegex = "CONFIG_connected\\[.+\\n((?:[^;])+)\\};";
     private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
-    private static final String ConfigVariableRegex = "CONFIG_(\\w)+(\\s)*=(\\s)*(\\d)+";
     private static final String OutputVarsRegex = "int\\s+(OUTPUT_(?:\\w)+(?:\\s*\\[\\w+\\])*)";
     private static final String ConfigDeclarationRegex(String type) {
         return "(const\\s)?" + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)+;"; }
     private static final String TypedefRegex(String typedefName) {
         return "typedef\\s+int\\s+\\[\\s*0,\\s*(CONFIG_\\w+)([*+-]\\d+)?\\]\\s+" + typedefName;
-    }
-
-    private static final String ConstRegex(String type) {
-        return "const\\s+" + type + "\\s+(\\w)+(\\s)*=(\\s)*(\\d)+";
-    }
-    /**
-     * Update a var in the XML decls
-     * @param name of the variable
-     * @param value new value
-     * @param decls string containing declarations
-     * @return the updated declarations
-     */
-    public static String updateIntConfigVar(String name, int value, String decls) {
-        if(isCorrectType("int", name, decls)) {
-            //Update value of the variable
-            return decls.replaceFirst(name + "\\s*=\\s*(\\d)+\\s*", name + " = " + String.valueOf(value));
-        }
-        throw new IllegalArgumentException("The variable does not exist or must be the same type as the input variable");
-    }
-
-    //Works for int only current. Regex can be updated to match different types
-    private static boolean isCorrectType(String type, String name, String decls) {
-        //Match full const expression
-        Matcher matcher = getConfigMatcher(type, decls);
-
-        //Match 'name' var
-        Pattern patternVar = Pattern.compile(name + "( )*=");
-
-        //Isolate const definition expressions
-        while(matcher.find()) {
-            String s = matcher.group();
-            //System.out.println(s);
-
-            //If type and variable mathces, return true
-            Matcher mVar = patternVar.matcher(s);
-            if(mVar.find()) {
-                //System.out.println(mVar.group());
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static Matcher getConfigMatcher(String type, String decls) {
-        Pattern patternConstExpr = Pattern.compile(ConfigDeclarationRegex(type));
-        return patternConstExpr.matcher(decls);
     }
 
     public static ArrayList<CVar> getConfigVariables(String decls, String scope) {

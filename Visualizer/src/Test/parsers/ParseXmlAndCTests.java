@@ -3,11 +3,9 @@ package parsers;
 import Helpers.FileHelper;
 import Model.OutputVariable;
 import Model.UPPAALModel;
-import com.sun.org.apache.xerces.internal.xni.XMLDTDHandler;
 import org.junit.Test;
 import Model.CVar;
 import org.xml.sax.SAXException;
-import scala.xml.XML;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -114,36 +112,6 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void updateVariableInText() {
-        String decls =
-                "const int CONFIG_NR_NODES_SQR_ROOT = 4,\n" +
-                "          CONFIG_NR_NODES = 16,\n" +
-                "          NR_BEACON_SLOTS = 8,\n" +
-                "          MAX_BEACON_NUMBER = 17;\n" +
-                "const int BEACON_PERIOD = 1000,\n" +
-                "          BEACON_SLOT = 1,\n" +
-                "          BEACON_SCAN = BEACON_SLOT * NR_BEACON_SLOTS,\n" +
-                "          BEACON_SCAN_INTERVAL = 500,\n" +
-                "          MAX_INIT_DELAY = 512,\n" +
-                "          MAX_DATA_OFFSET = 63, // Multiplied later by 4 to get mS\n" +
-                "          DATA_INTERVAL = 1000,\n" +
-                "          DATA_DURATION = 1;";
-        ArrayList<CVar> orginalVars = CHandler.getConfigVariables(decls,null);
-        assertEquals(2, orginalVars.size());
-        assertGlobalCVar("CONFIG_NR_NODES_SQR_ROOT", 4, orginalVars.get(0));
-        assertGlobalCVar("CONFIG_NR_NODES", 16, orginalVars.get(1));
-
-        //Update "XML" with new value to CONFIG_NR_NODES
-        String actual = CHandler.updateIntConfigVar("CONFIG_NR_NODES", 300, decls);
-
-        ArrayList<CVar> updatedVars = CHandler.getConfigVariables(actual, null);
-        assertEquals(2, updatedVars.size());
-        assertGlobalCVar("CONFIG_NR_NODES_SQR_ROOT", 4, updatedVars.get(0));
-        assertGlobalCVar("CONFIG_NR_NODES", 300, updatedVars.get(1));
-
-    }
-
-    @Test
     public void updateVariablesInXMLFile() throws IOException {
         File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
         ArrayList<CVar> orgConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
@@ -152,7 +120,6 @@ public class ParseXmlAndCTests {
         assertTrue(orgConfigs.contains(new CVar(null,"CONFIG_TESTING_CONSTANT", "1337", true,"int")));
         assertTrue(orgConfigs.contains(new CVar("Template", "CONFIG_LOCAL", "123", true, "int")));
         assertTrue(orgConfigs.contains(new CVar("Template2", "CONFIG_LOCAL2", "123", true, "int")));
-
 
         //Update value on config var
         CVar updatedCVar = orgConfigs.get(
