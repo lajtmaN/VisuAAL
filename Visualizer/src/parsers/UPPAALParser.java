@@ -4,10 +4,8 @@ import Model.CVar;
 import Model.OutputVariable;
 import Model.TemplateUpdate;
 import Model.UPPAALTopology;
-import org.xml.sax.SAXException;
+import parsers.Declaration.VariableParser;
 
-import javax.swing.event.ChangeListener;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,14 +28,24 @@ public class UPPAALParser {
     public static void updateUPPAALConfigConstants(String uppaalFilename, Collection<CVar> cvarsWithNewVal ) {
         try {
             XmlHandler handler = new XmlHandler(uppaalFilename);
-            HashMap<String, String> newDecls = handler.getAllDeclarations();
-            for (CVar cvar : cvarsWithNewVal) {
-                if(cvar.hasIntType()){
-                    String updatedDecls = CHandler.updateIntConfigVar(cvar.getName(), cvar.getValueAsInteger(), newDecls.get(cvar.getScope()));
-                    newDecls.replace(cvar.getScope(), updatedDecls);
+            HashMap<String, String> allDecls = handler.getAllDeclarations();
+
+            List<CVar> globalCVars = cvarsWithNewVal.stream().filter(p -> p.getScope() == null).collect(Collectors.toList());
+            if (!globalCVars.isEmpty()) {
+                String updatedGlobal = VariableParser.updateAllDeclarations(allDecls.get(null), globalCVars);
+                allDecls.replace(null, updatedGlobal);
+            }
+
+            Map<String, List<CVar>> scopeAndRelatedCVars = cvarsWithNewVal.stream()
+                    .filter(p -> p.getScope() != null).collect(Collectors.groupingBy(p -> p.getScope()));
+
+            for (String scope : scopeAndRelatedCVars.keySet()) {
+                if (!scopeAndRelatedCVars.get(scope).isEmpty()) {
+                    String updatedDecls = VariableParser.updateAllDeclarations(allDecls.get(scope), scopeAndRelatedCVars.get(scope));
+                    allDecls.replace(scope, updatedDecls);
                 }
             }
-            handler.setDeclarations(newDecls);
+            handler.setDeclarations(allDecls);
         } catch (Exception e) {
             e.printStackTrace();
         }
