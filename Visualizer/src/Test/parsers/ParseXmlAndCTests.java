@@ -3,6 +3,7 @@ package parsers;
 import Helpers.FileHelper;
 import Model.OutputVariable;
 import Model.UPPAALModel;
+import com.sun.org.apache.xerces.internal.xni.XMLDTDHandler;
 import org.junit.Test;
 import Model.CVar;
 import org.xml.sax.SAXException;
@@ -52,6 +53,36 @@ public class ParseXmlAndCTests {
         assertEquals(2, vars.size());
         assertGlobalCVar("CONFIG_abc", 123, vars.get(0));
         assertGlobalCVar("CONFIG_abe", 456, vars.get(1));
+    }
+
+    @Test
+    public void parseDeclarationsMultipleScopesTest() throws IOException, SAXException, ParserConfigurationException {
+        XmlHandler handler = new XmlHandler("eksempel.xml");
+        HashMap<String, String> declarations = handler.getAllDeclarations();
+
+        ArrayList<CVar<Integer>> globalConfigVariables = CHandler.getConfigVariables(declarations.get(null), null);
+        assertEquals(1, globalConfigVariables.size());
+        CVar<Integer> actualGlobalVar = globalConfigVariables.get(0);
+
+        assertCVar(null, "CONFIG_global_test", 11, actualGlobalVar);
+
+        ArrayList<CVar<Integer>> localConfigVariables = CHandler.getConfigVariables(declarations.get("Template"), "Template");
+        assertEquals(1, localConfigVariables.size());
+        CVar<Integer> actualLocalVar = localConfigVariables.get(0);
+
+        assertCVar("Template", "CONFIG_local_test", 10, actualLocalVar);
+    }
+
+    @Test
+    public void parseDeclarationsMultipleScopesHashmapTest() throws IOException, SAXException, ParserConfigurationException {
+        XmlHandler handler = new XmlHandler("eksempel.xml");
+        HashMap<String, String> declarations = handler.getAllDeclarations();
+
+        ArrayList<CVar<Integer>> configVariables = CHandler.getConfigVariables(declarations);
+        assertEquals(2, configVariables.size());
+
+        assertTrue(configVariables.contains(new CVar<>(null, "CONFIG_global_test", 11, false)));
+        assertTrue(configVariables.contains(new CVar<>("Template", "CONFIG_local_test", 10, false)));
     }
 
     @Test
