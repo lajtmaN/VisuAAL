@@ -63,8 +63,8 @@ public class QueryGeneratorTests {
         String expected = "simulate 1 [<=100] { Node(0).OUTPUT_test[0] > 0, Node(0).OUTPUT_test[1] > 0, Node(1).OUTPUT_test[0] > 0, Node(1).OUTPUT_test[1] > 0, OUTPUT_nr_node_relations }";
 
         //Setup
-        ArrayList<CVar<Integer>> constants = new ArrayList<>();
-        constants.add(new CVar<>("CONFIG_SIZE", 2));
+        ArrayList<CVar> constants = new ArrayList<>();
+        constants.add(new CVar("CONFIG_SIZE", "2"));
 
         ArrayList<OutputVariable> outVars = new ArrayList<>();
         outVars.add(UPPAALParser.parseOutputVariableArray("OUTPUT_test[CONFIG_SIZE]", "Node", constants));
@@ -86,8 +86,8 @@ public class QueryGeneratorTests {
         String expectedName = "OUTPUT_data";
         int expectedSize = 10;
 
-        ArrayList<CVar<Integer>> constants = new ArrayList<>();
-        constants.add(new CVar<>("CONFIG_SIZE", expectedSize));
+        ArrayList<CVar> constants = new ArrayList<>();
+        constants.add(new CVar("CONFIG_SIZE", String.valueOf(expectedSize)));
 
         OutputVariable actual = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE]", null, constants);
 
@@ -102,8 +102,8 @@ public class QueryGeneratorTests {
         String expectedName = "OUTPUT_data";
         int expectedSize = 12;
 
-        ArrayList<CVar<Integer>> constants = new ArrayList<>();
-        constants.add(new CVar<>("CONFIG_SIZE", expectedSize));
+        ArrayList<CVar> constants = new ArrayList<>();
+        constants.add(new CVar("CONFIG_SIZE", String.valueOf(expectedSize)));
 
         OutputVariable actual = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE]", "Node", constants);
 
@@ -118,8 +118,8 @@ public class QueryGeneratorTests {
         String expectedName = "OUTPUT_data";
         int expectedSize = 10;
 
-        ArrayList<CVar<Integer>> constants = new ArrayList<>();
-        constants.add(new CVar<>("CONFIG_SIZE", expectedSize));
+        ArrayList<CVar> constants = new ArrayList<>();
+        constants.add(new CVar("CONFIG_SIZE", String.valueOf(expectedSize)));
 
         OutputVariable actual = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE][CONFIG_SIZE]", null, constants);
 
@@ -140,8 +140,8 @@ public class QueryGeneratorTests {
         String name = "OUTPUT_data";
         int constantSize = 3;
 
-        ArrayList<CVar<Integer>> constants = new ArrayList<>();
-        constants.add(new CVar<>("CONFIG_SIZE", constantSize));
+        ArrayList<CVar> constants = new ArrayList<>();
+        constants.add(new CVar("CONFIG_SIZE", String.valueOf(constantSize)));
 
         OutputVariable outVar = UPPAALParser.parseOutputVariableArray("OUTPUT_data[CONFIG_SIZE]", null, constants);
 
