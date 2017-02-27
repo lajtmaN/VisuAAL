@@ -3,7 +3,6 @@ package parsers.Declaration;
 import Model.UPPAALVariable;
 import org.junit.Test;
 import org.xml.sax.SAXException;
-import parsers.Declaration.ANTLRGenerated.VariableParser;
 import parsers.XmlHandler;
 
 import javax.xml.parsers.ParserConfigurationException;
