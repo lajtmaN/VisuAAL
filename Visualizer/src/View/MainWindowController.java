@@ -147,7 +147,7 @@ public class MainWindowController implements Initializable {
         }).call(cell.getValue()));
         columnName.setCellValueFactory(p -> p.getValue().nameProperty()); //Readonly, thus no CellFactory
         columnValue.setCellValueFactory(p -> p.getValue().valueProperty());
-        columnValue.setCellFactory(p -> new IntegerEditingCell());
+        columnValue.setCellFactory(p -> new IntegerStringEditingCell());
         columnValue.addEventHandler(TableColumn.CellEditEvent.ANY, p -> constantsChanged = true);
     }
 
