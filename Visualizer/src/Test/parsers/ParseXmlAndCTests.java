@@ -46,7 +46,7 @@ public class ParseXmlAndCTests {
         String declarations = "const int CONFIG_abc = 123," +
                 "dhj = 234;" +
                 "\n const int CONFIG_abe = 456," +
-                "abc_config_abc = 12";
+                "abc_config_abc = 12;";
         ArrayList<CVar<Integer>> vars = CHandler.getConfigVariables(declarations, null);
 
         assertEquals(2, vars.size());
