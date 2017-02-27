@@ -4,7 +4,7 @@ import Model.CVar;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 import Model.UPPAALVariable;
-import parsers.Declaration.ANTLRGenerated.VariableParser;
+import parsers.Declaration.VariableParser;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -80,38 +80,24 @@ public class CHandler {
     public static ArrayList<CVar<Integer>> getConfigVariables(String decls, String scope) {
         ArrayList<CVar<Integer>> returnvals = new ArrayList<>();
         ArrayList<UPPAALVariable> vars = VariableParser.getInstantiations(decls);
-        vars.removeIf(uppaalVariable -> !uppaalVariable.getName().startsWith(ConfigVariablePrefix)
-                    && uppaalVariable.getConst());
+        vars.removeIf(uppaalVariable -> !uppaalVariable.getName().startsWith(ConfigVariablePrefix));
         for(UPPAALVariable var : vars){
-            if(var.getType().equals("int") && var.getArraySizes().size() == 0){
-                returnvals.add(new CVar<Integer>(scope, var.getName(), Integer.parseInt(var.getValue()), var.getConst()));
-            }
+            int value;
+            try {
+                if(var.getType().equals("int") && var.getArraySizes().size() == 0) {
+                    value = Integer.parseInt(var.getValue());
+                    returnvals.add(new CVar<>(scope, var.getName(), value, var.getConst()));
+                }
+            } catch (NumberFormatException e) {}
         }
         return returnvals;
     }
     public static ArrayList<CVar<Integer>> getConfigVariables(HashMap<String, String> allDecls) {
         ArrayList<CVar<Integer>> constantNames = new ArrayList<>();
-        /*for (String scopeKey : allDecls.keySet()) {
-            constantNames.addAll(getConfigVariables(allDecls.get(scopeKey), scopeKey));*/
-
-        Pattern pVar = Pattern.compile(ConfigVariableRegex);
-
-        for(String scopeKey: allDecls.keySet()){
-            for(String s : getConfigGroups(allDecls.get(scopeKey))){
-                Matcher mName = pVar.matcher(s);
-                Matcher constVars = Pattern.compile("const\\s+int\\s+(\\w)+(\\s)*=(\\s)*(\\d)+").matcher(s);
-
-                while (mName.find()) {
-                    CVar<Integer> var = new CVar();
-                    String[] nameAndVal = mName.group().replace(" ", "").split("=");
-                    var.setName(nameAndVal[0]);
-                    var.setValue(Integer.parseInt(nameAndVal[1]));
-                    var.setScope(scopeKey);
-                    var.setIsConst(constVars.find());
-                    constantNames.add(var);
-                }
-            }
+        for (String scopeKey : allDecls.keySet()) {
+            constantNames.addAll(getConfigVariables(allDecls.get(scopeKey), scopeKey));
         }
+
         return constantNames;
     }
 

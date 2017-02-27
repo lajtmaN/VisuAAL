@@ -1,4 +1,4 @@
-package parsers.Declaration.ANTLRGenerated;
+package parsers.Declaration;
 
 import Model.CVar;
 import Model.UPPAALVariable;
@@ -6,6 +6,8 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import parsers.Declaration.ANTLRGenerated.uppaalLexer;
+import parsers.Declaration.ANTLRGenerated.uppaalParser;
 import parsers.Declaration.ANTLRGenerated.uppaalParser.XtaContext;
 import parsers.Declaration.DeclarationUpdater;
 import parsers.Declaration.VariableInstantiationReader;

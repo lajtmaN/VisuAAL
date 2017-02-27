@@ -3,7 +3,7 @@ package parsers;
 import Helpers.FileHelper;
 import Model.OutputVariable;
 import Model.UPPAALModel;
-import org.junit.Ignore;
+import com.sun.org.apache.xerces.internal.xni.XMLDTDHandler;
 import org.junit.Test;
 import Model.CVar;
 import org.xml.sax.SAXException;
@@ -12,7 +12,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -31,28 +30,59 @@ public class ParseXmlAndCTests {
         ArrayList<CVar<Integer>> vars = UPPAALParser.getUPPAALConfigConstants("mac_model_test.xml");
 
         assertEquals(10, vars.size());
-        assertCVAR(null, "CONFIG_NR_NODES", 36, vars.get(0));
-        assertCVAR(null, "CONFIG_NR_BEACON_SLOTS", 8, vars.get(1));
-        assertCVAR(null, "CONFIG_BEACON_PERIOD", 1000, vars.get(2));
-        assertCVAR(null, "CONFIG_MAX_DATA_OFFSET", 63, vars.get(3));
-        assertCVAR(null, "CONFIG_DATA_INTERVAL", 1000, vars.get(4));
-        assertCVAR(null, "CONFIG_DATA_DURATION", 1, vars.get(5));
-        assertCVAR(null, "CONFIG_BCN_LOST_PROB", 1, vars.get(6));
-        assertCVAR(null, "CONFIG_BCN_NOT_LOST_PROB", 99, vars.get(7));
-        assertCVAR(null, "CONFIG_DATA_LOST_PROB", 1, vars.get(8));
-        assertCVAR(null, "CONFIG_DATA_NOT_LOST_PROB", 99, vars.get(9));
+        assertGlobalCVar("CONFIG_NR_NODES", 36, vars.get(0));
+        assertGlobalCVar("CONFIG_NR_BEACON_SLOTS", 8, vars.get(1));
+        assertGlobalCVar("CONFIG_BEACON_PERIOD", 1000, vars.get(2));
+        assertGlobalCVar("CONFIG_MAX_DATA_OFFSET", 63, vars.get(3));
+        assertGlobalCVar("CONFIG_DATA_INTERVAL", 1000, vars.get(4));
+        assertGlobalCVar("CONFIG_DATA_DURATION", 1, vars.get(5));
+        assertGlobalCVar("CONFIG_BCN_LOST_PROB", 1, vars.get(6));
+        assertGlobalCVar("CONFIG_BCN_NOT_LOST_PROB", 99, vars.get(7));
+        assertGlobalCVar("CONFIG_DATA_LOST_PROB", 1, vars.get(8));
+        assertGlobalCVar("CONFIG_DATA_NOT_LOST_PROB", 99, vars.get(9));
     }
 
     @Test
     public void parseDeclarationsTest() {
         String declarations = "const int CONFIG_abc = 123," +
                 "dhj = 234;" +
-                "\n const int CONFIG_abe = 456;";
+                "\n const int CONFIG_abe = 456," +
+                "abc_config_abc = 12;";
         ArrayList<CVar<Integer>> vars = CHandler.getConfigVariables(declarations, null);
 
         assertEquals(2, vars.size());
-        assertCVAR(null, "CONFIG_abc", 123, vars.get(0));
-        assertCVAR(null, "CONFIG_abe", 456, vars.get(1));
+        assertGlobalCVar("CONFIG_abc", 123, vars.get(0));
+        assertGlobalCVar("CONFIG_abe", 456, vars.get(1));
+    }
+
+    @Test
+    public void parseDeclarationsMultipleScopesTest() throws IOException, SAXException, ParserConfigurationException {
+        XmlHandler handler = new XmlHandler("eksempel.xml");
+        HashMap<String, String> declarations = handler.getAllDeclarations();
+
+        ArrayList<CVar<Integer>> globalConfigVariables = CHandler.getConfigVariables(declarations.get(null), null);
+        assertEquals(1, globalConfigVariables.size());
+        CVar<Integer> actualGlobalVar = globalConfigVariables.get(0);
+
+        assertCVar(null, "CONFIG_global_test", 11, actualGlobalVar);
+
+        ArrayList<CVar<Integer>> localConfigVariables = CHandler.getConfigVariables(declarations.get("Template"), "Template");
+        assertEquals(1, localConfigVariables.size());
+        CVar<Integer> actualLocalVar = localConfigVariables.get(0);
+
+        assertCVar("Template", "CONFIG_local_test", 10, actualLocalVar);
+    }
+
+    @Test
+    public void parseDeclarationsMultipleScopesHashmapTest() throws IOException, SAXException, ParserConfigurationException {
+        XmlHandler handler = new XmlHandler("eksempel.xml");
+        HashMap<String, String> declarations = handler.getAllDeclarations();
+
+        ArrayList<CVar<Integer>> configVariables = CHandler.getConfigVariables(declarations);
+        assertEquals(2, configVariables.size());
+
+        assertTrue(configVariables.contains(new CVar<>(null, "CONFIG_global_test", 11, false)));
+        assertTrue(configVariables.contains(new CVar<>("Template", "CONFIG_local_test", 10, false)));
     }
 
     @Test
@@ -96,16 +126,16 @@ public class ParseXmlAndCTests {
                 "          DATA_DURATION = 1;";
         ArrayList<CVar<Integer>> orginalVars = CHandler.getConfigVariables(decls,null);
         assertEquals(2, orginalVars.size());
-        assertCVAR(null, "CONFIG_NR_NODES_SQR_ROOT", 4, orginalVars.get(0));
-        assertCVAR(null, "CONFIG_NR_NODES", 16, orginalVars.get(1));
+        assertGlobalCVar("CONFIG_NR_NODES_SQR_ROOT", 4, orginalVars.get(0));
+        assertGlobalCVar("CONFIG_NR_NODES", 16, orginalVars.get(1));
 
         //Update "XML" with new value to CONFIG_NR_NODES
         String actual = CHandler.updateIntConfigVar("CONFIG_NR_NODES", 300, decls);
 
         ArrayList<CVar<Integer>> updatedVars = CHandler.getConfigVariables(actual, null);
         assertEquals(2, updatedVars.size());
-        assertCVAR(null, "CONFIG_NR_NODES_SQR_ROOT", 4, updatedVars.get(0));
-        assertCVAR(null, "CONFIG_NR_NODES", 300, updatedVars.get(1));
+        assertGlobalCVar("CONFIG_NR_NODES_SQR_ROOT", 4, updatedVars.get(0));
+        assertGlobalCVar("CONFIG_NR_NODES", 300, updatedVars.get(1));
 
     }
 
@@ -238,9 +268,14 @@ public class ParseXmlAndCTests {
     }
 
 
-    private <T> void assertCVAR(String expectedScope, String expectedName, T expectedVal, CVar<T> actual) {
+    private <T> void assertCVar(String expectedScope, String expectedName, T expectedVal, CVar<T> actual) {
         assertEquals(expectedScope, actual.getScope());
         assertEquals(expectedName, actual.getName());
         assertEquals(expectedVal, actual.getValue());
     }
+
+    private <T> void assertGlobalCVar(String expectedName, T expectedVal, CVar<T> actual) {
+        assertCVar(null, expectedName, expectedVal, actual);
+    }
+
 }

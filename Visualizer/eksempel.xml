@@ -2,12 +2,13 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
 	<declaration>// Place global declarations here.
-
+int CONFIG_global_test = 11;
 clock x;
 </declaration>
 	<template>
 		<name x="5" y="5">Template</name>
-		<declaration>// Place local declarations here.</declaration>
+		<declaration>// Place local declarations here.
+		int CONFIG_local_test = 10;</declaration>
 		<location id="id0" x="161" y="136">
 			<name x="151" y="102">s5</name>
 		</location>
