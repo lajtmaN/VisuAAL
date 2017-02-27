@@ -3,7 +3,6 @@ package parsers;
 import Model.CVar;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
-import Model.UPPAALVariable;
 import parsers.Declaration.VariableParser;
 
 import java.util.*;
@@ -78,24 +77,17 @@ public class CHandler {
     }
 
     public static ArrayList<CVar> getConfigVariables(String decls, String scope) {
-        ArrayList<CVar> returnvals = new ArrayList<>();
-        ArrayList<UPPAALVariable> vars = VariableParser.getInstantiations(decls);
-        vars.removeIf(uppaalVariable -> !uppaalVariable.getName().startsWith(ConfigVariablePrefix));
-        for(UPPAALVariable var : vars){
-            try {
-                if(var.getType().equals("int") && var.getArraySizes().size() == 0) {
-                    returnvals.add(new CVar(scope, var.getName(), var.getValue(), var.getConst(), "int"));
-                }
-            } catch (NumberFormatException e) {}
-        }
-        return returnvals;
+        ArrayList<CVar> returnvars = VariableParser.getInstantiations(decls);
+        returnvars.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || !var.hasIntType() || var.isArrayType());
+        returnvars.forEach(var -> var.setScope(scope));
+        return returnvars;
     }
+
     public static ArrayList<CVar> getConfigVariables(HashMap<String, String> allDecls) {
         ArrayList<CVar> constantNames = new ArrayList<>();
         for (String scopeKey : allDecls.keySet()) {
             constantNames.addAll(getConfigVariables(allDecls.get(scopeKey), scopeKey));
         }
-
         return constantNames;
     }
 
