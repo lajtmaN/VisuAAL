@@ -8,8 +8,6 @@ import Model.CVar;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import parsers.CHandler;
-import parsers.Declaration.ANTLRGenerated.VariableParser;
-import parsers.UPPAALParser;
 import parsers.XmlHandler;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,6 +44,7 @@ public class DeclarationUpdaterTests {
         cvars.get(0).setValue(12345);
 
         String updatedDecls = VariableParser.updateAllDeclarations(orgDecls, cvars);
+        assertNotNull(updatedDecls);
         ArrayList<CVar<Integer>> newCvars = CHandler.getConfigVariables(updatedDecls, null);
         assertNotNull(newCvars);
 
@@ -53,9 +52,5 @@ public class DeclarationUpdaterTests {
         for (int i = 0; i < cvars.size(); i++) {
             assertEquals(cvars.get(i), newCvars.get(i));
         }
-
-        //run new visitor
-        //parse the updated file and get config variables
-        //check if new config variables matches the updated ones
     }
 }
