@@ -49,6 +49,7 @@ public class CVar implements Externalizable {
         setScope(null);
         setName(name);
         setValue(value);
+        arraySizes = new ArrayList<>();
     }
 
     public CVar() {
@@ -110,6 +111,11 @@ public class CVar implements Externalizable {
     public boolean hasIntType(){
         return type.equals("int");
     }
+
+    public boolean isArrayType() {
+        return arraySizes.size() > 0;
+    }
+
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(getScope());

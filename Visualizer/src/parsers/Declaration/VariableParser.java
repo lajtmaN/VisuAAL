@@ -1,13 +1,12 @@
 package parsers.Declaration;
 
-import Model.UPPAALVariable;
+import Model.CVar;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import parsers.Declaration.ANTLRGenerated.uppaalLexer;
 import parsers.Declaration.ANTLRGenerated.uppaalParser;
 import parsers.Declaration.ANTLRGenerated.uppaalParser.XtaContext;
-import parsers.Declaration.VariableInstantiationReader;
 
 import java.util.ArrayList;
 
@@ -23,7 +22,7 @@ public class VariableParser {
         return parser.xta();
     }
 
-    public static ArrayList<UPPAALVariable> getInstantiations(String declaration) {
+    public static ArrayList<CVar> getInstantiations(String declaration) {
         VariableInstantiationReader listener = new VariableInstantiationReader();
         new ParseTreeWalker().walk(listener, getRootElement(declaration));
         return listener.getVariables();
