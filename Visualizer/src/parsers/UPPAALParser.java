@@ -32,7 +32,7 @@ public class UPPAALParser {
             XmlHandler handler = new XmlHandler(uppaalFilename);
             HashMap<String, String> newDecls = handler.getAllDeclarations();
             for (CVar cvar : cvarsWithNewVal) {
-                if(cvar.hasIntType()){
+                if(cvar.hasIntType()){//TODO: HAndle Doubles and bools!
                     String updatedDecls = CHandler.updateIntConfigVar(cvar.getName(), cvar.getValueAsInteger(), newDecls.get(cvar.getScope()));
                     newDecls.replace(cvar.getScope(), updatedDecls);
                 }

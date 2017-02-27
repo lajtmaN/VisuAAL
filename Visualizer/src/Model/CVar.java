@@ -2,6 +2,7 @@ package Model;
 
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.beans.property.*;
+import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,6 +14,11 @@ public class CVar implements Externalizable {
     private BooleanProperty isConst;
     private ArrayList<String> arraySizes;
     private String type;
+    private SimpleObjectProperty<CVar> propertyInstance;
+
+    public SimpleObjectProperty<CVar> getObjectProperty() {
+        return propertyInstance;
+    }
 
     public ArrayList<String> getArraySizes() {
         return arraySizes;
@@ -50,6 +56,7 @@ public class CVar implements Externalizable {
         setName(name);
         setValue(value);
         arraySizes = new ArrayList<>();
+        propertyInstance = new SimpleObjectProperty<>(this);
     }
 
     public CVar() {
@@ -162,4 +169,11 @@ public class CVar implements Externalizable {
         return result;
     }
 
+    public boolean hasBoolType() {
+        return getType().equals("bool");
+    }
+
+    public boolean hasDoubleType() {
+        return getType().equals("double");
+    }
 }

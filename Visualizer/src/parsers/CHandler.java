@@ -67,18 +67,9 @@ public class CHandler {
         return patternConstExpr.matcher(decls);
     }
 
-    private static ArrayList<String> getConfigGroups(String decls) {
-        ArrayList<String> groups = new ArrayList<>();
-        Matcher matcher = getConfigMatcher("int", decls);
-        while(matcher.find()) {
-            groups.add(matcher.group());
-        }
-        return groups;
-    }
-
     public static ArrayList<CVar> getConfigVariables(String decls, String scope) {
         ArrayList<CVar> returnvars = VariableParser.getInstantiations(decls);
-        returnvars.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || !var.hasIntType() || var.isArrayType());
+        returnvars.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || var.isArrayType());
         returnvars.forEach(var -> var.setScope(scope));
         return returnvars;
     }

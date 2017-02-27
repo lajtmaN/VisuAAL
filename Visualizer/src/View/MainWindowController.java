@@ -4,11 +4,16 @@ import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.*;
 import Helpers.QueryGenerator;
+import com.sun.org.apache.xalan.internal.xsltc.compiler.Template;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableValueBase;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
@@ -21,6 +26,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -32,6 +38,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import javafx.util.Pair;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.xml.sax.SAXException;
@@ -54,7 +61,7 @@ public class MainWindowController implements Initializable {
     @FXML private TextField txtSimulationName;
     @FXML private TextArea queryGeneratedTextField;
     @FXML private TableColumn<CVar, String> columnName;
-    @FXML private TableColumn<CVar, String> columnValue;
+    @FXML private TableColumn<CVar, CVar> columnValue;
     @FXML private TableColumn<CVar, String> columnScope;
     @FXML private TableView constantsTable;
     @FXML private GridPane horizontalGrid;
@@ -76,7 +83,7 @@ public class MainWindowController implements Initializable {
 
 
     private UPPAALModel uppaalModel;
-    private boolean constantsChanged;
+    public boolean constantsChanged;
     private static MainWindowController instance;
 
     public static MainWindowController getInstance(){
@@ -139,16 +146,42 @@ public class MainWindowController implements Initializable {
         tableOutputVars.prefWidthProperty().bind(rootElement.widthProperty());
     }
 
+    private Pair<String, Object> pair(String name, Object value) {
+        return new Pair<>(name, value);
+    }
+
     private void initializeConstantTableValues() {
         columnScope.setCellValueFactory(cell -> ((Callback<CVar, StringProperty>) cellValue -> {
             if (cellValue.getScope() == null)
                 return new SimpleStringProperty("Global");
             return cellValue.scopeProperty();
         }).call(cell.getValue()));
+
+        /*dynColumnName.setCellValueFactory(p -> p.getValue().variableProperty());
+
+        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getNonConstConfigVarNames()));*/
+
         columnName.setCellValueFactory(p -> p.getValue().nameProperty()); //Readonly, thus no CellFactory
-        columnValue.setCellValueFactory(p -> p.getValue().valueProperty());
-        columnValue.setCellFactory(p -> new IntegerStringEditingCell());
+        columnValue.setCellValueFactory(p -> p.getValue().getObjectProperty());
+        columnValue.setCellFactory(new Callback<TableColumn<CVar, CVar>, TableCell<CVar, CVar>>() {
+            @Override
+            public TableCell<CVar, CVar> call(TableColumn<CVar, CVar> column) {
+                return new CVarValueEditingCell();
+            }
+        });
         columnValue.addEventHandler(TableColumn.CellEditEvent.ANY, p -> constantsChanged = true);
+
+        /*columnValue.setCellFactory(new Callback<TableColumn<CVar, CVar>, TableCell<CVar, CVar>>() {
+            @Override
+            public TableCell<CVar, CVar> call(TableColumn<CVar, CVar> param) {
+                return new CVarValueEditingCell();
+            }
+        });
+*/
+    }
+
+    private TableCell<CVar, String> getTableColumnTableCellCallback(TableColumn<CVar, String> cell) {
+            return new TableCell();
     }
 
     private void initializeOutputVarsTable() {
