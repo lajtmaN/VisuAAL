@@ -3,11 +3,9 @@ package parsers;
 import Helpers.FileHelper;
 import Model.OutputVariable;
 import Model.UPPAALModel;
-import com.sun.org.apache.xerces.internal.xni.XMLDTDHandler;
 import org.junit.Test;
 import Model.CVar;
 import org.xml.sax.SAXException;
-import scala.xml.XML;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
