@@ -75,9 +75,10 @@ caseExpr       : 'case' expression ':' statement*
 
   exprList : expression ( ',' expression )* ;
  expression :   ID
-            |   NAT
+            |   NAT 
+            |   FLOAT
             |   'true' 
-            |  'false'
+            |  'false' 
             |   ID '(' argList ')'
             |   expression '[' expression ']'
             |   '(' expression ')'
@@ -92,8 +93,9 @@ caseExpr       : 'case' expression ':' statement*
             |   expression binBoolOp expression
             |   expression '?' expression ':' expression
             |   expression '.' ID
-            |  'exists' '('ID ':' ID ')' expression
-            |  'forall' '('ID ':' ID ')' expression
+            |   expression '\''
+            |  'exists' '('ID ':' type ')' expression
+            |  'forall' '('ID ':' type ')' expression
             ; 
 
     argList : (expression ( ',' expression )* )? ;
@@ -106,7 +108,8 @@ caseExpr       : 'case' expression ':' statement*
   binBoolOp : '&&' | '||' ;
     
     ID  : [a-zA-Z_]([a-zA-Z0-9_])* ;
-    NAT : [0-9]+('.'[0-9]+)? ;
+    NAT : [0-9]+ ;
+    FLOAT : [0-9]+('.'[0-9]+)? ;
     WS  : [ \n\t\r]+ -> channel(HIDDEN) ;
     BLOCK_COMMENT
         : '/*' .*? '*/' -> channel(HIDDEN)
