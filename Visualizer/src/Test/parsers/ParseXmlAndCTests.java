@@ -30,17 +30,20 @@ public class ParseXmlAndCTests {
     public void getXmlDeclarationsTest() {
         ArrayList<CVar> vars = UPPAALParser.getUPPAALConfigConstants("mac_model_test.xml");
 
-        assertEquals(10, vars.size());
-        assertGlobalCVar("CONFIG_NR_NODES", 36, vars.get(0));
-        assertGlobalCVar("CONFIG_NR_BEACON_SLOTS", 8, vars.get(1));
-        assertGlobalCVar("CONFIG_BEACON_PERIOD", 1000, vars.get(2));
-        assertGlobalCVar("CONFIG_MAX_DATA_OFFSET", 63, vars.get(3));
-        assertGlobalCVar("CONFIG_DATA_INTERVAL", 1000, vars.get(4));
-        assertGlobalCVar("CONFIG_DATA_DURATION", 1, vars.get(5));
-        assertGlobalCVar("CONFIG_BCN_LOST_PROB", 1, vars.get(6));
-        assertGlobalCVar("CONFIG_BCN_NOT_LOST_PROB", 99, vars.get(7));
-        assertGlobalCVar("CONFIG_DATA_LOST_PROB", 1, vars.get(8));
-        assertGlobalCVar("CONFIG_DATA_NOT_LOST_PROB", 99, vars.get(9));
+        assertEquals(12, vars.size());
+        int i = 0;
+        assertGlobalCVar("CONFIG_TEST_BOOLEAN", "true", vars.get(i++));
+        assertGlobalCVar("CONFIG_TEST_DOUBLE", "0.5", vars.get(i++));
+        assertGlobalCVar("CONFIG_NR_NODES", 36, vars.get(i++));
+        assertGlobalCVar("CONFIG_NR_BEACON_SLOTS", 8, vars.get(i++));
+        assertGlobalCVar("CONFIG_BEACON_PERIOD", 1000, vars.get(i++));
+        assertGlobalCVar("CONFIG_MAX_DATA_OFFSET", 63, vars.get(i++));
+        assertGlobalCVar("CONFIG_DATA_INTERVAL", 1000, vars.get(i++));
+        assertGlobalCVar("CONFIG_DATA_DURATION", 1, vars.get(i++));
+        assertGlobalCVar("CONFIG_BCN_LOST_PROB", 1, vars.get(i++));
+        assertGlobalCVar("CONFIG_BCN_NOT_LOST_PROB", 99, vars.get(i++));
+        assertGlobalCVar("CONFIG_DATA_LOST_PROB", 1, vars.get(i++));
+        assertGlobalCVar("CONFIG_DATA_NOT_LOST_PROB", 99, vars.get(i++));
     }
 
     @Test
