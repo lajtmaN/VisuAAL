@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
  */
 public class UPPAALModel implements Externalizable {
     private UPPAALTopology topology;
-    private ObservableList<CVar<Integer>> constConfigVars;
-    private ObservableList<CVar<Integer>> nonConstConfigVars;
+    private ObservableList<CVar> constConfigVars;
+    private ObservableList<CVar> nonConstConfigVars;
     private ObservableList<TemplateUpdate> templateUpdates;
     private ObservableList<OutputVariable> outputVars;
     private double modelTimeUnit = 1;
@@ -37,9 +37,9 @@ public class UPPAALModel implements Externalizable {
     }
 
     public void load() {
-        ArrayList<CVar<Integer>> allConfigVars = UPPAALParser.getUPPAALConfigConstants(modelPath);
-        constConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> p.isIsConst()).collect(Collectors.toList()));
-        nonConstConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> !p.isIsConst()).collect(Collectors.toList()));
+        ArrayList<CVar> allConfigVars = UPPAALParser.getUPPAALConfigConstants(modelPath);
+        constConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> p.getIsConst()).collect(Collectors.toList()));
+        nonConstConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> !p.getIsConst()).collect(Collectors.toList()));
         topology = UPPAALParser.getUPPAALTopology(modelPath);
         processes = UPPAALParser.getUPPAALProcesses(modelPath, constConfigVars);
         modelTimeUnit = UPPAALParser.getModelTimeUnitConstant(modelPath);
@@ -53,11 +53,11 @@ public class UPPAALModel implements Externalizable {
         return topology;
     }
 
-    public ObservableList<CVar<Integer>> getConstConfigVars() {
+    public ObservableList<CVar> getConstConfigVars() {
         return constConfigVars;
     }
 
-    public ObservableList<CVar<Integer>> getNonConstConfigVars() {
+    public ObservableList<CVar> getNonConstConfigVars() {
         return nonConstConfigVars;
     }
 
@@ -119,9 +119,9 @@ public class UPPAALModel implements Externalizable {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         topology = (UPPAALTopology) in.readObject();
         constConfigVars = FXCollections.observableArrayList();
-        constConfigVars.setAll((ArrayList<CVar<Integer>>) in.readObject());
+        constConfigVars.setAll((ArrayList<CVar>) in.readObject());
         nonConstConfigVars = FXCollections.observableArrayList();
-        nonConstConfigVars.setAll((ArrayList<CVar<Integer>>) in.readObject());
+        nonConstConfigVars.setAll((ArrayList<CVar>) in.readObject());
         templateUpdates = FXCollections.observableArrayList();
         templateUpdates.setAll((ArrayList<TemplateUpdate>) in.readObject());
         outputVars = FXCollections.observableArrayList();

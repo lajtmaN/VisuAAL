@@ -53,9 +53,9 @@ public class MainWindowController implements Initializable {
     @FXML private TextArea txtUppaalOutput;
     @FXML private TextField txtSimulationName;
     @FXML private TextArea queryGeneratedTextField;
-    @FXML private TableColumn<CVar<Integer>, String> columnName;
-    @FXML private TableColumn<CVar<Integer>, Integer> columnValue;
-    @FXML private TableColumn<CVar<Integer>, String> columnScope;
+    @FXML private TableColumn<CVar, String> columnName;
+    @FXML private TableColumn<CVar, String> columnValue;
+    @FXML private TableColumn<CVar, String> columnScope;
     @FXML private TableView constantsTable;
     @FXML private GridPane horizontalGrid;
     @FXML private TabPane tabPane;
@@ -140,14 +140,14 @@ public class MainWindowController implements Initializable {
     }
 
     private void initializeConstantTableValues() {
-        columnScope.setCellValueFactory(cell -> ((Callback<CVar<Integer>, StringProperty>) cellValue -> {
+        columnScope.setCellValueFactory(cell -> ((Callback<CVar, StringProperty>) cellValue -> {
             if (cellValue.getScope() == null)
                 return new SimpleStringProperty("Global");
             return cellValue.scopeProperty();
         }).call(cell.getValue()));
         columnName.setCellValueFactory(p -> p.getValue().nameProperty()); //Readonly, thus no CellFactory
         columnValue.setCellValueFactory(p -> p.getValue().valueProperty());
-        columnValue.setCellFactory(p -> new IntegerEditingCell());
+        columnValue.setCellFactory(p -> new IntegerStringEditingCell());
         columnValue.addEventHandler(TableColumn.CellEditEvent.ANY, p -> constantsChanged = true);
     }
 

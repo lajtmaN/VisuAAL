@@ -3,7 +3,6 @@ package parsers;
 import Model.CVar;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
-import Model.UPPAALVariable;
 import parsers.Declaration.VariableParser;
 
 import java.util.*;
@@ -77,27 +76,18 @@ public class CHandler {
         return groups;
     }
 
-    public static ArrayList<CVar<Integer>> getConfigVariables(String decls, String scope) {
-        ArrayList<CVar<Integer>> returnvals = new ArrayList<>();
-        ArrayList<UPPAALVariable> vars = VariableParser.getInstantiations(decls);
-        vars.removeIf(uppaalVariable -> !uppaalVariable.getName().startsWith(ConfigVariablePrefix));
-        for(UPPAALVariable var : vars){
-            int value;
-            try {
-                if(var.getType().equals("int") && var.getArraySizes().size() == 0) {
-                    value = Integer.parseInt(var.getValue());
-                    returnvals.add(new CVar<>(scope, var.getName(), value, var.getConst()));
-                }
-            } catch (NumberFormatException e) {}
-        }
-        return returnvals;
+    public static ArrayList<CVar> getConfigVariables(String decls, String scope) {
+        ArrayList<CVar> returnvars = VariableParser.getInstantiations(decls);
+        returnvars.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || !var.hasIntType() || var.isArrayType());
+        returnvars.forEach(var -> var.setScope(scope));
+        return returnvars;
     }
-    public static ArrayList<CVar<Integer>> getConfigVariables(HashMap<String, String> allDecls) {
-        ArrayList<CVar<Integer>> constantNames = new ArrayList<>();
+
+    public static ArrayList<CVar> getConfigVariables(HashMap<String, String> allDecls) {
+        ArrayList<CVar> constantNames = new ArrayList<>();
         for (String scopeKey : allDecls.keySet()) {
             constantNames.addAll(getConfigVariables(allDecls.get(scopeKey), scopeKey));
         }
-
         return constantNames;
     }
 
@@ -141,14 +131,14 @@ public class CHandler {
     }
 
 
-    public static int getSizeOfParam(String paramForProc, String globalDecls, List<CVar<Integer>> constants) {
+    public static int getSizeOfParam(String paramForProc, String globalDecls, List<CVar> constants) {
         String regex = TypedefRegex(paramForProc);
         String constantName = RegexHelper.getNthMatchedValueFromRegex(regex, globalDecls, 1);
         String optionalExpression = RegexHelper.getNthMatchedValueFromRegex(regex, globalDecls, 2);
 
-        Optional<CVar<Integer>> matchedConstant = constants.stream().filter(p -> p.getName().equals(constantName)).findFirst();
+        Optional<CVar> matchedConstant = constants.stream().filter(p -> p.getName().equals(constantName)).findFirst();
         if (matchedConstant.isPresent()) {
-            int constValue = matchedConstant.get().getValue();
+            int constValue = Integer.parseInt(matchedConstant.get().getValue());
 
             if (optionalExpression != null) {
                 String operator = RegexHelper.getFirstMatchedValueFromRegex("([*+-])", optionalExpression);
