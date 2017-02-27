@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?><nta>
 	<declaration>
 
+bool CONFIG_TEST_BOOLEAN = true;
+double CONFIG_TEST_DOUBLE = 0.5;
+
 const int NR_NODES_SQR_ROOT = 8, 
           CONFIG_NR_NODES = 36,
           CONFIG_NR_BEACON_SLOTS = 8,

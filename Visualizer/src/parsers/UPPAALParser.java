@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class UPPAALParser {
 
-    public static ArrayList<CVar<Integer>> getUPPAALConfigConstants(String uppaalFilename) {
+    public static ArrayList<CVar> getUPPAALConfigConstants(String uppaalFilename) {
         try {
             XmlHandler handler = new XmlHandler(uppaalFilename);
             return CHandler.getConfigVariables(handler.getAllDeclarations());
@@ -27,13 +27,15 @@ public class UPPAALParser {
         return null;
     }
 
-    public static void updateUPPAALConfigConstants(String uppaalFilename, Collection<CVar<Integer>> cvarsWithNewVal ) {
+    public static void updateUPPAALConfigConstants(String uppaalFilename, Collection<CVar> cvarsWithNewVal ) {
         try {
             XmlHandler handler = new XmlHandler(uppaalFilename);
             HashMap<String, String> newDecls = handler.getAllDeclarations();
-            for (CVar<Integer> cvar : cvarsWithNewVal) {
-                String updatedDecls = CHandler.updateIntConfigVar(cvar.getName(), cvar.getValue(), newDecls.get(cvar.getScope()));
-                newDecls.replace(cvar.getScope(), updatedDecls);
+            for (CVar cvar : cvarsWithNewVal) {
+                if(cvar.hasIntType()){
+                    String updatedDecls = CHandler.updateIntConfigVar(cvar.getName(), cvar.getValueAsInteger(), newDecls.get(cvar.getScope()));
+                    newDecls.replace(cvar.getScope(), updatedDecls);
+                }
             }
             handler.setDeclarations(newDecls);
         } catch (Exception e) {
@@ -60,7 +62,7 @@ public class UPPAALParser {
         return tempFile;
     }
 
-    public static ArrayList<OutputVariable> getUPPAALOutputVars(String uppaalFilePath, List<CVar<Integer>> constants) {
+    public static ArrayList<OutputVariable> getUPPAALOutputVars(String uppaalFilePath, List<CVar> constants) {
         try {
             ArrayList<OutputVariable> outVars = new ArrayList<>();
             HashMap<String, String> allDecls = new XmlHandler(uppaalFilePath).getAllDeclarations();
@@ -78,7 +80,7 @@ public class UPPAALParser {
         return new ArrayList<>();
     }
 
-    public static OutputVariable parseOutputVariableArray(String name, String scope, List<CVar<Integer>> constants) {
+    public static OutputVariable parseOutputVariableArray(String name, String scope, List<CVar> constants) {
         boolean inScope = scope != null && scope.length() > 0;
         String ArrayRegex = "(?:\\[(\\w+)\\])\\1*";
         String matchedConstantSize = RegexHelper.getFirstMatchedValueFromRegex(ArrayRegex, name);
@@ -110,7 +112,7 @@ public class UPPAALParser {
                 throw new IllegalArgumentException("Could not parse ouput variable with " + dimensionsInArray + " dimensions");
         }
 
-        Integer constantValue = constants.stream().filter(p -> p.getName().equals(matchedConstantSize)).findFirst().get().getValue();
+        Integer constantValue = constants.stream().filter(p -> p.getName().equals(matchedConstantSize)).findFirst().get().getValueAsInteger();
         variable.setVariableArraySize(constantValue);
         return variable;
     }
@@ -137,7 +139,7 @@ public class UPPAALParser {
         return 1;
     }
 
-    public static List<String> getUPPAALProcesses(String path, List<CVar<Integer>> constants) {
+    public static List<String> getUPPAALProcesses(String path, List<CVar> constants) {
         try {
             ArrayList<String> out = new ArrayList<>();
 
