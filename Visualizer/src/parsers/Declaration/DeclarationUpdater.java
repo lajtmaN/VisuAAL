@@ -6,6 +6,7 @@ import parsers.Declaration.ANTLRGenerated.uppaalBaseListener;
 import parsers.Declaration.ANTLRGenerated.uppaalParser;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by lajtman on 27-02-2017.
@@ -25,16 +26,18 @@ public class DeclarationUpdater extends uppaalBaseListener {
 
     public String updatedDeclaration() { return rewriter.getText(); }
 
-    private boolean shouldUpdate(String declName) {
-        return cvarsToUpdate.stream().anyMatch(p -> p.getName().equals(declName));
+    private Optional<CVar<Integer>> cvarToUpdate(String declName) {
+        return cvarsToUpdate.stream().filter(p -> p.getName().equals(declName)).findFirst();
     }
 
     @Override
     public void exitDeclId(uppaalParser.DeclIdContext ctx) {
-        //if (shouldUpdate(ctx.ID().getText())) {
-            Token declNameToken = ctx.getStart();
-            rewriter.replace(declNameToken, "TEST");
-        //}
+        String declName = ctx.ID().getText();
+        Optional<CVar<Integer>> cvar = cvarToUpdate(declName);
+        if (cvar.isPresent()) {
+            Token initializeToken = ctx.initialiser().getStart();
+            rewriter.replace(initializeToken, cvar.get().getValue());
+        }
     }
 
 
