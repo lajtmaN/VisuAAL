@@ -13,27 +13,27 @@ import java.util.Optional;
  */
 public class DeclarationUpdater extends uppaalBaseListener {
 
-    public DeclarationUpdater(CommonTokenStream tokens, List<CVar<Integer>> updatedCVars) {
+    public DeclarationUpdater(CommonTokenStream tokens, List<CVar> updatedCVars) {
         tokStream = tokens;
         rewriter = new TokenStreamRewriter(tokens);
 
         cvarsToUpdate = updatedCVars;
     }
 
-    private List<CVar<Integer>> cvarsToUpdate;
+    private List<CVar> cvarsToUpdate;
     private CommonTokenStream tokStream;
     private TokenStreamRewriter rewriter;
 
     public String updatedDeclaration() { return rewriter.getText(); }
 
-    private Optional<CVar<Integer>> cvarToUpdate(String declName) {
+    private Optional<CVar> cvarToUpdate(String declName) {
         return cvarsToUpdate.stream().filter(p -> p.getName().equals(declName)).findFirst();
     }
 
     @Override
     public void exitDeclId(uppaalParser.DeclIdContext ctx) {
         String declName = ctx.ID().getText();
-        Optional<CVar<Integer>> cvar = cvarToUpdate(declName);
+        Optional<CVar> cvar = cvarToUpdate(declName);
         if (cvar.isPresent()) {
             Token initializeToken = ctx.initialiser().getStart();
             rewriter.replace(initializeToken, cvar.get().getValue());

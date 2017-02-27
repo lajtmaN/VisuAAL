@@ -1,6 +1,6 @@
 package parsers.Declaration;
 
-import Model.UPPAALVariable;
+import Model.CVar;
 import org.antlr.v4.runtime.tree.ParseTree;
 import parsers.Declaration.ANTLRGenerated.uppaalBaseListener;
 import parsers.Declaration.ANTLRGenerated.uppaalParser;
@@ -12,12 +12,12 @@ import java.util.List;
  * Created by batto on 24-Feb-17.
  */
 public class VariableInstantiationReader extends uppaalBaseListener {
-    public ArrayList<UPPAALVariable> getVariables() {
+    public ArrayList<CVar> getVariables() {
         return variables;
     }
 
-    private ArrayList<UPPAALVariable> variables = new ArrayList<>();
-    private UPPAALVariable element = null;
+    private ArrayList<CVar> variables = new ArrayList<>();
+    private CVar element = null;
     private Boolean inVariableDecl = false;
     private String currentType = "";
     private Boolean currentlyConst= false;
@@ -25,13 +25,13 @@ public class VariableInstantiationReader extends uppaalBaseListener {
     @Override
     public void enterDeclId(uppaalParser.DeclIdContext ctx) {
         super.enterDeclId(ctx);
-        element = new UPPAALVariable();
+        element = new CVar();
     }
 
     @Override
     public void exitDeclId(uppaalParser.DeclIdContext ctx) {
         super.exitDeclId(ctx);
-        element.setConst(currentlyConst);
+        element.setIsConst(currentlyConst);
         element.setType(currentType);
         element.setName(ctx.ID().getText());
         if(ctx.initialiser() != null){

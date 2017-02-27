@@ -7,6 +7,7 @@ import com.sun.org.apache.xerces.internal.xni.XMLDTDHandler;
 import org.junit.Test;
 import Model.CVar;
 import org.xml.sax.SAXException;
+import scala.xml.XML;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -27,7 +28,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void getXmlDeclarationsTest() {
-        ArrayList<CVar<Integer>> vars = UPPAALParser.getUPPAALConfigConstants("mac_model_test.xml");
+        ArrayList<CVar> vars = UPPAALParser.getUPPAALConfigConstants("mac_model_test.xml");
 
         assertEquals(10, vars.size());
         assertGlobalCVar("CONFIG_NR_NODES", 36, vars.get(0));
@@ -48,7 +49,7 @@ public class ParseXmlAndCTests {
                 "dhj = 234;" +
                 "\n const int CONFIG_abe = 456," +
                 "abc_config_abc = 12;";
-        ArrayList<CVar<Integer>> vars = CHandler.getConfigVariables(declarations, null);
+        ArrayList<CVar> vars = CHandler.getConfigVariables(declarations, null);
 
         assertEquals(2, vars.size());
         assertGlobalCVar("CONFIG_abc", 123, vars.get(0));
@@ -60,15 +61,15 @@ public class ParseXmlAndCTests {
         XmlHandler handler = new XmlHandler("eksempel.xml");
         HashMap<String, String> declarations = handler.getAllDeclarations();
 
-        ArrayList<CVar<Integer>> globalConfigVariables = CHandler.getConfigVariables(declarations.get(null), null);
+        ArrayList<CVar> globalConfigVariables = CHandler.getConfigVariables(declarations.get(null), null);
         assertEquals(1, globalConfigVariables.size());
-        CVar<Integer> actualGlobalVar = globalConfigVariables.get(0);
+        CVar actualGlobalVar = globalConfigVariables.get(0);
 
         assertCVar(null, "CONFIG_global_test", 11, actualGlobalVar);
 
-        ArrayList<CVar<Integer>> localConfigVariables = CHandler.getConfigVariables(declarations.get("Template"), "Template");
+        ArrayList<CVar> localConfigVariables = CHandler.getConfigVariables(declarations.get("Template"), "Template");
         assertEquals(1, localConfigVariables.size());
-        CVar<Integer> actualLocalVar = localConfigVariables.get(0);
+        CVar actualLocalVar = localConfigVariables.get(0);
 
         assertCVar("Template", "CONFIG_local_test", 10, actualLocalVar);
     }
@@ -78,11 +79,11 @@ public class ParseXmlAndCTests {
         XmlHandler handler = new XmlHandler("eksempel.xml");
         HashMap<String, String> declarations = handler.getAllDeclarations();
 
-        ArrayList<CVar<Integer>> configVariables = CHandler.getConfigVariables(declarations);
+        ArrayList<CVar> configVariables = CHandler.getConfigVariables(declarations);
         assertEquals(2, configVariables.size());
 
-        assertTrue(configVariables.contains(new CVar<>(null, "CONFIG_global_test", 11, false)));
-        assertTrue(configVariables.contains(new CVar<>("Template", "CONFIG_local_test", 10, false)));
+        assertTrue(configVariables.contains(new CVar(null, "CONFIG_global_test", "11", false, "int")));
+        assertTrue(configVariables.contains(new CVar("Template", "CONFIG_local_test", "10", false,"int")));
     }
 
     @Test
@@ -90,8 +91,8 @@ public class ParseXmlAndCTests {
         String expected1 = "OUTPUT_data_is_scheduled";
         String expected2 = "OUTPUT_nr_node_relations";
 
-        ArrayList<CVar<Integer>> constants = new ArrayList<>();
-        constants.add(new CVar<>("CONFIG_NR_NODES", 2));
+        ArrayList<CVar> constants = new ArrayList<>();
+        constants.add(new CVar("CONFIG_NR_NODES", "2"));
         ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("mac_model_test.xml", constants);
 
         assertEquals(expected1, outputVars.get(0).getName());
@@ -100,7 +101,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseScopedOutputVariables() {
-        ArrayList<CVar<Integer>> constants = new ArrayList<>();
+        ArrayList<CVar> constants = new ArrayList<>();
         ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("RoutingWithPathTracking.xml", constants);
 
         assertEquals(3, outputVars.size());
@@ -124,7 +125,7 @@ public class ParseXmlAndCTests {
                 "          MAX_DATA_OFFSET = 63, // Multiplied later by 4 to get mS\n" +
                 "          DATA_INTERVAL = 1000,\n" +
                 "          DATA_DURATION = 1;";
-        ArrayList<CVar<Integer>> orginalVars = CHandler.getConfigVariables(decls,null);
+        ArrayList<CVar> orginalVars = CHandler.getConfigVariables(decls,null);
         assertEquals(2, orginalVars.size());
         assertGlobalCVar("CONFIG_NR_NODES_SQR_ROOT", 4, orginalVars.get(0));
         assertGlobalCVar("CONFIG_NR_NODES", 16, orginalVars.get(1));
@@ -132,7 +133,7 @@ public class ParseXmlAndCTests {
         //Update "XML" with new value to CONFIG_NR_NODES
         String actual = CHandler.updateIntConfigVar("CONFIG_NR_NODES", 300, decls);
 
-        ArrayList<CVar<Integer>> updatedVars = CHandler.getConfigVariables(actual, null);
+        ArrayList<CVar> updatedVars = CHandler.getConfigVariables(actual, null);
         assertEquals(2, updatedVars.size());
         assertGlobalCVar("CONFIG_NR_NODES_SQR_ROOT", 4, updatedVars.get(0));
         assertGlobalCVar("CONFIG_NR_NODES", 300, updatedVars.get(1));
@@ -142,40 +143,40 @@ public class ParseXmlAndCTests {
     @Test
     public void updateVariablesInXMLFile() throws IOException {
         File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
-        ArrayList<CVar<Integer>> orgConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
+        ArrayList<CVar> orgConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
         assertEquals(3, orgConfigs.size());
 
-        assertTrue(orgConfigs.contains(new CVar<>(null,"CONFIG_TESTING_CONSTANT", 1337)));
-        assertTrue(orgConfigs.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
-        assertTrue(orgConfigs.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
+        assertTrue(orgConfigs.contains(new CVar(null,"CONFIG_TESTING_CONSTANT", "1337", true,"int")));
+        assertTrue(orgConfigs.contains(new CVar("Template", "CONFIG_LOCAL", "123", true, "int")));
+        assertTrue(orgConfigs.contains(new CVar("Template2", "CONFIG_LOCAL2", "123", true, "int")));
 
 
         //Update value on config var
-        CVar<Integer> updatedCVar = orgConfigs.get(
-                orgConfigs.indexOf(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
-        updatedCVar.setValue(1000);
-        CVar<Integer> updatedLocalCVar = orgConfigs.get(
-                orgConfigs.indexOf(new CVar<>("Template", "CONFIG_LOCAL", 123)));
-        updatedLocalCVar.setValue(999);
+        CVar updatedCVar = orgConfigs.get(
+                orgConfigs.indexOf(new CVar(null, "CONFIG_TESTING_CONSTANT", "1337", true, "int")));
+        updatedCVar.setValue("1000");
+        CVar updatedLocalCVar = orgConfigs.get(
+                orgConfigs.indexOf(new CVar("Template", "CONFIG_LOCAL", "123", true, "int")));
+        updatedLocalCVar.setValue("999");
         UPPAALParser.updateUPPAALConfigConstants(f.getPath(), orgConfigs);
 
         //assert updated
-        ArrayList<CVar<Integer>> updatedConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
+        ArrayList<CVar> updatedConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
         assertEquals(3, updatedConfigs.size());
 
-        assertTrue(updatedConfigs.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1000)));
-        assertTrue(updatedConfigs.contains(new CVar<>("Template", "CONFIG_LOCAL", 999)));
-        assertTrue(updatedConfigs.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
+        assertTrue(updatedConfigs.contains(new CVar(null, "CONFIG_TESTING_CONSTANT", "1000", true, "int")));
+        assertTrue(updatedConfigs.contains(new CVar("Template", "CONFIG_LOCAL", "999", true, "int")));
+        assertTrue(updatedConfigs.contains(new CVar("Template2", "CONFIG_LOCAL2", "123", true, "int")));
     }
 
     @Test
     public void parseLocalConfigVarsInXMLFile() throws IOException {
         File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
-        ArrayList<CVar<Integer>> vars = UPPAALParser.getUPPAALConfigConstants(f.getPath());
+        ArrayList<CVar> vars = UPPAALParser.getUPPAALConfigConstants(f.getPath());
         assertEquals(3, vars.size());
-        assertTrue(vars.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
-        assertTrue(vars.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
-        assertTrue(vars.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
+        assertTrue(vars.contains(new CVar(null, "CONFIG_TESTING_CONSTANT", "1337", true, "int")));
+        assertTrue(vars.contains(new CVar("Template", "CONFIG_LOCAL", "123", true, "int")));
+        assertTrue(vars.contains(new CVar("Template2", "CONFIG_LOCAL2", "123", true, "int")));
     }
 
     @Test
@@ -183,13 +184,16 @@ public class ParseXmlAndCTests {
         File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
         UPPAALModel uppaalModel = new UPPAALModel(f.getPath());
         uppaalModel.load();
+        CVar expected1 = new CVar(null, "CONFIG_TESTING_CONSTANT", "1337", true, "int");
+        CVar expected2 = new CVar("Template", "CONFIG_LOCAL", "123", true, "int");
+        CVar expected3 = new CVar("Template2", "CONFIG_LOCAL2", "123", true, "int");
 
-        List<CVar<Integer>> vars = uppaalModel.getConstConfigVars();
+        List<CVar> vars = uppaalModel.getConstConfigVars();
 
         assertEquals(3, vars.size());
-        assertTrue(vars.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
-        assertTrue(vars.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
-        assertTrue(vars.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
+        assertTrue(vars.contains(expected1));
+        assertTrue(vars.contains(expected2));
+        assertTrue(vars.contains(expected3));
 
         File tmp = FileHelper.generateAutoDeletedTempFile("");
         uppaalModel.saveToPath(tmp.getPath());
@@ -197,12 +201,12 @@ public class ParseXmlAndCTests {
         UPPAALModel uppaalModel2 = new UPPAALModel(tmp.getPath());
         uppaalModel2.load();
 
-        List<CVar<Integer>> vars2 =uppaalModel2.getConstConfigVars();
+        List<CVar> vars2 =uppaalModel2.getConstConfigVars();
 
         assertEquals(3, vars2.size());
-        assertTrue(vars2.contains(new CVar<>(null, "CONFIG_TESTING_CONSTANT", 1337)));
-        assertTrue(vars2.contains(new CVar<>("Template", "CONFIG_LOCAL", 123)));
-        assertTrue(vars2.contains(new CVar<>("Template2", "CONFIG_LOCAL2", 123)));
+        assertTrue(vars2.contains(expected1));
+        assertTrue(vars2.contains(expected2));
+        assertTrue(vars2.contains(expected3));
     }
 
     @Test
@@ -267,14 +271,24 @@ public class ParseXmlAndCTests {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void getBoolAndDoubleGlobalVars() throws IOException, SAXException, ParserConfigurationException {
+        XmlHandler handler = new XmlHandler("mac_model_test.xml");
+        String globalDecls = handler.getGlobalDeclarations();
+        ArrayList<CVar> vars = CHandler.getConfigVariables(globalDecls, null);
 
-    private <T> void assertCVar(String expectedScope, String expectedName, T expectedVal, CVar<T> actual) {
-        assertEquals(expectedScope, actual.getScope());
-        assertEquals(expectedName, actual.getName());
-        assertEquals(expectedVal, actual.getValue());
+        /*assertGlobalCVar("CONFIG_TEST_BOOLEAN", true, vars.get(0));
+        assertGlobalCVar("CONFIG_TEST_DOUBLE", 0.5, vars.get(1));*/
     }
 
-    private <T> void assertGlobalCVar(String expectedName, T expectedVal, CVar<T> actual) {
+
+    private <T> void assertCVar(String expectedScope, String expectedName, T expectedVal, CVar actual) {
+        assertEquals(expectedScope, actual.getScope());
+        assertEquals(expectedName, actual.getName());
+        assertEquals(expectedVal.toString(), actual.getValue());
+    }
+
+    private <T> void assertGlobalCVar(String expectedName, T expectedVal, CVar actual) {
         assertCVar(null, expectedName, expectedVal, actual);
     }
 

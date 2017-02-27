@@ -38,14 +38,14 @@ public class DeclarationUpdaterTests {
         XmlHandler handler = new XmlHandler(f.getPath());
         String orgDecls = handler.getGlobalDeclarations();
 
-        ArrayList<CVar<Integer>> cvars = CHandler.getConfigVariables(orgDecls, null);
+        ArrayList<CVar> cvars = CHandler.getConfigVariables(orgDecls, null);
         assertNotNull(cvars);
         //update some of them
-        cvars.get(0).setValue(12345);
+        cvars.get(0).setValue("12345");
 
         String updatedDecls = VariableParser.updateAllDeclarations(orgDecls, cvars);
         assertNotNull(updatedDecls);
-        ArrayList<CVar<Integer>> newCvars = CHandler.getConfigVariables(updatedDecls, null);
+        ArrayList<CVar> newCvars = CHandler.getConfigVariables(updatedDecls, null);
         assertNotNull(newCvars);
 
         assertEquals(cvars.size(), newCvars.size());
