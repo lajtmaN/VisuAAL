@@ -1,12 +1,8 @@
 package Model;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import View.MainWindowController;
+import com.sun.org.apache.xalan.internal.xsltc.compiler.Template;
+import javafx.beans.property.*;
 
 import java.io.*;
 
@@ -14,13 +10,17 @@ import java.io.*;
  * Created by batto on 14-Feb-17.
  */
 public class TemplateUpdate implements Externalizable {
-    private IntegerProperty time,
-            theValue;
+    private IntegerProperty time;
+    private StringProperty variable, theValue;
 
+    private SimpleObjectProperty<TemplateUpdate> propertyInstance;
 
-    private StringProperty variable;
+    public SimpleObjectProperty<TemplateUpdate> getObjectProperty() {
+        return propertyInstance;
+    }
 
-    public TemplateUpdate(String variable, int value, int time) {
+    public TemplateUpdate(String variable, String value, int time) {
+        this();
         setVariable(variable);
         setTheValue(value);
         setTime(time);
@@ -28,8 +28,9 @@ public class TemplateUpdate implements Externalizable {
 
     public TemplateUpdate() {
         setVariable("");
-        setTheValue(0);
+        setTheValue("");
         setTime(0);
+        propertyInstance = new SimpleObjectProperty<>(this);
     }
 
     public int getTime() {
@@ -44,11 +45,11 @@ public class TemplateUpdate implements Externalizable {
         this.time = new SimpleIntegerProperty(time);
     }
 
-    public String getVariable() {
+    public String getVariableName() {
         return variable.get();
     }
 
-    public StringProperty variableProperty() {
+    public StringProperty variableNameProperty() {
         return variable;
     }
 
@@ -56,30 +57,31 @@ public class TemplateUpdate implements Externalizable {
         this.variable = new SimpleStringProperty(variable);
     }
 
-    public int getTheValue() {
+    public String getTheValue() {
         return theValue.get();
     }
 
-    public IntegerProperty theValueProperty() {
+    public StringProperty theValueProperty() {
         return theValue;
     }
 
-    public void setTheValue(int theValue) {
-        this.theValue = new SimpleIntegerProperty(theValue);
+    public void setTheValue(String theValue) {
+        this.theValue = new SimpleStringProperty(theValue);
     }
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeInt(getTime());
-        out.writeInt(getTheValue());
-        out.writeObject(getVariable());
+        out.writeObject(getTheValue());
+        out.writeObject(getVariableName());
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         setTime(in.readInt());
-        setTheValue(in.readInt());
+        setTheValue((String)in.readObject());
         setVariable((String)in.readObject());
+        propertyInstance = new SimpleObjectProperty<>(this);
     }
 
     @Override
@@ -89,16 +91,16 @@ public class TemplateUpdate implements Externalizable {
 
         TemplateUpdate that = (TemplateUpdate) o;
 
-        if (getTime() != that.getTime()) return false;
-        if (getTheValue() != that.getTheValue()) return false;
-        return getVariable() != null ? getVariable().equals(that.getVariable()) : that.getVariable() == null;
+        if (getTime()!=that.getTime()) return false;
+        if (getVariableName() != null ? !getVariableName().equals(that.getVariableName()) : that.getVariableName() != null) return false;
+        return getTheValue()!= null ? getTheValue().equals(that.getTheValue()) : that.getTheValue() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = time != null ? time.hashCode() : 0;
-        result = 31 * result + (theValue != null ? theValue.hashCode() : 0);
-        result = 31 * result + (variable != null ? variable.hashCode() : 0);
+        int result = getTime();
+        result = 31 * result + (getVariableName() != null ? getVariableName().hashCode() : 0);
+        result = 31 * result + (getTheValue() != null ? getTheValue().hashCode() : 0);
         return result;
     }
 }

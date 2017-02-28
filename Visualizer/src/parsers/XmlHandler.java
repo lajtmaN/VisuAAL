@@ -1,9 +1,6 @@
 package parsers;
 
-import Helpers.GUIHelper;
 import Model.TemplateUpdate;
-import View.MainWindowController;
-import javafx.stage.FileChooser;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -17,7 +14,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -223,7 +219,7 @@ public class XmlHandler {
             ((Element)label2).setAttribute("kind", "assignment");
             ((Element)label2).setAttribute("x", "20");
             ((Element)label2).setAttribute("y", String.valueOf(yPos + 30));
-            label2.setTextContent(templateUpdates.get(i).getVariable() + " = " + templateUpdates.get(i).getTheValue());
+            label2.setTextContent(templateUpdates.get(i).getVariableName() + " = " + templateUpdates.get(i).getTheValue());
             transition.appendChild(label2);
 
             yPos += 70;
@@ -300,7 +296,7 @@ public class XmlHandler {
         String[] guardParts = guard.replace(" ", "").split("==");
         String[] assigmentParts = assignment.replace(" ", "").split("=");
         return new TemplateUpdate(assigmentParts[0],
-                                  Integer.parseInt(assigmentParts[1]),
+                                  assigmentParts[1],
                                   Integer.parseInt(guardParts[1]));
     }
 }

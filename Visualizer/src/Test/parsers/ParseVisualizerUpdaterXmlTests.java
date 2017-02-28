@@ -23,10 +23,10 @@ public class ParseVisualizerUpdaterXmlTests {
 
         ArrayList<TemplateUpdate> updates = handler.getVisualizerUpdates();
 
-        TemplateUpdate expected0 = new TemplateUpdate("CONFIG_BCN_LOST_PROB", 10000, 10000);
-        TemplateUpdate expected1 = new TemplateUpdate("CONFIG_DATA_LOST_PROB", 10000, 10000);
-        TemplateUpdate expected2 = new TemplateUpdate("CONFIG_BCN_LOST_PROB", 1, 20000);
-        TemplateUpdate expected3 = new TemplateUpdate("CONFIG_DATA_LOST_PROB", 1, 20000);
+        TemplateUpdate expected0 = new TemplateUpdate("CONFIG_BCN_LOST_PROB", "10000", 10000);
+        TemplateUpdate expected1 = new TemplateUpdate("CONFIG_DATA_LOST_PROB", "10000", 10000);
+        TemplateUpdate expected2 = new TemplateUpdate("CONFIG_BCN_LOST_PROB", "1", 20000);
+        TemplateUpdate expected3 = new TemplateUpdate("CONFIG_DATA_LOST_PROB", "1", 20000);
 
         assertEquals(4, updates.size());
 
