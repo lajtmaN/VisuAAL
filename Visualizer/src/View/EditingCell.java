@@ -64,7 +64,6 @@ public class EditingCell<T, C> extends TableCell<T, C> {
     public void cancelEdit() {
         super.cancelEdit();
         setValueText(getItem().toString());
-        setGraphic(null);
-
+        //setGraphic(null);
     }
 }

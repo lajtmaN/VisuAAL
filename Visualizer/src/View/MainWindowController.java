@@ -4,16 +4,11 @@ import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.*;
 import Helpers.QueryGenerator;
-import com.sun.org.apache.xalan.internal.xsltc.compiler.Template;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.ObservableValueBase;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
@@ -26,7 +21,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -157,31 +151,10 @@ public class MainWindowController implements Initializable {
             return cellValue.scopeProperty();
         }).call(cell.getValue()));
 
-        /*dynColumnName.setCellValueFactory(p -> p.getValue().variableProperty());
-
-        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getNonConstConfigVarNames()));*/
-
         columnName.setCellValueFactory(p -> p.getValue().nameProperty()); //Readonly, thus no CellFactory
+
         columnValue.setCellValueFactory(p -> p.getValue().getObjectProperty());
-        columnValue.setCellFactory(new Callback<TableColumn<CVar, CVar>, TableCell<CVar, CVar>>() {
-            @Override
-            public TableCell<CVar, CVar> call(TableColumn<CVar, CVar> column) {
-                return new CVarValueEditingCell();
-            }
-        });
-        columnValue.addEventHandler(TableColumn.CellEditEvent.ANY, p -> constantsChanged = true);
-
-        /*columnValue.setCellFactory(new Callback<TableColumn<CVar, CVar>, TableCell<CVar, CVar>>() {
-            @Override
-            public TableCell<CVar, CVar> call(TableColumn<CVar, CVar> param) {
-                return new CVarValueEditingCell();
-            }
-        });
-*/
-    }
-
-    private TableCell<CVar, String> getTableColumnTableCellCallback(TableColumn<CVar, String> cell) {
-            return new TableCell();
+        columnValue.setCellFactory(column -> new CVarValueEditingCell());
     }
 
     private void initializeOutputVarsTable() {
@@ -230,10 +203,27 @@ public class MainWindowController implements Initializable {
     }
 
     public void saveModel(ActionEvent actionEvent) throws IOException, TransformerException, SAXException, ParserConfigurationException {
+        setConstantTableSaveOnUnFocus();
         File selectedFile = FileHelper.chooseSaveFile();
         if (selectedFile == null) return;
         uppaalModel.saveToPath(selectedFile.getPath());
         GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Model succesfully saved");
+    }
+
+    public void onLeaveConfigurationTab(Event event) {
+        Tab selectedTab = (event.getSource() instanceof Tab ? (Tab)event.getSource() : null);
+        if(selectedTab != null && !selectedTab.isSelected())
+            setConstantTableSaveOnUnFocus();
+    }
+
+    private void setConstantTableSaveOnUnFocus() {
+        constantsTable.requestFocus();
+        if(constantsChanged){
+            UPPAALParser.updateUPPAALConfigConstants(uppaalModel.getModelPath(), uppaalModel.getAllConfigVars());
+            //TODO reload appropriate views and update. Save stuff that should not be updated (i.e. selection in outputvars)
+            uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath(), uppaalModel.getAllConfigVars()));
+            constantsChanged = false;
+        }
     }
 
     private void loadSavedSimulation(File selectedFile) throws IOException, InterruptedException {
@@ -250,7 +240,7 @@ public class MainWindowController implements Initializable {
         }
         uppaalModel = new UPPAALModel(tempFile.getPath());
         uppaalModel.load();
-        constantsTable.setItems(uppaalModel.getConstConfigVars());
+        constantsTable.setItems(uppaalModel.getAllConfigVars());
         tableOutputVars.setItems(uppaalModel.getOutputVars());
         dynamicTable.setItems(uppaalModel.getTemplateUpdates());
     }
@@ -353,15 +343,5 @@ public class MainWindowController implements Initializable {
         AlertData alert = uppaalModel.saveTemplateUpdatesToXml();
         if(alert != null)
             alert.showAlert();
-    }
-
-    public void onLeaveConfigurationTab(Event event) {
-        Tab selectedTab = (event.getSource() instanceof Tab ? (Tab)event.getSource() : null);
-        if(selectedTab != null && !selectedTab.isSelected() && constantsChanged){
-            UPPAALParser.updateUPPAALConfigConstants(uppaalModel.getModelPath(), uppaalModel.getConstConfigVars());
-            //TODO reload appropriate views and update. Save stuff that should not be updated (i.e. selection in outputvars)
-            uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath(), uppaalModel.getConstConfigVars()));
-            constantsChanged = false;
-        }
     }
 }
