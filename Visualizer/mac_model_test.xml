@@ -4,6 +4,7 @@
 bool CONFIG_TEST_BOOLEAN = true;
 double CONFIG_TEST_DOUBLE = 0.5;
 
+
 const int NR_NODES_SQR_ROOT = 8, 
           CONFIG_NR_NODES = 36,
           CONFIG_NR_BEACON_SLOTS = 8,
@@ -1097,7 +1098,7 @@ own_sync_id = 0</label>
 			<nail x="0" y="-51"/>
 		</transition>
 	</template>
-	<system>system beacon_schedule, beacon_scan, send_data, receive_data, full_beacon_scan, initial_full_beacon_scan, synchronizer, visualizer_updater;</system>
+	<system>system beacon_schedule, beacon_scan, send_data, receive_data, full_beacon_scan, initial_full_beacon_scan, synchronizer, visualizer_updater_AUTO_GENERATED_DO_NOT_CHANGE;</system>
 	<queries>
 		<query>
 			<formula>E&lt;&gt; exists(i:id_t) i != 0 &amp;&amp; !connected_check(0, i) &amp;&amp; beacon_interval(0).received_beacon.id == i
