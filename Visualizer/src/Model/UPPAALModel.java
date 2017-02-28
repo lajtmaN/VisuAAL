@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class UPPAALModel implements Externalizable {
     private UPPAALTopology topology;
-    private ObservableList<CVar> constConfigVars;
+    private ObservableList<CVar> allConfigVars;
     private ObservableList<CVar> nonConstConfigVars;
     private ObservableList<TemplateUpdate> templateUpdates;
     private ObservableList<OutputVariable> outputVars;
@@ -37,11 +37,10 @@ public class UPPAALModel implements Externalizable {
     }
 
     public void load() {
-        ArrayList<CVar> allConfigVars = UPPAALParser.getUPPAALConfigConstants(modelPath);
-        constConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> p.getIsConst()).collect(Collectors.toList()));
+        allConfigVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALConfigConstants(modelPath));
         nonConstConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> !p.getIsConst()).collect(Collectors.toList()));
         topology = UPPAALParser.getUPPAALTopology(modelPath);
-        processes = UPPAALParser.getUPPAALProcesses(modelPath, constConfigVars);
+        processes = UPPAALParser.getUPPAALProcesses(modelPath, this.allConfigVars);
         modelTimeUnit = UPPAALParser.getModelTimeUnitConstant(modelPath);
         outputVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALOutputVars(modelPath, allConfigVars));
 
@@ -53,8 +52,8 @@ public class UPPAALModel implements Externalizable {
         return topology;
     }
 
-    public ObservableList<CVar> getConstConfigVars() {
-        return constConfigVars;
+    public ObservableList<CVar> getAllConfigVars() {
+        return allConfigVars;
     }
 
     public ObservableList<CVar> getNonConstConfigVars() {
@@ -107,7 +106,7 @@ public class UPPAALModel implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(topology);
-        out.writeObject(new ArrayList<>(constConfigVars));
+        out.writeObject(new ArrayList<>(allConfigVars));
         out.writeObject(new ArrayList<>(nonConstConfigVars));
         out.writeObject(new ArrayList<>(templateUpdates));
         out.writeObject(new ArrayList<>(outputVars));
@@ -118,8 +117,8 @@ public class UPPAALModel implements Externalizable {
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         topology = (UPPAALTopology) in.readObject();
-        constConfigVars = FXCollections.observableArrayList();
-        constConfigVars.setAll((ArrayList<CVar>) in.readObject());
+        allConfigVars = FXCollections.observableArrayList();
+        allConfigVars.setAll((ArrayList<CVar>) in.readObject());
         nonConstConfigVars = FXCollections.observableArrayList();
         nonConstConfigVars.setAll((ArrayList<CVar>) in.readObject());
         templateUpdates = FXCollections.observableArrayList();
@@ -166,7 +165,7 @@ public class UPPAALModel implements Externalizable {
         UPPAALModel that = (UPPAALModel) o;
 
         if (topology != null ? !topology.equals(that.topology) : that.topology != null) return false;
-        if (constConfigVars != null ? !constConfigVars.equals(that.constConfigVars) : that.constConfigVars != null) return false;
+        if (allConfigVars != null ? !allConfigVars.equals(that.allConfigVars) : that.allConfigVars != null) return false;
         if (nonConstConfigVars != null ? !nonConstConfigVars.equals(that.nonConstConfigVars) : that.nonConstConfigVars != null) return false;
         if (templateUpdates != null ? !templateUpdates.equals(that.templateUpdates) : that.templateUpdates != null) return false;
         if (outputVars != null ? !outputVars.equals(that.outputVars) : that.outputVars != null) return false;
@@ -177,7 +176,7 @@ public class UPPAALModel implements Externalizable {
     @Override
     public int hashCode() {
         int result = topology != null ? topology.hashCode() : 0;
-        result = 31 * result + (constConfigVars != null ? constConfigVars.hashCode() : 0);
+        result = 31 * result + (allConfigVars != null ? allConfigVars.hashCode() : 0);
         result = 31 * result + (nonConstConfigVars != null ? nonConstConfigVars.hashCode() : 0);
         result = 31 * result + (templateUpdates != null ? templateUpdates.hashCode() : 0);
         result = 31 * result + (outputVars != null ? outputVars.hashCode() : 0);

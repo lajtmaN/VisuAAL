@@ -158,7 +158,7 @@ public class ParseXmlAndCTests {
         CVar expected2 = new CVar("Template", "CONFIG_LOCAL", "123", true, "int");
         CVar expected3 = new CVar("Template2", "CONFIG_LOCAL2", "123", true, "int");
 
-        List<CVar> vars = uppaalModel.getConstConfigVars();
+        List<CVar> vars = uppaalModel.getAllConfigVars();
 
         assertEquals(3, vars.size());
         assertTrue(vars.contains(expected1));
@@ -171,7 +171,7 @@ public class ParseXmlAndCTests {
         UPPAALModel uppaalModel2 = new UPPAALModel(tmp.getPath());
         uppaalModel2.load();
 
-        List<CVar> vars2 =uppaalModel2.getConstConfigVars();
+        List<CVar> vars2 =uppaalModel2.getAllConfigVars();
 
         assertEquals(3, vars2.size());
         assertTrue(vars2.contains(expected1));

@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 public class RegexHelper {
     private static final String DataPointRegex = "\\((\\d+(?:\\.\\d+)?),(\\d+(?:\\.\\d+)?)\\)";
     private static final String SystemProcessesRegex = "^system\\s+(\\w+(?:\\s*,\\s*\\w+)*);";
+    private static final String intPattern = "^-?\\d+$",
+                                doublePattern = "^-?\\d+.\\d+$";
 
     public static String getFirstMatchedValueFromRegex(String regex, String text) {
         return getNthMatchedValueFromRegex(regex, text, 1);
@@ -48,5 +50,13 @@ public class RegexHelper {
             }
         }
         return matchedGroups;
+    }
+
+    public static boolean isValidInt(String intText) {
+        return getNthMatchedValueFromRegex(intPattern, intText, 0) != null;
+    }
+
+    public static boolean isValidDouble(String doubleText) {
+        return getNthMatchedValueFromRegex(doublePattern, doubleText, 0) != null;
     }
 }
