@@ -20,17 +20,14 @@ public class TemplateUpdate implements Externalizable {
     }
 
     public TemplateUpdate(String variable, String value, int time) {
-        this();
         setVariable(variable);
         setTheValue(value);
         setTime(time);
+        propertyInstance = new SimpleObjectProperty<>(this);
     }
 
     public TemplateUpdate() {
-        setVariable("");
-        setTheValue("");
-        setTime(0);
-        propertyInstance = new SimpleObjectProperty<>(this);
+        this("", "", 20);
     }
 
     public int getTime() {
@@ -42,7 +39,10 @@ public class TemplateUpdate implements Externalizable {
     }
 
     public void setTime(int time) {
-        this.time = new SimpleIntegerProperty(time);
+        if (this.time == null && time == 20)
+            this.time = new SimpleIntegerProperty();
+        else
+            this.time = new SimpleIntegerProperty(time);
     }
 
     public String getVariableName() {

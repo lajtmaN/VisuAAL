@@ -9,7 +9,23 @@ import java.util.regex.Pattern;
 public class IntegerEditingCell<T> extends EditingCell<T, Integer> {
     private final Pattern intPattern = Pattern.compile("-?\\d+");
 
-    public IntegerEditingCell() {  }
+    public IntegerEditingCell() {
+        fieldType = FieldType.INT_FIELD;
+    }
+
+    @Override
+    protected void updateItem(Integer item, boolean empty) {
+        super.updateItem(item, empty);
+
+        if (item == null || empty) {
+            setText(null);
+            setStyle("");
+            setGraphic(null);
+        } else {
+            setGraphic(textField);
+            setValueText(item.toString());
+        }
+    }
 
     @Override
     protected void processEdit() {
@@ -28,7 +44,6 @@ public class IntegerEditingCell<T> extends EditingCell<T, Integer> {
         if (value != null) {
             textField.setText(value.toString());
             setGraphic(textField);
-            setText(null);
         }
     }
 

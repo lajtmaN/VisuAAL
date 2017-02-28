@@ -46,14 +46,15 @@
          </content></Tab>
        <Tab closable="false" text="Dynamic Constants">
            <content>
-               <VBox alignment="CENTER">
-               <TableView fx:id="dynamicTable" editable="true" prefHeight="665.0" prefWidth="769.0">
+               <VBox alignment="TOP_CENTER">
+               <TableView fx:id="dynamicTable" editable="true" prefWidth="800.0">
                    <columns>
                        <TableColumn fx:id="dynColumnName" prefWidth="440" text="Variable" />
                        <TableColumn fx:id="dynColumnValue" text="New value" />
                        <TableColumn fx:id="dynColumnTime" text="Model time:" />
                    </columns>
                </TableView>
+                     <Button fx:id="btnAddDynamicUpdateRow" alignment="CENTER" mnemonicParsing="false" onAction="#btnAddDynamicUpdateRowClicked" text="Add new update" />
                    <Button mnemonicParsing="false" onAction="#addUpdates" text="Add Updates" />
                </VBox>
            </content>
