@@ -7,6 +7,9 @@ import javafx.scene.control.ButtonType;
  * Created by batto on 10-Feb-17.
  */
 public class GUIHelper {
+    public static void showInformation(String information) {
+        showAlert(Alert.AlertType.INFORMATION, information);
+    }
     public static void showAlert(Alert.AlertType alertType, String message) {
         showAlert(alertType, message, "");
     }

@@ -2,6 +2,7 @@ package Helpers;
 
 import View.MainWindowController;
 import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -59,5 +60,14 @@ public class FileHelper {
             return null;
         }
         return selectedFile;
+    }
+
+    public static File selectFileToLoad(Window window) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select UPPAAL model or simulation");
+        fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Simulation", "*.sim"));
+        return fileChooser.showOpenDialog(window);
     }
  }

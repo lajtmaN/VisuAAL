@@ -14,17 +14,6 @@ public class EditingCell<T, C> extends TableCell<T, C> {
     protected enum FieldType {UNKNOWN, INT_FIELD, BOOL_FIELD, DOUBLE_FIELD}
     protected FieldType fieldType = FieldType.UNKNOWN;
 
-    @Override
-    protected void updateItem(C item, boolean empty) {
-        super.updateItem(item, empty);
-
-        if(item != null) {
-            fieldType = FieldType.INT_FIELD;
-            setValueText(item.toString());
-            setGraphic(textField);
-        }
-    }
-
     public EditingCell() {
         super();
         textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
@@ -65,15 +54,14 @@ public class EditingCell<T, C> extends TableCell<T, C> {
             if (correspondingVar.hasIntType() || correspondingVar.hasDoubleType()){
                 fieldType = correspondingVar.hasIntType() ? FieldType.INT_FIELD : FieldType.DOUBLE_FIELD;
                 setValueText(correspondingVar.getValue());
-                setGraphic(textField);
             } else if (correspondingVar.hasBoolType()) {
                 fieldType = FieldType.BOOL_FIELD;
                 setValueText(correspondingVar.getValue());
-                setGraphic(comboBox);
             } else {
                 setValueText("N/A");
-                setGraphic(null);
             }
+
+            setCorrectGraphic();
         } else {
             setValueText(null);
             setGraphic(null);
@@ -83,18 +71,24 @@ public class EditingCell<T, C> extends TableCell<T, C> {
     protected void processEdit() { }
 
     @Override
-    public void commitEdit(C value) {
-        super.commitEdit(value);
-    }
-
-    @Override
-    public void startEdit() {
-        super.startEdit();
-    }
-
-    @Override
     public void cancelEdit() {
         super.cancelEdit();
-        setValueText(getItem().toString());
+        if (getItem() != null)
+            setValueText(getItem().toString());
+    }
+
+    protected void setCorrectGraphic() {
+        switch (fieldType) {
+            case BOOL_FIELD:
+                setGraphic(comboBox);
+                break;
+            case INT_FIELD:
+            case DOUBLE_FIELD:
+                setGraphic(textField);
+                break;
+            default:
+                setGraphic(null);
+                break;
+        }
     }
 }
