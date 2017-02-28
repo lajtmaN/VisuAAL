@@ -9,6 +9,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
@@ -32,7 +33,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import javafx.util.Pair;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.xml.sax.SAXException;
@@ -70,7 +70,7 @@ public class MainWindowController implements Initializable {
     @FXML private TextField txtQuerySimulations;
     @FXML private TableView<TemplateUpdate> dynamicTable;
     @FXML private TableColumn<TemplateUpdate, String> dynColumnName;
-    @FXML private TableColumn<TemplateUpdate, Integer> dynColumnValue;
+    @FXML private TableColumn<TemplateUpdate, TemplateUpdate> dynColumnValue;
     @FXML private TableColumn<TemplateUpdate, Integer> dynColumnTime;
     @FXML private Tab configurationTab;
     @FXML private Button saveModelButton;
@@ -96,11 +96,11 @@ public class MainWindowController implements Initializable {
     }
 
     private void initializeDynamicTable() {
-        dynColumnName.setCellValueFactory(p -> p.getValue().variableProperty());
-        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getNonConstConfigVarNames()));
+        dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
+        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
 
-        dynColumnValue.setCellValueFactory(p -> p.getValue().theValueProperty().asObject());
-        dynColumnValue.setCellFactory(p -> new IntegerEditingCell());
+        dynColumnValue.setCellValueFactory(p -> p.getValue().getObjectProperty());
+        dynColumnValue.setCellFactory(p -> new TemplateUpdateValueEditingCell());
 
         dynColumnTime.setCellValueFactory(p -> p.getValue().timeProperty().asObject());
         dynColumnTime.setCellFactory(p -> new IntegerEditingCell());
@@ -110,7 +110,7 @@ public class MainWindowController implements Initializable {
                     public void handle(MouseEvent event) {
                         if(event.getButton() == MouseButton.PRIMARY) {
                             TemplateUpdate last = uppaalModel.getTemplateUpdates().get(uppaalModel.getTemplateUpdates().size()-1);
-                            if(last.getVariable() != "")
+                            if(last.getVariableName() != "")
                                 uppaalModel.addEmptyTemplateUpdate();
                         }
                     }
@@ -339,5 +339,8 @@ public class MainWindowController implements Initializable {
         AlertData alert = uppaalModel.saveTemplateUpdatesToXml();
         if(alert != null)
             alert.showAlert();
+    }
+    public ObservableList<CVar> getNonConstConfigVars(){
+        return uppaalModel.getNonConstConfigVars();
     }
 }

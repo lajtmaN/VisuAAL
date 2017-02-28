@@ -15,24 +15,7 @@ public class CVarValueEditingCell extends EditingCell<CVar, CVar> {
     @Override
     protected void updateItem(CVar item, boolean empty) {
         super.updateItem(item, empty);
-
-        if (item != null) {
-            if (item.hasIntType() || item.hasDoubleType()){
-                fieldType = item.hasIntType() ? FieldType.INT_FIELD : FieldType.DOUBLE_FIELD;
-                setValueText(item.getValue());
-                setGraphic(textField);
-            } else if (item.hasBoolType()) {
-                fieldType = FieldType.BOOL_FIELD;
-                setValueText(item.getValue());
-                setGraphic(comboBox);
-            } else {
-                setValueText("N/A");
-                setGraphic(null);
-            }
-        } else {
-            setValueText(null);
-            setGraphic(null);
-        }
+        handleVariableTypes(item);
     }
 
     @Override

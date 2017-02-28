@@ -24,7 +24,7 @@ public class TemplateUpdatesTests {
         String uppaalPath = f.getPath();
         UPPAALModel uppaalModel = new UPPAALModel(uppaalPath);
         uppaalModel.load();
-        uppaalModel.getTemplateUpdates().add(new TemplateUpdate("test", 17, 21));
+        uppaalModel.getTemplateUpdates().add(new TemplateUpdate("test", "17", 21));
 
         XmlHandler handler = new XmlHandler(uppaalPath);
 
@@ -35,7 +35,7 @@ public class TemplateUpdatesTests {
         assertEquals(8, handler.getTemplateCount());
         assertEquals(true, handler.existVisualizerTemplate());
 
-        uppaalModel.getTemplateUpdates().add(new TemplateUpdate("test2", 21, 37));
+        uppaalModel.getTemplateUpdates().add(new TemplateUpdate("test2", "21", 37));
 
         handler.addTemplateUpdatesToModel(uppaalModel.getTemplateUpdates());
 

@@ -60,7 +60,7 @@ public class UPPAALModel implements Externalizable {
         return nonConstConfigVars;
     }
 
-    public ObservableList<String> getNonConstConfigVarNames() {
+    public ObservableList<String> getDynamicTemplateVarNames() {
         return FXCollections.observableArrayList(nonConstConfigVars.stream().map(p -> p.getName()).collect(Collectors.toList()));
     }
 
@@ -134,7 +134,7 @@ public class UPPAALModel implements Externalizable {
     }
 
     public AlertData saveTemplateUpdatesToXml() {
-        List<TemplateUpdate> updates = templateUpdates.stream().filter(p -> p.getVariable().length() > 0).collect(Collectors.toList());
+        List<TemplateUpdate> updates = templateUpdates.stream().filter(p -> p.getVariableName().length() > 0).collect(Collectors.toList());
         if (updates.size() != 0) {
             updates.sort((o1, o2) -> Integer.compare(o1.getTime(), o2.getTime()));
 

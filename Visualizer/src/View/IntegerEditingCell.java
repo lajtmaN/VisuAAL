@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class IntegerEditingCell<T> extends EditingCell<T, Integer> {
     private final Pattern intPattern = Pattern.compile("-?\\d+");
 
-    public IntegerEditingCell() { }
+    public IntegerEditingCell() {  }
 
     @Override
     protected void processEdit() {

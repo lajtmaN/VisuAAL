@@ -1,5 +1,6 @@
 package View;
 
+import Model.CVar;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
@@ -12,6 +13,17 @@ public class EditingCell<T, C> extends TableCell<T, C> {
     protected ComboBox comboBox = new ComboBox();
     protected enum FieldType {UNKNOWN, INT_FIELD, BOOL_FIELD, DOUBLE_FIELD}
     protected FieldType fieldType = FieldType.UNKNOWN;
+
+    @Override
+    protected void updateItem(C item, boolean empty) {
+        super.updateItem(item, empty);
+
+        if(item != null) {
+            fieldType = FieldType.INT_FIELD;
+            setValueText(item.toString());
+            setGraphic(textField);
+        }
+    }
 
     public EditingCell() {
         super();
@@ -48,6 +60,26 @@ public class EditingCell<T, C> extends TableCell<T, C> {
         }
     }
 
+    protected void handleVariableTypes(CVar correspondingVar) {
+        if (correspondingVar != null) {
+            if (correspondingVar.hasIntType() || correspondingVar.hasDoubleType()){
+                fieldType = correspondingVar.hasIntType() ? FieldType.INT_FIELD : FieldType.DOUBLE_FIELD;
+                setValueText(correspondingVar.getValue());
+                setGraphic(textField);
+            } else if (correspondingVar.hasBoolType()) {
+                fieldType = FieldType.BOOL_FIELD;
+                setValueText(correspondingVar.getValue());
+                setGraphic(comboBox);
+            } else {
+                setValueText("N/A");
+                setGraphic(null);
+            }
+        } else {
+            setValueText(null);
+            setGraphic(null);
+        }
+    }
+
     protected void processEdit() { }
 
     @Override
@@ -64,6 +96,5 @@ public class EditingCell<T, C> extends TableCell<T, C> {
     public void cancelEdit() {
         super.cancelEdit();
         setValueText(getItem().toString());
-        //setGraphic(null);
     }
 }
