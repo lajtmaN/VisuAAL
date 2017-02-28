@@ -140,10 +140,6 @@ public class MainWindowController implements Initializable {
         tableOutputVars.prefWidthProperty().bind(rootElement.widthProperty());
     }
 
-    private Pair<String, Object> pair(String name, Object value) {
-        return new Pair<>(name, value);
-    }
-
     private void initializeConstantTableValues() {
         columnScope.setCellValueFactory(cell -> ((Callback<CVar, StringProperty>) cellValue -> {
             if (cellValue.getScope() == null)
