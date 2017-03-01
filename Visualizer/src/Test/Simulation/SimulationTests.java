@@ -4,13 +4,14 @@ import Helpers.FileHelper;
 import Model.Simulation;
 import Model.SimulationEdgePoint;
 import Model.UPPAALModel;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -20,9 +21,13 @@ import static org.junit.Assert.assertTrue;
  */
 public class SimulationTests  {
 
+    private String generateTempSimFileForTest() {
+        return "TMP_" + Long.toHexString(Double.doubleToLongBits(Math.random()));
+    }
+
     @Test
     public void testSerializeAndDeserialize(){
-        String filePath = Long.toHexString(Double.doubleToLongBits(Math.random()));
+        String filePath = generateTempSimFileForTest();
 
         UPPAALModel model = new UPPAALModel("topologytest.xml");
         model.load();
@@ -41,13 +46,12 @@ public class SimulationTests  {
 
         File file = new File(FileHelper.simulationFileName(filePath));
         assertTrue(file.delete());
-
     }
 
     @Test
     public void testSaveSimulationAndLoadSimulationOfDeletedModel() throws IOException {
-        String simulationFileName = Long.toHexString(Double.doubleToLongBits(Math.random()));
-        String uppaalModelFile = Long.toHexString(Double.doubleToLongBits(Math.random())) + ".xml";
+        String simulationFileName = generateTempSimFileForTest();
+        String uppaalModelFile = generateTempSimFileForTest() + ".xml";
         Files.copy(new File("topologytest.xml").toPath(), new File(uppaalModelFile).toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         //Create simulation
@@ -95,4 +99,5 @@ public class SimulationTests  {
             assertEquals(points.get(i), sim.getRun().get(i));
         }
     }
+
 }

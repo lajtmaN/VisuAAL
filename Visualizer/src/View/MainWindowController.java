@@ -93,12 +93,13 @@ public class MainWindowController implements Initializable {
         tabPane.setVisible(false);
         simulationProgress.setVisible(false);
         instance = this;
+        initializeConstantTableValues();
+        initializeOutputVarsTable();
+        initializeWidths();
+        initializeDynamicTable();
     }
 
     private void initializeDynamicTable() {
-        dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
-        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
-
         dynColumnValue.setCellValueFactory(p -> p.getValue().getObjectProperty());
         dynColumnValue.setCellFactory(p -> new TemplateUpdateValueEditingCell());
 
@@ -108,7 +109,7 @@ public class MainWindowController implements Initializable {
         dynamicTable.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                if (event.getCode() == KeyCode.DELETE && uppaalModel.getTemplateUpdates().size() > 1){
+                if (event.getCode() == KeyCode.DELETE && uppaalModel.getTemplateUpdates().size() > 0){
                     uppaalModel.getTemplateUpdates().remove(dynamicTable.getSelectionModel().getSelectedItem());
                     dynamicTable.getSelectionModel().selectNext();
                 }
@@ -151,31 +152,46 @@ public class MainWindowController implements Initializable {
         tableOutputVars.setSelectionModel(null);
     }
 
+    private void initializeWithLoadedModel() {
+        dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
+        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
+
+        tabPane.setVisible(true);
+    }
+
+    private void resetGUI() {
+        Control[] controlsToReset = new Control[]{
+                txtUppaalOutput, txtQuerySimulations, txtQueryTimeBound,
+                txtSimulationName, queryGeneratedTextField,
+                constantsTable, dynamicTable, tableOutputVars
+        };
+
+        for (Control ctrl : controlsToReset) {
+            if (ctrl instanceof TextInputControl)
+                ((TextInputControl)ctrl).setText("");
+            if (ctrl instanceof TableView)
+                ((TableView)ctrl).getItems().clear();
+        }
+    }
+
     public void loadModel(ActionEvent actionEvent) throws IOException, InterruptedException {
-        constantsTable.getItems().clear();
         File selectedFile = FileHelper.selectFileToLoad(rootElement.getScene().getWindow());
-        if (selectedFile == null)
+        if (selectedFile == null || !selectedFile.exists() || !selectedFile.isFile())
             return;
 
-        if (selectedFile.exists() && selectedFile.isFile()) {
-            switch (FileHelper.getExtension(selectedFile.getName())) {
-                case ".xml":
-                    loadNewModel(selectedFile);
-                    saveModelButton.setVisible(true);
-                    break;
-                case ".sim":
-                    loadSavedSimulation(selectedFile);
-                    break;
-                default:
-                    throw new IllegalArgumentException(selectedFile.getName() + " could not be used");
-            }
-
-            tabPane.setVisible(true);
-            initializeConstantTableValues();
-            initializeOutputVarsTable();
-            initializeWidths();
-            initializeDynamicTable();
+        resetGUI();
+        switch (FileHelper.getExtension(selectedFile.getName())) {
+            case ".xml":
+                loadNewModel(selectedFile);
+                saveModelButton.setVisible(true);
+                break;
+            case ".sim":
+                loadSavedSimulation(selectedFile);
+                break;
+            default:
+                throw new IllegalArgumentException(selectedFile.getName() + " could not be used");
         }
+        initializeWithLoadedModel();
     }
 
     public void saveModel(ActionEvent actionEvent) throws IOException, TransformerException, SAXException, ParserConfigurationException {
@@ -183,7 +199,7 @@ public class MainWindowController implements Initializable {
         File selectedFile = FileHelper.chooseSaveFile();
         if (selectedFile == null) return;
         uppaalModel.saveToPath(selectedFile.getPath());
-        GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Model succesfully saved");
+        GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Model successfully saved");
     }
 
     public void onLeaveConfigurationTab(Event event) {
