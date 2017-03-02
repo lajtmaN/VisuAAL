@@ -3,6 +3,7 @@ package parsers;
 import Helpers.FileHelper;
 import Model.OutputVariable;
 import Model.UPPAALModel;
+import org.junit.Ignore;
 import org.junit.Test;
 import Model.CVar;
 import org.xml.sax.SAXException;
@@ -13,9 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 /**
@@ -248,8 +247,19 @@ public class ParseXmlAndCTests {
         String globalDecls = handler.getGlobalDeclarations();
         ArrayList<CVar> vars = CHandler.getConfigVariables(globalDecls, null);
 
-        /*assertGlobalCVar("CONFIG_TEST_BOOLEAN", true, vars.get(0));
-        assertGlobalCVar("CONFIG_TEST_DOUBLE", 0.5, vars.get(1));*/
+        assertGlobalCVar("CONFIG_TEST_BOOLEAN", true, vars.get(0));
+        assertGlobalCVar("CONFIG_TEST_DOUBLE", 0.5, vars.get(1));
+    }
+
+    @Test
+    public void doNotParseFunctionVariables() throws IOException, ParserConfigurationException, SAXException {
+        File f = FileHelper.copyFileIntoTempFile(new File("eksempel.xml"));
+
+        XmlHandler handler = new XmlHandler(f.getPath());
+        ArrayList<CVar> vars = CHandler.getConfigVariables(handler.getAllDeclarations());
+
+        assertFalse(vars.stream().anyMatch(p -> p.getName().equals("CONFIG_do_not_parse")));
+        assertFalse(vars.stream().anyMatch(p -> p.getName().equals("CONFIG_do_not_read")));
     }
 
 

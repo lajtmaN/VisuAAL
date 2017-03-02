@@ -4,11 +4,18 @@
 	<declaration>// Place global declarations here.
 int CONFIG_global_test = 11;
 clock x;
+void Bar() {
+	int CONFIG_do_not_parse = 0;
+}	
 </declaration>
 	<template>
 		<name x="5" y="5">Template</name>
 		<declaration>// Place local declarations here.
-		int CONFIG_local_test = 10;</declaration>
+		int CONFIG_local_test = 10;
+		void Foo() {
+			int CONFIG_do_not_read = 0;
+		}
+	</declaration>
 		<location id="id0" x="161" y="136">
 			<name x="151" y="102">s5</name>
 		</location>
