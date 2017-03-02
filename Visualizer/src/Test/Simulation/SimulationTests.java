@@ -4,14 +4,12 @@ import Helpers.FileHelper;
 import Model.Simulation;
 import Model.SimulationEdgePoint;
 import Model.UPPAALModel;
-import org.junit.AfterClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

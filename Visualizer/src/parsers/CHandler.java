@@ -1,21 +1,19 @@
 package parsers;
 
 import Model.CVar;
+import Model.OutputVariable;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 import parsers.Declaration.VariableParser;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class CHandler {
     private static final String ConfigVariablePrefix = "CONFIG_";
+    private static final String OutputVariablePrefix = "OUTPUT_";
     private static final String TopologyRegex = "CONFIG_connected\\[.+\\n((?:[^;])+)\\};";
     private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
-    private static final String OutputVarsRegex = "int\\s+(OUTPUT_(?:\\w)+(?:\\s*\\[\\w+\\])*)";
-    private static final String ConfigDeclarationRegex(String type) {
-        return "(const\\s)?" + type + "(\\s)*((\\w)*(\\s)*=[\\d\\w*+\\-/%\\s,]*)+;"; }
     private static final String TypedefRegex(String typedefName) {
         return "typedef\\s+int\\s+\\[\\s*0,\\s*(CONFIG_\\w+)([*+-]\\d+)?\\]\\s+" + typedefName;
     }
@@ -33,6 +31,64 @@ public class CHandler {
             constantNames.addAll(getConfigVariables(allDecls.get(scopeKey), scopeKey));
         }
         return constantNames;
+    }
+
+    public static ArrayList<OutputVariable> getOutputVars(HashMap<String, String> declarations) {
+        ArrayList<OutputVariable> outputVariables = new ArrayList<>();
+        for (String scopeKey : declarations.keySet()) {
+            outputVariables.addAll(getOutputVars(declarations.get(scopeKey), scopeKey));
+        }
+        return outputVariables;
+    }
+
+    public static List<OutputVariable> getOutputVars(String decls, String scope) {
+        ArrayList<CVar> returnvars = VariableParser.getInstantiations(decls);
+        ArrayList<CVar> constants = new ArrayList<>(returnvars);
+        constants.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || var.isArrayType());
+        constants.forEach(var -> var.setScope(scope));
+        returnvars.removeIf(var -> !var.getName().startsWith(OutputVariablePrefix));
+        returnvars.removeIf(var -> !var.hasIntType()); // TODO OUTPUT variables are limited to int only right now
+
+        return returnvars.stream().map(p -> parseOutputVariableArray(p, constants)).collect(Collectors.toList());
+    }
+
+    public static OutputVariable parseOutputVariableArray(CVar parsedUppaalVariable, List<CVar> constants) {
+        boolean inTemplateScope = parsedUppaalVariable.getScope() != null && parsedUppaalVariable.getScope().length() > 0;
+
+        if (!parsedUppaalVariable.isArrayType()) {
+            if (!inTemplateScope)
+                return new OutputVariable(parsedUppaalVariable.getName());
+            else {
+                OutputVariable outputVariable = new OutputVariable(parsedUppaalVariable.getName(), parsedUppaalVariable.getScope());
+                outputVariable.setNodeData(true);
+                return outputVariable;
+            }
+        }
+
+        OutputVariable variable = new OutputVariable(parsedUppaalVariable.getName(), parsedUppaalVariable.getScope());
+        int dimensionsInArray = parsedUppaalVariable.getArraySizes().size();
+
+        if (inTemplateScope)
+            dimensionsInArray++;
+
+        switch (dimensionsInArray) {
+            case 1:
+                variable.setNodeData(true);
+                break;
+            case 2:
+                variable.setEdgeData(true);
+                break;
+            default:
+                throw new IllegalArgumentException("Could not parse ouput variable with " + dimensionsInArray + " dimensions");
+        }
+
+        String constantWithArraySize = parsedUppaalVariable.getArraySizes().get(0); //TODO always assumes quadratic arrays
+        Optional<CVar> matchedConstant = constants.stream().filter(c -> c.getName().equals(constantWithArraySize)).findFirst();
+        if (!matchedConstant.isPresent())
+            throw new IllegalArgumentException("An output variable array was defined with a Config parameter that was not found");
+
+        variable.setVariableArraySize(matchedConstant.get().getValueAsInteger());
+        return variable;
     }
 
     public static UPPAALTopology getTopology(String decls){
@@ -60,20 +116,6 @@ public class CHandler {
         }
         return result;
     }
-
-    public static ArrayList<String> getOutputVars(String declarations) {
-        Pattern pVar = Pattern.compile(OutputVarsRegex);
-        ArrayList<String> vars = new ArrayList<>();
-
-        Matcher mName = pVar.matcher(declarations);
-
-        while(mName.find()) {
-            vars.add(mName.group(1));
-        }
-
-        return vars;
-    }
-
 
     public static int getSizeOfParam(String paramForProc, String globalDecls, List<CVar> constants) {
         String regex = TypedefRegex(paramForProc);
