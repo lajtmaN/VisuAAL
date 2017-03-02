@@ -61,11 +61,7 @@ public class TemplateUpdateValueEditingCell extends EditingCell<TemplateUpdate, 
         TemplateUpdate value = getItem();
         if (value != null) {
             setValueText(value.getTheValue());
-            if(fieldType == FieldType.BOOL_FIELD)
-                setGraphic(comboBox);
-            else {
-                setGraphic(textField);
-            }
+            setCorrectGraphic();
         }
     }
 
