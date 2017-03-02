@@ -5,13 +5,14 @@ import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CVar implements Externalizable {
     private StringProperty scope;
     private StringProperty name;
     private StringProperty value;
     private BooleanProperty isConst;
-    private ArrayList<String> arraySizes;
+    private List<String> arraySizes;
     private String type;
     private SimpleObjectProperty<CVar> propertyInstance;
 
@@ -19,11 +20,11 @@ public class CVar implements Externalizable {
         return propertyInstance;
     }
 
-    public ArrayList<String> getArraySizes() {
+    public List<String> getArraySizes() {
         return arraySizes;
     }
 
-    public void setArraySizes(ArrayList<String> arraySizes) {
+    public void setArraySizes(List<String> arraySizes) {
         this.arraySizes = arraySizes;
     }
 

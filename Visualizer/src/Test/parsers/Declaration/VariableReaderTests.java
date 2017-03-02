@@ -8,6 +8,7 @@ import parsers.XmlHandler;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -38,7 +39,7 @@ public class VariableReaderTests {
         expectedDataIsScheduled.getArraySizes().add("CONFIG_NR_NODES");
         assertEquals(expectedDataIsScheduled, vars.get(++i));
 
-        ArrayList<String> arraySizes = vars.get(i).getArraySizes();
+        List<String> arraySizes = vars.get(i).getArraySizes();
         int size = arraySizes.size();
         assertEquals(2, size);
         for (String arraySize : arraySizes) {
