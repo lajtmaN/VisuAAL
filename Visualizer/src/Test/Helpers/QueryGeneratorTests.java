@@ -107,7 +107,18 @@ public class QueryGeneratorTests {
     }
 
     @Test
-    public void testParseScopedOuputVariable() {
+    public void testParseOutputVariableInLocalScope() {
+        String expectedName = "OUTPUT_data";
+
+        OutputVariable actual = CHandler.parseOutputVariableArray(createTestCVar(expectedName, "Node"), new ArrayList<>());
+
+        assertEquals(expectedName, actual.getName());
+        assertFalse(actual.getIsEdgeData());
+        assertTrue(actual.getIsNodeData());  //true because local scope variable
+    }
+
+    @Test
+    public void testParseScopedOutputVariable() {
         String expectedName = "OUTPUT_data";
         int expectedSize = 12;
 
