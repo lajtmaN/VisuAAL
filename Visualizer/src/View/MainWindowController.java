@@ -93,39 +93,25 @@ public class MainWindowController implements Initializable {
         tabPane.setVisible(false);
         simulationProgress.setVisible(false);
         instance = this;
+        initializeConstantTableValues();
+        initializeOutputVarsTable();
+        initializeWidths();
+        initializeDynamicTable();
     }
 
     private void initializeDynamicTable() {
-        dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
-        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
-
         dynColumnValue.setCellValueFactory(p -> p.getValue().getObjectProperty());
         dynColumnValue.setCellFactory(p -> new TemplateUpdateValueEditingCell());
 
         dynColumnTime.setCellValueFactory(p -> p.getValue().timeProperty().asObject());
         dynColumnTime.setCellFactory(p -> new IntegerEditingCell());
 
-        dynamicTable.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        if(event.getButton() == MouseButton.PRIMARY) {
-                            TemplateUpdate last = uppaalModel.getTemplateUpdates().get(uppaalModel.getTemplateUpdates().size()-1);
-                            if(last.getVariableName() != "")
-                                uppaalModel.addEmptyTemplateUpdate();
-                        }
-                    }
-                }
-        );
-
         dynamicTable.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                if (event.getCode() == KeyCode.DELETE && uppaalModel.getTemplateUpdates().size() > 1){
-                    TemplateUpdate focusedItem = dynamicTable.getFocusModel().getFocusedItem();
-                    uppaalModel.getTemplateUpdates().remove(focusedItem);
-                }
-                if (event.getCode() == KeyCode.TAB){
-
+                if (event.getCode() == KeyCode.DELETE && uppaalModel.getTemplateUpdates().size() > 0){
+                    uppaalModel.getTemplateUpdates().remove(dynamicTable.getSelectionModel().getSelectedItem());
+                    dynamicTable.getSelectionModel().selectNext();
                 }
             }
         });
@@ -166,36 +152,46 @@ public class MainWindowController implements Initializable {
         tableOutputVars.setSelectionModel(null);
     }
 
+    private void initializeWithLoadedModel() {
+        dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
+        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
+
+        tabPane.setVisible(true);
+    }
+
+    private void resetGUI() {
+        Control[] controlsToReset = new Control[]{
+                txtUppaalOutput, txtQuerySimulations, txtQueryTimeBound,
+                txtSimulationName, queryGeneratedTextField,
+                constantsTable, dynamicTable, tableOutputVars
+        };
+
+        for (Control ctrl : controlsToReset) {
+            if (ctrl instanceof TextInputControl)
+                ((TextInputControl)ctrl).setText("");
+            if (ctrl instanceof TableView)
+                ((TableView)ctrl).getItems().clear();
+        }
+    }
+
     public void loadModel(ActionEvent actionEvent) throws IOException, InterruptedException {
-        constantsTable.getItems().clear();
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select UPPAAL model or simulation");
-        fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml"));
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Simulation", "*.sim"));
-        File selectedFile = fileChooser.showOpenDialog(rootElement.getScene().getWindow());
-        if (selectedFile == null)
+        File selectedFile = FileHelper.selectFileToLoad(rootElement.getScene().getWindow());
+        if (selectedFile == null || !selectedFile.exists() || !selectedFile.isFile())
             return;
 
-        if (selectedFile.exists() && selectedFile.isFile()) {
-            switch (FileHelper.getExtension(selectedFile.getName())) {
-                case ".xml":
-                    loadNewModel(selectedFile);
-                    saveModelButton.setVisible(true);
-                    break;
-                case ".sim":
-                    loadSavedSimulation(selectedFile);
-                    break;
-                default:
-                    throw new IllegalArgumentException(selectedFile.getName() + " could not be used");
-            }
-
-            tabPane.setVisible(true);
-            initializeConstantTableValues();
-            initializeOutputVarsTable();
-            initializeWidths();
-            initializeDynamicTable();
+        resetGUI();
+        switch (FileHelper.getExtension(selectedFile.getName())) {
+            case ".xml":
+                loadNewModel(selectedFile);
+                saveModelButton.setVisible(true);
+                break;
+            case ".sim":
+                loadSavedSimulation(selectedFile);
+                break;
+            default:
+                throw new IllegalArgumentException(selectedFile.getName() + " could not be used");
         }
+        initializeWithLoadedModel();
     }
 
     public void saveModel(ActionEvent actionEvent) throws IOException, TransformerException, SAXException, ParserConfigurationException {
@@ -203,7 +199,7 @@ public class MainWindowController implements Initializable {
         File selectedFile = FileHelper.chooseSaveFile();
         if (selectedFile == null) return;
         uppaalModel.saveToPath(selectedFile.getPath());
-        GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Model succesfully saved");
+        GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Model successfully saved");
     }
 
     public void onLeaveConfigurationTab(Event event) {
@@ -342,5 +338,15 @@ public class MainWindowController implements Initializable {
     }
     public ObservableList<CVar> getNonConstConfigVars(){
         return uppaalModel.getNonConstConfigVars();
+    }
+
+    public void btnAddDynamicUpdateRowClicked(ActionEvent actionEvent) {
+        if (uppaalModel.getDynamicTemplateVarNames().isEmpty()) {
+            GUIHelper.showInformation("There are no non-const variables prefixed with CONFIG_ in your model.");
+            return;
+        }
+
+        dynamicTable.getItems().add(new TemplateUpdate());
+        dynamicTable.getSelectionModel().selectLast();
     }
 }

@@ -52,11 +52,7 @@ public class CVarValueEditingCell extends EditingCell<CVar, CVar> {
         CVar var = getItem();
         if (var != null) {
             setValueText(var.getValue());
-            if(fieldType == FieldType.BOOL_FIELD)
-                setGraphic(comboBox);
-            else {
-                setGraphic(textField);
-            }
+            setCorrectGraphic();
         }
     }
 

@@ -38,14 +38,12 @@ public class UPPAALModel implements Externalizable {
 
     public void load() {
         allConfigVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALConfigConstants(modelPath));
-        nonConstConfigVars = FXCollections.observableArrayList(allConfigVars.stream().filter(p -> !p.getIsConst()).collect(Collectors.toList()));
+        nonConstConfigVars = FXCollections.observableArrayList(allConfigVars.filtered(p -> !p.getIsConst()));
         topology = UPPAALParser.getUPPAALTopology(modelPath);
         processes = UPPAALParser.getUPPAALProcesses(modelPath, this.allConfigVars);
         modelTimeUnit = UPPAALParser.getModelTimeUnitConstant(modelPath);
         outputVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALOutputVars(modelPath, allConfigVars));
-
         templateUpdates = FXCollections.observableArrayList(UPPAALParser.getDynamicTemplateUpdates(modelPath));
-        templateUpdates.add(new TemplateUpdate());
     }
 
     public UPPAALTopology getTopology() {
@@ -127,10 +125,6 @@ public class UPPAALModel implements Externalizable {
         outputVars.setAll((ArrayList<OutputVariable>) in.readObject());
         modelPath = (String) in.readObject();
         modelTimeUnit = in.readDouble();
-    }
-
-    public void addEmptyTemplateUpdate() {
-        getTemplateUpdates().add(new TemplateUpdate());
     }
 
     public AlertData saveTemplateUpdatesToXml() {
