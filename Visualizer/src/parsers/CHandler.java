@@ -43,9 +43,11 @@ public class CHandler {
 
     public static List<OutputVariable> getOutputVars(String decls, String scope) {
         ArrayList<CVar> returnvars = VariableParser.getInstantiations(decls);
+        returnvars.forEach(var -> var.setScope(scope));
+
         ArrayList<CVar> constants = new ArrayList<>(returnvars);
         constants.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || var.isArrayType());
-        constants.forEach(var -> var.setScope(scope));
+
         returnvars.removeIf(var -> !var.getName().startsWith(OutputVariablePrefix));
         returnvars.removeIf(var -> !var.hasIntType()); // TODO OUTPUT variables are limited to int only right now
 

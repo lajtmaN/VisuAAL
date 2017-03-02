@@ -107,6 +107,7 @@ public class ParseXmlAndCTests {
 
         assertEquals(3, outputVars.size());
         assertEquals("OUTPUT_current_repeat", outputVars.get(0).getName());
+        assertTrue(outputVars.get(0).getIsNodeData()); //Current_repeat is not an array and is placed in template scope
         assertEquals("OUTPUT_current_data", outputVars.get(1).getName());
         assertEquals("OUTPUT_has_race", outputVars.get(2).getName());
     }
