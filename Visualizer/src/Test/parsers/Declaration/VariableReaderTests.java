@@ -21,7 +21,7 @@ public class VariableReaderTests {
     public void parseMacVars() throws IOException, SAXException, ParserConfigurationException {
         XmlHandler handler = new XmlHandler("mac_model_test.xml");
         ArrayList<CVar> vars = VariableParser.getInstantiations(handler.getGlobalDeclarations());
-        assertEquals(42, vars.size());
+        assertEquals(41, vars.size());
         int i = 0;
         assertEquals(new CVar(null,"CONFIG_TEST_BOOLEAN", "true", false, "bool"), vars.get(i));
         assertEquals(new CVar(null,"CONFIG_TEST_DOUBLE", "0.5", false, "double" ), vars.get(++i));

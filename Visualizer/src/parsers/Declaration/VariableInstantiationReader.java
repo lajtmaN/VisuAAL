@@ -21,6 +21,7 @@ public class VariableInstantiationReader extends uppaalBaseListener {
     private Boolean inVariableDecl = false;
     private String currentType = "";
     private Boolean currentlyConst= false;
+    private Boolean inFunctionDef = false;
 
     @Override
     public void enterDeclId(uppaalParser.DeclIdContext ctx) {
@@ -37,7 +38,10 @@ public class VariableInstantiationReader extends uppaalBaseListener {
         if(ctx.initialiser() != null){
             element.setValue(ctx.initialiser().getText());
         }
-        variables.add(element);
+
+        if (!inFunctionDef) { // We do not add variables defined in functions
+            variables.add(element);
+        }
     }
 
     @Override
@@ -70,5 +74,17 @@ public class VariableInstantiationReader extends uppaalBaseListener {
         if(inVariableDecl) {
             element.getArraySizes().add(ctx.expression().getText());
         }
+    }
+
+    @Override
+    public void enterFunctionDecl(uppaalParser.FunctionDeclContext ctx) {
+        super.enterFunctionDecl(ctx);
+        inFunctionDef = true;
+    }
+
+    @Override
+    public void exitFunctionDecl(uppaalParser.FunctionDeclContext ctx) {
+        super.exitFunctionDecl(ctx);
+        inFunctionDef = false;
     }
 }
