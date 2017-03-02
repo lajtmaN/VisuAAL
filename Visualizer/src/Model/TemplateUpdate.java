@@ -1,7 +1,5 @@
 package Model;
 
-import View.MainWindowController;
-import com.sun.org.apache.xalan.internal.xsltc.compiler.Template;
 import javafx.beans.property.*;
 
 import java.io.*;

@@ -2,12 +2,9 @@ package View;
 
 import Model.CVar;
 import Model.TemplateUpdate;
-import com.sun.org.apache.xalan.internal.xsltc.compiler.Template;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import parsers.RegexHelper;
-
-import java.util.regex.Pattern;
 
 /**
  * Created by batto on 14-Feb-17.
