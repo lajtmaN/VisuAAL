@@ -1,7 +1,6 @@
 package Model;
 
 import javafx.beans.property.*;
-import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.io.*;
 import java.util.ArrayList;
