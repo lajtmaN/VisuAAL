@@ -52,34 +52,79 @@ public class SimulateOutput extends UPPAALOutput {
         return simulationData.get(var);
     }
 
-    public ArrayList<SimulationEdgePoint> getZippedForSimulate(int simId) {
+    public List<SimulationPoint> zip(List<OutputVariable> outputVars, int simId) {
+        ArrayList<SimulationPoint> result = new ArrayList<>();
+
+        for (String variable : simulationData.keySet()) {
+            //TODO consider calculating where to insert values in array to prevent sorting everything afterwards
+            OutputVariable outputVar = getMatchingVariable(outputVars, variable);
+            if (outputVar.getIsEdgeData()) {
+                result.addAll(getZippedEdgePoints(variable, simId));
+            }
+            else if (outputVar.getIsNodeData()) {
+                result.addAll(getZippedNodePoints(variable, simId));
+            }
+            else {
+                result.addAll(getZippedVariablePoints(variable, simId));
+            }
+        }
+
+        result.sort((o1, o2) -> o1.getClock() < o2.getClock() ? -1 : (o1.getClock() > o2.getClock() ? 1 : 0));
+        return result;
+    }
+
+    private List<SimulationPoint> getZippedVariablePoints(String key, int simId) {
+        ArrayList<SimulationPoint> result = new ArrayList<>();
+        for(DataPoint dp : simulationData.get(key).get(simId)){
+            result.add(new SimulationPoint(key, dp.getClock(), dp.getValue()));
+        }
+        return  result;
+    }
+
+    private OutputVariable getMatchingVariable(List<OutputVariable> outputVars, String variable) {
+        int indexOfArraySign = variable.indexOf("[");
+        String nameWithoutArray = indexOfArraySign > 0 ? variable.substring(0, variable.indexOf("[")) : variable;
+
+        Optional<OutputVariable> var = outputVars.stream().filter(p -> p.getName().equals(nameWithoutArray)).findFirst();
+        if (var.isPresent())
+            return var.get();
+        else
+            throw new IllegalArgumentException(variable + " was not present in list of outputVars");
+    }
+
+    public List<SimulationEdgePoint> getZippedEdgePoints(String key, int simId) {
+        ArrayList<SimulationEdgePoint> result = new ArrayList<>();
+        for(DataPoint dp : simulationData.get(key).get(simId)){
+            int src = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(srcDstRegex, key, 1));
+            int dst = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(srcDstRegex, key, 2));
+            result.add(new SimulationEdgePoint(dp.getClock(), src, dst, dp.getValue()));
+        }
+        return  result;
+    }
+
+    public ArrayList<SimulationEdgePoint> getZippedEdgePoints(int simId) {
         ArrayList<SimulationEdgePoint> result = new ArrayList<>();
         for(String key : simulationData.keySet()){
-            ArrayList<ArrayList<DataPoint>> simulations = simulationData.get(key);
-            if(!simulations.isEmpty()){
-                for(DataPoint dp : simulations.get(simId)){
-                    //TODO: if single-array parse as simulation edgePoint
-                    int src = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(srcDstRegex, key, 1));
-                    int dst = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(srcDstRegex, key, 2));
-                    result.add(new SimulationEdgePoint(dp.getClock(), src, dst, dp.getValue()));
-                }
-            }
+            result.addAll(getZippedEdgePoints(key, simId));
         }
         result.sort((o1, o2) -> o1.getClock() < o2.getClock() ? -1 : (o1.getClock() > o2.getClock() ? 1 : 0));
         return result;
     }
 
 
+    public List<SimulationNodePoint> getZippedNodePoints(String key, int simId) {
+        ArrayList<SimulationNodePoint> result = new ArrayList<>();
+        for (DataPoint dp : simulationData.get(key).get(simId)){
+            int nodeId = Integer.valueOf(RegexHelper.getFirstMatchedValueFromRegex(nodeIdRegex, key));
+            result.add(new SimulationNodePoint(dp.getClock(), nodeId, dp.getValue()));
+        }
+        return result;
+    }
+
     public ArrayList<SimulationNodePoint> getZippedNodePoints(int simId) {
         ArrayList<SimulationNodePoint> result = new ArrayList<>();
         for(String key : simulationData.keySet()){
-            ArrayList<ArrayList<DataPoint>> simulations = simulationData.get(key);
-            if(!simulations.isEmpty()){
-                for(DataPoint dp : simulations.get(simId)){
-                    int nodeId = Integer.valueOf(RegexHelper.getFirstMatchedValueFromRegex(nodeIdRegex, key));
-                    result.add(new SimulationNodePoint(dp.getClock(), nodeId, dp.getValue()));
-                }
-            }
+            result.addAll(getZippedNodePoints(key, simId));
         }
         result.sort((o1, o2) -> o1.getClock() < o2.getClock() ? -1 : (o1.getClock() > o2.getClock() ? 1 : 0));
         return result;
