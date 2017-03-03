@@ -24,12 +24,9 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.*;
-import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.Duration;
@@ -44,7 +41,6 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
@@ -266,7 +262,7 @@ public class MainWindowController implements Initializable {
         txtUppaalOutput.setText("Running following query in UPPAAL: \n" + query );
 
         simulationProgress.setVisible(true);
-        Simulation out = uppaalModel.runSimulation(query); //Run in uppaal - takes long time
+        Simulation out = uppaalModel.runQuery(query); //Run in uppaal - takes long time
         simulationProgress.setVisible(false);
 
         String simulationName = txtSimulationName.getText();
