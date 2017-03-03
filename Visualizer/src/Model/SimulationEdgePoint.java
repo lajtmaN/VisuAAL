@@ -9,10 +9,10 @@ public class SimulationEdgePoint extends SimulationPoint implements Serializable
     private int _source;
     private int _destination;
 
-    public SimulationEdgePoint(double time, int _source, int _destination, double value) {
-        super(time, value, SimulationPointType.EdgePoint);
-        this._source = _source;
-        this._destination = _destination;
+    public SimulationEdgePoint(double time, int source, int destination, double value) {
+        super(source+"-"+destination, time, value, SimulationPointType.EdgePoint);
+        this._source = source;
+        this._destination = destination;
     }
 
     @Override
@@ -43,7 +43,4 @@ public class SimulationEdgePoint extends SimulationPoint implements Serializable
     public void setDestination(int _destination) {
         this._destination = _destination;
     }
-
-    public String getIdentifier() {return String.valueOf(_source)+"-"+String.valueOf(_destination);}
-
 }

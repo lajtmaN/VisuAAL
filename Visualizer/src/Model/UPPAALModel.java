@@ -74,27 +74,14 @@ public class UPPAALModel implements Externalizable {
         return modelTimeUnit;
     }
 
-    public Simulation runSimulation(String query) throws IOException {
-        FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
-        if (vars.size() > 2)
-            throw new InvalidObjectException("We cannot handle multiple outputs yet.");
-
-        OutputVariable variable = vars.get(0);
-
+    public Simulation runQuery(String query) throws IOException {
         SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getModelPath(), query);
         //TODO use errorState on simulateOutput
 
+        FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
         //TODO we only use the first simulation
-        if (variable.getIsEdgeData()) {
-            ArrayList<? extends SimulationPoint> edgePoints = simulateOutput.getZippedForSimulate(0);
-            return new Simulation(this, query, edgePoints);
-        }
-        else if (variable.getIsNodeData()) {
-            ArrayList<? extends SimulationPoint> nodePoints = simulateOutput.getZippedNodePoints(0);
-            return new Simulation(this, query, nodePoints);
-        }
-        else
-            throw new InvalidObjectException("We do not support showing this yet");
+        List<SimulationPoint> simulationPoints = simulateOutput.zip(vars, 0);
+        return new Simulation(this, query, simulationPoints);
     }
 
     public ObservableList<TemplateUpdate> getTemplateUpdates() {
