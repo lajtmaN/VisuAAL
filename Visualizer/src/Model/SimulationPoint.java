@@ -5,20 +5,28 @@ import java.io.Serializable;
 /**
  * Created by lajtman on 23-02-2017.
  */
-public abstract class SimulationPoint extends DataPoint implements Serializable {
+public class SimulationPoint extends DataPoint implements Serializable {
 
     public enum SimulationPointType {
-        EdgePoint, NodePoint
+        EdgePoint, NodePoint, Variable
     }
 
     private SimulationPointType type;
+    private String identifier;
 
-    SimulationPoint(double time, double value, SimulationPointType pType) {
+    SimulationPoint(String identifier, double time, double value, SimulationPointType pType) {
         super(time, value);
         type = pType;
+        this.identifier = identifier;
     }
 
-    abstract String getIdentifier();
+    public SimulationPoint(String identifier, double time, double value) {
+        this(identifier, time, value, SimulationPointType.Variable);
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
 
     SimulationPointType getType() {
         return type;

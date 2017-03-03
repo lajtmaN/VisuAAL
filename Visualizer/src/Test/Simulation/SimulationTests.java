@@ -3,6 +3,7 @@ package Simulation;
 import Helpers.FileHelper;
 import Model.Simulation;
 import Model.SimulationEdgePoint;
+import Model.SimulationPoint;
 import Model.UPPAALModel;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class SimulationTests  {
         UPPAALModel model = new UPPAALModel("topologytest.xml");
         model.load();
         String query = "test";
-        ArrayList<SimulationEdgePoint> points = new ArrayList<>();
+        ArrayList<SimulationPoint> points = new ArrayList<>();
         points.add(new SimulationEdgePoint(0.0, 0, 1, 0.0));
         points.add(new SimulationEdgePoint(0.0, 1, 0, 0.0));
         points.add(new SimulationEdgePoint(0.2, 0, 1, 1.0));
@@ -56,7 +57,7 @@ public class SimulationTests  {
         UPPAALModel model = new UPPAALModel(uppaalModelFile);
         model.load();
         String query = "test";
-        ArrayList<SimulationEdgePoint> points = new ArrayList<>();
+        ArrayList<SimulationPoint> points = new ArrayList<>();
         points.add(new SimulationEdgePoint(0.0, 0, 1, 0.0));
         points.add(new SimulationEdgePoint(0.0, 1, 0, 0.0));
         points.add(new SimulationEdgePoint(0.2, 0, 1, 1.0));
@@ -85,7 +86,7 @@ public class SimulationTests  {
         UPPAALModel model = new UPPAALModel("topologytest.xml");
         model.load();
         String query = "test";
-        ArrayList<SimulationEdgePoint> points = new ArrayList<>();
+        ArrayList<SimulationPoint> points = new ArrayList<>();
         points.add(new SimulationEdgePoint(0.0, 0, 1, 0.0));
         points.add(new SimulationEdgePoint(0.1, 1, 0, 0.0));
         points.add(new SimulationEdgePoint(0.2, 0, 1, 1.0));

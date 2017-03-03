@@ -13,11 +13,11 @@ import java.util.stream.Stream;
  */
 public class Simulation implements Serializable {
     private UPPAALModel model;
-    private final ArrayList<? extends SimulationPoint> run;
-    private final ArrayList<? extends SimulationPoint> reverseRun;
+    private final List<? extends SimulationPoint> run;
+    private final List<? extends SimulationPoint> reverseRun;
     private String query;
 
-    public Simulation(UPPAALModel uppModel, String uppQuery, ArrayList<? extends SimulationPoint> points) {
+    public Simulation(UPPAALModel uppModel, String uppQuery, List<SimulationPoint> points) {
         query = uppQuery;
         model = uppModel;
         model.getTopology().updateGraph();
@@ -42,11 +42,11 @@ public class Simulation implements Serializable {
         return model.getModelTimeUnit();
     }
 
-    public ArrayList<? extends SimulationPoint> getRun() {
+    public List<? extends SimulationPoint> getRun() {
         return run;
     }
 
-    public ArrayList<? extends SimulationPoint> getReverseRun() {
+    public List<? extends SimulationPoint> getReverseRun() {
         return reverseRun;
     }
 
