@@ -1,13 +1,18 @@
 package Model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * Created by rasmu on 08/02/2017.
  */
-public class UPPAALEdge implements Serializable {
+public class UPPAALEdge implements Serializable, Comparable<UPPAALEdge> {
+
+    private String _source, _destination;
+    public UPPAALEdge(String source, String destination) {
+        _source = source;
+        _destination = destination;
+    }
+
     public String getSource() {
         return _source;
     }
@@ -16,11 +21,16 @@ public class UPPAALEdge implements Serializable {
         return _destination;
     }
 
-    private String _source, _destination;
-    public UPPAALEdge(String source, String destination) {
-        _source = source;
-        _destination = destination;
+    public int getSourceAsInt() {
+        return Integer.valueOf(_source);
     }
+
+    public int getDestinationAsInt() {
+        return Integer.valueOf(_destination);
+    }
+
+    //TODO INT version of those two properties
+
 
     @Override
     public String toString() {
@@ -44,4 +54,18 @@ public class UPPAALEdge implements Serializable {
         result = 31 * result + _destination.hashCode();
         return result;
     }
+
+    @Override
+    public int compareTo(UPPAALEdge o) {
+        return this.toString().compareTo(o.toString());
+        /*if(this.getSource() < o.getSource()
+                || this.getSource() == o.getSource()
+                && this.getDestination() < o.getDestination())
+            return -1;
+        else if(this.getSource() == o.getSource() && this.getDestination() == o.getDestination())
+            return 0;
+        else return 1;*/
+    }
+
+
 }

@@ -1,11 +1,8 @@
 package parsers;
 
 import Helpers.FileHelper;
-import Model.OutputVariable;
-import Model.UPPAALModel;
-import org.junit.Ignore;
+import Model.*;
 import org.junit.Test;
-import Model.CVar;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,6 +12,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static parsers.Declaration.VariableParser.updateTopologyAndNrNodes;
 
 
 /**
@@ -260,6 +258,67 @@ public class ParseXmlAndCTests {
 
         assertFalse(vars.stream().anyMatch(p -> p.getName().equals("CONFIG_do_not_parse")));
         assertFalse(vars.stream().anyMatch(p -> p.getName().equals("CONFIG_do_not_read")));
+    }
+
+    @Test
+    public void setTopologyForUPPAALTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
+        File f = FileHelper.copyFileIntoTempFile(new File("mac_model_test.xml"));
+        UPPAALTopology top = new UPPAALTopology();
+        top.setNumberOfNodes(4);
+        top.add(new UPPAALEdge("0","1"));
+        top.add(new UPPAALEdge("1","2"));
+        top.add(new UPPAALEdge("2","3"));
+        top.add(new UPPAALEdge("3","0"));
+
+        XmlHandler xmlHandler = new XmlHandler(f.getPath());
+        String globalDecls = xmlHandler.getGlobalDeclarations();
+
+        String updated = updateTopologyAndNrNodes(globalDecls, top);
+
+        xmlHandler.setGlobalDeclarations(updated);
+
+        UPPAALTopology topologyOut = CHandler.getTopology(xmlHandler.getGlobalDeclarations());
+
+        assertEquals(4, topologyOut.getNumberOfNodes());
+        for(int i = 0; i < 4; i++) {
+            assertEquals(i, topologyOut.get(i).getSourceAsInt());
+            assertEquals((i + 1) % 4, topologyOut.get(i).getDestinationAsInt());
+        }
+    }
+
+    @Test
+    public void setTopologyForUPPAALMoreCasesTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
+        File f = FileHelper.copyFileIntoTempFile(new File("mac_model_test.xml"));
+        UPPAALTopology top = new UPPAALTopology();
+        top.setNumberOfNodes(4);
+        top.add(new UPPAALEdge("2","0"));
+        top.add(new UPPAALEdge("1","2"));
+        top.add(new UPPAALEdge("2","1"));
+        top.add(new UPPAALEdge("1","3"));
+
+        XmlHandler xmlHandler = new XmlHandler(f.getPath());
+        String globalDecls = xmlHandler.getGlobalDeclarations();
+        String updated = updateTopologyAndNrNodes(globalDecls, top);
+        xmlHandler.setGlobalDeclarations(updated);
+
+        UPPAALTopology topologyOut = CHandler.getTopology(xmlHandler.getGlobalDeclarations());
+
+        assertEquals(4, topologyOut.getNumberOfNodes());
+        assertEdge(1, 2, topologyOut.get(0));
+        assertEdge(1, 3, topologyOut.get(1));
+        assertEdge(2, 0, topologyOut.get(2));
+        assertEdge(2, 1, topologyOut.get(3));
+
+        ArrayList<CVar> vars = CHandler.getConfigVariables(xmlHandler.getGlobalDeclarations(), null);
+        for(CVar var : vars) {
+            if(var.getName().equals("CONFIG_NR_NODES"))
+                assertEquals("4", var.getValue());
+        }
+    }
+
+    private void assertEdge(int expectedSource, int expectedDest, UPPAALEdge e) {
+        assertEquals(expectedSource, e.getSourceAsInt());
+        assertEquals(expectedDest, e.getDestinationAsInt());
     }
 
 
