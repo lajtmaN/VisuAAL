@@ -79,24 +79,4 @@ public class SimulationTests  {
         assertTrue(file.delete());
 
     }
-
-    @Test
-    public void testRunAndReverseRunAreActuallyReversed(){
-
-        UPPAALModel model = new UPPAALModel("topologytest.xml");
-        model.load();
-        String query = "test";
-        ArrayList<SimulationPoint> points = new ArrayList<>();
-        points.add(new SimulationEdgePoint(0.0, "0", "1", 0.0));
-        points.add(new SimulationEdgePoint(0.1, "1", "0", 0.0));
-        points.add(new SimulationEdgePoint(0.2, "0", "1", 1.0));
-        points.add(new SimulationEdgePoint(0.3, "1", "0", 1.0));
-        Simulation sim = new Simulation(model, query, points);
-
-        for (int i = 0; i < points.size(); i++) {
-            assertEquals(points.get(points.size()-i-1), sim.getReverseRun().get(i));
-            assertEquals(points.get(i), sim.getRun().get(i));
-        }
-    }
-
 }
