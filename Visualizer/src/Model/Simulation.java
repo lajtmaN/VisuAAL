@@ -1,6 +1,8 @@
 package Model;
 
 import Helpers.FileHelper;
+import Helpers.GUIHelper;
+import javafx.scene.control.Alert;
 import org.graphstream.graph.Graph;
 import parsers.RegexHelper;
 
@@ -116,8 +118,9 @@ public class Simulation implements Serializable {
             sim.model.getTopology().updateGraph();
             sim.model.getTopology().unmarkAllEdges();
             return sim;
-        } catch(Exception i) {
-            i.printStackTrace();
+        } catch(InvalidClassException i) {
+            GUIHelper.showAlert(Alert.AlertType.ERROR, "The simulation that you tried to load was created by an older version of this program.");
+        } catch (Exception ignored) {
 
         }
         return null;

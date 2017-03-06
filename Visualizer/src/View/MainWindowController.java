@@ -139,7 +139,6 @@ public class MainWindowController implements Initializable {
     }
 
     private void initializeOutputVarsTable() {
-        //TODO: Only 2d arrays should be able to mark edge and 1d to mark node
         outputVarName.setCellValueFactory(p -> p.getValue().name());
         outputVarEdge.setCellValueFactory(p -> p.getValue().isEdgeData());
         outputVarEdge.setCellFactory(p -> new CheckBoxTableCell<>());
@@ -154,8 +153,6 @@ public class MainWindowController implements Initializable {
     private void initializeWithLoadedModel() {
         dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
         dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
-
-        tabPane.setVisible(true);
     }
 
     private void resetGUI() {
@@ -183,14 +180,16 @@ public class MainWindowController implements Initializable {
             case ".xml":
                 loadNewModel(selectedFile);
                 saveModelButton.setVisible(true);
+                tabPane.setVisible(true);
                 break;
             case ".sim":
                 loadSavedSimulation(selectedFile);
+                tabPane.setVisible(true);
                 break;
             default:
                 throw new IllegalArgumentException(selectedFile.getName() + " could not be used");
         }
-        initializeWithLoadedModel();
+
     }
 
     public void saveModel(ActionEvent actionEvent) throws IOException, TransformerException, SAXException, ParserConfigurationException {
@@ -219,7 +218,9 @@ public class MainWindowController implements Initializable {
 
     private void loadSavedSimulation(File selectedFile) throws IOException, InterruptedException {
         Simulation loaded = Simulation.load(selectedFile);
-        addNewResults(selectedFile.getName(), loaded);
+        if (loaded != null) {
+            addNewResults(selectedFile.getName(), loaded);
+        }
     }
 
     private void loadNewModel(File selectedFile) {
@@ -234,6 +235,7 @@ public class MainWindowController implements Initializable {
         constantsTable.setItems(uppaalModel.getAllConfigVars());
         tableOutputVars.setItems(uppaalModel.getOutputVars());
         dynamicTable.setItems(uppaalModel.getTemplateUpdates());
+        initializeWithLoadedModel();
     }
 
     public void generateQuery(ActionEvent actionEvent) {
@@ -287,7 +289,6 @@ public class MainWindowController implements Initializable {
         timeSlider.setShowTickMarks(true);
         timeSlider.setShowTickLabels(true);
         timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            //TODO oldValue could be used to only add/remove the edges not already up-to-date
             lblCurrentTime.setText(String.format("%.1f ms", newValue.doubleValue()));
             run.markGraphAtTime(oldValue, newValue);
         });
