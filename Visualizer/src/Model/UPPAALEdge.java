@@ -1,17 +1,16 @@
 package Model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * Created by rasmu on 08/02/2017.
  */
-public class UPPAALEdge implements Serializable {
-    public int get_source() {
+public class UPPAALEdge implements Serializable, Comparable<UPPAALEdge> {
+    public int getSource() {
         return _source;
     }
 
-    public int get_destination() {
+    public int getDestination() {
         return _destination;
     }
 
@@ -42,5 +41,16 @@ public class UPPAALEdge implements Serializable {
         int result = _source;
         result = 31 * result + _destination;
         return result;
+    }
+
+    @Override
+    public int compareTo(UPPAALEdge o) {
+        if(this.getSource() < o.getSource()
+                || this.getSource() == o.getSource()
+                && this.getDestination() < o.getDestination())
+            return -1;
+        else if(this.getSource() == o.getSource() && this.getDestination() == o.getDestination())
+            return 0;
+        else return 1;
     }
 }
