@@ -16,6 +16,7 @@ public class Simulation implements Serializable {
     private final List<? extends SimulationPoint> run;
     private final List<? extends SimulationPoint> reverseRun;
     private String query;
+    private int currentSimulationIndex = 0;
 
     public Simulation(UPPAALModel uppModel, String uppQuery, List<SimulationPoint> points) {
         query = uppQuery;
@@ -50,18 +51,40 @@ public class Simulation implements Serializable {
         return reverseRun;
     }
 
-    public void markGraphAtTime(Number oldValue, Number newValue) {
-        double newTime = newValue.doubleValue();
-        double oldTime = oldValue.doubleValue();
+    public void markGraphAtTime(Number oldTimeValue, Number newTimeValue) {
+        double newTime = newTimeValue.doubleValue();
+        double oldTime = oldTimeValue.doubleValue();
         if (newTime > oldTime)
-        {
-            run.stream().filter(p -> p.getClock() < newTime && p.getClock() > oldTime)
-                    .forEach( p-> model.getTopology().handleUpdate(p, p.getValue() > 0));
-        }
+            markGraphForward(newTime, oldTime);
         else
-        {
-            reverseRun.stream().filter(p -> p.getClock() < oldTime && p.getClock() > newTime)
-                    .forEach( p-> model.getTopology().handleUpdate(p, p.getValue() == 0));
+            markGraphBackwards(newTime, oldTime);
+    }
+
+    private void markGraphForward(double newTimeValue, double oldTime) {
+        SimulationPoint sp;
+        while((sp = run.get(currentSimulationIndex)).getClock() < newTimeValue) {
+            if(sp.getClock() > oldTime) {
+                model.getTopology().handleUpdate(sp, sp.getValue() > 0);
+            }
+            if (currentSimulationIndex + 1 >= run.size())
+                break;
+            if (run.get(currentSimulationIndex + 1).getClock() <= newTimeValue)
+                currentSimulationIndex++;
+            else break;
+        }
+    }
+
+    private void markGraphBackwards(double newTimeValue, double oldTime) {
+        SimulationPoint sp;
+        while((sp = run.get(currentSimulationIndex)).getClock() > newTimeValue) {
+            if(sp.getClock() < oldTime) {
+                model.getTopology().handleUpdate(sp, sp.getValue() == 0);
+            }
+            if (currentSimulationIndex - 1 < 0)
+                break;
+            if (run.get(currentSimulationIndex - 1).getClock() >= newTimeValue)
+                currentSimulationIndex--;
+            else break;
         }
     }
 
