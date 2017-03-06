@@ -2,21 +2,22 @@ package Model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by rasmu on 08/02/2017.
  */
 public class UPPAALEdge implements Serializable {
-    public int get_source() {
+    public String getSource() {
         return _source;
     }
 
-    public int get_destination() {
+    public String getDestination() {
         return _destination;
     }
 
-    private int _source, _destination;
-    public UPPAALEdge(int source, int destination) {
+    private String _source, _destination;
+    public UPPAALEdge(String source, String destination) {
         _source = source;
         _destination = destination;
     }
@@ -33,14 +34,14 @@ public class UPPAALEdge implements Serializable {
 
         UPPAALEdge that = (UPPAALEdge) o;
 
-        if (_source != that._source) return false;
-        return _destination == that._destination;
+        if (!_source.equals(that._source)) return false;
+        return _destination.equals(that._destination);
     }
 
     @Override
     public int hashCode() {
-        int result = _source;
-        result = 31 * result + _destination;
+        int result = _source.hashCode();
+        result = 31 * result + _destination.hashCode();
         return result;
     }
 }

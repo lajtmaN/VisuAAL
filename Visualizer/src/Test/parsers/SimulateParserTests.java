@@ -119,11 +119,11 @@ public class SimulateParserTests {
         simOut.addDatapoint(from2to1, 0, datas.get(2));
 
         ArrayList<SimulationEdgePoint> expected = new ArrayList<>();
-        expected.add(new SimulationEdgePoint(1,1,2,5));
-        expected.add(new SimulationEdgePoint(2,2,1,4));
-        expected.add(new SimulationEdgePoint(3,2,1,3));
-        expected.add(new SimulationEdgePoint(4,1,2,2));
-        expected.add(new SimulationEdgePoint(5,1,2,1));
+        expected.add(new SimulationEdgePoint(1,"1","2",5));
+        expected.add(new SimulationEdgePoint(2,"2","1",4));
+        expected.add(new SimulationEdgePoint(3,"2","1",3));
+        expected.add(new SimulationEdgePoint(4,"1","2",2));
+        expected.add(new SimulationEdgePoint(5,"1","2",1));
         ArrayList<SimulationEdgePoint> actual = simOut.getZippedEdgePoints(0);
 
         AssertArrayList(expected, actual);
@@ -143,11 +143,11 @@ public class SimulateParserTests {
 
         ArrayList<SimulationPoint> expected = new ArrayList<>();
         expected.add(new SimulationPoint(out2.getName(), 0, 2));
-        expected.add(new SimulationEdgePoint(1,1,2,5));
-        expected.add(new SimulationEdgePoint(2,2,1,4));
-        expected.add(new SimulationEdgePoint(3,2,1,3));
-        expected.add(new SimulationEdgePoint(4,1,2,2));
-        expected.add(new SimulationEdgePoint(5,1,2,1));
+        expected.add(new SimulationEdgePoint(1,"1","2",5));
+        expected.add(new SimulationEdgePoint(2,"2","1",4));
+        expected.add(new SimulationEdgePoint(3,"2","1",3));
+        expected.add(new SimulationEdgePoint(4,"1","2",2));
+        expected.add(new SimulationEdgePoint(5,"1","2",1));
         expected.add(new SimulationPoint(out2.getName(), 6, 20));
         expected.add(new SimulationPoint(out2.getName(), 100, 15));
 
@@ -195,11 +195,11 @@ public class SimulateParserTests {
         simOut.addDatapoint(from2to1, 1, datas.get(2));
 
         ArrayList<SimulationEdgePoint> expected = new ArrayList<>();
-        expected.add(new SimulationEdgePoint(1,1,2,10));
-        expected.add(new SimulationEdgePoint(2,2,1,9));
-        expected.add(new SimulationEdgePoint(3,2,1,8));
-        expected.add(new SimulationEdgePoint(4,1,2,7));
-        expected.add(new SimulationEdgePoint(5,1,2,6));
+        expected.add(new SimulationEdgePoint(1,"1","2",10));
+        expected.add(new SimulationEdgePoint(2,"2","1",9));
+        expected.add(new SimulationEdgePoint(3,"2","1",8));
+        expected.add(new SimulationEdgePoint(4,"1","2",7));
+        expected.add(new SimulationEdgePoint(5,"1","2",6));
 
 
         ArrayList<SimulationEdgePoint> actual = simOut.getZippedEdgePoints(1);

@@ -105,7 +105,7 @@ public class CHandler {
                     int destination_index = 0;
                     for (String element : temp.split(",")) {
                         if (element.equals("1")) { // TODO: Only binary relations can be defined
-                            result.add(new UPPAALEdge(source_index, destination_index));
+                            result.add(new UPPAALEdge(String.valueOf(source_index), String.valueOf(destination_index)));
                         }
                         destination_index++;
                     }
