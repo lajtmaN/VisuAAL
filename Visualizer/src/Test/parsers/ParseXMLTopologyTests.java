@@ -21,7 +21,8 @@ public class ParseXMLTopologyTests {
     }
 
     private UPPAALTopology generateTopology(int dimension){
-        UPPAALTopology result = new UPPAALTopology(dimension*dimension);
+        UPPAALTopology result = new UPPAALTopology();
+        result.setNumberOfNodes(dimension*dimension);
         for(int y_index = 0; y_index < dimension; y_index++) {
             for(int x_index = 0; x_index < dimension; x_index++){
                 int node_number = x_index+y_index*dimension;
@@ -47,7 +48,7 @@ public class ParseXMLTopologyTests {
     }
 
     public void assertUPPAALEdge(UPPAALEdge expected, UPPAALEdge actual) {
-        assertEquals(expected.get_source(), actual.get_source());
-        assertEquals(expected.get_destination(), actual.get_destination());
+        assertEquals(expected.getSource(), actual.getSource());
+        assertEquals(expected.getDestination(), actual.getDestination());
     }
 }
