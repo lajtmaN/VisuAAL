@@ -17,7 +17,9 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -70,6 +72,7 @@ public class MainWindowController implements Initializable {
     @FXML private TableColumn<TemplateUpdate, Integer> dynColumnTime;
     @FXML private Tab configurationTab;
     @FXML private Button saveModelButton;
+    @FXML private GridPane globalVarGridPane;
 
 
     private UPPAALModel uppaalModel;
@@ -299,8 +302,11 @@ public class MainWindowController implements Initializable {
         pane.setTop(sliderBox);
 
         //Topology
+        StackPane stackPane = new StackPane();
+        pane.setCenter(stackPane);
         final SwingNode swingNode = new SwingNode();
-        pane.setCenter(swingNode);
+        stackPane.getChildren().add(swingNode);
+        initializeGlobalVarGridpane(stackPane);
         Viewer v = new Viewer(run.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
         v.enableAutoLayout();
         ViewPanel swingView = v.addDefaultView(false);
@@ -325,6 +331,45 @@ public class MainWindowController implements Initializable {
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
         return tab;
+    }
+
+    private void initializeGlobalVarGridpane(StackPane stackPane) {
+        globalVarGridPane = new GridPane();
+        globalVarGridPane.setPickOnBounds(false);
+        globalVarGridPane.setPadding(new Insets(10,0,0,10));
+        stackPane.getChildren().add(globalVarGridPane);
+
+        addGlobalVariableToGridPane("FUCKDETERBAREETMEGALANGTORDDETHER", "21");
+        addGlobalVariableToGridPane("hest", "21");
+        addGlobalVariableToGridPane("abe", "17");
+        addGlobalVariableToGridPane("ko", "42");
+    }
+
+    private void addGlobalVariableToGridPane(String name, String value) {
+        int nrRows = globalVarGridPane.getChildren().size() / 2;
+        Label labelName = new Label(name);
+        Label labelValue = new Label(value);
+        labelName.setPadding(new Insets(0,10, 0, 0));
+
+        globalVarGridPane.add(labelName, 0, nrRows);
+        globalVarGridPane.add(labelValue, 1, nrRows);
+    }
+
+    private void updateGlobalVariableInGridPane(String name, String value) {
+        boolean foundLabel = false;
+        for(Node n : globalVarGridPane.getChildren()){
+            Label label = (Label) n;
+            if(foundLabel) {
+                label.setText(value);
+                break;
+            }
+            if(label.getText().equals(name)) {
+                foundLabel = true;
+            }
+        }
+        if(!foundLabel) {
+            
+        }
     }
 
     public void addUpdates(ActionEvent actionEvent) {
