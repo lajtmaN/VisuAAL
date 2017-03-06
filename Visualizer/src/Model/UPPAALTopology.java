@@ -1,6 +1,7 @@
 package Model;
 
 import org.graphstream.graph.*;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.implementations.MultiGraph;
 
 import java.io.Serializable;
@@ -21,12 +22,8 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             add(new UPPAALEdge(edge.getSourceNode().getId(), edge.getTargetNode().getId()));
         }
     }
-    public UPPAALTopology(int numberOfNodes) {
-        this._numberOfNodes = numberOfNodes;
-    }
-    public UPPAALTopology() {
-        this(0);
-    }
+
+    public UPPAALTopology() {}
 
     public int getNumberOfNodes() {
         return _numberOfNodes;
@@ -212,5 +209,4 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         result = 31 * result + _numberOfNodes;
         return result;
     }
-
 }

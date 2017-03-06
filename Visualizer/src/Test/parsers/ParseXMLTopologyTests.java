@@ -59,7 +59,8 @@ public class ParseXMLTopologyTests {
     }
 
     private UPPAALTopology generateTopology(int dimension){
-        UPPAALTopology result = new UPPAALTopology(dimension*dimension);
+        UPPAALTopology result = new UPPAALTopology();
+        result.setNumberOfNodes(dimension*dimension);
         for(int y_index = 0; y_index < dimension; y_index++) {
             for(int x_index = 0; x_index < dimension; x_index++){
                 int node_number = x_index+y_index*dimension;
