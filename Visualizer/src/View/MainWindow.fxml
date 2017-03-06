@@ -44,7 +44,7 @@
               </columns>
             </TableView>
          </content></Tab>
-       <Tab closable="false" text="Dynamic Constants">
+       <Tab closable="false" text="Dynamic Updates">
            <content>
                <VBox alignment="TOP_CENTER">
                <TableView fx:id="dynamicTable" editable="true" prefWidth="800.0">
