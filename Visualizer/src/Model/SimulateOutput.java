@@ -2,7 +2,6 @@ package Model;
 
 import parsers.RegexHelper;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 
 /**
@@ -18,7 +17,7 @@ public class SimulateOutput extends UPPAALOutput {
      */
     private Map<String, ArrayList<ArrayList<DataPoint>>> simulationData;
     private int nrSimulations;
-    private final String srcDstRegex = "\\w*\\[(\\d+)\\]\\[(\\d+)\\]";
+    private final String sourceDestinationRegex = "\\w*\\[(\\d+)\\]\\[(\\d+)\\]";
     private final String nodeIdRegex = "\\w*\\[(\\d+)\\]";
 
 
@@ -95,9 +94,9 @@ public class SimulateOutput extends UPPAALOutput {
     public List<SimulationEdgePoint> getZippedEdgePoints(String key, int simId) {
         ArrayList<SimulationEdgePoint> result = new ArrayList<>();
         for(DataPoint dp : simulationData.get(key).get(simId)){
-            int src = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(srcDstRegex, key, 1));
-            int dst = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(srcDstRegex, key, 2));
-            result.add(new SimulationEdgePoint(dp.getClock(), src, dst, dp.getValue()));
+            int source = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(sourceDestinationRegex, key, 1));
+            int destination = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(sourceDestinationRegex, key, 2));
+            result.add(new SimulationEdgePoint(dp.getClock(), String.valueOf(source), String.valueOf(destination), dp.getValue()));
         }
         return  result;
     }

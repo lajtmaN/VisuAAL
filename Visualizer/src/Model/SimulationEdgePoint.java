@@ -1,15 +1,16 @@
 package Model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by rasmu on 09/02/2017.
  */
 public class SimulationEdgePoint extends SimulationPoint implements Serializable{
-    private int _source;
-    private int _destination;
+    private String _source;
+    private String _destination;
 
-    public SimulationEdgePoint(double time, int source, int destination, double value) {
+    public SimulationEdgePoint(double time, String source, String destination, double value) {
         super(source+"-"+destination, time, value, SimulationPointType.EdgePoint);
         this._source = source;
         this._destination = destination;
@@ -23,24 +24,24 @@ public class SimulationEdgePoint extends SimulationPoint implements Serializable
 
         SimulationEdgePoint that = (SimulationEdgePoint) o;
 
-        if (getSource() != that.getSource()) return false;
-        if (getDestination() != that.getDestination()) return false;
+        if (!Objects.equals(getSource(), that.getSource())) return false;
+        if (!Objects.equals(getDestination(), that.getDestination())) return false;
         return super.equals(that);
     }
 
-    public int getSource() {
+    public String getSource() {
         return _source;
     }
 
-    public void setSource(int _source) {
+    public void setSource(String _source) {
         this._source = _source;
     }
 
-    public int getDestination() {
+    public String getDestination() {
         return _destination;
     }
 
-    public void setDestination(int _destination) {
+    public void setDestination(String _destination) {
         this._destination = _destination;
     }
 }

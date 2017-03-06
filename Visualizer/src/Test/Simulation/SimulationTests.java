@@ -32,10 +32,10 @@ public class SimulationTests  {
         model.load();
         String query = "test";
         ArrayList<SimulationPoint> points = new ArrayList<>();
-        points.add(new SimulationEdgePoint(0.0, 0, 1, 0.0));
-        points.add(new SimulationEdgePoint(0.0, 1, 0, 0.0));
-        points.add(new SimulationEdgePoint(0.2, 0, 1, 1.0));
-        points.add(new SimulationEdgePoint(0.2, 1, 0, 1.0));
+        points.add(new SimulationEdgePoint(0.0, "0", "1", 0.0));
+        points.add(new SimulationEdgePoint(0.0, "1", "0", 0.0));
+        points.add(new SimulationEdgePoint(0.2, "0", "1", 1.0));
+        points.add(new SimulationEdgePoint(0.2, "1", "0", 1.0));
         Simulation sim = new Simulation(model, query, points);
 
         sim.save(filePath);
@@ -58,10 +58,10 @@ public class SimulationTests  {
         model.load();
         String query = "test";
         ArrayList<SimulationPoint> points = new ArrayList<>();
-        points.add(new SimulationEdgePoint(0.0, 0, 1, 0.0));
-        points.add(new SimulationEdgePoint(0.0, 1, 0, 0.0));
-        points.add(new SimulationEdgePoint(0.2, 0, 1, 1.0));
-        points.add(new SimulationEdgePoint(0.2, 1, 0, 1.0));
+        points.add(new SimulationEdgePoint(0.0, "0", "1", 0.0));
+        points.add(new SimulationEdgePoint(0.0, "1", "0", 0.0));
+        points.add(new SimulationEdgePoint(0.2, "0", "1", 1.0));
+        points.add(new SimulationEdgePoint(0.2, "1", "0", 1.0));
         Simulation sim = new Simulation(model, query, points);
 
         //Persist to file
@@ -87,10 +87,10 @@ public class SimulationTests  {
         model.load();
         String query = "test";
         ArrayList<SimulationPoint> points = new ArrayList<>();
-        points.add(new SimulationEdgePoint(0.0, 0, 1, 0.0));
-        points.add(new SimulationEdgePoint(0.1, 1, 0, 0.0));
-        points.add(new SimulationEdgePoint(0.2, 0, 1, 1.0));
-        points.add(new SimulationEdgePoint(0.3, 1, 0, 1.0));
+        points.add(new SimulationEdgePoint(0.0, "0", "1", 0.0));
+        points.add(new SimulationEdgePoint(0.1, "1", "0", 0.0));
+        points.add(new SimulationEdgePoint(0.2, "0", "1", 1.0));
+        points.add(new SimulationEdgePoint(0.3, "1", "0", 1.0));
         Simulation sim = new Simulation(model, query, points);
 
         for (int i = 0; i < points.size(); i++) {
