@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 public class Simulation implements Serializable {
     private UPPAALModel model;
     private final List<? extends SimulationPoint> run;
-    private final List<? extends SimulationPoint> reverseRun;
     private String query;
     private int currentSimulationIndex = 0;
 
@@ -31,8 +30,6 @@ public class Simulation implements Serializable {
         }
 
         run = points;
-        reverseRun = new ArrayList<>(points);
-        reverseRun.sort( (p1, p2) -> Double.compare(p2.getClock(), p1.getClock()));
     }
 
     public Graph getGraph() {
@@ -45,10 +42,6 @@ public class Simulation implements Serializable {
 
     public List<? extends SimulationPoint> getRun() {
         return run;
-    }
-
-    public List<? extends SimulationPoint> getReverseRun() {
-        return reverseRun;
     }
 
     public void markGraphAtTime(Number oldTimeValue, Number newTimeValue) {
@@ -139,7 +132,6 @@ public class Simulation implements Serializable {
 
         if (!model.equals(that.model)) return false;
         if (!run.equals(that.run)) return false;
-        if (!reverseRun.equals(that.reverseRun)) return false;
         return query.equals(that.query);
     }
 
@@ -147,7 +139,6 @@ public class Simulation implements Serializable {
     public int hashCode() {
         int result = model.hashCode();
         result = 31 * result + run.hashCode();
-        result = 31 * result + reverseRun.hashCode();
         result = 31 * result + query.hashCode();
         return result;
     }
