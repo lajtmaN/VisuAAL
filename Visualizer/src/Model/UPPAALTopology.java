@@ -1,8 +1,10 @@
 package Model;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import org.graphstream.graph.*;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.omg.IOP.CodecPackage.TypeMismatch;
 
 import java.io.Serializable;
 import java.util.*;
@@ -74,9 +76,8 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             case NodePoint:
                 handleNodeEdit((SimulationNodePoint) s, mark);
                 break;
-            case Variable:
-                //TODO Update view with new value
-                break;
+            default:
+                throw new IllegalArgumentException("Neither edge or node type");
         }
     }
 
