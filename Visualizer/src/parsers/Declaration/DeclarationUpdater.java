@@ -47,7 +47,7 @@ public class DeclarationUpdater extends uppaalBaseListener {
             rewriter.replace(initializeToken, cvar.get().getValue());
         }
 
-        if(topology != "" && declName.equals("CONFIG_connected")) {
+        if(!topology.isEmpty() && declName.equals("CONFIG_connected")) {
             rewriter.replace(ctx.initialiser().getStart(), ctx.initialiser().getStop(), topology);
         }
     }
