@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -118,12 +119,49 @@ public class SimulateParserTests {
         simOut.addDatapoint(from2to1, 0, datas.get(2));
 
         ArrayList<SimulationEdgePoint> expected = new ArrayList<>();
-        expected.add(new SimulationEdgePoint(1,1,2,5));
-        expected.add(new SimulationEdgePoint(2,2,1,4));
-        expected.add(new SimulationEdgePoint(3,2,1,3));
-        expected.add(new SimulationEdgePoint(4,1,2,2));
-        expected.add(new SimulationEdgePoint(5,1,2,1));
-        ArrayList<SimulationEdgePoint> actual = simOut.getZippedForSimulate(0);
+        expected.add(new SimulationEdgePoint(1,"1","2",5));
+        expected.add(new SimulationEdgePoint(2,"2","1",4));
+        expected.add(new SimulationEdgePoint(3,"2","1",3));
+        expected.add(new SimulationEdgePoint(4,"1","2",2));
+        expected.add(new SimulationEdgePoint(5,"1","2",1));
+        ArrayList<SimulationEdgePoint> actual = simOut.getZippedEdgePoints(0);
+
+        AssertArrayList(expected, actual);
+    }
+
+    @Test
+    public void zipOutputFromNonArrayVariable(){
+        String uppaalOut1 = "data[1][2]";
+        String uppaalOut2 = "data[2][1]";
+
+        ArrayList<OutputVariable> outputVars = new ArrayList<>();
+        OutputVariable out1 = new OutputVariable("data");
+        out1.setEdgeData(true); //true because it is 2d array
+        outputVars.add(out1);
+        OutputVariable out2 = new OutputVariable("test");
+        outputVars.add(out2);
+
+        ArrayList<SimulationPoint> expected = new ArrayList<>();
+        expected.add(new SimulationPoint(out2.getName(), 0, 2));
+        expected.add(new SimulationEdgePoint(1,"1","2",5));
+        expected.add(new SimulationEdgePoint(2,"2","1",4));
+        expected.add(new SimulationEdgePoint(3,"2","1",3));
+        expected.add(new SimulationEdgePoint(4,"1","2",2));
+        expected.add(new SimulationEdgePoint(5,"1","2",1));
+        expected.add(new SimulationPoint(out2.getName(), 6, 20));
+        expected.add(new SimulationPoint(out2.getName(), 100, 15));
+
+        SimulateOutput simOut = new SimulateOutput(1);
+        simOut.addDatapoint(uppaalOut1, 0, new DataPoint(1,5));
+        simOut.addDatapoint(uppaalOut1, 0, new DataPoint(4,2));
+        simOut.addDatapoint(uppaalOut1, 0, new DataPoint(5,1));
+        simOut.addDatapoint(uppaalOut2, 0, new DataPoint(2,4));
+        simOut.addDatapoint(uppaalOut2, 0, new DataPoint(3,3));
+        simOut.addDatapoint(out2.getName(), 0, new DataPoint(6, 20));
+        simOut.addDatapoint(out2.getName(), 0, new DataPoint(100, 15));
+        simOut.addDatapoint(out2.getName(), 0, new DataPoint(0, 2));
+
+        List<SimulationPoint> actual = simOut.zip(outputVars, 0);
 
         AssertArrayList(expected, actual);
     }
@@ -157,19 +195,19 @@ public class SimulateParserTests {
         simOut.addDatapoint(from2to1, 1, datas.get(2));
 
         ArrayList<SimulationEdgePoint> expected = new ArrayList<>();
-        expected.add(new SimulationEdgePoint(1,1,2,10));
-        expected.add(new SimulationEdgePoint(2,2,1,9));
-        expected.add(new SimulationEdgePoint(3,2,1,8));
-        expected.add(new SimulationEdgePoint(4,1,2,7));
-        expected.add(new SimulationEdgePoint(5,1,2,6));
+        expected.add(new SimulationEdgePoint(1,"1","2",10));
+        expected.add(new SimulationEdgePoint(2,"2","1",9));
+        expected.add(new SimulationEdgePoint(3,"2","1",8));
+        expected.add(new SimulationEdgePoint(4,"1","2",7));
+        expected.add(new SimulationEdgePoint(5,"1","2",6));
 
 
-        ArrayList<SimulationEdgePoint> actual = simOut.getZippedForSimulate(1);
+        ArrayList<SimulationEdgePoint> actual = simOut.getZippedEdgePoints(1);
 
         AssertArrayList(expected, actual);
     }
 
-    private void AssertArrayList(ArrayList<SimulationEdgePoint> expected, ArrayList<SimulationEdgePoint> actual){
+    private void AssertArrayList(List<? extends SimulationPoint> expected, List<? extends SimulationPoint> actual){
         assertEquals(expected.size(), actual.size());
         for (int i = 0;i < expected.size(); i++) {
             assertEquals(expected.get(i), actual.get(i));

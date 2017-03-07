@@ -1,25 +1,36 @@
 package Model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * Created by rasmu on 08/02/2017.
  */
-public class UPPAALEdge implements Serializable {
-    public int get_source() {
-        return _source;
-    }
+public class UPPAALEdge implements Serializable, Comparable<UPPAALEdge> {
 
-    public int get_destination() {
-        return _destination;
-    }
-
-    private int _source, _destination;
-    public UPPAALEdge(int source, int destination) {
+    private String _source, _destination;
+    public UPPAALEdge(String source, String destination) {
         _source = source;
         _destination = destination;
     }
+
+    public String getSource() {
+        return _source;
+    }
+
+    public String getDestination() {
+        return _destination;
+    }
+
+    public int getSourceAsInt() {
+        return Integer.valueOf(_source);
+    }
+
+    public int getDestinationAsInt() {
+        return Integer.valueOf(_destination);
+    }
+
+    //TODO INT version of those two properties
+
 
     @Override
     public String toString() {
@@ -33,14 +44,27 @@ public class UPPAALEdge implements Serializable {
 
         UPPAALEdge that = (UPPAALEdge) o;
 
-        if (_source != that._source) return false;
-        return _destination == that._destination;
+        if (!_source.equals(that._source)) return false;
+        return _destination.equals(that._destination);
     }
 
     @Override
     public int hashCode() {
-        int result = _source;
-        result = 31 * result + _destination;
+        int result = _source.hashCode();
+        result = 31 * result + _destination.hashCode();
         return result;
     }
+
+    @Override
+    public int compareTo(UPPAALEdge o) {
+        if(this.getSourceAsInt() < o.getSourceAsInt()
+                || this.getSourceAsInt() == o.getSourceAsInt()
+                && this.getDestinationAsInt() < o.getDestinationAsInt())
+            return -1;
+        else if(this.getSourceAsInt() == o.getSourceAsInt() && this.getDestinationAsInt() == o.getDestinationAsInt())
+            return 0;
+        else return 1;
+    }
+
+
 }

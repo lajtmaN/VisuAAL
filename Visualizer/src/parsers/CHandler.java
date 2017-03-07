@@ -12,7 +12,9 @@ import java.util.stream.Collectors;
 public class CHandler {
     private static final String ConfigVariablePrefix = "CONFIG_";
     private static final String OutputVariablePrefix = "OUTPUT_";
-    private static final String TopologyRegex = "CONFIG_connected\\[.+\\n((?:[^;])+)\\};";
+    private static final String TopologyName = "CONFIG_connected";
+    private static final String NrNodesName = "NR_NODES";
+    private static final String TopologyRegex = TopologyName + "\\[.+\\n((?:[^;])+)\\};";
     private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
     private static final String TypedefRegex(String typedefName) {
         return "typedef\\s+int\\s+\\[\\s*0,\\s*(CONFIG_\\w+)([*+-]\\d+)?\\]\\s+" + typedefName;
@@ -95,27 +97,25 @@ public class CHandler {
 
     public static UPPAALTopology getTopology(String decls){
         UPPAALTopology result = new UPPAALTopology();
+        int source_index = 0;
         String definitionString = RegexHelper.getFirstMatchedValueFromRegex(TopologyRegex, decls);
         if(definitionString != null) {
             definitionString = definitionString.replace(" ", "").replace("\n", "").replace("\t", "");
             if (RegexHelper.getFirstMatchedValueFromRegex(TopologyFormRegex, definitionString) != null) {
-                int source_index = 0;
                 for (String s : definitionString.split("}")) {
                     String temp = s.replace(",{", "").replace("}", "").replace("{", "");
                     int destination_index = 0;
                     for (String element : temp.split(",")) {
                         if (element.equals("1")) { // TODO: Only binary relations can be defined
-                            result.add(new UPPAALEdge(source_index, destination_index));
+                            result.add(new UPPAALEdge(String.valueOf(source_index), String.valueOf(destination_index)));
                         }
                         destination_index++;
-                    }
-                    if (result.getNumberOfNodes() == 0) {
-                        result.setNumberOfNodes(destination_index);
                     }
                     source_index++;
                 }
             }
         }
+        result.setNumberOfNodes(source_index);
         return result;
     }
 
@@ -143,5 +143,37 @@ public class CHandler {
             return constValue;
         }
         return 0;
+    }
+
+    public static String StringUPPAALTopology(UPPAALTopology top) {
+        String CTopology = "";
+        if(top != null) {
+            CTopology = "{\n";
+            top.sort(UPPAALEdge::compareTo);
+
+            int topIndex = 0;
+            UPPAALEdge edge = top.get(0);
+            for (int i = 0; i < top.getNumberOfNodes(); i++) {
+                CTopology += "{";
+                for (int j = 0; j < top.getNumberOfNodes(); j++) {
+                    if (edge.getSourceAsInt() == i && edge.getDestinationAsInt() == j) {
+                        CTopology += "1";
+                        if (topIndex < top.getNumberOfNodes() - 1) {
+                            edge = top.get(++topIndex);
+                        }
+                    } else
+                        CTopology += "0";
+
+                    if (j < top.getNumberOfNodes() - 1)
+                        CTopology += ",";
+                }
+                CTopology += "}";
+                if (i < top.getNumberOfNodes() - 1)
+                    CTopology += ",\n";
+                else
+                    CTopology += "\n}";
+            }
+        }
+        return CTopology;
     }
 }

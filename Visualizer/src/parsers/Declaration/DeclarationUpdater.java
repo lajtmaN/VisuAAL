@@ -1,10 +1,12 @@
 package parsers.Declaration;
 
 import Model.CVar;
+import Model.UPPAALTopology;
 import org.antlr.v4.runtime.*;
 import parsers.Declaration.ANTLRGenerated.uppaalBaseListener;
 import parsers.Declaration.ANTLRGenerated.uppaalParser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,16 +15,21 @@ import java.util.Optional;
  */
 public class DeclarationUpdater extends uppaalBaseListener {
 
-    public DeclarationUpdater(CommonTokenStream tokens, List<CVar> updatedCVars) {
+    public DeclarationUpdater(CommonTokenStream tokens, List<CVar> updatedCVars, String topology) {
         tokStream = tokens;
         rewriter = new TokenStreamRewriter(tokens);
-
+        this.topology = topology;
         cvarsToUpdate = updatedCVars;
+    }
+
+    public DeclarationUpdater(CommonTokenStream tokens, String topology) {
+        this(tokens, new ArrayList<CVar>(), topology);
     }
 
     private List<CVar> cvarsToUpdate;
     private CommonTokenStream tokStream;
     private TokenStreamRewriter rewriter;
+    private String topology;
 
     public String updatedDeclaration() { return rewriter.getText(); }
 
@@ -34,25 +41,18 @@ public class DeclarationUpdater extends uppaalBaseListener {
     public void exitDeclId(uppaalParser.DeclIdContext ctx) {
         String declName = ctx.ID().getText();
         Optional<CVar> cvar = cvarToUpdate(declName);
+
         if (cvar.isPresent()) {
             Token initializeToken = ctx.initialiser().getStart();
             rewriter.replace(initializeToken, cvar.get().getValue());
         }
+
+        if(!topology.isEmpty() && declName.equals("CONFIG_connected")) {
+            rewriter.replace(ctx.initialiser().getStart(), ctx.initialiser().getStop(), topology);
+        }
     }
 
-
-
-//    @Override
-//    public void exitXta(uppaalParser.XtaContext ctx) {
-//        Token semi = ctx.getStop();
-//        int tokIndex = semi.getTokenIndex();
-//        List<Token> cmtChannel = tokStream.getHiddenTokensToRight(tokIndex, uppaalLexer.HIDDEN);
-//        if (cmtChannel != null) {
-//            Token cmt = cmtChannel.get(0);
-//            if (cmt != null) {
-//                rewriter.insertAfter(semi, cmt.getText());
-//            }
-//        }
-//    }
-
+    @Override
+    public void exitInstantiation(uppaalParser.InstantiationContext ctx) {
+    }
 }

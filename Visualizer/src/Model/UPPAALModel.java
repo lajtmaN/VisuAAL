@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static parsers.Declaration.VariableParser.updateTopologyAndNrNodes;
+
 /**
  * Created by batto on 10-Feb-17.
  */
@@ -50,6 +52,19 @@ public class UPPAALModel implements Externalizable {
         return topology;
     }
 
+    public void setTopology(UPPAALTopology newTopo, boolean updateXML) {
+        topology = newTopo;
+
+        if (updateXML) {
+            try {
+                XmlHandler xmlHandler = new XmlHandler(modelPath);
+                String globalDecls = xmlHandler.getGlobalDeclarations();
+                String updatedDecls = updateTopologyAndNrNodes(globalDecls, newTopo);
+                xmlHandler.setGlobalDeclarations(updatedDecls);
+            } catch (Exception ignored) { }
+        }
+    }
+
     public ObservableList<CVar> getAllConfigVars() {
         return allConfigVars;
     }
@@ -74,27 +89,14 @@ public class UPPAALModel implements Externalizable {
         return modelTimeUnit;
     }
 
-    public Simulation runSimulation(String query) throws IOException {
-        FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
-        if (vars.size() > 2)
-            throw new InvalidObjectException("We cannot handle multiple outputs yet.");
-
-        OutputVariable variable = vars.get(0);
-
+    public Simulation runQuery(String query) throws IOException {
         SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getModelPath(), query);
         //TODO use errorState on simulateOutput
 
+        FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
         //TODO we only use the first simulation
-        if (variable.getIsEdgeData()) {
-            ArrayList<? extends SimulationPoint> edgePoints = simulateOutput.getZippedForSimulate(0);
-            return new Simulation(this, query, edgePoints);
-        }
-        else if (variable.getIsNodeData()) {
-            ArrayList<? extends SimulationPoint> nodePoints = simulateOutput.getZippedNodePoints(0);
-            return new Simulation(this, query, nodePoints);
-        }
-        else
-            throw new InvalidObjectException("We do not support showing this yet");
+        List<SimulationPoint> simulationPoints = simulateOutput.zip(vars, 0);
+        return new Simulation(this, query, simulationPoints);
     }
 
     public ObservableList<TemplateUpdate> getTemplateUpdates() {

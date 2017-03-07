@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import View.ToggleSwitch?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -44,7 +45,7 @@
               </columns>
             </TableView>
          </content></Tab>
-       <Tab closable="false" text="Dynamic Constants">
+       <Tab closable="false" text="Dynamic Updates">
            <content>
                <VBox alignment="TOP_CENTER">
                <TableView fx:id="dynamicTable" editable="true" prefWidth="800.0">
@@ -87,7 +88,8 @@
                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                <ColumnConstraints hgrow="SOMETIMES" />
                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="120.0" />
                            </columnConstraints>
                            <rowConstraints>
                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -104,6 +106,11 @@
                                        <Insets right="10.0" />
                                    </padding></Label>
                                <TextField fx:id="txtQuerySimulations" prefHeight="25.0" prefWidth="100.0" promptText="Simulations" GridPane.columnIndex="4" />
+                               <Label prefHeight="17.0" prefWidth="129.0" text="Random topology: " GridPane.columnIndex="5" GridPane.halignment="RIGHT">
+                                   <padding>
+                                       <Insets right="10.0" />
+                                   </padding></Label>
+                               <ToggleSwitch fx:id="chkUseRandomTopology" maxHeight="20.0" maxWidth="80.0" GridPane.columnIndex="6" />
                            </children>
                        </GridPane>
                        <Button mnemonicParsing="false" onAction="#generateQuery" text="Generate Query" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
