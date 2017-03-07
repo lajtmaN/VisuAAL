@@ -290,7 +290,7 @@ public class MainWindowController implements Initializable {
         timeSlider.setShowTickLabels(true);
         timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             lblCurrentTime.setText(String.format("%.1f ms", newValue.doubleValue()));
-            run.markGraphAtTime(oldValue, newValue);
+            run.markGraphAtTime(oldValue, newValue, globalVarGridPane);
         });
         timeSlider.prefWidthProperty().bind(pane.widthProperty().multiply(0.8));
         lblCurrentTime.prefWidthProperty().bind(pane.widthProperty().multiply(0.1));
@@ -339,38 +339,6 @@ public class MainWindowController implements Initializable {
         globalVarGridPane.setPickOnBounds(false);
         globalVarGridPane.setPadding(new Insets(10,0,0,10));
         stackPane.getChildren().add(globalVarGridPane);
-
-        addGlobalVariableToGridPane("FUCKDETERBAREETMEGALANGTORDDETHER", "21");
-        addGlobalVariableToGridPane("hest", "21");
-        addGlobalVariableToGridPane("abe", "17");
-        addGlobalVariableToGridPane("ko", "42");
-    }
-
-    private void addGlobalVariableToGridPane(String name, String value) {
-        int nrRows = globalVarGridPane.getChildren().size() / 2;
-        Label labelName = new Label(name);
-        Label labelValue = new Label(value);
-        labelName.setPadding(new Insets(0,10, 0, 0));
-
-        globalVarGridPane.add(labelName, 0, nrRows);
-        globalVarGridPane.add(labelValue, 1, nrRows);
-    }
-
-    private void updateGlobalVariableInGridPane(String name, String value) {
-        boolean foundLabel = false;
-        for(Node n : globalVarGridPane.getChildren()){
-            Label label = (Label) n;
-            if(foundLabel) {
-                label.setText(value);
-                break;
-            }
-            if(label.getText().equals(name)) {
-                foundLabel = true;
-            }
-        }
-        if(!foundLabel) {
-            
-        }
     }
 
     public void addUpdates(ActionEvent actionEvent) {
