@@ -57,14 +57,13 @@ public class UPPAALEdge implements Serializable, Comparable<UPPAALEdge> {
 
     @Override
     public int compareTo(UPPAALEdge o) {
-        return this.toString().compareTo(o.toString());
-        /*if(this.getSource() < o.getSource()
-                || this.getSource() == o.getSource()
-                && this.getDestination() < o.getDestination())
+        if(this.getSourceAsInt() < o.getSourceAsInt()
+                || this.getSourceAsInt() == o.getSourceAsInt()
+                && this.getDestinationAsInt() < o.getDestinationAsInt())
             return -1;
-        else if(this.getSource() == o.getSource() && this.getDestination() == o.getDestination())
+        else if(this.getSourceAsInt() == o.getSourceAsInt() && this.getDestinationAsInt() == o.getDestinationAsInt())
             return 0;
-        else return 1;*/
+        else return 1;
     }
 
 

@@ -1,5 +1,6 @@
 package View;
 
+import Helpers.ConnectedGraphGenerator;
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.*;
@@ -73,6 +74,7 @@ public class MainWindowController implements Initializable {
     @FXML private Tab configurationTab;
     @FXML private Button saveModelButton;
     @FXML private GridPane globalVarGridPane;
+    @FXML private ToggleSwitch chkUseRandomTopology;
 
 
     private UPPAALModel uppaalModel;
@@ -257,6 +259,15 @@ public class MainWindowController implements Initializable {
         }
     }
 
+    private void handleRandomTopologyIfActivated(boolean updateXML) {
+        boolean useRandomTopology = chkUseRandomTopology.switchOnProperty().get();
+        if (!useRandomTopology) return;
+
+        int originalNumberOfNodes = uppaalModel.getTopology().getNumberOfNodes();
+        UPPAALTopology randomTopology = ConnectedGraphGenerator.generateRandomTopology(originalNumberOfNodes);
+        uppaalModel.setTopology(randomTopology, updateXML);
+    }
+
     public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException {
         if(queryGeneratedTextField.getText().length() == 0) {
             GUIHelper.showAlert(Alert.AlertType.ERROR, "Please generate Query first");
@@ -267,6 +278,7 @@ public class MainWindowController implements Initializable {
         txtUppaalOutput.setText("Running following query in UPPAAL: \n" + query );
 
         simulationProgress.setVisible(true);
+        handleRandomTopologyIfActivated(true);
         Simulation out = uppaalModel.runQuery(query); //Run in uppaal - takes long time
         simulationProgress.setVisible(false);
 
