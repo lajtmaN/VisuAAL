@@ -69,8 +69,7 @@ public class SimulateParserTests {
 
         SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")), 1);
 
-        assertEquals(3, output.getSimulationForVariable("P.s1", 0). size());
-        containsData("P.s1", 0, 0.0, output);
+        assertEquals(2, output.getSimulationForVariable("P.s1", 0). size());
         containsData("P.s1", 1, 1.0, output);
         containsData("P.s1", 2, 0.0, output);
     }
@@ -235,8 +234,7 @@ public class SimulateParserTests {
 
         SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")),1);
 
-        assertEquals(2,output.getSimulationForVariable("P.s1", 0).size());
-        containsData("P.s1", 0, 0.0, output);
+        assertEquals(1,output.getSimulationForVariable("P.s1", 0).size());
         containsData("P.s1", 6150.92, 1.0, output);
     }
 }
