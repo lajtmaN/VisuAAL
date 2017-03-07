@@ -2,6 +2,7 @@ package Model;
 
 import parsers.RegexHelper;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 
 /**
@@ -75,7 +76,7 @@ public class SimulateOutput extends UPPAALOutput {
     private List<SimulationPoint> getZippedVariablePoints(String key, int simId) {
         ArrayList<SimulationPoint> result = new ArrayList<>();
         for(DataPoint dp : simulationData.get(key).get(simId)){
-            result.add(new SimulationPoint(key, dp.getClock(), dp.getValue()));
+            result.add(new SimulationPoint(key, dp.getClock(), dp.getValue(), dp.getPreviousValue()));
         }
         return  result;
     }
@@ -96,7 +97,8 @@ public class SimulateOutput extends UPPAALOutput {
         for(DataPoint dp : simulationData.get(key).get(simId)){
             int source = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(sourceDestinationRegex, key, 1));
             int destination = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(sourceDestinationRegex, key, 2));
-            result.add(new SimulationEdgePoint(dp.getClock(), String.valueOf(source), String.valueOf(destination), dp.getValue()));
+            result.add(new SimulationEdgePoint(dp.getClock(), String.valueOf(source),
+                    String.valueOf(destination), dp.getValue(), dp.getPreviousValue()));
         }
         return  result;
     }
@@ -115,7 +117,7 @@ public class SimulateOutput extends UPPAALOutput {
         ArrayList<SimulationNodePoint> result = new ArrayList<>();
         for (DataPoint dp : simulationData.get(key).get(simId)){
             int nodeId = Integer.valueOf(RegexHelper.getFirstMatchedValueFromRegex(nodeIdRegex, key));
-            result.add(new SimulationNodePoint(dp.getClock(), nodeId, dp.getValue()));
+            result.add(new SimulationNodePoint(dp.getClock(), nodeId, dp.getValue(), dp.getPreviousValue()));
         }
         return result;
     }
@@ -150,6 +152,23 @@ public class SimulateOutput extends UPPAALOutput {
 
         ArrayList<DataPoint> points = simulationData.get(variable).get(simNumber);
         points.get(points.size()-1).setValue(data.getValue()); //Replace datapoint with same clock
+    }
+
+    public void addPreviousDataValues() {
+        for(String key : simulationData.keySet()) {
+            ArrayList<ArrayList<DataPoint>> simulationArrays = simulationData.get(key);
+            for(ArrayList<DataPoint> varData : simulationArrays) {
+                DataPoint previous = null;
+                for(DataPoint d : varData) {
+                    if(previous != null) {
+                        d.setPreviousValue(previous.getValue());
+                    }
+                    else
+                        d.setPreviousValue(0);
+                    previous = d;
+                }
+            }
+        }
     }
 
 }

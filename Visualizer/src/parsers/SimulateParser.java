@@ -52,6 +52,7 @@ public class SimulateParser {
             }
         }
 
+        simulateOutput.addPreviousDataValues();
         return simulateOutput;
     }
 

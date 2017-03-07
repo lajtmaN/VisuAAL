@@ -2,7 +2,11 @@ package Model;
 
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
 import parsers.RegexHelper;
 
@@ -46,20 +50,24 @@ public class Simulation implements Serializable {
         return run;
     }
 
-    public void markGraphAtTime(Number oldTimeValue, Number newTimeValue) {
+    public void markGraphAtTime(Number oldTimeValue, Number newTimeValue, GridPane globalVarGridPane) {
         double newTime = newTimeValue.doubleValue();
         double oldTime = oldTimeValue.doubleValue();
         if (newTime > oldTime)
-            markGraphForward(newTime, oldTime);
+            markGraphForward(newTime, oldTime, globalVarGridPane);
         else
-            markGraphBackwards(newTime, oldTime);
+            markGraphBackwards(newTime, oldTime, globalVarGridPane);
     }
 
-    private void markGraphForward(double newTimeValue, double oldTime) {
+    private void markGraphForward(double newTimeValue, double oldTime, GridPane globalVarGridPane) {
         SimulationPoint sp;
-        while((sp = run.get(currentSimulationIndex)).getClock() < newTimeValue) {
-            if(sp.getClock() > oldTime) {
-                model.getTopology().handleUpdate(sp, sp.getValue() > 0);
+        while((sp = run.get(currentSimulationIndex)).getClock() <= newTimeValue) {
+            if(sp.getClock() >= oldTime) {
+                if(sp.getType() == SimulationPoint.SimulationPointType.Variable) {
+                    updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(sp.getValue()), globalVarGridPane);
+                }
+                else
+                    model.getTopology().handleUpdate(sp, sp.getValue() > 0);
             }
             if (currentSimulationIndex + 1 >= run.size())
                 break;
@@ -69,11 +77,15 @@ public class Simulation implements Serializable {
         }
     }
 
-    private void markGraphBackwards(double newTimeValue, double oldTime) {
+    private void markGraphBackwards(double newTimeValue, double oldTime, GridPane globalVarGridPane) {
         SimulationPoint sp;
-        while((sp = run.get(currentSimulationIndex)).getClock() > newTimeValue) {
-            if(sp.getClock() < oldTime) {
-                model.getTopology().handleUpdate(sp, sp.getValue() == 0);
+        while((sp = run.get(currentSimulationIndex)).getClock() >= newTimeValue) {
+            if(sp.getClock() <= oldTime) {
+                if(sp.getType() == SimulationPoint.SimulationPointType.Variable) {
+                    updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(sp.getPreviousValue()), globalVarGridPane);
+                }
+                else
+                    model.getTopology().handleUpdate(sp, sp.getPreviousValue() > 0);
             }
             if (currentSimulationIndex - 1 < 0)
                 break;
@@ -124,6 +136,33 @@ public class Simulation implements Serializable {
 
         }
         return null;
+    }
+
+    private void addGlobalVariableToGridPane(String name, String value, GridPane globalVarGridPane) {
+        int nrRows = globalVarGridPane.getChildren().size() / 2;
+        Label labelName = new Label(name);
+        Label labelValue = new Label(value);
+        labelName.setPadding(new Insets(0,10, 0, 0));
+
+        globalVarGridPane.add(labelName, 0, nrRows);
+        globalVarGridPane.add(labelValue, 1, nrRows);
+    }
+
+    private void updateGlobalVariableInGridPane(String name, String value, GridPane globalVarGridPane) {
+        boolean foundLabel = false;
+        for(Node n : globalVarGridPane.getChildren()){
+            Label label = (Label) n;
+            if(foundLabel) {
+                label.setText(value);
+                break;
+            }
+            if(label.getText().equals(name)) {
+                foundLabel = true;
+            }
+        }
+        if(!foundLabel) {
+            addGlobalVariableToGridPane(name, value, globalVarGridPane);
+        }
     }
 
     @Override
