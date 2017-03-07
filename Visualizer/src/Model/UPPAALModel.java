@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static parsers.Declaration.VariableParser.updateTopologyAndNrNodes;
+
 /**
  * Created by batto on 10-Feb-17.
  */
@@ -48,6 +50,19 @@ public class UPPAALModel implements Externalizable {
 
     public UPPAALTopology getTopology() {
         return topology;
+    }
+
+    public void setTopology(UPPAALTopology newTopo, boolean updateXML) {
+        topology = newTopo;
+
+        if (updateXML) {
+            try {
+                XmlHandler xmlHandler = new XmlHandler(modelPath);
+                String globalDecls = xmlHandler.getGlobalDeclarations();
+                String updatedDecls = updateTopologyAndNrNodes(globalDecls, newTopo);
+                xmlHandler.setGlobalDeclarations(updatedDecls);
+            } catch (Exception ignored) { }
+        }
     }
 
     public ObservableList<CVar> getAllConfigVars() {

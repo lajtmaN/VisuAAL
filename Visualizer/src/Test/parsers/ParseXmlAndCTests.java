@@ -1,5 +1,6 @@
 package parsers;
 
+import Helpers.ConnectedGraphGenerator;
 import Helpers.FileHelper;
 import Model.*;
 import org.junit.Test;
@@ -283,6 +284,24 @@ public class ParseXmlAndCTests {
         for(int i = 0; i < 4; i++) {
             assertEquals(i, topologyOut.get(i).getSourceAsInt());
             assertEquals((i + 1) % 4, topologyOut.get(i).getDestinationAsInt());
+        }
+    }
+
+    @Test
+    public void setRandomTopologyForUPPAALTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
+        File f = FileHelper.copyFileIntoTempFile(new File("mac_model_test.xml"));
+        UPPAALTopology top = ConnectedGraphGenerator.generateRandomTopology(36);
+
+        XmlHandler xmlHandler = new XmlHandler(f.getPath());
+        String globalDecls = xmlHandler.getGlobalDeclarations();
+        String updatedGlobalDecls = updateTopologyAndNrNodes(globalDecls, top);
+        xmlHandler.setGlobalDeclarations(updatedGlobalDecls);
+
+        UPPAALTopology topologyOut = CHandler.getTopology(xmlHandler.getGlobalDeclarations());
+
+        assertEquals(36, topologyOut.getNumberOfNodes());
+        for(int i = 0; i < 36; i++) {
+            assertEquals(top.get(i), topologyOut.get(i));
         }
     }
 
