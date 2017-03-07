@@ -146,7 +146,6 @@ public class CHandler {
     }
 
     public static String StringUPPAALTopology(UPPAALTopology top) {
-        //TODO: Write number of nodes
         String CTopology = "";
         if(top != null) {
             CTopology = "{\n";
