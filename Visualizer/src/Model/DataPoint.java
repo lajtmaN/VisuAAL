@@ -32,6 +32,10 @@ public class DataPoint implements Serializable{
 
     private double clock;
     private double value;
+    private double previousValue;
+
+    public double getPreviousValue(){ return previousValue; }
+    public void setPreviousValue(double value) { this.previousValue = value; }
 
     @Override
     public boolean equals(Object o) {

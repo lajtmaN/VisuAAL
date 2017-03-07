@@ -20,8 +20,13 @@ public class SimulationPoint extends DataPoint implements Serializable {
         this.identifier = identifier;
     }
 
-    public SimulationPoint(String identifier, double time, double value) {
+    public SimulationPoint(String identifier, double time, double value, double previousValue) {
         this(identifier, time, value, SimulationPointType.Variable);
+        setPreviousValue(previousValue);
+    }
+
+    public SimulationPoint(String identifier, double time, double value) {
+        this(identifier, time, value, 0);
     }
 
     public String getIdentifier() {
