@@ -1,7 +1,10 @@
 package Model;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import org.graphstream.graph.*;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.omg.IOP.CodecPackage.TypeMismatch;
 
 import java.io.Serializable;
 import java.util.*;
@@ -13,12 +16,16 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     private int _numberOfNodes;
     private transient Graph _graphInstance;
 
-    public UPPAALTopology(int numberOfNodes) {
-        this._numberOfNodes = numberOfNodes;
+    public UPPAALTopology(Graph graph) {
+        _graphInstance = graph;
+        initializeGraph();
+        this._numberOfNodes = graph.getNodeCount();
+        for(Edge edge : _graphInstance.getEachEdge()){
+            add(new UPPAALEdge(edge.getSourceNode().getId(), edge.getTargetNode().getId()));
+        }
     }
-    public UPPAALTopology() {
-        this(0);
-    }
+
+    public UPPAALTopology() {}
 
     public int getNumberOfNodes() {
         return _numberOfNodes;
@@ -32,9 +39,10 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         for (int i = 0; i < getNumberOfNodes(); i++) {
             Node n = addNode(String.valueOf(i));
             showLabelOnNode(n, String.valueOf(i));
+            //TODO Edges are added with just i as name, we should use the actual names on simulation points
         }
         for(UPPAALEdge s : this){
-            SimulationEdgePoint sep = new SimulationEdgePoint(0, s.get_source(), s.get_destination(), 1);
+            SimulationEdgePoint sep = new SimulationEdgePoint(0, s.getSource(), s.getDestination(), 1);
             addEdge(sep);
         }
     }
@@ -47,8 +55,8 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         //TODO: Currently only undirected
         Edge e = getGraph().getEdge(s.getIdentifier());
         if(e == null)
-            return getGraph(false).addEdge(s.getIdentifier(), String.valueOf(s.getSource()),
-                    String.valueOf(s.getDestination()), true);
+            return getGraph(false).addEdge(s.getIdentifier(), s.getSource(),
+                    s.getDestination(), true);
         else return e;
     }
     private Edge removeEdge(SimulationEdgePoint s) {
@@ -68,6 +76,8 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             case NodePoint:
                 handleNodeEdit((SimulationNodePoint) s, mark);
                 break;
+            default:
+                throw new IllegalArgumentException("Neither edge or node type");
         }
     }
 
@@ -130,17 +140,21 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     public Graph getGraph(Boolean updateGraph) {
         if (_graphInstance == null) {
             _graphInstance = new MultiGraph("Topology with " + _numberOfNodes + " nodes");
-            _graphInstance.setStrict(false);
-            _graphInstance.addAttribute("ui.stylesheet", styleSheet);
-            _graphInstance.setAutoCreate(true);
-            _graphInstance.addAttribute("ui.quality");
-            _graphInstance.addAttribute("ui.antialias");
+            initializeGraph();
         }
 
         if (updateGraph)
             updateGraph();
 
         return _graphInstance;
+    }
+
+    private void initializeGraph() {
+        _graphInstance.setStrict(false);
+        _graphInstance.addAttribute("ui.stylesheet", styleSheet);
+        _graphInstance.setAutoCreate(true);
+        _graphInstance.addAttribute("ui.quality");
+        _graphInstance.addAttribute("ui.antialias");
     }
 
     public void startAddingEdgesOverTime(ArrayList<SimulationEdgePoint> edges) {

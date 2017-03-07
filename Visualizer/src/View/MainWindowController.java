@@ -1,5 +1,6 @@
 package View;
 
+import Helpers.ConnectedGraphGenerator;
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.*;
@@ -17,19 +18,18 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.*;
-import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.Duration;
@@ -44,7 +44,6 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
@@ -74,6 +73,8 @@ public class MainWindowController implements Initializable {
     @FXML private TableColumn<TemplateUpdate, Integer> dynColumnTime;
     @FXML private Tab configurationTab;
     @FXML private Button saveModelButton;
+    @FXML private GridPane globalVarGridPane;
+    @FXML private ToggleSwitch chkUseRandomTopology;
 
 
     private UPPAALModel uppaalModel;
@@ -140,7 +141,6 @@ public class MainWindowController implements Initializable {
     }
 
     private void initializeOutputVarsTable() {
-        //TODO: Only 2d arrays should be able to mark edge and 1d to mark node
         outputVarName.setCellValueFactory(p -> p.getValue().name());
         outputVarEdge.setCellValueFactory(p -> p.getValue().isEdgeData());
         outputVarEdge.setCellFactory(p -> new CheckBoxTableCell<>());
@@ -155,8 +155,6 @@ public class MainWindowController implements Initializable {
     private void initializeWithLoadedModel() {
         dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
         dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
-
-        tabPane.setVisible(true);
     }
 
     private void resetGUI() {
@@ -184,14 +182,16 @@ public class MainWindowController implements Initializable {
             case ".xml":
                 loadNewModel(selectedFile);
                 saveModelButton.setVisible(true);
+                tabPane.setVisible(true);
                 break;
             case ".sim":
                 loadSavedSimulation(selectedFile);
+                tabPane.setVisible(true);
                 break;
             default:
                 throw new IllegalArgumentException(selectedFile.getName() + " could not be used");
         }
-        initializeWithLoadedModel();
+
     }
 
     public void saveModel(ActionEvent actionEvent) throws IOException, TransformerException, SAXException, ParserConfigurationException {
@@ -220,7 +220,9 @@ public class MainWindowController implements Initializable {
 
     private void loadSavedSimulation(File selectedFile) throws IOException, InterruptedException {
         Simulation loaded = Simulation.load(selectedFile);
-        addNewResults(selectedFile.getName(), loaded);
+        if (loaded != null) {
+            addNewResults(selectedFile.getName(), loaded);
+        }
     }
 
     private void loadNewModel(File selectedFile) {
@@ -235,6 +237,7 @@ public class MainWindowController implements Initializable {
         constantsTable.setItems(uppaalModel.getAllConfigVars());
         tableOutputVars.setItems(uppaalModel.getOutputVars());
         dynamicTable.setItems(uppaalModel.getTemplateUpdates());
+        initializeWithLoadedModel();
     }
 
     public void generateQuery(ActionEvent actionEvent) {
@@ -256,6 +259,15 @@ public class MainWindowController implements Initializable {
         }
     }
 
+    private void handleRandomTopologyIfActivated(boolean updateXML) {
+        boolean useRandomTopology = chkUseRandomTopology.switchOnProperty().get();
+        if (!useRandomTopology) return;
+
+        int originalNumberOfNodes = uppaalModel.getTopology().getNumberOfNodes();
+        UPPAALTopology randomTopology = ConnectedGraphGenerator.generateRandomTopology(originalNumberOfNodes);
+        uppaalModel.setTopology(randomTopology, updateXML);
+    }
+
     public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException {
         if(queryGeneratedTextField.getText().length() == 0) {
             GUIHelper.showAlert(Alert.AlertType.ERROR, "Please generate Query first");
@@ -266,7 +278,8 @@ public class MainWindowController implements Initializable {
         txtUppaalOutput.setText("Running following query in UPPAAL: \n" + query );
 
         simulationProgress.setVisible(true);
-        Simulation out = uppaalModel.runSimulation(query); //Run in uppaal - takes long time
+        handleRandomTopologyIfActivated(true);
+        Simulation out = uppaalModel.runQuery(query); //Run in uppaal - takes long time
         simulationProgress.setVisible(false);
 
         String simulationName = txtSimulationName.getText();
@@ -288,9 +301,8 @@ public class MainWindowController implements Initializable {
         timeSlider.setShowTickMarks(true);
         timeSlider.setShowTickLabels(true);
         timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            //TODO oldValue could be used to only add/remove the edges not already up-to-date
             lblCurrentTime.setText(String.format("%.1f ms", newValue.doubleValue()));
-            run.markGraphAtTime(oldValue, newValue);
+            run.markGraphAtTime(oldValue, newValue, globalVarGridPane);
         });
         timeSlider.prefWidthProperty().bind(pane.widthProperty().multiply(0.8));
         lblCurrentTime.prefWidthProperty().bind(pane.widthProperty().multiply(0.1));
@@ -303,8 +315,11 @@ public class MainWindowController implements Initializable {
         pane.setTop(sliderBox);
 
         //Topology
+        StackPane stackPane = new StackPane();
+        pane.setCenter(stackPane);
         final SwingNode swingNode = new SwingNode();
-        pane.setCenter(swingNode);
+        stackPane.getChildren().add(swingNode);
+        initializeGlobalVarGridpane(stackPane);
         Viewer v = new Viewer(run.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
         v.enableAutoLayout();
         ViewPanel swingView = v.addDefaultView(false);
@@ -329,6 +344,13 @@ public class MainWindowController implements Initializable {
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
         return tab;
+    }
+
+    private void initializeGlobalVarGridpane(StackPane stackPane) {
+        globalVarGridPane = new GridPane();
+        globalVarGridPane.setPickOnBounds(false);
+        globalVarGridPane.setPadding(new Insets(10,0,0,10));
+        stackPane.getChildren().add(globalVarGridPane);
     }
 
     public void addUpdates(ActionEvent actionEvent) {
