@@ -34,17 +34,26 @@ public class FileHelper {
     public static File generateAutoDeletedTempFile(String content, String extension) throws IOException {
         File f = File.createTempFile("uppaalvisualizer_", extension);
         f.deleteOnExit();
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
-            writer.write(content);
-        }
+        writeContentToFile(f, content);
         return f;
     }
 
-    public static File chooseSaveFile() {
+    public static void writeContentToFile(File f, String content) throws IOException {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"))) {
+            writer.write(content);
+        }
+    }
+
+    public static FileChooser.ExtensionFilter UPPAALModelExtensionFilter = new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml");
+    public static FileChooser.ExtensionFilter SimulationExtensionFilter = new FileChooser.ExtensionFilter("Simulation", "*.sim");
+    public static FileChooser.ExtensionFilter TopologyExtensionFilter = new FileChooser.ExtensionFilter("Topology", "*.topo");
+
+    public static File chooseFileToSave(FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select destination file");
         fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml"));
+        fileChooser.getExtensionFilters().add(firstFilter);
+        fileChooser.getExtensionFilters().addAll(filters);
         File selectedFile = fileChooser.showSaveDialog(MainWindowController.getInstance().getWindow());
 
         if (selectedFile == null) {
@@ -62,12 +71,12 @@ public class FileHelper {
         return selectedFile;
     }
 
-    public static File selectFileToLoad(Window window) {
+    public static File chooseFileToLoad(Window window, FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select UPPAAL model or simulation");
         fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml"));
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Simulation", "*.sim"));
+        fileChooser.getExtensionFilters().add(firstFilter);
+        fileChooser.getExtensionFilters().addAll(filters);
         return fileChooser.showOpenDialog(window);
     }
  }

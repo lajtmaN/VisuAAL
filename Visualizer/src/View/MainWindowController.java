@@ -20,7 +20,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -173,7 +172,8 @@ public class MainWindowController implements Initializable {
     }
 
     public void loadModel(ActionEvent actionEvent) throws IOException, InterruptedException {
-        File selectedFile = FileHelper.selectFileToLoad(rootElement.getScene().getWindow());
+        File selectedFile = FileHelper.chooseFileToLoad(rootElement.getScene().getWindow(),
+                FileHelper.UPPAALModelExtensionFilter, FileHelper.SimulationExtensionFilter);
         if (selectedFile == null || !selectedFile.exists() || !selectedFile.isFile())
             return;
 
@@ -196,7 +196,7 @@ public class MainWindowController implements Initializable {
 
     public void saveModel(ActionEvent actionEvent) throws IOException, TransformerException, SAXException, ParserConfigurationException {
         setConstantTableSaveOnUnFocus();
-        File selectedFile = FileHelper.chooseSaveFile();
+        File selectedFile = FileHelper.chooseFileToSave(FileHelper.UPPAALModelExtensionFilter);
         if (selectedFile == null) return;
         uppaalModel.saveToPath(selectedFile.getPath());
         GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Model successfully saved");
