@@ -99,6 +99,11 @@ public class MainWindowController implements Initializable {
         initializeDynamicTable();
     }
 
+    private void initializeSimulationNodeView() {
+        TopologyNodeShower topologyNodeShower = new TopologyNodeShower(uppaalModel.getTopology().getGraph());
+        topologyNodeShower.addNodeView("17");
+    }
+
     private void initializeDynamicTable() {
         dynColumnValue.setCellValueFactory(p -> p.getValue().getObjectProperty());
         dynColumnValue.setCellFactory(p -> new TemplateUpdateValueEditingCell());
@@ -154,6 +159,7 @@ public class MainWindowController implements Initializable {
     private void initializeWithLoadedModel() {
         dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
         dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
+        initializeSimulationNodeView();
     }
 
     private void resetGUI() {
