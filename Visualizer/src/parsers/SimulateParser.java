@@ -1,9 +1,11 @@
 package parsers;
 
+import Helpers.FileHelper;
 import Model.DataPoint;
 import Model.SimulateOutput;
 
 import javax.xml.crypto.Data;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,9 @@ public class SimulateParser {
 
     public static SimulateOutput parse(List<String> verifytaOutput, int nrSimulations) {
         int i;
+        String temp = "";
+        for(String s : verifytaOutput) temp += s;
+
         for (i = 0; i < verifytaOutput.size(); i++) {
             if (verifytaOutput.get(i).contains("Formula is satisfied")) {
                 i++;
