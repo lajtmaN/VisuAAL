@@ -61,7 +61,8 @@ public class Simulation implements Serializable {
 
     private void markGraphForward(double newTimeValue, double oldTime, GridPane globalVarGridPane) {
         SimulationPoint sp;
-        while((sp = run.get(currentSimulationIndex)).getClock() <= newTimeValue) {
+        //Make sure that more elements at same end time all are included
+        while(!((sp = run.get(currentSimulationIndex)).getClock() > newTimeValue)) {
             if(sp.getClock() >= oldTime) {
                 if(sp.getType() == SimulationPoint.SimulationPointType.Variable) {
                     updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(sp.getValue()), globalVarGridPane);
@@ -79,7 +80,7 @@ public class Simulation implements Serializable {
 
     private void markGraphBackwards(double newTimeValue, double oldTime, GridPane globalVarGridPane) {
         SimulationPoint sp;
-        while((sp = run.get(currentSimulationIndex)).getClock() >= newTimeValue) {
+        while(!((sp = run.get(currentSimulationIndex)).getClock() < newTimeValue)) {
             if(sp.getClock() <= oldTime) {
                 if(sp.getType() == SimulationPoint.SimulationPointType.Variable) {
                     updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(sp.getPreviousValue()), globalVarGridPane);
