@@ -96,23 +96,29 @@ public class CHandler {
     }
 
     public static UPPAALTopology getTopology(String decls){
-        UPPAALTopology result = new UPPAALTopology();
-        int source_index = 0;
         String definitionString = RegexHelper.getFirstMatchedValueFromRegex(TopologyRegex, decls);
         if(definitionString != null) {
-            definitionString = definitionString.replace(" ", "").replace("\n", "").replace("\t", "");
-            if (RegexHelper.getFirstMatchedValueFromRegex(TopologyFormRegex, definitionString) != null) {
-                for (String s : definitionString.split("}")) {
-                    String temp = s.replace(",{", "").replace("}", "").replace("{", "");
-                    int destination_index = 0;
-                    for (String element : temp.split(",")) {
-                        if (element.equals("1")) { // TODO: Only binary relations can be defined
-                            result.add(new UPPAALEdge(String.valueOf(source_index), String.valueOf(destination_index)));
-                        }
-                        destination_index++;
+            return getTopologyFromInstantiation(definitionString);
+        }
+        return null;
+    }
+
+    public static UPPAALTopology getTopologyFromInstantiation(String definitionString) {
+        UPPAALTopology result = new UPPAALTopology();
+        int source_index = 0;
+
+        definitionString = definitionString.replace(" ", "").replace("\n", "").replace("\t", "");
+        if (RegexHelper.getFirstMatchedValueFromRegex(TopologyFormRegex, definitionString) != null) {
+            for (String s : definitionString.split("}")) {
+                String temp = s.replace(",{", "").replace("}", "").replace("{", "");
+                int destination_index = 0;
+                for (String element : temp.split(",")) {
+                    if (element.equals("1")) { // TODO: Only binary relations can be defined
+                        result.add(new UPPAALEdge(String.valueOf(source_index), String.valueOf(destination_index)));
                     }
-                    source_index++;
+                    destination_index++;
                 }
+                source_index++;
             }
         }
         result.setNumberOfNodes(source_index);
@@ -158,7 +164,7 @@ public class CHandler {
                 for (int j = 0; j < top.getNumberOfNodes(); j++) {
                     if (edge.getSourceAsInt() == i && edge.getDestinationAsInt() == j) {
                         CTopology += "1";
-                        if (topIndex < top.getNumberOfNodes() - 1) {
+                        if (topIndex < top.size() - 1) {
                             edge = top.get(++topIndex);
                         }
                     } else
