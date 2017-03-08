@@ -103,18 +103,19 @@ public class SimulationTests  {
 
         assertEquals(3, output.getNumVariables());
         assertEquals(3, output.getSimulationForVariable("P.s1", 0).size());
-        containsData("P.s1", 1, 0.0, output);
-        containsData("P.s1", 2, 1.0, output);
-        containsData("P.s1", 3, 2.0, output);
-        containsData("P.s2", 2, 2.0, output);
-        containsData("P.s2", 1, 1.0, output);
-        containsData("P.s3", 2, 2.0, output);
+        containsData("P.s1", 1, 0.0, 0, output);
+        containsData("P.s1", 2, 1.0, 0, output);
+        containsData("P.s1", 3, 2.0, 1, output);
 
+        containsData("P.s2", 1, 1.0, 0, output);
+        containsData("P.s2", 2, 2.0, 1, output);
 
+        containsData("P.s3", 1, 0.0, 0, output);
+        containsData("P.s3", 2, 2.0, 0, output);
     }
 
-    private void containsData(String name, double time, double value, SimulateOutput simulateOutput) {
-        DataPoint d = new DataPoint(time, value);
+    private void containsData(String name, double time, double value, double previousValue, SimulateOutput simulateOutput) {
+        DataPoint d = new DataPoint(time, value, previousValue);
         TestCase.assertTrue("name: " + name + ", time: " + time + " value: " + value,
                 simulateOutput.getSimulationForVariable(name, 0).contains(d));
     }

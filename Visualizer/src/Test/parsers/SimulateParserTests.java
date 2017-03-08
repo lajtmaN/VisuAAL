@@ -54,10 +54,11 @@ public class SimulateParserTests {
 
         assertEquals(2, output.getNumVariables());
         assertEquals(14, output.getSimulationForVariable("P.s1", 0).size());
-        containsData("P.s1", 12, 1.0, output);
-        containsData("P.s1", 36, 1.0, output);
-        containsData("P.s2", 40, 0.0, output);
-        containsData("P.s2", 32, 1.0, output);
+        containsData("P.s1", 12, 1.0, 0, output);
+        containsData("P.s1", 36, 1.0, 0, output);
+
+        containsData("P.s2", 32, 1.0, 0, output);
+        containsData("P.s2", 40, 0.0, 1, output);
     }
 
     @Test
@@ -70,9 +71,9 @@ public class SimulateParserTests {
         SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")), 1);
 
         assertEquals(3, output.getSimulationForVariable("P.s1", 0). size());
-        containsData("P.s1", 0, 0.0, output);
-        containsData("P.s1", 1, 1.0, output);
-        containsData("P.s1", 2, 0.0, output);
+        containsData("P.s1", 0, 0.0, 0, output);
+        containsData("P.s1", 1, 1.0, 0, output);
+        containsData("P.s1", 2, 0.0, 1, output);
     }
 
     @Test
@@ -95,11 +96,12 @@ public class SimulateParserTests {
         assertEquals(expectedOutput, output.getErrorDescription());
     }
 
-    private void containsData(String name, double time, double value, SimulateOutput simulateOutput) {
-        DataPoint d = new DataPoint(time, value);
+    private void containsData(String name, double time, double value, double previousValue, SimulateOutput simulateOutput) {
+        DataPoint d = new DataPoint(time, value, previousValue);
         assertTrue("name: " + name + ", time: " + time + " value: " + value,
                 simulateOutput.getSimulationForVariable(name, 0).contains(d));
     }
+
     @Test
     public void zipOutput(){
         SimulateOutput simOut = new SimulateOutput(1);
@@ -223,7 +225,7 @@ public class SimulateParserTests {
         SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")), 1);
 
         assertEquals(1, output.getSimulationForVariable("P.s1", 0).size());
-        containsData("P.s1", 0, 1.0, output);
+        containsData("P.s1", 0, 1.0, 0, output);
     }
 
     @Test
@@ -236,7 +238,7 @@ public class SimulateParserTests {
         SimulateOutput output = SimulateParser.parse(Arrays.asList(sampleOutput.split("\n")),1);
 
         assertEquals(2,output.getSimulationForVariable("P.s1", 0).size());
-        containsData("P.s1", 0, 0.0, output);
-        containsData("P.s1", 6150.92, 1.0, output);
+        containsData("P.s1", 0, 0.0, 0, output);
+        containsData("P.s1", 6150.92, 1.0, 0, output);
     }
 }

@@ -14,6 +14,11 @@ public class DataPoint implements Serializable{
         setValue(value);
     }
 
+    public DataPoint(double time, double value, double previousValue) {
+        this(time, value);
+        this.setPreviousValue(previousValue);
+    }
+
     public double getClock() {
         return clock;
     }
@@ -45,6 +50,7 @@ public class DataPoint implements Serializable{
         DataPoint dataPoint = (DataPoint) o;
 
         if (Double.compare(dataPoint.clock, clock) != 0) return false;
+        if (Double.compare(dataPoint.getPreviousValue(), this.getPreviousValue()) != 0) return false;
         return Double.compare(dataPoint.value, value) == 0;
     }
 
