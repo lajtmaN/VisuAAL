@@ -48,6 +48,7 @@ public class SimulateOutput extends UPPAALOutput {
     public ArrayList<DataPoint> getSimulationForVariable(String var, int simId) {
         return simulationData.get(var).get(simId);
     }
+
     public ArrayList<ArrayList<DataPoint>> getSimulationForVariable (String var){
         return simulationData.get(var);
     }
