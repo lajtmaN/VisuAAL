@@ -28,23 +28,25 @@ public class SimulateParser {
         SimulateOutput simulateOutput = new SimulateOutput(nrSimulations);
 
         String name = null;
-        for(;i < verifytaOutput.size(); i++) {
+        for (; i < verifytaOutput.size(); i++) {
             String outName = parseVariable(verifytaOutput.get(i));
             int outSimId = parseSimulateDataStart(verifytaOutput.get(i));
 
-            if(outName != null) {
+            if (outName != null) {
                 name = outName;
             }
             else if (outSimId >= 0 && name != null) {
                 ArrayList<DataPoint> datas = RegexHelper.getDataPointsForString(verifytaOutput.get(i));
+                datas.removeIf(d -> d.getClock() == 0 && d.getValue() == 0);
+
                 DataPoint justAddedPoint = null;
-                for(int j = 0; j < datas.size(); j++){
+                for (int j = 0; j < datas.size(); j++){
                     DataPoint startPointOfTimeStep = datas.get(j);
                     while(j+1 < datas.size() && datas.get(j+1).getClock() == startPointOfTimeStep.getClock()){
                         j++;
                     }
                     DataPoint endPointOfTimeStep = datas.get(j);
-                    if(justAddedPoint == null || justAddedPoint.getValue() != endPointOfTimeStep.getValue()){
+                    if (justAddedPoint == null || justAddedPoint.getValue() != endPointOfTimeStep.getValue()) {
                         simulateOutput.addDatapoint(name, outSimId, endPointOfTimeStep);
                         justAddedPoint = endPointOfTimeStep;
                     }
