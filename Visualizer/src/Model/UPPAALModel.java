@@ -44,7 +44,7 @@ public class UPPAALModel implements Externalizable {
         topology = UPPAALParser.getUPPAALTopology(modelPath);
         processes = UPPAALParser.getUPPAALProcesses(modelPath, this.allConfigVars);
         modelTimeUnit = UPPAALParser.getModelTimeUnitConstant(modelPath);
-        outputVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALOutputVars(modelPath, allConfigVars));
+        outputVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALOutputVars(modelPath));
         templateUpdates = FXCollections.observableArrayList(UPPAALParser.getDynamicTemplateUpdates(modelPath));
     }
 

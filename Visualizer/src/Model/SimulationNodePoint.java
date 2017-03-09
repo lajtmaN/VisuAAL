@@ -8,18 +8,20 @@ import java.io.Serializable;
 public class SimulationNodePoint extends SimulationPoint implements Serializable {
     private int nodeId;
 
-    public SimulationNodePoint(double time, int nodeId, double value, double previousValue) {
-        super(String.valueOf(nodeId), time, value, SimulationPointType.NodePoint);
+    public SimulationNodePoint(String variableName, double time, int nodeId, double value, double previousValue) {
+        super(variableName, time, value, SimulationPointType.NodePoint, previousValue);
         this.nodeId = nodeId;
     }
 
-    public SimulationNodePoint(double time, int nodeId, double value) {
-        this(time, nodeId, value, 0);
+    public SimulationNodePoint(String variableName, double time, int nodeId, double value) {
+        this(variableName, time, nodeId, value, 0);
     }
 
     public int getNodeId() {
         return nodeId;
     }
+
+    public void setNodeId(int nodeId) { this.nodeId = nodeId; }
 
     @Override
     public boolean equals(Object o) {

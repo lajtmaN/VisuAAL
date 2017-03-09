@@ -6,7 +6,6 @@ import java.io.Serializable;
  * Created by lajtman on 23-02-2017.
  */
 public class SimulationPoint extends DataPoint implements Serializable {
-
     public enum SimulationPointType {
         EdgePoint, NodePoint, Variable
     }
@@ -14,15 +13,14 @@ public class SimulationPoint extends DataPoint implements Serializable {
     private SimulationPointType type;
     private String identifier;
 
-    SimulationPoint(String identifier, double time, double value, SimulationPointType pType) {
-        super(time, value);
+    SimulationPoint(String identifier, double time, double value, SimulationPointType pType, double previousValue) {
+        super(time, value, previousValue);
         type = pType;
         this.identifier = identifier;
     }
 
     public SimulationPoint(String identifier, double time, double value, double previousValue) {
-        this(identifier, time, value, SimulationPointType.Variable);
-        setPreviousValue(previousValue);
+        this(identifier, time, value, SimulationPointType.Variable, previousValue);
     }
 
     public SimulationPoint(String identifier, double time, double value) {
@@ -35,6 +33,15 @@ public class SimulationPoint extends DataPoint implements Serializable {
 
     SimulationPointType getType() {
         return type;
+    }
+
+
+    public String getTrimmedIdentifier() {
+        String s = getIdentifier();
+        if(s.contains("."))
+            s = s.split("\\.")[1];
+        s = s.split("\\[")[0];
+        return s;
     }
 
     @Override
