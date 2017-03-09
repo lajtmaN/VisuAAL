@@ -363,7 +363,7 @@ public class MainWindowController implements Initializable {
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
 
-        //mouse.start();
+        mouse.start();
 
         return tab;
     }
@@ -382,10 +382,6 @@ public class MainWindowController implements Initializable {
         nodeVarGridPane.setPadding(new Insets(0, 0, 10, 10));
         nodeVarGridPane.setAlignment(Pos.BOTTOM_LEFT);
         stackPane.getChildren().add(nodeVarGridPane);
-
-
-
-        nodeVarGridPane.nodeIsSelected(17);
     }
 
     public void addUpdates(ActionEvent actionEvent) {
