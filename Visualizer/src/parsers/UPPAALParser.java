@@ -70,7 +70,7 @@ public class UPPAALParser {
         return tempFile;
     }
 
-    public static ArrayList<OutputVariable> getUPPAALOutputVars(String uppaalFilePath, List<CVar> constants) {
+    public static ArrayList<OutputVariable> getUPPAALOutputVars(String uppaalFilePath) {
         try {
             HashMap<String, String> allDecls = new XmlHandler(uppaalFilePath).getAllDeclarations();
             return CHandler.getOutputVars(allDecls);

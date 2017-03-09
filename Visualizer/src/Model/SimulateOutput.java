@@ -83,8 +83,10 @@ public class SimulateOutput extends UPPAALOutput {
     }
 
     private OutputVariable getMatchingVariable(List<OutputVariable> outputVars, String variable) {
-        int indexOfArraySign = variable.indexOf("[");
-        String nameWithoutArray = indexOfArraySign > 0 ? variable.substring(0, variable.indexOf("[")) : variable;
+        String newName = variable.contains(".") ? variable.split("\\.")[1] : variable;
+
+        int indexOfArraySign = newName.indexOf("[");
+        String nameWithoutArray = indexOfArraySign > 0 ? newName.substring(0, newName.indexOf("[")) : newName;
 
         Optional<OutputVariable> var = outputVars.stream().filter(p -> p.getName().equals(nameWithoutArray)).findFirst();
         if (var.isPresent())
@@ -95,7 +97,7 @@ public class SimulateOutput extends UPPAALOutput {
 
     public List<SimulationEdgePoint> getZippedEdgePoints(String key, int simId) {
         ArrayList<SimulationEdgePoint> result = new ArrayList<>();
-        for(DataPoint dp : simulationData.get(key).get(simId)){
+        for(DataPoint dp : simulationData.get(key).get(simId)) {
             int source = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(sourceDestinationRegex, key, 1));
             int destination = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(sourceDestinationRegex, key, 2));
             result.add(new SimulationEdgePoint(dp.getClock(), String.valueOf(source),
@@ -118,7 +120,7 @@ public class SimulateOutput extends UPPAALOutput {
         ArrayList<SimulationNodePoint> result = new ArrayList<>();
         for (DataPoint dp : simulationData.get(key).get(simId)){
             int nodeId = Integer.valueOf(RegexHelper.getFirstMatchedValueFromRegex(nodeIdRegex, key));
-            result.add(new SimulationNodePoint(dp.getClock(), nodeId, dp.getValue(), dp.getPreviousValue()));
+            result.add(new SimulationNodePoint(key, dp.getClock(), nodeId, dp.getValue(), dp.getPreviousValue()));
         }
         return result;
     }

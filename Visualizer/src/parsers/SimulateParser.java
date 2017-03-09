@@ -13,7 +13,7 @@ import java.util.List;
  * Created by lajtman on 07-02-2017.
  */
 public class SimulateParser {
-    public static String variableRegex = "^(((\\w)+\\.)?(\\w)+(\\[\\d+\\])*).*:";
+    public static String variableRegex = "^((\\w+(?:\\[\\d+\\])?\\.)?\\w+(\\[\\d+\\])*):";
     private static String simIdRegex = "\\[(\\d+)\\]:";
 
     public static SimulateOutput parse(List<String> verifytaOutput, int nrSimulations) {
