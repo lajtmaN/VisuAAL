@@ -230,6 +230,7 @@ public class MainWindowController implements Initializable {
         Simulation loaded = Simulation.load(selectedFile);
         if (loaded != null) {
             addNewResults(selectedFile.getName(), loaded);
+            addNewResults2(selectedFile.getName(), loaded);
         }
     }
 
@@ -294,7 +295,22 @@ public class MainWindowController implements Initializable {
         if (simulationName.length() == 0) simulationName = "Result";
 
         addNewResults(simulationName, out);
+        addNewResults2(simulationName, out);
         out.save(simulationName);
+    }
+
+    private void addNewResults2(String simulationName, Simulation out) throws IOException {
+        FXMLLoader simulationResultLoader = new FXMLLoader(getClass().getResource("SimulationResult.fxml"));
+        Parent simulationResultView = simulationResultLoader.load();
+        SimulationResultController controller = simulationResultLoader.getController();
+        controller.loadWithSimulation(out);
+
+        //Tab
+        Tab tab = new Tab();
+        tab.setText(simulationName + " v2");
+        tab.setContent(simulationResultView);
+        tabPane.getTabs().add(tab);
+        tabPane.getSelectionModel().select(tab);
     }
 
     private Tab addNewResults(String tabName, Simulation run) throws InterruptedException, IOException {

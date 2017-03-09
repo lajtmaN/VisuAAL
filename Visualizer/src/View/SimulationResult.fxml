@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.embed.swing.SwingNode?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+
+<BorderPane fx:id="rootPane" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.SimulationResultController">
+   <top>
+      <HBox fx:id="sliderBox" BorderPane.alignment="TOP_CENTER">
+         <children>
+             <Slider fx:id="timeSlider" showTickLabels="true" showTickMarks="true" />
+             <Label fx:id="lblCurrentTime" text="0.0 ms" />
+         </children>
+      </HBox>
+   </top>
+   <center>
+      <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+             <SwingNode fx:id="graphStreamNode" />
+            <GridPane fx:id="globalVarGridPane" pickOnBounds="false" StackPane.alignment="TOP_LEFT">
+               <padding>
+                  <Insets left="10.0" top="10.0" />
+               </padding>
+            </GridPane>
+         </children>
+      </StackPane>
+   </center>
+   <bottom>
+      <Button mnemonicParsing="false" onAction="#btnAnimateInRealtimeClicked" text="Animate in real-time" BorderPane.alignment="CENTER" />
+   </bottom>
+    <right>
+        <fx:include fx:id="simulationMenu" source="SimulationMenu.fxml" />
+    </right>
+</BorderPane>
