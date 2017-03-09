@@ -336,7 +336,7 @@ public class MainWindowController implements Initializable {
         ViewPanel swingView = v.addDefaultView(false);
         SwingUtilities.invokeLater(() -> swingNode.setContent(swingView));
 
-        MouseClickListener mouse = new MouseClickListener(v, run.getGraph());
+        MouseClickListener mouse = new MouseClickListener(v, run.getGraph(), nodeVarGridPane);
 
         //Animate button
         Button animateBtn = new Button("Animate in real-time");
@@ -363,7 +363,8 @@ public class MainWindowController implements Initializable {
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
 
-        mouse.doThePump();
+        //mouse.start();
+
         return tab;
     }
 
