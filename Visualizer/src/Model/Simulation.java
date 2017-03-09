@@ -39,8 +39,10 @@ public class Simulation implements Serializable {
     }
 
     public Graph getGraph() {
-        return model.getTopology().getGraph();
+        return getTopology().getGraph();
     }
+
+    public UPPAALTopology getTopology() { return model.getTopology(); }
 
     public double getModelTimeUnit() {
         return model.getModelTimeUnit();
