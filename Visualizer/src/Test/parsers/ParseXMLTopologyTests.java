@@ -43,14 +43,24 @@ public class ParseXMLTopologyTests {
         assertNotNull(ConnectedGraphGenerator.generateRandomTopology(3));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void generateRandomTopologyThrowsExceptionFor2Nodes() {
-        ConnectedGraphGenerator.generateRandomTopology(2);
+        UPPAALTopology topo = Helpers.ConnectedGraphGenerator.generateRandomTopology(2);
+
+        assertEquals(2, topo.getGraph().getNodeCount());
+        assertEquals("0", topo.getGraph().getNode(0).getId());
+        assertEquals("1", topo.getGraph().getNode(1).getId());
+        assertEquals(1, topo.getGraph().getEdgeCount());
+        assertEquals("0-1", topo.getGraph().getEdge(0).getId());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void generateRandomTopologyThrowsExceptionFor1Node() {
-        ConnectedGraphGenerator.generateRandomTopology(1);
+        UPPAALTopology topo = Helpers.ConnectedGraphGenerator.generateRandomTopology(1);
+
+        assertEquals(1, topo.getGraph().getNodeCount());
+        assertEquals("0", topo.getGraph().getNode(0).getId());
+        assertEquals(0, topo.getGraph().getEdgeCount());
     }
 
     @Test(expected = IllegalArgumentException.class)

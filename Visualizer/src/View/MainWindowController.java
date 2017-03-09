@@ -19,9 +19,11 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -347,6 +349,12 @@ public class MainWindowController implements Initializable {
         });
         pane.setBottom(animateBtn);
         pane.setAlignment(animateBtn, Pos.BOTTOM_CENTER);
+
+        FXMLLoader simulationMenuLoader = new FXMLLoader(getClass().getResource("SimulationMenu.fxml"));
+        Parent simulationMenuView = simulationMenuLoader.load();
+        SimulationMenuController controller = simulationMenuLoader.getController();
+        controller.loadWithSimulation(run);
+        pane.setRight(simulationMenuView);
 
         //Tab
         Tab tab = new Tab();
