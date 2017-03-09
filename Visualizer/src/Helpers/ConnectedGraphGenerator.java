@@ -43,17 +43,26 @@ public class ConnectedGraphGenerator {
     }
 
     public static UPPAALTopology generateRandomTopology(int numberOfNodes) {
-        //TODO generate trivial topology for one and two nodes
-        if (numberOfNodes < 3)
-            throw new IllegalArgumentException("Number of nodes should be at least 3");
-
         Graph graph = new MultiGraph("Random graph with " + numberOfNodes + " nodes");
-        Generator gen = new DorogovtsevMendesGenerator();
-        gen.addSink(graph);
-        gen.begin();
-        for(int i=3; i < numberOfNodes; i++)
-            gen.nextEvents();
-        gen.end();
+        if(numberOfNodes < 3) { //generate trivial topology for one and two nodes
+            if (numberOfNodes == 0)
+                throw new IllegalArgumentException("Number of nodes should be at least 1");
+            if(numberOfNodes >= 1) {
+                graph.addNode("0");
+            }
+            if(numberOfNodes == 2) {
+                graph.addNode("1");
+                graph.addEdge("0-1", "0", "1");
+            }
+        }
+        else {
+            Generator gen = new DorogovtsevMendesGenerator();
+            gen.addSink(graph);
+            gen.begin();
+            for (int i = 3; i < numberOfNodes; i++)
+                gen.nextEvents();
+            gen.end();
+        }
         return new UPPAALTopology(graph);
     }
 
