@@ -5,14 +5,9 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
-
-<BorderPane fx:id="rootPane" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.SimulationResultController">
+<?import javafx.scene.layout.*?>
+<?import View.simulation.SimulationDataContainer?>
+<BorderPane fx:id="rootPane" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.simulation.SimulationResultController">
    <top>
       <HBox fx:id="sliderBox" BorderPane.alignment="TOP_CENTER">
          <children>
@@ -30,6 +25,11 @@
                   <Insets left="10.0" top="10.0" />
                </padding>
             </GridPane>
+             <SimulationDataContainer fx:id="nodeVarGridPane" pickOnBounds="false" alignment="BOTTOM_LEFT">
+                 <padding>
+                     <Insets left="10.0" bottom="10.0" />
+                 </padding>
+             </SimulationDataContainer>
          </children>
       </StackPane>
    </center>

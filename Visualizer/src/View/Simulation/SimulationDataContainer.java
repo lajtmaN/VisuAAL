@@ -1,12 +1,12 @@
-package View.Simulation;
+package View.simulation;
 
 import Model.OutputVariable;
+import Model.Simulation;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by batto on 09-Mar-17.
@@ -14,11 +14,13 @@ import java.util.List;
 public class SimulationDataContainer extends GridPane {
     private HashMap<Integer, HashMap<String, Label>> nodeVariableMapper;
 
-    public SimulationDataContainer(List<OutputVariable> nodeVariableNames, int topologySize) {
+    public SimulationDataContainer() {}
+
+    public void initialize(Simulation simulation) {
         this.nodeVariableMapper = new HashMap();
-        for (int i = 0; i < topologySize; i++) {
-            for (OutputVariable var : nodeVariableNames) {
-                if(var.isNodeData().getValue()) {
+        for (int i = 0; i < simulation.getTopology().getNumberOfNodes(); i++) {
+            for (OutputVariable var : simulation.getOutputVariables()) {
+                if(var.getIsSelected() && var.getIsNodeData()) {
                     addVariable(i, var.getName());
                 }
             }
@@ -28,6 +30,8 @@ public class SimulationDataContainer extends GridPane {
     public void nodeIsSelected(int nodeId) {
         this.getChildren().clear();
         HashMap<String, Label> innerMap = nodeVariableMapper.get(nodeId);
+        if (innerMap == null) return;
+
         int i = 0;
         for(String key : innerMap.keySet()) {
             Label nameLabel = new Label(key);

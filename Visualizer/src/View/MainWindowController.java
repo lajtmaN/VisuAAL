@@ -5,8 +5,10 @@ import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.*;
 import Helpers.QueryGenerator;
-import View.Simulation.MouseClickListener;
-import View.Simulation.SimulationDataContainer;
+import View.simulation.MouseClickListener;
+import View.simulation.SimulationDataContainer;
+import View.simulation.SimulationMenuController;
+import View.simulation.SimulationResultController;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -38,7 +40,6 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
-import org.graphstream.ui.view.ViewerPipe;
 import org.xml.sax.SAXException;
 import parsers.UPPAALParser;
 
@@ -48,8 +49,6 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
@@ -230,7 +229,6 @@ public class MainWindowController implements Initializable {
         Simulation loaded = Simulation.load(selectedFile);
         if (loaded != null) {
             addNewResults(selectedFile.getName(), loaded);
-            addNewResults2(selectedFile.getName(), loaded);
         }
     }
 
@@ -295,112 +293,21 @@ public class MainWindowController implements Initializable {
         if (simulationName.length() == 0) simulationName = "Result";
 
         addNewResults(simulationName, out);
-        addNewResults2(simulationName, out);
         out.save(simulationName);
     }
 
-    private void addNewResults2(String simulationName, Simulation out) throws IOException {
-        FXMLLoader simulationResultLoader = new FXMLLoader(getClass().getResource("SimulationResult.fxml"));
+    private void addNewResults(String simulationName, Simulation out) throws IOException {
+        FXMLLoader simulationResultLoader = new FXMLLoader(getClass().getResource("simulation/SimulationResult.fxml"));
         Parent simulationResultView = simulationResultLoader.load();
         SimulationResultController controller = simulationResultLoader.getController();
         controller.loadWithSimulation(out);
 
         //Tab
         Tab tab = new Tab();
-        tab.setText(simulationName + " v2");
+        tab.setText(simulationName);
         tab.setContent(simulationResultView);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
-    }
-
-    private Tab addNewResults(String tabName, Simulation run) throws InterruptedException, IOException {
-        BorderPane pane = new BorderPane();
-
-        //Value Label
-        Label lblCurrentTime = new Label("0.0 ms");
-        //Slider
-        int maxTime = (int)(run.queryTimeBound() * run.getModelTimeUnit());
-        Slider timeSlider = new Slider(0, maxTime, 0);
-        timeSlider.setMajorTickUnit(maxTime > 10000 ? maxTime/4 : 10000);
-        timeSlider.setShowTickMarks(true);
-        timeSlider.setShowTickLabels(true);
-        timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            lblCurrentTime.setText(String.format("%.1f ms", newValue.doubleValue()));
-            run.markGraphAtTime(oldValue, newValue, globalVarGridPane, nodeVarGridPane);
-        });
-        timeSlider.prefWidthProperty().bind(pane.widthProperty().multiply(0.8));
-        lblCurrentTime.prefWidthProperty().bind(pane.widthProperty().multiply(0.1));
-
-        HBox sliderBox = new HBox();
-        sliderBox.prefWidthProperty().bind(pane.widthProperty());
-        sliderBox.getChildren().add(timeSlider);
-        sliderBox.getChildren().add(lblCurrentTime);
-        sliderBox.setAlignment(Pos.TOP_CENTER);
-        pane.setTop(sliderBox);
-
-        //Topology and gridpanes for var data
-        StackPane stackPane = new StackPane();
-        pane.setCenter(stackPane);
-        final SwingNode swingNode = new SwingNode();
-        stackPane.getChildren().add(swingNode);
-        initializeGlobalVarGridpane(stackPane);
-        initializeNodeVarGridPane(stackPane);
-
-
-        Viewer v = new Viewer(run.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-        v.enableAutoLayout();
-        ViewPanel swingView = v.addDefaultView(false);
-        SwingUtilities.invokeLater(() -> swingNode.setContent(swingView));
-
-        MouseClickListener mouse = new MouseClickListener(v, run.getGraph());
-
-        //Animate button
-        Button animateBtn = new Button("Animate in real-time");
-        animateBtn.setOnAction(p -> {
-            Timeline timeline = new Timeline();
-            timeline.setAutoReverse(false);
-            timeSlider.setValue(0);
-            timeline.getKeyFrames().add(new KeyFrame(Duration.millis(maxTime), new KeyValue(timeSlider.valueProperty(), maxTime)));
-            timeline.play();
-        });
-        pane.setBottom(animateBtn);
-        pane.setAlignment(animateBtn, Pos.BOTTOM_CENTER);
-
-        FXMLLoader simulationMenuLoader = new FXMLLoader(getClass().getResource("SimulationMenu.fxml"));
-        Parent simulationMenuView = simulationMenuLoader.load();
-        SimulationMenuController controller = simulationMenuLoader.getController();
-        controller.loadWithSimulation(run);
-        pane.setRight(simulationMenuView);
-
-        //Tab
-        Tab tab = new Tab();
-        tab.setText(tabName);
-        tab.setContent(pane);
-        tabPane.getTabs().add(tab);
-        tabPane.getSelectionModel().select(tab);
-
-        mouse.doThePump();
-        return tab;
-    }
-
-    private void initializeGlobalVarGridpane(StackPane stackPane) {
-        globalVarGridPane = new GridPane();
-        globalVarGridPane.setPickOnBounds(false);
-        globalVarGridPane.setPadding(new Insets(10,0,0,10));
-        stackPane.getChildren().add(globalVarGridPane);
-    }
-
-    private void initializeNodeVarGridPane (StackPane stackPane) {
-        nodeVarGridPane = new SimulationDataContainer(uppaalModel.getOutputVars(),
-                uppaalModel.getTopology().getNumberOfNodes());
-        nodeVarGridPane.setPickOnBounds(false); // Allows for clicking on elements behind
-        nodeVarGridPane.setPadding(new Insets(0, 0, 10, 10));
-        nodeVarGridPane.setAlignment(Pos.BOTTOM_LEFT);
-        stackPane.getChildren().add(nodeVarGridPane);
-
-
-
-        nodeVarGridPane.nodeIsSelected(17);
     }
 
     public void addUpdates(ActionEvent actionEvent) {
