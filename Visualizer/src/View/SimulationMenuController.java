@@ -1,6 +1,10 @@
 package View;
 
 
+import Model.Simulation;
+import View.Options.ExportTopologyOption;
+import View.Options.SimulationOption;
+import View.Options.SimulationOptionCell;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
@@ -14,19 +18,40 @@ import java.util.ResourceBundle;
  */
 public class SimulationMenuController implements Initializable {
 
-    @FXML private ListView<String> lstExportOptions;
+    @FXML private ListView lstDisplayOptions;
+    @FXML private ListView<SimulationOption> lstExportOptions;
 
+    private Simulation currentSimulation;
+
+    void loadWithSimulation(Simulation currentSimulation) {
+        this.currentSimulation = currentSimulation;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        addOptionsToListViews();
         initializeExportOptions();
+        initializeDisplayOptions();
+    }
+
+    private void addOptionsToListViews() {
+        lstExportOptions.getItems().add(new ExportTopologyOption());
     }
 
     private void initializeExportOptions() {
-        lstExportOptions.setCellFactory(param -> new ListCell<String>());
-        
+        lstExportOptions.setCellFactory(param -> new SimulationOptionCell());
+        lstExportOptions.setOnMouseClicked(p -> {
+            lstExportOptions.getSelectionModel().getSelectedItem().performAction(currentSimulation);
+        });
 
-        lstExportOptions.getItems().add("TEST");
-        lstExportOptions.getItems().add("YOO");
+        setHeight(lstExportOptions);
+    }
+
+    private void initializeDisplayOptions() {
+        setHeight(lstDisplayOptions);
+    }
+
+    private void setHeight(ListView list) {
+        list.setPrefHeight(list.getItems().size() * 24 + 2);
     }
 }

@@ -339,8 +339,11 @@ public class MainWindowController implements Initializable {
         pane.setBottom(animateBtn);
         pane.setAlignment(animateBtn, Pos.BOTTOM_CENTER);
 
-        Parent simulationMenu = FXMLLoader.load(getClass().getResource("SimulationMenu.fxml"));
-        pane.setRight(simulationMenu);
+        FXMLLoader simulationMenuLoader = new FXMLLoader(getClass().getResource("SimulationMenu.fxml"));
+        Parent simulationMenuView = simulationMenuLoader.load();
+        SimulationMenuController controller = simulationMenuLoader.getController();
+        controller.loadWithSimulation(run);
+        pane.setRight(simulationMenuView);
 
         //Tab
         Tab tab = new Tab();
