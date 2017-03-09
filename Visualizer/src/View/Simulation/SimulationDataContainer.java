@@ -26,14 +26,15 @@ public class SimulationDataContainer extends GridPane {
     }
 
     public void nodeIsSelected(int nodeId) {
-        this.getChildren().clear();
+        System.out.println("node:" + nodeId);
+        /*this.getChildren().clear();
         HashMap<String, Label> innerMap = nodeVariableMapper.get(nodeId);
         int i = 0;
         for(String key : innerMap.keySet()) {
             Label nameLabel = new Label(key);
             nameLabel.setPadding(new Insets(0,10, 0, 0));
             this.addRow(i++, nameLabel, innerMap.get(key));
-        }
+        }*/
     }
 
     private void addVariable(int nodeId, String variable) {
