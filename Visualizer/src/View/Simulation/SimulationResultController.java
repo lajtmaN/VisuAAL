@@ -1,16 +1,12 @@
-package View;
+package View.simulation;
 
-import Helpers.GUIHelper;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
@@ -18,7 +14,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -35,6 +30,7 @@ public class SimulationResultController implements Initializable {
     @FXML private HBox sliderBox;
     @FXML private BorderPane rootPane;
     @FXML private GridPane globalVarGridPane;
+    @FXML private SimulationDataContainer nodeVarGridPane;
     @FXML private Slider timeSlider;
     @FXML private Label lblCurrentTime;
     @FXML private SwingNode graphStreamNode;
@@ -48,14 +44,16 @@ public class SimulationResultController implements Initializable {
         timeSlider.valueProperty().addListener(((observable, oldValue, newValue) -> {
             handleCurrentTimeChanged(newValue, oldValue);
         }));
+
     }
 
-    void loadWithSimulation(Simulation run) {
+    public void loadWithSimulation(Simulation run) {
         currentSimulation = run;
 
         setupControlsBasedOnCurrentSimulation();
         initializeGraphStreamViewer();
         simulationMenuController.loadWithSimulation(currentSimulation);
+        nodeVarGridPane.initialize(currentSimulation);
     }
 
     private void bindSizes() {
@@ -74,11 +72,14 @@ public class SimulationResultController implements Initializable {
         v.enableAutoLayout();
         ViewPanel swingView = v.addDefaultView(false);
         SwingUtilities.invokeLater(() -> graphStreamNode.setContent(swingView));
+
+        MouseClickListener mouse = new MouseClickListener(v, currentSimulation.getGraph());
+        mouse.doThePump();
     }
 
     private void handleCurrentTimeChanged(Number newTime, Number oldTime) {
         lblCurrentTime.setText(String.format("%.1f ms", newTime.doubleValue()));
-        currentSimulation.markGraphAtTime(oldTime, newTime, globalVarGridPane);
+        currentSimulation.markGraphAtTime(oldTime, newTime, globalVarGridPane, nodeVarGridPane);
     }
 
     public void btnAnimateInRealtimeClicked(ActionEvent actionEvent) {
