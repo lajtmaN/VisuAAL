@@ -6,6 +6,10 @@ import java.io.Serializable;
  * Created by lajtman on 07-02-2017.
  */
 public class DataPoint implements Serializable{
+    private double clock;
+    private double value;
+    private double previousValue;
+
     public DataPoint() {
     }
 
@@ -34,10 +38,6 @@ public class DataPoint implements Serializable{
     public void setValue(double value) {
         this.value = value;
     }
-
-    private double clock;
-    private double value;
-    private double previousValue;
 
     public double getPreviousValue(){ return previousValue; }
     public void setPreviousValue(double value) { this.previousValue = value; }

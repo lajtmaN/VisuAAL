@@ -74,13 +74,11 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             case NodePoint:
                 handleNodeEdit((SimulationNodePoint) s, mark);
                 break;
-            default:
-                throw new IllegalArgumentException("Neither edge or node type");
         }
     }
 
     private void handleNodeEdit(SimulationNodePoint point, boolean mark) {
-        Node node = getGraph().getNode(point.getIdentifier());
+        Node node = getGraph().getNode(point.getNodeId());
         if (node == null) return;
         if (mark)
             markNode(node);
@@ -189,9 +187,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
                     "}" +
             "edge.unmarked {"+
                     "   fill-color: rgba(0,0,0,32);" +
-                    "}" +
-            "sprite { fill-color: green; size: 21px;}" +
-            "sprite.color { fill-color: red; size: 50px;}";
+                    "}";
 
     @Override
     public boolean equals(Object o) {

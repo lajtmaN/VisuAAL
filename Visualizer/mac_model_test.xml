@@ -62,7 +62,7 @@ int aux_id = 0;                                 //Used for passing node id's
 int own_sync_id = 0;                            //Own sync ID
 int other_sync_id = 0;                          //Neighbor sync ID
 int chosen_slot[CONFIG_NR_NODES];                      //Randomly chosen beacon slot
-int beacon_period_counters[CONFIG_NR_NODES];           //Count toward full beacon scan
+int OUTPUT_beacon_period_counters[CONFIG_NR_NODES];           //Count toward full beacon scan
 int data_intervals[CONFIG_NR_NODES];                   //Interval to send data for nodes
 bool is_busy[CONFIG_NR_NODES];                         //One task at a time
 int OUTPUT_data_is_scheduled[CONFIG_NR_NODES][CONFIG_NR_NODES];      //Data schedules
@@ -218,7 +218,7 @@ return CONFIG_connected[my_id][other_id];
 			<source ref="id9"/>
 			<target ref="id5"/>
 			<label kind="guard" x="-595" y="-603">beacon_clocks[id] == CONFIG_BEACON_PERIOD
-&amp;&amp; beacon_period_counters[id] 
+&amp;&amp; OUTPUT_beacon_period_counters[id] 
 == BEACON_SCAN_INTERVAL</label>
 			<label kind="synchronisation" x="-596" y="-552">stop_sending_data!</label>
 			<label kind="comments" x="-595" y="-620">Force send_data to continue</label>
@@ -228,7 +228,7 @@ return CONFIG_connected[my_id][other_id];
 			<source ref="id6"/>
 			<target ref="id9"/>
 			<label kind="guard" x="-518" y="-441">beacon_clocks[id] == CONFIG_BEACON_PERIOD</label>
-			<label kind="assignment" x="-518" y="-424">beacon_period_counters[id] = 0,
+			<label kind="assignment" x="-518" y="-424">OUTPUT_beacon_period_counters[id] = 0,
 is_busy[id] = false</label>
 			<label kind="comments" x="-517" y="-458">End full beacon scan</label>
 			<nail x="-637" y="-467"/>
@@ -248,9 +248,9 @@ is_busy[id] = false</label>
 			<target ref="id9"/>
 			<label kind="guard" x="-960" y="-884">beacon_clocks[id] == CONFIG_BEACON_PERIOD
 &amp;&amp; data_intervals[id] - BEACON_SCAN &lt;  send_data_clock[id]
-&amp;&amp; beacon_period_counters[id] != BEACON_SCAN_INTERVAL</label>
+&amp;&amp; OUTPUT_beacon_period_counters[id] != BEACON_SCAN_INTERVAL</label>
 			<label kind="assignment" x="-960" y="-833">beacon_clocks[id] = 0,
-beacon_period_counters[id]++</label>
+OUTPUT_beacon_period_counters[id]++</label>
 			<label kind="comments" x="-960" y="-901">Prioritize data over beacons</label>
 			<nail x="-697" y="-748"/>
 			<nail x="-960" y="-748"/>
@@ -268,7 +268,7 @@ beacon_period_counters[id]++</label>
 			<source ref="id9"/>
 			<target ref="id8"/>
 			<label kind="guard" x="-527" y="-739">beacon_clocks[id] == CONFIG_BEACON_PERIOD
-&amp;&amp; beacon_period_counters[id] &lt; BEACON_SCAN_INTERVAL
+&amp;&amp; OUTPUT_beacon_period_counters[id] &lt; BEACON_SCAN_INTERVAL
 &amp;&amp; data_intervals[id] - BEACON_SCAN &gt;= send_data_clock[id]</label>
 			<label kind="synchronisation" x="-527" y="-688">beacon_prepare_send_chan?</label>
 			<label kind="assignment" x="-527" y="-671">beacon_clocks[id] = 0</label>
@@ -280,7 +280,7 @@ beacon_period_counters[id]++</label>
 			<source ref="id8"/>
 			<target ref="id9"/>
 			<label kind="synchronisation" x="-255" y="-595">do_beacon_scan[id]!</label>
-			<label kind="assignment" x="-255" y="-578">beacon_period_counters[id]++</label>
+			<label kind="assignment" x="-255" y="-578">OUTPUT_beacon_period_counters[id]++</label>
 			<label kind="comments" x="-255" y="-612">Initiate beacon interval</label>
 			<nail x="-102" y="-629"/>
 			<nail x="-578" y="-629"/>
@@ -289,7 +289,7 @@ beacon_period_counters[id]++</label>
 			<source ref="id9"/>
 			<target ref="id8"/>
 			<label kind="guard" x="-527" y="-875">beacon_clocks[id] == CONFIG_BEACON_PERIOD
-&amp;&amp; beacon_period_counters[id] &lt; BEACON_SCAN_INTERVAL
+&amp;&amp; OUTPUT_beacon_period_counters[id] &lt; BEACON_SCAN_INTERVAL
 &amp;&amp; data_intervals[id] - BEACON_SCAN &gt;= send_data_clock[id]</label>
 			<label kind="assignment" x="-527" y="-825">beacon_clocks[id] = 0</label>
 			<label kind="comments" x="-527" y="-892">First node to enter beacon interval</label>
@@ -931,7 +931,7 @@ is_busy[id] = false</label>
 			<target ref="id42"/>
 			<label kind="guard" x="-102" y="127">send_data_clock[id] == data_intervals[id]
 &amp;&amp; (is_busy[id] 
-|| (beacon_period_counters[id] == BEACON_SCAN_INTERVAL
+|| (OUTPUT_beacon_period_counters[id] == BEACON_SCAN_INTERVAL
     &amp;&amp; beacon_clocks[id] &gt; CONFIG_BEACON_PERIOD - CONFIG_DATA_DURATION))</label>
 			<label kind="assignment" x="-102" y="196">send_data_clock[id] = 0</label>
 			<label kind="comments" x="-102" y="110">Busy or about to do beacon scan</label>
@@ -945,7 +945,7 @@ is_busy[id] = false</label>
 			<target ref="id40"/>
 			<label kind="guard" x="-68" y="-136">send_data_clock[id] == data_intervals[id]
 &amp;&amp; !is_busy[id]
-&amp;&amp; (beacon_period_counters[id] != BEACON_SCAN_INTERVAL
+&amp;&amp; (OUTPUT_beacon_period_counters[id] != BEACON_SCAN_INTERVAL
    || beacon_clocks[id] &lt;= CONFIG_BEACON_PERIOD - CONFIG_DATA_DURATION)</label>
 			<label kind="assignment" x="-68" y="-59">aux_id = id,
 is_busy[id] = true,
@@ -1113,7 +1113,7 @@ decrement_data_schedule(id, local_sender_id)</label>
 &amp;&amp; initialized[id]
 &amp;&amp; OUTPUT_data_is_scheduled[id][aux_id] &gt; 0
 &amp;&amp; is_connected(aux_id)
-&amp;&amp; (beacon_period_counters[id] != BEACON_SCAN_INTERVAL
+&amp;&amp; (OUTPUT_beacon_period_counters[id] != BEACON_SCAN_INTERVAL
     || beacon_clocks[id] &lt;= CONFIG_BEACON_PERIOD - CONFIG_DATA_DURATION)</label>
 			<label kind="synchronisation" x="-93" y="255">send_data_chan?</label>
 			<label kind="assignment" x="-93" y="272">receiving_data_clock = 0,
