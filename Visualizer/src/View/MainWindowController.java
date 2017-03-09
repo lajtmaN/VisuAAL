@@ -5,6 +5,8 @@ import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.*;
 import Helpers.QueryGenerator;
+import View.Simulation.MouseClickListener;
+import View.Simulation.SimulationDataContainer;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -36,6 +38,7 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.ViewerPipe;
 import org.xml.sax.SAXException;
 import parsers.UPPAALParser;
 
@@ -45,6 +48,8 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
@@ -75,6 +80,7 @@ public class MainWindowController implements Initializable {
     @FXML private Tab configurationTab;
     @FXML private Button saveModelButton;
     @FXML private GridPane globalVarGridPane;
+    @FXML private SimulationDataContainer nodeVarGridPane;
     @FXML private ToggleSwitch chkUseRandomTopology;
 
 
@@ -99,11 +105,6 @@ public class MainWindowController implements Initializable {
         initializeOutputVarsTable();
         initializeWidths();
         initializeDynamicTable();
-    }
-
-    private void initializeSimulationNodeView() {
-        TopologyNodeShower topologyNodeShower = new TopologyNodeShower(uppaalModel.getTopology().getGraph());
-        topologyNodeShower.addNodeView("17");
     }
 
     private void initializeDynamicTable() {
@@ -161,7 +162,6 @@ public class MainWindowController implements Initializable {
     private void initializeWithLoadedModel() {
         dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
         dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
-        initializeSimulationNodeView();
     }
 
     private void resetGUI() {
@@ -221,7 +221,7 @@ public class MainWindowController implements Initializable {
         if(constantsChanged){
             UPPAALParser.updateUPPAALConfigConstants(uppaalModel.getModelPath(), uppaalModel.getAllConfigVars());
             //TODO reload appropriate views and update. Save stuff that should not be updated (i.e. selection in outputvars)
-            uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath(), uppaalModel.getAllConfigVars()));
+            uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath()));
             constantsChanged = false;
         }
     }
@@ -326,7 +326,7 @@ public class MainWindowController implements Initializable {
         timeSlider.setShowTickLabels(true);
         timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             lblCurrentTime.setText(String.format("%.1f ms", newValue.doubleValue()));
-            run.markGraphAtTime(oldValue, newValue, globalVarGridPane);
+            run.markGraphAtTime(oldValue, newValue, globalVarGridPane, nodeVarGridPane);
         });
         timeSlider.prefWidthProperty().bind(pane.widthProperty().multiply(0.8));
         lblCurrentTime.prefWidthProperty().bind(pane.widthProperty().multiply(0.1));
@@ -338,16 +338,21 @@ public class MainWindowController implements Initializable {
         sliderBox.setAlignment(Pos.TOP_CENTER);
         pane.setTop(sliderBox);
 
-        //Topology
+        //Topology and gridpanes for var data
         StackPane stackPane = new StackPane();
         pane.setCenter(stackPane);
         final SwingNode swingNode = new SwingNode();
         stackPane.getChildren().add(swingNode);
         initializeGlobalVarGridpane(stackPane);
+        initializeNodeVarGridPane(stackPane);
+
+
         Viewer v = new Viewer(run.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
         v.enableAutoLayout();
         ViewPanel swingView = v.addDefaultView(false);
         SwingUtilities.invokeLater(() -> swingNode.setContent(swingView));
+
+        MouseClickListener mouse = new MouseClickListener(v, run.getGraph());
 
         //Animate button
         Button animateBtn = new Button("Animate in real-time");
@@ -373,6 +378,8 @@ public class MainWindowController implements Initializable {
         tab.setContent(pane);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
+
+        mouse.doThePump();
         return tab;
     }
 
@@ -381,6 +388,19 @@ public class MainWindowController implements Initializable {
         globalVarGridPane.setPickOnBounds(false);
         globalVarGridPane.setPadding(new Insets(10,0,0,10));
         stackPane.getChildren().add(globalVarGridPane);
+    }
+
+    private void initializeNodeVarGridPane (StackPane stackPane) {
+        nodeVarGridPane = new SimulationDataContainer(uppaalModel.getOutputVars(),
+                uppaalModel.getTopology().getNumberOfNodes());
+        nodeVarGridPane.setPickOnBounds(false); // Allows for clicking on elements behind
+        nodeVarGridPane.setPadding(new Insets(0, 0, 10, 10));
+        nodeVarGridPane.setAlignment(Pos.BOTTOM_LEFT);
+        stackPane.getChildren().add(nodeVarGridPane);
+
+
+
+        nodeVarGridPane.nodeIsSelected(17);
     }
 
     public void addUpdates(ActionEvent actionEvent) {
