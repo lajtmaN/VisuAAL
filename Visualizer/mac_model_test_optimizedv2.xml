@@ -103,7 +103,8 @@ int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
 };
 
 broadcast chan transmitTo[CONFIG_NR_NODES];
-broadcast chan beginTransmit[CONFIG_NR_NODES];
+broadcast chan beginTransmitBcn[CONFIG_NR_NODES];
+broadcast chan beginTransmitData[CONFIG_NR_NODES];
 
 /*int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = 
 {
@@ -270,6 +271,7 @@ initialized[id] = true</label>
 		<parameter>const id_t id</parameter>
 		<declaration>// Place local declarations here.
 bool moreToSend = true;
+bool beaconData;
 int nextId = -1;
 int sendId = -1;
 
@@ -283,6 +285,7 @@ void setNextId() {
 void reset() {
     nextId = -1;
     sendId = -1;
+    moreToSend = true;
 }</declaration>
 		<location id="id6" x="-144" y="68">
 			<committed/>
@@ -295,6 +298,24 @@ void reset() {
 		<init ref="id8"/>
 		<transition>
 			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="guard" x="68" y="119">moreToSend &amp;&amp; !beaconData</label>
+			<label kind="synchronisation" x="69" y="136">transmitTo[sendId]!</label>
+			<nail x="-144" y="119"/>
+			<nail x="306" y="119"/>
+			<nail x="306" y="-136"/>
+			<nail x="-102" y="-136"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-314" y="-178">beginTransmitData[id]?</label>
+			<label kind="assignment" x="-314" y="-161">beaconData = false</label>
+			<nail x="-348" y="-136"/>
+			<nail x="-144" y="-136"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
 			<target ref="id8"/>
 			<label kind="guard" x="-340" y="-8">!moreToSend</label>
 			<label kind="assignment" x="-340" y="8">reset()</label>
@@ -303,7 +324,7 @@ void reset() {
 		<transition>
 			<source ref="id6"/>
 			<target ref="id7"/>
-			<label kind="guard" x="76" y="-17">moreToSend</label>
+			<label kind="guard" x="76" y="-17">moreToSend &amp;&amp; beaconData</label>
 			<label kind="synchronisation" x="76" y="0">transmitTo[sendId]!</label>
 			<nail x="68" y="68"/>
 			<nail x="68" y="-68"/>
@@ -316,7 +337,8 @@ void reset() {
 		<transition>
 			<source ref="id8"/>
 			<target ref="id7"/>
-			<label kind="synchronisation" x="-314" y="-93">beginTransmit[id]?</label>
+			<label kind="synchronisation" x="-314" y="-102">beginTransmitBcn[id]?</label>
+			<label kind="assignment" x="-314" y="-85">beaconData = true</label>
 		</transition>
 	</template>
 	<template>
@@ -447,7 +469,7 @@ void reset_vars() {
     collision = false;
 }</declaration>
 		<location id="id14" x="272" y="-374">
-			<committed/>
+			<urgent/>
 		</location>
 		<location id="id15" x="646" y="-374">
 			<committed/>
@@ -456,7 +478,7 @@ void reset_vars() {
 			<committed/>
 		</location>
 		<location id="id17" x="535" y="-280">
-			<committed/>
+			<urgent/>
 		</location>
 		<location id="id18" x="-25" y="-374">
 			<name x="-17" y="-374">during_full_beacon_scan</name>
@@ -705,7 +727,7 @@ double nr_collisions = 0.0,
     }
 }*/</declaration>
 		<location id="id25" x="25" y="161">
-			<committed/>
+			<urgent/>
 		</location>
 		<location id="id26" x="-170" y="-187">
 			<name x="-247" y="-178">standy_until_others_prepared</name>
@@ -857,7 +879,7 @@ nr_senders = 0</label>
 		<transition>
 			<source ref="id30"/>
 			<target ref="id29"/>
-			<label kind="synchronisation" x="-382" y="-246">beginTransmit[id]!</label>
+			<label kind="synchronisation" x="-382" y="-246">beginTransmitBcn[id]!</label>
 			<label kind="comments" x="-382" y="-263">12/P10. Send data to receivers</label>
 		</transition>
 		<transition>
@@ -891,14 +913,14 @@ is_busy[id] = false</label>
 		<name>send_data</name>
 		<parameter>id_t id</parameter>
 		<location id="id36" x="382" y="-102">
-			<committed/>
+			<urgent/>
 		</location>
 		<location id="id37" x="-434" y="0">
 			<committed/>
 		</location>
 		<location id="id38" x="382" y="0">
 			<name x="340" y="8">prepare_send</name>
-			<committed/>
+			<urgent/>
 		</location>
 		<location id="id39" x="382" y="-178">
 			<name x="289" y="-229">sending</name>
@@ -975,7 +997,7 @@ send_data_clock[id] = 0</label>
 		<transition>
 			<source ref="id38"/>
 			<target ref="id36"/>
-			<label kind="synchronisation" x="390" y="-42">beginTransmit[id]!</label>
+			<label kind="synchronisation" x="390" y="-42">beginTransmitData[id]!</label>
 			<label kind="comments" x="391" y="-59">Send to neighbor receivers</label>
 		</transition>
 		<transition>
@@ -1010,7 +1032,7 @@ void schedule_data(int my_id, int other_id) {
     if(OUTPUT_data_is_scheduled[my_id][other_id] == 0)
         OUTPUT_nr_node_relations++;
 
-    OUTPUT_data_is_scheduled[my_id][other_id] = 4;
+    OUTPUT_data_is_scheduled[my_id][other_id] = 3;
 }</declaration>
 		<location id="id42" x="221" y="119">
 			<committed/>
@@ -5294,7 +5316,7 @@ OUTPUT_data_is_scheduled[63][63] &gt; 0
 			</comment>
 		</query>
 		<query>
-			<formula>simulate 1 [&lt;=20000] { OUTPUT_nr_node_relations }
+			<formula>simulate 1 [&lt;=40000] { OUTPUT_nr_node_relations }
 			</formula>
 			<comment>
 			</comment>
