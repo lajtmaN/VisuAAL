@@ -8,7 +8,7 @@ double CONFIG_TEST_DOUBLE = 0.5;
 
 
 const int NR_NODES_SQR_ROOT = 8, 
-          CONFIG_NR_NODES = 4,
+          CONFIG_NR_NODES = 25,
           CONFIG_NR_BEACON_SLOTS = 8,
           MAX_BEACON_NUMBER = 17;
 
@@ -47,7 +47,7 @@ broadcast chan
     beacon_start_chan,                          //Begins sending beacon
     beacon_prepare_send_chan,                   //Prepare nodes to receive
     beacon_synchronize,                         //Tell synchronizer to test sync
-    send_data_chan,                             //Data is being send
+    send_data_chan[CONFIG_NR_NODES],                             //Data is being send
     stop_sending_data;                          //Force data sender to stop
 
 //We pass the ID of the node as the index of the array
@@ -74,19 +74,54 @@ int OUTPUT_nr_node_relations = 0;                      //Count of total network 
 //Clocks used by several templates
 clock beacon_clocks[CONFIG_NR_NODES];                  //Manages beacon periods
 clock send_data_clock[CONFIG_NR_NODES];                //Manage when the nodes sends data
+int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
+{1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{0,2,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{1,3,7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{2,4,8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{3,9,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{0,6,10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{1,5,7,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{2,6,8,12,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{3,7,9,13,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{4,8,14,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{5,11,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{6,10,12,16,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{7,11,13,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{8,12,14,18,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{9,13,19,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{10,16,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{11,15,17,21,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{12,16,18,22,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{13,17,19,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{14,18,24,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{15,21,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{16,20,22,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{17,21,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{18,22,24,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{19,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}
+};
 
-//returns true if the nodes are connected
-bool connected_check(int my_id, int other_id) {
+const int CONFIG_max_neighbor_count = 4;
 
-//Report topology: Neighbors must be 7
-//new_topology - 6 nodes
-int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = 
+broadcast chan beacon_transmit[CONFIG_NR_NODES];
+
+/*int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = 
 {
 {0,1,1,0},
 {1,0,0,1},
 {1,0,0,1},
 {0,1,1,0}
-};
+};*/
+
+//returns true if the nodes are connected
+/*bool connected_check(int my_id, int other_id) {
+
+
+//Report topology: Neighbors must be 7
+//new_topology - 6 nodes
+
+return CONFIG_connected[my_id][other_id];
 
 //Neocortec testbed - num_nodes_quadratic * num_nodes_quadratic nodes
     if(my_id % NR_NODES_SQR_ROOT == 0)
@@ -112,7 +147,7 @@ int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] =
     //Line topology
     return my_id - other_id == 1 || my_id - other_id == -1;
 
-}</declaration>
+}*/</declaration>
 	<template>
 		<name x="5" y="5">beacon_schedule</name>
 		<parameter>id_t id</parameter>
@@ -331,15 +366,15 @@ bool is_full_beacon_scan() {
 	</template>
 	<template>
 		<name>full_beacon_scan</name>
-		<parameter>id_t id</parameter>
+		<parameter>const id_t id</parameter>
 		<declaration>clock slot_clock;           //Handling slot timing
 beacon_data local_beacon;   //Sent beacon saved locally
 bool collision = false;     //True after collision
 int sync_id = -1;           //Id to synchronize to 
 
-bool is_connected() {
+/*bool is_connected() {
     return connected_check(id, sent_beacon.id);
-}
+}*/
 
 //Schedule data and sync (first beacon only) when there is no collision
 void handle_beacon(int my_id, int other_id) {
@@ -501,8 +536,9 @@ reset_vars()</label>
 		<transition>
 			<source ref="id19"/>
 			<target ref="id14"/>
-			<label kind="guard" x="372" y="-347">is_connected()</label>
-			<label kind="synchronisation" x="372" y="-330">beacon_start_chan?</label>
+			<label kind="select" x="365" y="-348">i:int[0, CONFIG_max_neighbor_count-1]</label>
+			<label kind="guard" x="365" y="-331">CONFIG_connected_opt[id][i] != -1</label>
+			<label kind="synchronisation" x="365" y="-314">beacon_transmit[CONFIG_connected_opt[id][i]]?</label>
 			<label kind="comments" x="374" y="-365">Another beacon sent</label>
 			<nail x="535" y="-374"/>
 		</transition>
@@ -529,16 +565,17 @@ reset_vars()</label>
 		<transition>
 			<source ref="id15"/>
 			<target ref="id11"/>
-			<label kind="guard" x="8" y="-450">is_connected()
-&amp;&amp; beacon_clocks[id] 
-&lt;= CONFIG_BEACON_PERIOD - BEACON_SLOT</label>
-			<label kind="synchronisation" x="7" y="-398">beacon_start_chan?</label>
-			<label kind="comments" x="8" y="-467">Neighbor sending beacon</label>
+			<label kind="select" x="8" y="-467">i:int[0, CONFIG_max_neighbor_count-1]</label>
+			<label kind="guard" x="8" y="-450">beacon_clocks[id] 
+&lt;= CONFIG_BEACON_PERIOD - BEACON_SLOT
+&amp;&amp; CONFIG_connected_opt[id][i] != -1</label>
+			<label kind="synchronisation" x="7" y="-398">beacon_transmit[CONFIG_connected_opt[id][i]]?</label>
+			<label kind="comments" x="8" y="-484">Neighbor sending beacon</label>
 		</transition>
 	</template>
 	<template>
 		<name>beacon_scan</name>
-		<parameter>id_t id</parameter>
+		<parameter>const id_t id</parameter>
 		<declaration>//Nr beacon periods without sending
 const int NR_BEACON_PERIODS_ONLY_LISTEN = 3;
 
@@ -567,9 +604,9 @@ void reset_local_beacon() {
 }
 
 //Neighbor connected check
-bool is_connected() {
+/*bool is_connected() {
     return connected_check(id, sent_beacon.id);
-}
+}*/
 
 //Choose a a beacon slot to send in 
 void choose_slot(int k) {
@@ -682,8 +719,9 @@ nr_senders++</label>
 		<transition>
 			<source ref="id29"/>
 			<target ref="id22"/>
-			<label kind="guard" x="-187" y="187">is_connected()</label>
-			<label kind="synchronisation" x="-187" y="204">beacon_start_chan?</label>
+			<label kind="select" x="-187" y="187">i:int[0, CONFIG_max_neighbor_count-1]</label>
+			<label kind="guard" x="-187" y="204">CONFIG_connected_opt[id][i] != -1</label>
+			<label kind="synchronisation" x="-187" y="221">beacon_transmit[CONFIG_connected_opt[id][i]]?</label>
 			<label kind="comments" x="-187" y="170">4/P12. Neighbor begins sending</label>
 		</transition>
 		<transition>
@@ -772,7 +810,7 @@ nr_senders = 0</label>
 		<transition>
 			<source ref="id27"/>
 			<target ref="id26"/>
-			<label kind="synchronisation" x="-382" y="-246">beacon_start_chan!</label>
+			<label kind="synchronisation" x="-382" y="-246">beacon_transmit[id]!</label>
 			<label kind="comments" x="-382" y="-263">12/P10. Send data to receivers</label>
 		</transition>
 		<transition>
@@ -890,7 +928,7 @@ send_data_clock[id] = 0</label>
 		<transition>
 			<source ref="id35"/>
 			<target ref="id33"/>
-			<label kind="synchronisation" x="390" y="-51">send_data_chan!</label>
+			<label kind="synchronisation" x="390" y="-51">send_data_chan[id]!</label>
 			<label kind="comments" x="391" y="-68">Send to neighbor receivers</label>
 		</transition>
 		<transition>
@@ -903,13 +941,13 @@ send_data_clock[id] = 0</label>
 	</template>
 	<template>
 		<name>receive_data</name>
-		<parameter>id_t id</parameter>
+		<parameter>const id_t id</parameter>
 		<declaration>clock receiving_data_clock;   //Receives data for a duration
 int local_sender_id = 0;      //Save senders id locally
 
-bool is_connected(int other_id) {
+/*bool is_connected(int other_id) {
     return connected_check(id, other_id);
-}
+}*/
 
 //We schedule at most 3 data transmissions at a time
 //When the schedule reaches 0 it is no longer scheduled
@@ -968,7 +1006,8 @@ void schedule_data(int my_id, int other_id) {
 			<source ref="id39"/>
 			<target ref="id40"/>
 			<label kind="guard" x="245" y="144">data_intervals[id] - CONFIG_DATA_DURATION &gt;=  send_data_clock[id]</label>
-			<label kind="assignment" x="246" y="161">is_busy[id] = true</label>
+			<label kind="assignment" x="246" y="161">is_busy[id] = true,
+decrement_data_schedule(id, local_sender_id)</label>
 			<label kind="comments" x="246" y="127">No overlap with sending</label>
 		</transition>
 		<transition>
@@ -1003,11 +1042,10 @@ other_sync_id = local_sender_id</label>
 		<transition>
 			<source ref="id42"/>
 			<target ref="id45"/>
-			<label kind="assignment" x="-408" y="-85">is_busy[id] = false,
+			<label kind="assignment" x="-272" y="-76">is_busy[id] = false,
 local_sender_id = 0,
-receiving_data_clock = 0,
-decrement_data_schedule(id, local_sender_id)</label>
-			<label kind="comments" x="-408" y="-102">Reset</label>
+receiving_data_clock = 0</label>
+			<label kind="comments" x="-272" y="-93">Reset</label>
 		</transition>
 		<transition>
 			<source ref="id43"/>
@@ -1019,9 +1057,10 @@ decrement_data_schedule(id, local_sender_id)</label>
 		<transition>
 			<source ref="id44"/>
 			<target ref="id43"/>
-			<label kind="guard" x="237" y="-109">is_connected(aux_id)</label>
-			<label kind="synchronisation" x="236" y="-91">send_data_chan?</label>
-			<label kind="comments" x="238" y="-127">Collision</label>
+			<label kind="select" x="255" y="-110">i:int[0,CONFIG_max_neighbor_count-1]</label>
+			<label kind="guard" x="255" y="-93">CONFIG_connected_opt[id][i] != -1</label>
+			<label kind="synchronisation" x="255" y="-76">send_data_chan[CONFIG_connected_opt[id][i]]?</label>
+			<label kind="comments" x="255" y="-127">Collision</label>
 			<nail x="365" y="-136"/>
 		</transition>
 		<transition>
@@ -1034,14 +1073,15 @@ decrement_data_schedule(id, local_sender_id)</label>
 		<transition>
 			<source ref="id45"/>
 			<target ref="id39"/>
-			<label kind="guard" x="-92" y="145">!is_busy[id]
+			<label kind="select" x="-93" y="144">i:int[0, CONFIG_max_neighbor_count-1]</label>
+			<label kind="guard" x="-93" y="161">!is_busy[id]
 &amp;&amp; initialized[id]
 &amp;&amp; OUTPUT_data_is_scheduled[id][aux_id] &gt; 0
-&amp;&amp; is_connected(aux_id)
 &amp;&amp; (OUTPUT_beacon_period_counters[id] != BEACON_SCAN_INTERVAL
-    || beacon_clocks[id] &lt;= CONFIG_BEACON_PERIOD - CONFIG_DATA_DURATION)</label>
-			<label kind="synchronisation" x="-93" y="255">send_data_chan?</label>
-			<label kind="assignment" x="-93" y="272">receiving_data_clock = 0,
+    || beacon_clocks[id] &lt;= CONFIG_BEACON_PERIOD - CONFIG_DATA_DURATION)
+&amp;&amp; CONFIG_connected_opt[id][i] != -1</label>
+			<label kind="synchronisation" x="-93" y="272">send_data_chan[CONFIG_connected_opt[id][i]]?</label>
+			<label kind="assignment" x="-93" y="289">receiving_data_clock = 0,
 local_sender_id = aux_id</label>
 			<label kind="comments" x="-93" y="128">Begin receive data</label>
 			<nail x="-102" y="119"/>
@@ -5193,7 +5233,7 @@ OUTPUT_data_is_scheduled[63][63] &gt; 0
 			</comment>
 		</query>
 		<query>
-			<formula>Pr [&lt;= 60000] (&lt;&gt; OUTPUT_nr_node_relations == 18)
+			<formula>Pr [&lt;= 20000] (&lt;&gt; OUTPUT_nr_node_relations == 18)
 			</formula>
 			<comment>
 			</comment>
