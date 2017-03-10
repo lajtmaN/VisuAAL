@@ -1,23 +1,40 @@
 package View.simulation;
 
+import Helpers.Pair;
 import Model.OutputVariable;
 import Model.Simulation;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-
 import java.util.HashMap;
 
 /**
  * Created by batto on 09-Mar-17.
  */
 public class SimulationDataContainer extends GridPane {
-    private HashMap<Integer, HashMap<String, Label>> nodeVariableMapper;
+    private HashMap<Integer, HashMap<String, Pair<Integer, Double>>> nodeVariableMapper;
+    private HashMap<String,  Label> labels;
+    private Label nodeIdLabel;
 
     public SimulationDataContainer() {}
 
     public void initialize(Simulation simulation) {
-        this.nodeVariableMapper = new HashMap();
+        labels = new HashMap<>();
+
+        nodeIdLabel = new Label("Node 0");
+        this.addRow(0, nodeIdLabel);
+
+        int j = 1;
+        for (OutputVariable var : simulation.getOutputVariables()) {
+            if(var.getIsSelected() && var.getIsNodeData()) {
+                Label zero = new Label("0");
+                zero.setPadding(new Insets(0, 0, 0, 10));
+                this.addRow(j++, new Label(var.getName()), zero);
+                labels.put(var.getName(), zero);
+            }
+        }
+
         for (int i = 0; i < simulation.getTopology().getNumberOfNodes(); i++) {
             for (OutputVariable var : simulation.getOutputVariables()) {
                 if(var.getIsSelected() && var.getIsNodeData()) {
@@ -28,17 +45,13 @@ public class SimulationDataContainer extends GridPane {
     }
 
     public void nodeIsSelected(int nodeId) {
-        System.out.println("node:" + nodeId);
-        /*this.getChildren().clear();
-        HashMap<String, Label> innerMap = nodeVariableMapper.get(nodeId);
-        if (innerMap == null) return;
-
-        int i = 0;
-        for(String key : innerMap.keySet()) {
-            Label nameLabel = new Label(key);
-            nameLabel.setPadding(new Insets(0,10, 0, 0));
-            this.addRow(i++, nameLabel, innerMap.get(key));
-        }*/
+        //Prevent JavaFX from throwing illegalStateExceptions
+        Platform.runLater(() -> {
+            for(String key : labels.keySet()){
+                labels.get(key).setText(String.valueOf(nodeVariableMapper.get(nodeId).get(key).getSecond()));
+            }
+            nodeIdLabel.setText("Node " + nodeId);
+        });
     }
 
     private void addVariable(int nodeId, String variable) {
@@ -46,16 +59,15 @@ public class SimulationDataContainer extends GridPane {
             nodeVariableMapper.put(nodeId, new HashMap());
         }
 
-        HashMap<String, Label> node = nodeVariableMapper.get(nodeId);
+        HashMap<String, Pair<Integer, Double>> node = nodeVariableMapper.get(nodeId);
 
         if(!node.containsKey(variable)) {
-            node.put(variable, new Label());
+            node.put(variable, new Pair(-1, 0));
         }
-
-        node.get(variable).setText("0");
     }
 
     public void updateVariable(int nodeId, String variable, double value) {
-        nodeVariableMapper.get(nodeId).get(variable).setText(String.valueOf(value));
+        nodeVariableMapper.get(nodeId).get(variable).setSecond(value);
+        labels.get(variable).setText(String.valueOf(value));
     }
 }

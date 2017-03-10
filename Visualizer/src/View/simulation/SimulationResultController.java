@@ -20,6 +20,7 @@ import java.util.ResourceBundle;
 import Model.Simulation;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+import View.simulation.*;
 
 import javax.swing.*;
 
@@ -73,8 +74,8 @@ public class SimulationResultController implements Initializable {
         ViewPanel swingView = v.addDefaultView(false);
         SwingUtilities.invokeLater(() -> graphStreamNode.setContent(swingView));
 
-        MouseClickListener mouse = new MouseClickListener(v, currentSimulation.getGraph());
-        mouse.doThePump();
+        MouseClickListener mouse = new MouseClickListener(v, currentSimulation.getGraph(), nodeVarGridPane);
+        mouse.start();
     }
 
     private void handleCurrentTimeChanged(Number newTime, Number oldTime) {
