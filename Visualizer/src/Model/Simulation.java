@@ -25,7 +25,7 @@ public class Simulation implements Serializable {
 
     public Simulation(UPPAALModel uppModel, String uppQuery, List<SimulationPoint> points) {
         query = uppQuery;
-        model = uppModel;
+        model = uppModel.deepClone();
         model.getTopology().updateGraph();
         model.getTopology().unmarkAllEdges();
 

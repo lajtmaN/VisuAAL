@@ -22,7 +22,7 @@ import static parsers.Declaration.VariableParser.updateTopologyAndNrNodes;
 /**
  * Created by batto on 10-Feb-17.
  */
-public class UPPAALModel implements Externalizable {
+public class UPPAALModel implements Externalizable, Cloneable {
     private UPPAALTopology topology;
     private ObservableList<CVar> allConfigVars;
     private ObservableList<CVar> nonConstConfigVars;
@@ -179,5 +179,27 @@ public class UPPAALModel implements Externalizable {
         result = 31 * result + (modelPath != null ? modelPath.hashCode() : 0);
         result = 31 * result + (int)modelTimeUnit;
         return result;
+    }
+
+    protected UPPAALModel deepClone() {
+        return (UPPAALModel) this.clone();
+    }
+
+    @Override
+    protected Object clone() {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(baos);
+            out.writeObject(this);
+            out.flush();
+            out.close();
+
+            //Make an input stream from the byte array and read again
+            ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+            return in.readObject();
+
+        } catch (IOException | ClassNotFoundException e) {
+            return null;
+        }
     }
 }
