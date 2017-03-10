@@ -1,13 +1,13 @@
-package View.Simulation;
+package View.simulation;
 
 import Helpers.Pair;
 import Model.OutputVariable;
+import Model.Simulation;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by batto on 09-Mar-17.
@@ -17,16 +17,18 @@ public class SimulationDataContainer extends GridPane {
     private HashMap<String,  Label> labels;
     private Label nodeIdLabel;
 
-    public SimulationDataContainer(List<OutputVariable> nodeVariableNames, int topologySize) {
-        this.nodeVariableMapper = new HashMap();
+    public SimulationDataContainer() {}
+
+    public void initialize(Simulation simulation) {
         labels = new HashMap<>();
+        nodeVariableMapper = new HashMap<>();
 
         nodeIdLabel = new Label("Node 0");
         this.addRow(0, nodeIdLabel);
 
         int j = 1;
-        for (OutputVariable var :  nodeVariableNames) {
-            if(var.isNodeData().getValue()) {
+        for (OutputVariable var : simulation.getOutputVariables()) {
+            if(var.getIsSelected() && var.getIsNodeData()) {
                 Label zero = new Label("0");
                 zero.setPadding(new Insets(0, 0, 0, 10));
                 this.addRow(j++, new Label(var.getName()), zero);
@@ -34,9 +36,9 @@ public class SimulationDataContainer extends GridPane {
             }
         }
 
-        for (int i = 0; i < topologySize; i++) {
-            for (OutputVariable var : nodeVariableNames) {
-                if(var.isNodeData().getValue()) {
+        for (int i = 0; i < simulation.getTopology().getNumberOfNodes(); i++) {
+            for (OutputVariable var : simulation.getOutputVariables()) {
+                if(var.getIsSelected() && var.getIsNodeData()) {
                     addVariable(i, var.getName());
                 }
             }

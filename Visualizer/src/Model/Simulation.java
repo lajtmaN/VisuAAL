@@ -2,7 +2,7 @@ package Model;
 
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
-import View.Simulation.SimulationDataContainer;
+import View.simulation.SimulationDataContainer;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -13,7 +13,6 @@ import parsers.RegexHelper;
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * Created by lajtman on 13-02-2017.
@@ -44,6 +43,8 @@ public class Simulation implements Serializable {
     }
 
     public UPPAALTopology getTopology() { return model.getTopology(); }
+
+    public List<OutputVariable> getOutputVariables() { return model.getOutputVars(); }
 
     public double getModelTimeUnit() {
         return model.getModelTimeUnit();
