@@ -58,7 +58,7 @@ statement : block
            | ';'
            |  expression ';'
            |  'for' '(' exprList ';' exprList ';' exprList ')' statement
-		   |  'for' '(' ID ':' ID ')' statement
+		   |  'for' '(' ID ':' type ')' statement
            |  'while' '(' exprList ')' statement
            |  'do' statement 'while' '(' exprList ')' ';'
            |  'if' '(' exprList ')' statement ( 'else' statement )?
