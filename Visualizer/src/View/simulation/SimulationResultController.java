@@ -20,7 +20,6 @@ import java.util.ResourceBundle;
 import Model.Simulation;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
-import View.simulation.*;
 
 import javax.swing.*;
 

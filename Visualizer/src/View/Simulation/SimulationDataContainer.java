@@ -21,6 +21,7 @@ public class SimulationDataContainer extends GridPane {
 
     public void initialize(Simulation simulation) {
         labels = new HashMap<>();
+        nodeVariableMapper = new HashMap<>();
 
         nodeIdLabel = new Label("Node 0");
         this.addRow(0, nodeIdLabel);
