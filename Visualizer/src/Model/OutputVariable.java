@@ -30,7 +30,7 @@ public class OutputVariable implements Externalizable{
         setScope(pScope);
         setEdgeData(false);
         setNodeData(false);
-        setIsSelected(false);
+        setIsSelected(true);
     }
 
     public BooleanProperty isSelected() {
