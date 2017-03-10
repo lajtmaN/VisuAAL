@@ -86,13 +86,13 @@ public class SimulateOutput extends UPPAALOutput {
         String newName = variable.contains(".") ? variable.split("\\.")[1] : variable;
 
         int indexOfArraySign = newName.indexOf("[");
-        String nameWithoutArray = indexOfArraySign > 0 ? newName.substring(0, newName.indexOf("[")) : newName;
+        String nameWithoutArray = indexOfArraySign > 0 ? newName.substring(0, indexOfArraySign) : newName;
 
         Optional<OutputVariable> var = outputVars.stream().filter(p -> p.getName().equals(nameWithoutArray)).findFirst();
         if (var.isPresent())
             return var.get();
         else
-            throw new IllegalArgumentException(variable + " was not present in list of outputVars");
+            throw new IllegalArgumentException(nameWithoutArray + " was not present in list of outputVars");
     }
 
     public List<SimulationEdgePoint> getZippedEdgePoints(String key, int simId) {
