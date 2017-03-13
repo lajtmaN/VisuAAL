@@ -63,7 +63,7 @@ public class MainWindowController implements Initializable {
     @FXML private TableView<TemplateUpdate> dynamicTable;
     @FXML private TableColumn<TemplateUpdate, String> dynColumnName;
     @FXML private TableColumn<TemplateUpdate, TemplateUpdate> dynColumnValue;
-    @FXML private TableColumn<TemplateUpdate, Integer> dynColumnTime;
+    @FXML private TableColumn<TemplateUpdate, TemplateUpdate> dynColumnTime;
     @FXML private Tab configurationTab;
     @FXML private Button saveModelButton;
     @FXML private GridPane globalVarGridPane;
@@ -99,8 +99,8 @@ public class MainWindowController implements Initializable {
         dynColumnValue.setCellFactory(p -> new TemplateUpdateValueEditingCell());
 
         //dynColumnTime.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        dynColumnTime.setCellValueFactory(p -> p.getValue().timeProperty().asObject());
-        dynColumnTime.setCellFactory(p -> new IntegerEditingCell());
+        dynColumnTime.setCellValueFactory(p -> p.getValue().getObjectProperty());
+        dynColumnTime.setCellFactory(p -> new TemplateUpdateModelTimeEditingCell());
 
         dynamicTable.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
