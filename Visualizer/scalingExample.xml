@@ -28,17 +28,7 @@ clock timer;</declaration>
 		<transition>
 			<source ref="id0"/>
 			<target ref="id0"/>
-			<label kind="synchronisation" x="-187" y="85">send[id]?</label>
-			<label kind="assignment" x="-187" y="102">received++</label>
-			<nail x="0" y="178"/>
-			<nail x="-204" y="178"/>
-			<nail x="-204" y="0"/>
-		</transition>
-		<transition>
-			<source ref="id0"/>
-			<target ref="id0"/>
-			<label kind="guard" x="246" y="-136">timer == 2</label>
-			<label kind="synchronisation" x="246" y="-119">send[nextId()]!</label>
+			<label kind="guard" x="246" y="-119">timer == 2</label>
 			<label kind="assignment" x="246" y="-102">timer = 0</label>
 			<nail x="204" y="0"/>
 			<nail x="204" y="-187"/>
