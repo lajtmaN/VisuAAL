@@ -19,19 +19,18 @@ public class TemplateUpdateValueEditingCell extends EditingCell<TemplateUpdate, 
 
     @Override
     protected void updateItem(TemplateUpdate item, boolean empty) {
+        CVar correspondingVar = getCorrespondingCVar(item);
+        setFieldTypeBasedOnCVar(correspondingVar);
         super.updateItem(item, empty);
+    }
+
+    private CVar getCorrespondingCVar(TemplateUpdate item) {
+        if (item == null) return null;
+
         ObservableList<CVar> listOfVars = MainWindowController.getInstance().getNonConstConfigVars();
-        CVar correspondingVar = null;
-        if (getItem() != null) {
-            FilteredList<CVar> filteredList = listOfVars.filtered(p -> p.getName().equals(getItem().getVariableName()));
-            if(filteredList != null && filteredList.size() > 0) {
-                correspondingVar = filteredList.get(0);
-            }
-        }
-        handleVariableTypes(correspondingVar);
-        if(getItem() != null) {
-            setValueText(getStringValueFromItem(getItem()));
-        }
+        FilteredList<CVar> filteredList = listOfVars.filtered(p -> p.getName().equals(item.getVariableName()));
+
+        return filteredList != null && filteredList.size() > 0 ? filteredList.get(0) : null;
     }
 
     @Override

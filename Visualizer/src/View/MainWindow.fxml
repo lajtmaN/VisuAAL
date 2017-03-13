@@ -52,7 +52,7 @@
                    <columns>
                        <TableColumn fx:id="dynColumnName" prefWidth="440" text="Variable" />
                        <TableColumn fx:id="dynColumnValue" text="New value" />
-                       <TableColumn fx:id="dynColumnTime" text="Model time:" />
+                       <TableColumn fx:id="dynColumnTime" text="Model time" />
                    </columns>
                </TableView>
                      <Button fx:id="btnAddDynamicUpdateRow" alignment="CENTER" mnemonicParsing="false" onAction="#btnAddDynamicUpdateRowClicked" text="Add new update" />

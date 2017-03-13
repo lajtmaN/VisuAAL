@@ -44,10 +44,6 @@ public class FileHelper {
         }
     }
 
-    public static FileChooser.ExtensionFilter UPPAALModelExtensionFilter = new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml");
-    public static FileChooser.ExtensionFilter SimulationExtensionFilter = new FileChooser.ExtensionFilter("Simulation", "*.sim");
-    public static FileChooser.ExtensionFilter TopologyExtensionFilter = new FileChooser.ExtensionFilter("Topology", "*.topo");
-
     public static File chooseFileToSave(FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select destination file");
@@ -69,6 +65,10 @@ public class FileHelper {
             return null;
         }
         return selectedFile;
+    }
+
+    public static File chooseFileToLoad(FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
+        return chooseFileToLoad(MainWindowController.getInstance().getWindow(), firstFilter, filters);
     }
 
     public static File chooseFileToLoad(Window window, FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
