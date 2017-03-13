@@ -1,29 +1,20 @@
 package View;
 
-import Model.TemplateUpdate;
-import java.util.regex.Pattern;
-
 /**
  * Created by batto on 14-Feb-17.
  */
+
+/**
+ * IntegerEditingCell
+ * @param <T> Type that contains the Integer property
+*  @deprecated This class does not work. It will update the binded property..
+ */
+@Deprecated
 public class IntegerEditingCell<T> extends EditingCell<T, Integer> {
 
     public IntegerEditingCell() {
         fieldType = FieldType.INT_FIELD;
-    }
-
-    @Override
-    protected void updateItem(Integer item, boolean empty) {
-        super.updateItem(item, empty);
-
-        if (item == null || empty) {
-            setText(null);
-            setStyle("");
-            setGraphic(null);
-        } else {
-            setGraphic(textField);
-            setValueText(getStringValueFromItem(item));
-        }
+        startEdit();
     }
 
     @Override
