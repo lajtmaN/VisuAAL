@@ -22,11 +22,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 import javafx.util.Callback;
+import javafx.util.converter.IntegerStringConverter;
 import org.xml.sax.SAXException;
 import parsers.UPPAALParser;
 
@@ -96,6 +98,7 @@ public class MainWindowController implements Initializable {
         dynColumnValue.setCellValueFactory(p -> p.getValue().getObjectProperty());
         dynColumnValue.setCellFactory(p -> new TemplateUpdateValueEditingCell());
 
+        //dynColumnTime.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         dynColumnTime.setCellValueFactory(p -> p.getValue().timeProperty().asObject());
         dynColumnTime.setCellFactory(p -> new IntegerEditingCell());
 

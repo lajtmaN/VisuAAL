@@ -4,7 +4,6 @@ import Model.CVar;
 import Model.TemplateUpdate;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import parsers.RegexHelper;
 
 /**
  * Created by batto on 14-Feb-17.
@@ -12,6 +11,11 @@ import parsers.RegexHelper;
 public class TemplateUpdateValueEditingCell extends EditingCell<TemplateUpdate, TemplateUpdate> {
 
     public TemplateUpdateValueEditingCell() {  }
+
+    @Override
+    public String getStringValueFromItem(TemplateUpdate item) {
+        return item.getTheValue();
+    }
 
     @Override
     protected void updateItem(TemplateUpdate item, boolean empty) {
@@ -26,45 +30,19 @@ public class TemplateUpdateValueEditingCell extends EditingCell<TemplateUpdate, 
         }
         handleVariableTypes(correspondingVar);
         if(getItem() != null) {
-            setValueText(String.valueOf(getItem().getTheValue()));
+            setValueText(getStringValueFromItem(getItem()));
         }
     }
 
     @Override
     protected void processEdit() {
-        TemplateUpdate var = getItem();
+        super.processEdit();
         MainWindowController.getInstance().constantsChanged = true;
-
-        switch (fieldType) {
-            case INT_FIELD:
-                if(RegexHelper.isValidInt(getValueText())) commitEdit(var);
-                else cancelEdit();
-                break;
-            case DOUBLE_FIELD:
-                if(RegexHelper.isValidDouble(getValueText())) commitEdit(var);
-                else cancelEdit();
-                break;
-            case BOOL_FIELD:
-                commitEdit(var);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown field type");
-        }
     }
 
     @Override
-    public void startEdit() {
-        super.startEdit();
-        TemplateUpdate value = getItem();
-        if (value != null) {
-            setValueText(value.getTheValue());
-            setCorrectGraphic();
-        }
-    }
-
-    @Override
-    public void cancelEdit() {
-        super.cancelEdit();
-        setValueText(String.valueOf(getItem().getTheValue()));
+    public void commitEdit(TemplateUpdate value) {
+        super.commitEdit(value);
+        value.setTheValue(getValueText());
     }
 }
