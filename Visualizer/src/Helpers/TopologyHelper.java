@@ -19,7 +19,7 @@ public class TopologyHelper {
     }
 
     public static void saveTopology(UPPAALTopology topology) {
-        File f = FileHelper.chooseFileToSave(FileHelper.TopologyExtensionFilter);
+        File f = FileHelper.chooseFileToSave(ExtensionFilters.TopologyExtensionFilter);
         if (f != null)
             saveTopology(f, topology);
     }
