@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
  * Created by batto on 14-Feb-17.
  */
 public class IntegerEditingCell<T> extends EditingCell<T, Integer> {
-    private final Pattern intPattern = Pattern.compile("-?\\d+");
 
     public IntegerEditingCell() {
         fieldType = FieldType.INT_FIELD;
@@ -23,28 +22,19 @@ public class IntegerEditingCell<T> extends EditingCell<T, Integer> {
             setGraphic(null);
         } else {
             setGraphic(textField);
-            setValueText(item.toString());
+            setValueText(getStringValueFromItem(item));
         }
     }
 
     @Override
-    protected void processEdit() {
-        String text = textField.getText();
-        if (intPattern.matcher(text).matches()) {
-            commitEdit(Integer.parseInt(text));
-        } else {
-            cancelEdit();
-        }
+    public String getStringValueFromItem(Integer item) {
+        return String.valueOf(item);
     }
 
     @Override
-    public void startEdit() {
-        super.startEdit();
-        Number value = getItem();
-        if (value != null) {
-            textField.setText(value.toString());
-            setGraphic(textField);
-        }
+    public void commitEdit(Integer oldValue) {
+        Integer newValue = Integer.parseInt(getValueText());
+        super.commitEdit(newValue);
+        itemProperty().setValue(newValue);
     }
-
 }

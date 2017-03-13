@@ -16,14 +16,7 @@ public class BooleanStringEditingCell<T> extends EditingCell<T, String>{
     }
 
     @Override
-    public void startEdit() {
-        super.startEdit();
-        String value = getItem();
-        if (value != null) {
-            textField.setText(value);
-            setGraphic(textField);
-            setText(null);
-        }
+    public String getStringValueFromItem(String item) {
+        return item;
     }
-
 }

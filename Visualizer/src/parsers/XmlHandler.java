@@ -138,7 +138,7 @@ public class XmlHandler {
             n.getParentNode().removeChild(n);
         }
 
-        addUpdatesToNode(document.getFirstChild(), templateUpdates);
+        addUpdatesToNode(document.getDocumentElement(), templateUpdates);
 
         addSystemDecl();
 
