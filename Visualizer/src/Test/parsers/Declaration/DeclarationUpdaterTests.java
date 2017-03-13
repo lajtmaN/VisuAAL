@@ -22,7 +22,7 @@ public class DeclarationUpdaterTests {
 
     @Test
     public void doesNotAlterFileIfNoUpdates() throws IOException, ParserConfigurationException, SAXException {
-        File f = FileHelper.copyFileIntoTempFile(new File("mac_model_test.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
 
         XmlHandler handler = new XmlHandler(f.getPath());
         String originalDecls = handler.getGlobalDeclarations();
@@ -34,7 +34,7 @@ public class DeclarationUpdaterTests {
 
     @Test
     public void canUpdateDeclarationsCorrectly() throws IOException, ParserConfigurationException, SAXException {
-        File f = FileHelper.copyFileIntoTempFile(new File("mac_model_test.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
         XmlHandler handler = new XmlHandler(f.getPath());
         String orgDecls = handler.getGlobalDeclarations();
 
