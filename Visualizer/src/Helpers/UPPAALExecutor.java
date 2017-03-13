@@ -1,6 +1,5 @@
 package Helpers;
 
-import Model.Settings;
 import Model.SimulateOutput;
 import parsers.RegexHelper;
 import parsers.SimulateParser;
@@ -17,26 +16,9 @@ import java.util.ArrayList;
  */
 public class UPPAALExecutor {
 
-    private static String getVerifytaLocation() {
-        String verifytaLocation = Settings.Instance().getVerifytaLocation();
-
-        if (verifytaLocation != null && verifytaLocation.endsWith("verifyta.exe"))
-            return verifytaLocation;
-
-        File verifytaFile = FileHelper.chooseFileToLoad(ExtensionFilters.VerifytaExtensionFilter);
-        if (verifytaFile == null)
-            return null;
-
-        verifytaLocation = verifytaFile.getPath();
-        Settings.Instance().setVerifytaLocation(verifytaLocation);
-        Settings.Instance().saveChanges();
-
-        return verifytaLocation;
-    }
-
     //TODO Refactor and use CompletableFuture<T> to run async
     public static SimulateOutput provideQueryResult(String modelPath, String query) throws IOException {
-        String verifytaLocation = getVerifytaLocation();
+        String verifytaLocation = GUIHelper.getVerifytaLocationFromUser();
         if (verifytaLocation == null)
             return null;
 
