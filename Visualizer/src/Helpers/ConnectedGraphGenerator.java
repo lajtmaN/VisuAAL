@@ -8,6 +8,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 
+import java.util.regex.Matcher;
+
 /**
  * Created by batto on 13-Feb-17.
  */
@@ -85,5 +87,34 @@ public class ConnectedGraphGenerator {
                     (Node)curEdge.getSourceNode(), true);
         }
         return new UPPAALTopology(graph);
+    }
+
+    public static void optimizedMatrix(int size) {
+        String s = "int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {";
+        int index = 0;
+        for(int i= 0 ; i < size; i++) {
+            s += "\n{";
+            for(int j = 0; j < size; j++) {
+                if(square(i, j, (int)Math.sqrt(size))) {
+                    s += j + ",";
+                    index++;
+                }
+            }
+            for(;index < size; index++)
+            {
+                s+= "-1";
+                if(index < size-1) {
+                    s+= ",";
+                }
+            }
+
+            s += "}";
+            if(i < size-1) {
+                s += ",";
+            }
+            index = 0;
+        }
+        s+= "\n};";
+        System.out.println(s);
     }
 }

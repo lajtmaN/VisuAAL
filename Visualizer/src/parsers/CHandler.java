@@ -47,6 +47,7 @@ public class CHandler {
         ArrayList<CVar> returnvars = VariableParser.getInstantiations(decls);
         returnvars.forEach(var -> var.setScope(scope));
 
+        //TODO Only constants from current scope is checked, we should use constants from this scope AND global
         ArrayList<CVar> constants = new ArrayList<>(returnvars);
         constants.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || var.isArrayType());
 
@@ -89,7 +90,8 @@ public class CHandler {
         String constantWithArraySize = parsedUppaalVariable.getArraySizes().get(0); //TODO always assumes quadratic arrays
         Optional<CVar> matchedConstant = constants.stream().filter(c -> c.getName().equals(constantWithArraySize)).findFirst();
         if (!matchedConstant.isPresent())
-            throw new IllegalArgumentException("An output variable array was defined with a Config parameter that was not found");
+            throw new IllegalArgumentException("An output variable array (" + parsedUppaalVariable.getName() + ") " +
+                    "was defined with a Config parameter (" + constantWithArraySize + ") that was not found");
 
         variable.setVariableArraySize(matchedConstant.get().getValueAsInteger());
         return variable;
