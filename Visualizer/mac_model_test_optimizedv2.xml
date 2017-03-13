@@ -110,8 +110,8 @@ int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
 
 broadcast chan transmitBeaconTo[CONFIG_NR_NODES];
 broadcast chan transmitDataTo[CONFIG_NR_NODES];
-broadcast chan beginTransmitBcn[CONFIG_NR_NODES];
-broadcast chan beginTransmitData[CONFIG_NR_NODES];
+broadcast chan beginTransmitBcn;
+broadcast chan beginTransmitData;
 
 /*int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = 
 {
@@ -275,11 +275,11 @@ initialized[id] = true</label>
 	</template>
 	<template>
 		<name>transmit_media</name>
-		<parameter>const id_t id</parameter>
 		<declaration>// Place local declarations here.
 bool moreToSend = true;
 int nextId = -1;
 int sendId = -1;
+int id = -1;
 
 void setNextId() {
     nextId++;
@@ -291,6 +291,7 @@ void setNextId() {
 void reset() {
     nextId = -1;
     sendId = -1;
+    id = -1;
     moreToSend = true;
 }</declaration>
 		<location id="id6" x="-552" y="68">
@@ -338,7 +339,8 @@ void reset() {
 		<transition>
 			<source ref="id11"/>
 			<target ref="id8"/>
-			<label kind="synchronisation" x="-518" y="-93">beginTransmitData[id]?</label>
+			<label kind="synchronisation" x="-518" y="-110">beginTransmitData?</label>
+			<label kind="assignment" x="-518" y="-93">id = aux_id</label>
 		</transition>
 		<transition>
 			<source ref="id9"/>
@@ -361,7 +363,8 @@ void reset() {
 		<transition>
 			<source ref="id11"/>
 			<target ref="id10"/>
-			<label kind="synchronisation" x="-323" y="-93">beginTransmitBcn[id]?</label>
+			<label kind="synchronisation" x="-323" y="-110">beginTransmitBcn?</label>
+			<label kind="assignment" x="-323" y="-93">id = sent_beacon.id</label>
 		</transition>
 	</template>
 	<template>
@@ -902,7 +905,7 @@ nr_senders = 0</label>
 		<transition>
 			<source ref="id33"/>
 			<target ref="id32"/>
-			<label kind="synchronisation" x="-382" y="-246">beginTransmitBcn[id]!</label>
+			<label kind="synchronisation" x="-382" y="-246">beginTransmitBcn!</label>
 			<label kind="comments" x="-382" y="-263">12/P10. Send data to receivers</label>
 		</transition>
 		<transition>
@@ -1020,7 +1023,7 @@ send_data_clock[id] = 0</label>
 		<transition>
 			<source ref="id41"/>
 			<target ref="id39"/>
-			<label kind="synchronisation" x="390" y="-42">beginTransmitData[id]!</label>
+			<label kind="synchronisation" x="390" y="-42">beginTransmitData!</label>
 			<label kind="comments" x="391" y="-59">Send to neighbor receivers</label>
 		</transition>
 		<transition>
@@ -5345,7 +5348,7 @@ OUTPUT_data_is_scheduled[63][63] &gt; 0
 			</comment>
 		</query>
 		<query>
-			<formula>simulate 1 [&lt;=40000] { OUTPUT_nr_node_relations }
+			<formula>simulate 5 [&lt;=60000] { OUTPUT_nr_node_relations }
 			</formula>
 			<comment>
 			</comment>
