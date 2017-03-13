@@ -40,7 +40,7 @@ public class UPPAALModel implements Externalizable, Cloneable {
 
     public void load() {
         allConfigVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALConfigConstants(modelPath));
-        nonConstConfigVars = FXCollections.observableArrayList(allConfigVars.filtered(p -> !p.getIsConst()));
+        nonConstConfigVars = FXCollections.observableArrayList(allConfigVars.filtered(p -> !p.getIsConst() && p.getScope() == null));
         topology = UPPAALParser.getUPPAALTopology(modelPath);
         processes = UPPAALParser.getUPPAALProcesses(modelPath, this.allConfigVars);
         modelTimeUnit = UPPAALParser.getModelTimeUnitConstant(modelPath);
