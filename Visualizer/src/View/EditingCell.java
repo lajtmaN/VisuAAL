@@ -31,14 +31,26 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
         comboBox.getItems().addAll("true", "false");
     }
 
-    protected String getValueText() {
-        if(fieldType == FieldType.INT_FIELD || fieldType == FieldType.DOUBLE_FIELD) {
-            return textField.getText();
+    String getValueText() {
+        switch (fieldType) {
+            case INT_FIELD:
+            case DOUBLE_FIELD:
+                return textField.getText();
+            case BOOL_FIELD:
+                return comboBox.getValue().toString();
+            default:
+                return "";
         }
-        else if(fieldType == FieldType.BOOL_FIELD) {
-            return comboBox.getValue().toString();
+    }
+
+    void setValueText(String value) {
+        switch (fieldType) {
+            case INT_FIELD:
+            case DOUBLE_FIELD:
+                textField.setText(value);
+            case BOOL_FIELD:
+                comboBox.setValue(value);
         }
-        return "";
     }
 
     public abstract String getStringValueFromItem(C item);
@@ -53,55 +65,35 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
         }
     }
 
-    protected void setValueText(String value) {
-        if(fieldType == FieldType.INT_FIELD || fieldType == FieldType.DOUBLE_FIELD) {
-            textField.setText(value);
-        }
-        else if(fieldType == FieldType.BOOL_FIELD) {
-            comboBox.setValue(value);
+    void setFieldTypeBasedOnCVar(CVar correspondingVar) {
+        if (correspondingVar != null) {
+            if (correspondingVar.hasIntType() || correspondingVar.hasDoubleType()) {
+                fieldType = correspondingVar.hasIntType() ? FieldType.INT_FIELD : FieldType.DOUBLE_FIELD;
+            } else if (correspondingVar.hasBoolType()) {
+                fieldType = FieldType.BOOL_FIELD;
+            } else {
+                throw new IllegalArgumentException("Could not init cell for CVar: " + correspondingVar.getName());
+            }
         }
     }
 
-    protected void handleVariableTypes(CVar correspondingVar) {
-        if (correspondingVar != null) {
-            if (correspondingVar.hasIntType() || correspondingVar.hasDoubleType()){
-                fieldType = correspondingVar.hasIntType() ? FieldType.INT_FIELD : FieldType.DOUBLE_FIELD;
-                setValueText(correspondingVar.getValue());
-            } else if (correspondingVar.hasBoolType()) {
-                fieldType = FieldType.BOOL_FIELD;
-                setValueText(correspondingVar.getValue());
-            } else {
-                setValueText("N/A");
-            }
-
-            setCorrectGraphic();
-        } else {
+    @Override
+    protected void updateItem(C item, boolean empty) {
+        super.updateItem(item, empty);
+        if (item == null) {
             setValueText(null);
             setGraphic(null);
+        } else {
+            setValueText(getStringValueFromItem(item));
+            setCorrectGraphic();
         }
     }
 
     protected void processEdit() {
-        C var = getItem();
-        switch (fieldType) {
-            case INT_FIELD:
-                if(RegexHelper.isValidInt(getValueText()))
-                    commitEdit(var);
-                else
-                    cancelEdit();
-                break;
-            case DOUBLE_FIELD:
-                if(RegexHelper.isValidDouble(getValueText()))
-                    commitEdit(var);
-                else
-                    cancelEdit();
-                break;
-            case BOOL_FIELD:
-                commitEdit(var);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown field type");
-        }
+        if (isValidText(getValueText()))
+            commitEdit(getItem());
+        else
+            cancelEdit();
     }
 
     @Override
@@ -111,14 +103,25 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
             setValueText(getStringValueFromItem(getItem()));
     }
 
-    protected void setCorrectGraphic() {
+    private boolean isValidText(String text) {
         switch (fieldType) {
-            case BOOL_FIELD:
-                setGraphic(comboBox);
-                break;
+            case INT_FIELD:
+                return RegexHelper.isValidInt(text);
+            case DOUBLE_FIELD:
+                return RegexHelper.isValidDouble(text);
+            default:
+                return true;
+        }
+    }
+
+    private void setCorrectGraphic() {
+        switch (fieldType) {
             case INT_FIELD:
             case DOUBLE_FIELD:
                 setGraphic(textField);
+                break;
+            case BOOL_FIELD:
+                setGraphic(comboBox);
                 break;
             default:
                 setGraphic(null);

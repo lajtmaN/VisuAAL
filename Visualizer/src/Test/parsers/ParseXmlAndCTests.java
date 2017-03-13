@@ -262,7 +262,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void setTopologyForUPPAALTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
-        File f = FileHelper.copyFileIntoTempFile(new File("mac_model_test.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
         UPPAALTopology top = new UPPAALTopology();
         top.setNumberOfNodes(4);
         top.add(new UPPAALEdge("0","1"));
@@ -288,7 +288,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void setRandomTopologyForUPPAALTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
-        File f = FileHelper.copyFileIntoTempFile(new File("mac_model_test.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
         UPPAALTopology top = ConnectedGraphGenerator.generateRandomTopology(36);
 
         XmlHandler xmlHandler = new XmlHandler(f.getPath());
@@ -306,7 +306,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void setTopologyForUPPAALMoreCasesTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
-        File f = FileHelper.copyFileIntoTempFile(new File("mac_model_test.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
         UPPAALTopology top = new UPPAALTopology();
         top.setNumberOfNodes(4);
         top.add(new UPPAALEdge("2","0"));
