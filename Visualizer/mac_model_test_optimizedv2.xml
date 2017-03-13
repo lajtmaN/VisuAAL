@@ -8,7 +8,7 @@ double CONFIG_TEST_DOUBLE = 0.5;
 
 
 const int NR_NODES_SQR_ROOT = 8, 
-          CONFIG_NR_NODES = 4,
+          CONFIG_NR_NODES = 25,
           CONFIG_NR_BEACON_SLOTS = 8,
           MAX_BEACON_NUMBER = 17;
 
@@ -74,7 +74,7 @@ int OUTPUT_nr_node_relations = 0;                      //Count of total network 
 //Clocks used by several templates
 clock beacon_clocks[CONFIG_NR_NODES];                  //Manages beacon periods
 clock send_data_clock[CONFIG_NR_NODES];                //Manage when the nodes sends data
-/*int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
+int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
 {1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
 {0,2,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
 {1,3,7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
@@ -100,13 +100,13 @@ clock send_data_clock[CONFIG_NR_NODES];                //Manage when the nodes s
 {17,21,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
 {18,22,24,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
 {19,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}
-};*/
+};
 
-int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
+/*int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
 {1,2,3,-1},
 {0,3,2,-1},
 {0,3,1,-1},
-{1,2,0,-1}};
+{1,2,0,-1}};*/
 
 broadcast chan transmitBeaconTo[CONFIG_NR_NODES];
 broadcast chan transmitDataTo[CONFIG_NR_NODES];
@@ -558,8 +558,7 @@ collision = true</label>
 		<transition>
 			<source ref="id27"/>
 			<target ref="id25"/>
-			<label kind="assignment" x="272" y="-603">slot_clock = 0,
-local_beacon = sent_beacon</label>
+			<label kind="assignment" x="272" y="-603">slot_clock = 0</label>
 			<label kind="comments" x="272" y="-637">Beacon received</label>
 			<label kind="probability" x="272" y="-620">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="339" y="-561"/>
@@ -661,10 +660,11 @@ reset_vars()</label>
 		<transition>
 			<source ref="id21"/>
 			<target ref="id17"/>
-			<label kind="guard" x="8" y="-433">beacon_clocks[id] 
+			<label kind="guard" x="8" y="-450">beacon_clocks[id] 
 &lt;= CONFIG_BEACON_PERIOD - BEACON_SLOT</label>
-			<label kind="synchronisation" x="7" y="-398">transmitBeaconTo[id]?</label>
-			<label kind="comments" x="8" y="-450">Neighbor sending beacon</label>
+			<label kind="synchronisation" x="7" y="-415">transmitBeaconTo[id]?</label>
+			<label kind="assignment" x="8" y="-399">local_beacon = sent_beacon</label>
+			<label kind="comments" x="8" y="-467">Neighbor sending beacon</label>
 		</transition>
 	</template>
 	<template>
@@ -803,8 +803,7 @@ double nr_collisions = 0.0,
 		<transition>
 			<source ref="id38"/>
 			<target ref="id35"/>
-			<label kind="assignment" x="-187" y="263">retrieve_beacon(),
-nr_senders++</label>
+			<label kind="assignment" x="-187" y="263">nr_senders++</label>
 			<label kind="comments" x="-187" y="246">5/P12. Beacon not lost</label>
 			<label kind="probability" x="-187" y="297">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="-8" y="238"/>
@@ -814,6 +813,7 @@ nr_senders++</label>
 			<source ref="id35"/>
 			<target ref="id28"/>
 			<label kind="synchronisation" x="-187" y="187">transmitBeaconTo[id]?</label>
+			<label kind="assignment" x="-187" y="204">retrieve_beacon()</label>
 			<label kind="comments" x="-187" y="170">4/P12. Neighbor begins sending</label>
 		</transition>
 		<transition>
@@ -5345,7 +5345,7 @@ OUTPUT_data_is_scheduled[63][63] &gt; 0
 			</comment>
 		</query>
 		<query>
-			<formula>simulate 10 [&lt;=40000] { OUTPUT_nr_node_relations }
+			<formula>simulate 1 [&lt;=40000] { OUTPUT_nr_node_relations }
 			</formula>
 			<comment>
 			</comment>
