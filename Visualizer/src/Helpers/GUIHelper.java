@@ -1,7 +1,10 @@
 package Helpers;
 
+import Model.Settings;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+
+import java.io.File;
 
 /**
  * Created by batto on 10-Feb-17.
@@ -28,6 +31,25 @@ public class GUIHelper {
         alert.setTitle(promptTitle);
         alert.showAndWait();
         return alert.getResult() == ButtonType.YES;
+    }
+
+    public static String getVerifytaLocationFromUser() {
+        String verifytaLocation = Settings.Instance().getVerifytaLocation();
+
+        if (verifytaLocation != null && verifytaLocation.endsWith("verifyta.exe")) {
+            if (new File(verifytaLocation).exists())
+                return verifytaLocation;
+        }
+
+        File verifytaFile = FileHelper.chooseFileToLoad(ExtensionFilters.VerifytaExtensionFilter);
+        if (verifytaFile == null)
+            return null;
+
+        verifytaLocation = verifytaFile.getPath();
+        Settings.Instance().setVerifytaLocation(verifytaLocation);
+        Settings.Instance().saveChanges();
+
+        return verifytaLocation;
     }
 }
 
