@@ -89,7 +89,7 @@ public class ConnectedGraphGenerator {
         return new UPPAALTopology(graph);
     }
 
-    public static void optimizedMatrix(int size) {
+    public static String optimizedMatrix(int size) {
         String s = "int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {";
         int index = 0;
         for(int i= 0 ; i < size; i++) {
@@ -115,6 +115,6 @@ public class ConnectedGraphGenerator {
             index = 0;
         }
         s+= "\n};";
-        System.out.println(s);
+        return s;
     }
 }
