@@ -102,7 +102,14 @@ int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
 {19,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}
 };
 
-broadcast chan transmitTo[CONFIG_NR_NODES];
+/*int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
+{1,2,3,-1},
+{0,3,2,-1},
+{0,3,1,-1},
+{1,2,0,-1}};*/
+
+broadcast chan transmitBeaconTo[CONFIG_NR_NODES];
+broadcast chan transmitDataTo[CONFIG_NR_NODES];
 broadcast chan beginTransmitBcn[CONFIG_NR_NODES];
 broadcast chan beginTransmitData[CONFIG_NR_NODES];
 
@@ -271,7 +278,6 @@ initialized[id] = true</label>
 		<parameter>const id_t id</parameter>
 		<declaration>// Place local declarations here.
 bool moreToSend = true;
-bool beaconData;
 int nextId = -1;
 int sendId = -1;
 
@@ -287,58 +293,75 @@ void reset() {
     sendId = -1;
     moreToSend = true;
 }</declaration>
-		<location id="id6" x="-144" y="68">
+		<location id="id6" x="-552" y="68">
 			<committed/>
 		</location>
-		<location id="id7" x="-144" y="-68">
+		<location id="id7" x="-348" y="68">
 			<committed/>
 		</location>
-		<location id="id8" x="-348" y="-68">
+		<location id="id8" x="-552" y="-68">
+			<committed/>
 		</location>
-		<init ref="id8"/>
-		<transition>
-			<source ref="id6"/>
-			<target ref="id7"/>
-			<label kind="guard" x="68" y="119">moreToSend &amp;&amp; !beaconData</label>
-			<label kind="synchronisation" x="69" y="136">transmitTo[sendId]!</label>
-			<nail x="-144" y="119"/>
-			<nail x="306" y="119"/>
-			<nail x="306" y="-136"/>
-			<nail x="-102" y="-136"/>
-		</transition>
-		<transition>
-			<source ref="id8"/>
-			<target ref="id7"/>
-			<label kind="synchronisation" x="-314" y="-178">beginTransmitData[id]?</label>
-			<label kind="assignment" x="-314" y="-161">beaconData = false</label>
-			<nail x="-348" y="-136"/>
-			<nail x="-144" y="-136"/>
-		</transition>
+		<location id="id9" x="-144" y="68">
+			<committed/>
+		</location>
+		<location id="id10" x="-144" y="-68">
+			<name x="-154" y="-102">started</name>
+			<committed/>
+		</location>
+		<location id="id11" x="-348" y="-68">
+		</location>
+		<init ref="id11"/>
 		<transition>
 			<source ref="id6"/>
 			<target ref="id8"/>
-			<label kind="guard" x="-340" y="-8">!moreToSend</label>
-			<label kind="assignment" x="-340" y="8">reset()</label>
-			<nail x="-348" y="68"/>
+			<label kind="guard" x="-748" y="-25">moreToSend</label>
+			<label kind="synchronisation" x="-748" y="-8">transmitDataTo[sendId]!</label>
+			<nail x="-756" y="68"/>
+			<nail x="-756" y="-68"/>
 		</transition>
 		<transition>
 			<source ref="id6"/>
 			<target ref="id7"/>
-			<label kind="guard" x="76" y="-17">moreToSend &amp;&amp; beaconData</label>
-			<label kind="synchronisation" x="76" y="0">transmitTo[sendId]!</label>
+			<label kind="guard" x="-501" y="42">!moreToSend</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="-544" y="-8">setNextId()</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id11"/>
+			<label kind="assignment" x="-340" y="-8">reset()</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-518" y="-93">beginTransmitData[id]?</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-289" y="42">!moreToSend</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="guard" x="76" y="-25">moreToSend</label>
+			<label kind="synchronisation" x="76" y="-8">transmitBeaconTo[sendId]!</label>
 			<nail x="68" y="68"/>
 			<nail x="68" y="-68"/>
 		</transition>
 		<transition>
-			<source ref="id7"/>
-			<target ref="id6"/>
+			<source ref="id10"/>
+			<target ref="id9"/>
 			<label kind="assignment" x="-136" y="-8">setNextId()</label>
 		</transition>
 		<transition>
-			<source ref="id8"/>
-			<target ref="id7"/>
-			<label kind="synchronisation" x="-314" y="-102">beginTransmitBcn[id]?</label>
-			<label kind="assignment" x="-314" y="-85">beaconData = true</label>
+			<source ref="id11"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-323" y="-93">beginTransmitBcn[id]?</label>
 		</transition>
 	</template>
 	<template>
@@ -357,27 +380,27 @@ int beacon_period_count = 0;                  //Count of beacon periods
 bool is_full_beacon_scan() {
     return beacon_period_count % (NR_BEACON_PERIOD_PER_SCAN) == 0;
 }</declaration>
-		<location id="id9" x="-799" y="-680">
+		<location id="id12" x="-799" y="-680">
 			<committed/>
 		</location>
-		<location id="id10" x="-510" y="-357">
+		<location id="id13" x="-510" y="-357">
 			<name x="-782" y="-391">wait_beacon_period</name>
 			<label kind="invariant" x="-782" y="-374">beacon_clocks[id] &lt;= CONFIG_BEACON_PERIOD</label>
 		</location>
-		<location id="id11" x="-510" y="-680">
+		<location id="id14" x="-510" y="-680">
 			<name x="-501" y="-671">wait_full_beacon_scan</name>
 		</location>
-		<location id="id12" x="-510" y="-501">
+		<location id="id15" x="-510" y="-501">
 			<name x="-501" y="-535">choose</name>
 			<committed/>
 		</location>
-		<location id="id13" x="-799" y="-501">
+		<location id="id16" x="-799" y="-501">
 			<name x="-790" y="-527">initial</name>
 		</location>
-		<init ref="id13"/>
+		<init ref="id16"/>
 		<transition>
-			<source ref="id10"/>
-			<target ref="id12"/>
+			<source ref="id13"/>
+			<target ref="id15"/>
 			<label kind="guard" x="-485" y="-330">beacon_clocks[id] == CONFIG_BEACON_PERIOD</label>
 			<label kind="assignment" x="-485" y="-313">beacon_clocks[id] = 0</label>
 			<label kind="comments" x="-484" y="-348">End beacon period</label>
@@ -385,8 +408,8 @@ bool is_full_beacon_scan() {
 			<nail x="-195" y="-493"/>
 		</transition>
 		<transition>
-			<source ref="id11"/>
-			<target ref="id12"/>
+			<source ref="id14"/>
+			<target ref="id15"/>
 			<label kind="guard" x="-493" y="-739">beacon_period_count &lt; NR_MAX_FULL_BEACON</label>
 			<label kind="synchronisation" x="-492" y="-722">do_full_beacon_scan[id]?</label>
 			<label kind="assignment" x="-493" y="-705">beacon_clocks[id] = 0</label>
@@ -395,8 +418,8 @@ bool is_full_beacon_scan() {
 			<nail x="-195" y="-510"/>
 		</transition>
 		<transition>
-			<source ref="id11"/>
-			<target ref="id9"/>
+			<source ref="id14"/>
+			<target ref="id12"/>
 			<label kind="guard" x="-739" y="-782">beacon_period_count == NR_MAX_FULL_BEACON</label>
 			<label kind="synchronisation" x="-739" y="-765">do_full_beacon_scan[id]?</label>
 			<label kind="comments" x="-739" y="-799">Max full beacon scans reached</label>
@@ -404,36 +427,36 @@ bool is_full_beacon_scan() {
 			<nail x="-756" y="-740"/>
 		</transition>
 		<transition>
-			<source ref="id9"/>
-			<target ref="id13"/>
+			<source ref="id12"/>
+			<target ref="id16"/>
 			<label kind="synchronisation" x="-790" y="-594">end_initial_full_beacon_scan[id]!</label>
 			<label kind="comments" x="-790" y="-611">End initial full beacon scan</label>
 		</transition>
 		<transition>
-			<source ref="id11"/>
-			<target ref="id9"/>
+			<source ref="id14"/>
+			<target ref="id12"/>
 			<label kind="synchronisation" x="-766" y="-653">end_initial_scan[id]?</label>
 			<label kind="comments" x="-765" y="-671">Synhronize after a full beacon scan</label>
 		</transition>
 		<transition>
-			<source ref="id12"/>
-			<target ref="id10"/>
+			<source ref="id15"/>
+			<target ref="id13"/>
 			<label kind="guard" x="-501" y="-450">!is_full_beacon_scan()</label>
 			<label kind="synchronisation" x="-501" y="-433">do_beacon_scan[id]!</label>
 			<label kind="assignment" x="-501" y="-416">beacon_period_count++</label>
 			<label kind="comments" x="-501" y="-467">Do normal beacon period</label>
 		</transition>
 		<transition>
-			<source ref="id12"/>
-			<target ref="id11"/>
+			<source ref="id15"/>
+			<target ref="id14"/>
 			<label kind="guard" x="-501" y="-603">is_full_beacon_scan()</label>
 			<label kind="synchronisation" x="-501" y="-586">do_full_beacon_scan[id]!</label>
 			<label kind="assignment" x="-501" y="-569">beacon_period_count++</label>
 			<label kind="comments" x="-501" y="-620">Do full beacon scan</label>
 		</transition>
 		<transition>
-			<source ref="id13"/>
-			<target ref="id12"/>
+			<source ref="id16"/>
+			<target ref="id15"/>
 			<label kind="synchronisation" x="-756" y="-476">do_initial_full_beacon_scan[id]?</label>
 			<label kind="assignment" x="-756" y="-459">beacon_clocks[id] = 0</label>
 			<label kind="comments" x="-756" y="-493">Start initial full beacon scan</label>
@@ -456,7 +479,7 @@ void handle_beacon(int my_id, int other_id) {
     if(!collision) {
         if(OUTPUT_data_is_scheduled[my_id][other_id] == 0)
         {
-            OUTPUT_data_is_scheduled[my_id][other_id] = 1;
+            OUTPUT_data_is_scheduled[my_id][other_id] = 1; // 3?
             OUTPUT_nr_node_relations++;
         }
         if(sync_id == -1)
@@ -468,48 +491,48 @@ void reset_vars() {
     local_beacon.id = 0;
     collision = false;
 }</declaration>
-		<location id="id14" x="272" y="-374">
+		<location id="id17" x="272" y="-374">
 			<urgent/>
 		</location>
-		<location id="id15" x="646" y="-374">
+		<location id="id18" x="646" y="-374">
 			<committed/>
 		</location>
-		<location id="id16" x="-59" y="-255">
+		<location id="id19" x="-59" y="-255">
 			<committed/>
 		</location>
-		<location id="id17" x="535" y="-280">
+		<location id="id20" x="535" y="-280">
 			<urgent/>
 		</location>
-		<location id="id18" x="-25" y="-374">
+		<location id="id21" x="-25" y="-374">
 			<name x="-17" y="-374">during_full_beacon_scan</name>
 			<label kind="invariant" x="-17" y="-357">beacon_clocks[id] &lt;= CONFIG_BEACON_PERIOD</label>
 		</location>
-		<location id="id19" x="-406" y="-577">
+		<location id="id22" x="-406" y="-577">
 			<name x="-397" y="-577">during_beacon_scan</name>
 			<label kind="invariant" x="-397" y="-560">beacon_clocks[id] &lt;= BEACON_SCAN</label>
 		</location>
-		<location id="id20" x="-408" y="-467">
+		<location id="id23" x="-408" y="-467">
 			<committed/>
 		</location>
-		<location id="id21" x="-407" y="-340">
+		<location id="id24" x="-407" y="-340">
 			<name x="-399" y="-374">initial</name>
 		</location>
-		<location id="id22" x="340" y="-374">
+		<location id="id25" x="340" y="-374">
 			<name x="365" y="-416">during_beacon</name>
 			<label kind="invariant" x="365" y="-399">slot_clock &lt;= BEACON_SLOT</label>
 		</location>
-		<branchpoint id="id23" x="501" y="-195">
+		<branchpoint id="id26" x="501" y="-195">
 		</branchpoint>
-		<branchpoint id="id24" x="272" y="-561">
+		<branchpoint id="id27" x="272" y="-561">
 		</branchpoint>
-		<init ref="id21"/>
+		<init ref="id24"/>
 		<transition>
-			<source ref="id14"/>
-			<target ref="id24"/>
+			<source ref="id17"/>
+			<target ref="id27"/>
 		</transition>
 		<transition>
-			<source ref="id15"/>
-			<target ref="id22"/>
+			<source ref="id18"/>
+			<target ref="id25"/>
 			<label kind="guard" x="374" y="-526">beacon_clocks[id] 
 &lt;= CONFIG_BEACON_PERIOD - BEACON_SLOT</label>
 			<label kind="assignment" x="374" y="-484">slot_clock = 0,
@@ -519,38 +542,37 @@ collision = true</label>
 			<nail x="374" y="-442"/>
 		</transition>
 		<transition>
-			<source ref="id23"/>
-			<target ref="id15"/>
+			<source ref="id26"/>
+			<target ref="id18"/>
 			<label kind="comments" x="501" y="-187">Collision</label>
 			<label kind="probability" x="501" y="-170">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="646" y="-195"/>
 		</transition>
 		<transition>
-			<source ref="id23"/>
-			<target ref="id22"/>
+			<source ref="id26"/>
+			<target ref="id25"/>
 			<label kind="comments" x="374" y="-238">Beacon lost</label>
 			<label kind="probability" x="373" y="-221">CONFIG_BCN_LOST_PROB</label>
 			<nail x="364" y="-195"/>
 		</transition>
 		<transition>
-			<source ref="id24"/>
-			<target ref="id22"/>
-			<label kind="assignment" x="272" y="-603">slot_clock = 0,
-local_beacon = sent_beacon</label>
+			<source ref="id27"/>
+			<target ref="id25"/>
+			<label kind="assignment" x="272" y="-603">slot_clock = 0</label>
 			<label kind="comments" x="272" y="-637">Beacon received</label>
 			<label kind="probability" x="272" y="-620">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="339" y="-561"/>
 		</transition>
 		<transition>
-			<source ref="id24"/>
-			<target ref="id18"/>
+			<source ref="id27"/>
+			<target ref="id21"/>
 			<label kind="comments" x="17" y="-603">Beacon lost</label>
 			<label kind="probability" x="17" y="-587">CONFIG_BCN_LOST_PROB</label>
 			<nail x="8" y="-561"/>
 		</transition>
 		<transition>
-			<source ref="id19"/>
-			<target ref="id18"/>
+			<source ref="id22"/>
+			<target ref="id21"/>
 			<label kind="guard" x="-391" y="-697">beacon_clocks[id] == BEACON_SCAN</label>
 			<label kind="synchronisation" x="-391" y="-680">beacon_prepare_send_chan?</label>
 			<label kind="assignment" x="-391" y="-663">is_busy[id] = true</label>
@@ -559,8 +581,8 @@ local_beacon = sent_beacon</label>
 			<nail x="-66" y="-645"/>
 		</transition>
 		<transition>
-			<source ref="id16"/>
-			<target ref="id21"/>
+			<source ref="id19"/>
+			<target ref="id24"/>
 			<label kind="guard" x="-366" y="-229">sync_id &gt;= 0</label>
 			<label kind="synchronisation" x="-366" y="-212">end_initial_scan[id]!</label>
 			<label kind="assignment" x="-364" y="-195">beacon_clocks[id] = beacon_clocks[sync_id]</label>
@@ -568,8 +590,8 @@ local_beacon = sent_beacon</label>
 			<nail x="-407" y="-255"/>
 		</transition>
 		<transition>
-			<source ref="id16"/>
-			<target ref="id21"/>
+			<source ref="id19"/>
+			<target ref="id24"/>
 			<label kind="guard" x="-366" y="-314">sync_id == -1</label>
 			<label kind="synchronisation" x="-364" y="-297">do_full_beacon_scan[id]!</label>
 			<label kind="comments" x="-364" y="-331">No beacons to synchronize to</label>
@@ -578,15 +600,15 @@ local_beacon = sent_beacon</label>
 			<nail x="-382" y="-306"/>
 		</transition>
 		<transition>
-			<source ref="id18"/>
-			<target ref="id16"/>
+			<source ref="id21"/>
+			<target ref="id19"/>
 			<label kind="guard" x="-289" y="-374">beacon_clocks[id] == CONFIG_BEACON_PERIOD</label>
 			<label kind="assignment" x="-291" y="-358">is_busy[id] = false</label>
 			<label kind="comments" x="-289" y="-391">Beacon period ends</label>
 		</transition>
 		<transition>
-			<source ref="id22"/>
-			<target ref="id18"/>
+			<source ref="id25"/>
+			<target ref="id21"/>
 			<label kind="guard" x="8" y="-255">slot_clock == BEACON_SLOT</label>
 			<label kind="assignment" x="8" y="-238">handle_beacon(id, local_beacon.id),
 reset_vars()</label>
@@ -595,13 +617,13 @@ reset_vars()</label>
 			<nail x="-24" y="-196"/>
 		</transition>
 		<transition>
-			<source ref="id17"/>
-			<target ref="id23"/>
+			<source ref="id20"/>
+			<target ref="id26"/>
 			<nail x="501" y="-263"/>
 		</transition>
 		<transition>
-			<source ref="id15"/>
-			<target ref="id18"/>
+			<source ref="id18"/>
+			<target ref="id21"/>
 			<label kind="guard" x="110" y="-680">beacon_clocks[id] &gt; CONFIG_BEACON_PERIOD - BEACON_SLOT</label>
 			<label kind="assignment" x="109" y="-663">reset_vars()</label>
 			<label kind="comments" x="110" y="-697">Beacon period ending soon</label>
@@ -609,39 +631,40 @@ reset_vars()</label>
 			<nail x="-25" y="-646"/>
 		</transition>
 		<transition>
-			<source ref="id22"/>
-			<target ref="id17"/>
-			<label kind="synchronisation" x="365" y="-348">transmitTo[id]?</label>
+			<source ref="id25"/>
+			<target ref="id20"/>
+			<label kind="synchronisation" x="365" y="-348">transmitBeaconTo[id]?</label>
 			<label kind="comments" x="365" y="-365">Another beacon sent</label>
 			<nail x="535" y="-374"/>
 		</transition>
 		<transition>
-			<source ref="id19"/>
-			<target ref="id18"/>
+			<source ref="id22"/>
+			<target ref="id21"/>
 			<label kind="guard" x="-380" y="-603">beacon_clocks[id] == BEACON_SCAN</label>
 			<label kind="comments" x="-380" y="-620">End beacon scan</label>
 			<nail x="-100" y="-577"/>
 		</transition>
 		<transition>
-			<source ref="id20"/>
-			<target ref="id19"/>
+			<source ref="id23"/>
+			<target ref="id22"/>
 			<label kind="guard" x="-391" y="-510">is_busy[id] == false</label>
 			<label kind="synchronisation" x="-391" y="-493">do_beacon_scan[id]!</label>
 			<label kind="comments" x="-391" y="-527">Begin beacon scan</label>
 		</transition>
 		<transition>
-			<source ref="id21"/>
-			<target ref="id20"/>
+			<source ref="id24"/>
+			<target ref="id23"/>
 			<label kind="synchronisation" x="-398" y="-424">do_full_beacon_scan[id]?</label>
 			<label kind="comments" x="-397" y="-441">Begin full beacon scan</label>
 		</transition>
 		<transition>
-			<source ref="id18"/>
-			<target ref="id14"/>
-			<label kind="guard" x="8" y="-433">beacon_clocks[id] 
+			<source ref="id21"/>
+			<target ref="id17"/>
+			<label kind="guard" x="8" y="-450">beacon_clocks[id] 
 &lt;= CONFIG_BEACON_PERIOD - BEACON_SLOT</label>
-			<label kind="synchronisation" x="7" y="-398">transmitTo[id]?</label>
-			<label kind="comments" x="8" y="-450">Neighbor sending beacon</label>
+			<label kind="synchronisation" x="7" y="-415">transmitBeaconTo[id]?</label>
+			<label kind="assignment" x="8" y="-399">local_beacon = sent_beacon</label>
+			<label kind="comments" x="8" y="-467">Neighbor sending beacon</label>
 		</transition>
 	</template>
 	<template>
@@ -726,89 +749,89 @@ double nr_collisions = 0.0,
             collision_percentage = 100*(nr_collisions / nr_slots);
     }
 }*/</declaration>
-		<location id="id25" x="25" y="161">
+		<location id="id28" x="25" y="161">
 			<urgent/>
 		</location>
-		<location id="id26" x="-170" y="-187">
+		<location id="id29" x="-170" y="-187">
 			<name x="-247" y="-178">standy_until_others_prepared</name>
 			<urgent/>
 		</location>
-		<location id="id27" x="-833" y="-272">
+		<location id="id30" x="-833" y="-272">
 			<name x="-901" y="-306">end_send_slot</name>
 			<committed/>
 		</location>
-		<location id="id28" x="-561" y="43">
+		<location id="id31" x="-561" y="43">
 			<committed/>
 		</location>
-		<location id="id29" x="-433" y="-272">
+		<location id="id32" x="-433" y="-272">
 			<name x="-442" y="-323">wait_for_beacon_end</name>
 			<label kind="invariant" x="-442" y="-306">beacon_slot_clock &lt;= BEACON_SLOT</label>
 		</location>
-		<location id="id30" x="-170" y="-272">
+		<location id="id33" x="-170" y="-272">
 			<name x="-153" y="-281">listeners_prepared</name>
 			<committed/>
 		</location>
-		<location id="id31" x="-833" y="323">
+		<location id="id34" x="-833" y="323">
 			<name x="-841" y="331">beacon_receive_end</name>
 			<committed/>
 		</location>
-		<location id="id32" x="-255" y="161">
+		<location id="id35" x="-255" y="161">
 			<name x="-246" y="110">wait_for_beacon</name>
 			<label kind="invariant" x="-246" y="127">beacon_slot_clock &lt;= BEACON_SLOT</label>
 		</location>
-		<location id="id33" x="-255" y="17">
+		<location id="id36" x="-255" y="17">
 			<name x="-238" y="9">choose_send_or_receive</name>
 			<committed/>
 		</location>
-		<location id="id34" x="-841" y="17">
+		<location id="id37" x="-841" y="17">
 			<name x="-816" y="9">wait_for_beacon_interval</name>
 		</location>
-		<branchpoint id="id35" x="25" y="323">
+		<branchpoint id="id38" x="25" y="323">
 		</branchpoint>
-		<init ref="id34"/>
+		<init ref="id37"/>
 		<transition>
-			<source ref="id25"/>
-			<target ref="id35"/>
+			<source ref="id28"/>
+			<target ref="id38"/>
 		</transition>
 		<transition>
-			<source ref="id35"/>
-			<target ref="id32"/>
+			<source ref="id38"/>
+			<target ref="id35"/>
 			<label kind="comments" x="-187" y="331">6/P12. Bacon lost</label>
 			<label kind="probability" x="-187" y="348">CONFIG_BCN_LOST_PROB</label>
 			<nail x="-221" y="323"/>
 		</transition>
 		<transition>
-			<source ref="id35"/>
-			<target ref="id32"/>
-			<label kind="assignment" x="-187" y="263">retrieve_beacon(),
-nr_senders++</label>
+			<source ref="id38"/>
+			<target ref="id35"/>
+			<label kind="assignment" x="-187" y="263">nr_senders++</label>
 			<label kind="comments" x="-187" y="246">5/P12. Beacon not lost</label>
 			<label kind="probability" x="-187" y="297">CONFIG_BCN_NOT_LOST_PROB</label>
 			<nail x="-8" y="238"/>
 			<nail x="-204" y="238"/>
 		</transition>
 		<transition>
-			<source ref="id32"/>
-			<target ref="id25"/>
-			<label kind="synchronisation" x="-187" y="187">transmitTo[id]?</label>
+			<source ref="id35"/>
+			<target ref="id28"/>
+			<label kind="synchronisation" x="-187" y="187">transmitBeaconTo[id]?</label>
+			<label kind="assignment" x="-187" y="204">retrieve_beacon()</label>
 			<label kind="comments" x="-187" y="170">4/P12. Neighbor begins sending</label>
 		</transition>
 		<transition>
-			<source ref="id26"/>
-			<target ref="id30"/>
+			<source ref="id29"/>
+			<target ref="id33"/>
 			<label kind="assignment" x="-161" y="-229">put_beacon_global()</label>
 			<label kind="comments" x="-161" y="-246">11/P8-10. Make beacon available</label>
 		</transition>
 		<transition>
-			<source ref="id29"/>
-			<target ref="id27"/>
+			<source ref="id32"/>
+			<target ref="id30"/>
 			<label kind="guard" x="-799" y="-314">beacon_slot_clock == BEACON_SLOT</label>
 			<label kind="synchronisation" x="-799" y="-297">beacon_prepare_send_chan?</label>
 			<label kind="comments" x="-799" y="-331">13/P10. A node waits for this node to prepare next slot</label>
 		</transition>
 		<transition>
-			<source ref="id27"/>
-			<target ref="id33"/>
+			<source ref="id30"/>
+			<target ref="id36"/>
 			<label kind="assignment" x="-824" y="-170">current_slot++,
 beacon_slot_clock = 0,
 reset_beacon_global()</label>
@@ -818,8 +841,8 @@ reset_beacon_global()</label>
 			<nail x="-289" y="-42"/>
 		</transition>
 		<transition>
-			<source ref="id32"/>
-			<target ref="id31"/>
+			<source ref="id35"/>
+			<target ref="id34"/>
 			<label kind="guard" x="-603" y="221">beacon_slot_clock == BEACON_SLOT</label>
 			<label kind="synchronisation" x="-603" y="238">beacon_prepare_send_chan?</label>
 			<label kind="comments" x="-603" y="204">7/P12. A node waits for this node to prepare next slot</label>
@@ -828,8 +851,8 @@ reset_beacon_global()</label>
 			<nail x="-612" y="297"/>
 		</transition>
 		<transition>
-			<source ref="id28"/>
-			<target ref="id33"/>
+			<source ref="id31"/>
+			<target ref="id36"/>
 			<label kind="select" x="-535" y="68">k:int[0, MAX_BEACON_NUMBER]</label>
 			<label kind="assignment" x="-535" y="85">beacon_slot_clock = 0,
 choose_slot(k)</label>
@@ -837,16 +860,16 @@ choose_slot(k)</label>
 			<nail x="-314" y="43"/>
 		</transition>
 		<transition>
-			<source ref="id29"/>
-			<target ref="id27"/>
+			<source ref="id32"/>
+			<target ref="id30"/>
 			<label kind="guard" x="-773" y="-238">beacon_slot_clock == BEACON_SLOT</label>
 			<label kind="comments" x="-773" y="-255">14/P10. Beacon slot ends</label>
 			<nail x="-501" y="-212"/>
 			<nail x="-773" y="-212"/>
 		</transition>
 		<transition>
-			<source ref="id33"/>
-			<target ref="id26"/>
+			<source ref="id36"/>
+			<target ref="id29"/>
 			<label kind="guard" x="-246" y="-110">beacon_slot_clock == 0
 &amp;&amp; current_slot == chosen_slot[id]
 &amp;&amp; current_slot &lt; CONFIG_NR_BEACON_SLOTS</label>
@@ -855,8 +878,8 @@ choose_slot(k)</label>
 			<nail x="-255" y="-187"/>
 		</transition>
 		<transition>
-			<source ref="id32"/>
-			<target ref="id31"/>
+			<source ref="id35"/>
+			<target ref="id34"/>
 			<label kind="guard" x="-535" y="297">beacon_slot_clock == BEACON_SLOT</label>
 			<label kind="comments" x="-535" y="280">8/P12. Beacon slot ends</label>
 			<nail x="-255" y="221"/>
@@ -864,8 +887,8 @@ choose_slot(k)</label>
 			<nail x="-561" y="322"/>
 		</transition>
 		<transition>
-			<source ref="id31"/>
-			<target ref="id33"/>
+			<source ref="id34"/>
+			<target ref="id36"/>
 			<label kind="assignment" x="-816" y="187">schedule_data(),
 current_slot++,
 reset_local_beacon(),
@@ -877,21 +900,21 @@ nr_senders = 0</label>
 			<nail x="-289" y="77"/>
 		</transition>
 		<transition>
-			<source ref="id30"/>
-			<target ref="id29"/>
+			<source ref="id33"/>
+			<target ref="id32"/>
 			<label kind="synchronisation" x="-382" y="-246">beginTransmitBcn[id]!</label>
 			<label kind="comments" x="-382" y="-263">12/P10. Send data to receivers</label>
 		</transition>
 		<transition>
-			<source ref="id33"/>
-			<target ref="id32"/>
+			<source ref="id36"/>
+			<target ref="id35"/>
 			<label kind="guard" x="-246" y="59">current_slot != chosen_slot[id]
 &amp;&amp; current_slot &lt; CONFIG_NR_BEACON_SLOTS</label>
 			<label kind="comments" x="-246" y="42">3/P11. Begin receving in 1 beacon slot</label>
 		</transition>
 		<transition>
-			<source ref="id33"/>
-			<target ref="id34"/>
+			<source ref="id36"/>
+			<target ref="id37"/>
 			<label kind="guard" x="-705" y="-67">current_slot == CONFIG_NR_BEACON_SLOTS</label>
 			<label kind="assignment" x="-705" y="-50">current_slot = 0,
 is_busy[id] = false</label>
@@ -900,8 +923,8 @@ is_busy[id] = false</label>
 			<nail x="-790" y="-7"/>
 		</transition>
 		<transition>
-			<source ref="id34"/>
-			<target ref="id28"/>
+			<source ref="id37"/>
+			<target ref="id31"/>
 			<label kind="guard" x="-790" y="69">!is_busy[id]</label>
 			<label kind="synchronisation" x="-790" y="86">do_beacon_scan[id]?</label>
 			<label kind="assignment" x="-790" y="103">is_busy[id] = true</label>
@@ -912,31 +935,31 @@ is_busy[id] = false</label>
 	<template>
 		<name>send_data</name>
 		<parameter>id_t id</parameter>
-		<location id="id36" x="382" y="-102">
+		<location id="id39" x="382" y="-102">
 			<urgent/>
 		</location>
-		<location id="id37" x="-434" y="0">
+		<location id="id40" x="-434" y="0">
 			<committed/>
 		</location>
-		<location id="id38" x="382" y="0">
+		<location id="id41" x="382" y="0">
 			<name x="340" y="8">prepare_send</name>
 			<urgent/>
 		</location>
-		<location id="id39" x="382" y="-178">
+		<location id="id42" x="382" y="-178">
 			<name x="289" y="-229">sending</name>
 			<label kind="invariant" x="289" y="-212">send_data_clock[id] &lt;= CONFIG_DATA_DURATION</label>
 		</location>
-		<location id="id40" x="-110" y="0">
+		<location id="id43" x="-110" y="0">
 			<name x="-93" y="8">wait_for_send</name>
 			<label kind="invariant" x="-93" y="25">send_data_clock[id] &lt;= data_intervals[id]</label>
 		</location>
-		<location id="id41" x="-434" y="-102">
+		<location id="id44" x="-434" y="-102">
 			<name x="-450" y="-136">initialize</name>
 		</location>
-		<init ref="id41"/>
+		<init ref="id44"/>
 		<transition>
-			<source ref="id39"/>
-			<target ref="id40"/>
+			<source ref="id42"/>
+			<target ref="id43"/>
 			<label kind="guard" x="-110" y="-297">send_data_clock[id] == CONFIG_DATA_DURATION</label>
 			<label kind="assignment" x="-110" y="-280">is_busy[id] = false</label>
 			<label kind="comments" x="-110" y="-314">Forced stop sending</label>
@@ -946,21 +969,21 @@ is_busy[id] = false</label>
 			<nail x="-153" y="-51"/>
 		</transition>
 		<transition>
-			<source ref="id36"/>
-			<target ref="id39"/>
+			<source ref="id39"/>
+			<target ref="id42"/>
 			<label kind="assignment" x="391" y="-136">aux_id = 0</label>
 			<label kind="comments" x="391" y="-153">Reset global variable</label>
 		</transition>
 		<transition>
-			<source ref="id37"/>
-			<target ref="id40"/>
+			<source ref="id40"/>
+			<target ref="id43"/>
 			<label kind="select" x="-408" y="25">k:int[0, CONFIG_MAX_DATA_OFFSET]</label>
 			<label kind="assignment" x="-408" y="42">data_intervals[id] = CONFIG_DATA_INTERVAL + 4 * k</label>
 			<label kind="comments" x="-408" y="8">Calculate data interval offset</label>
 		</transition>
 		<transition>
-			<source ref="id40"/>
-			<target ref="id40"/>
+			<source ref="id43"/>
+			<target ref="id43"/>
 			<label kind="guard" x="-102" y="127">send_data_clock[id] == data_intervals[id]
 &amp;&amp; (is_busy[id] 
 || (OUTPUT_beacon_period_counters[id] == BEACON_SCAN_INTERVAL
@@ -973,8 +996,8 @@ is_busy[id] = false</label>
 			<nail x="-110" y="102"/>
 		</transition>
 		<transition>
-			<source ref="id40"/>
-			<target ref="id38"/>
+			<source ref="id43"/>
+			<target ref="id41"/>
 			<label kind="guard" x="-68" y="-136">send_data_clock[id] == data_intervals[id]
 &amp;&amp; !is_busy[id]
 &amp;&amp; (OUTPUT_beacon_period_counters[id] != BEACON_SCAN_INTERVAL
@@ -985,8 +1008,8 @@ send_data_clock[id] = 0</label>
 			<label kind="comments" x="-68" y="-153">Prepare sending data, if it does not overlap beacon scan</label>
 		</transition>
 		<transition>
-			<source ref="id39"/>
-			<target ref="id40"/>
+			<source ref="id42"/>
+			<target ref="id43"/>
 			<label kind="guard" x="-110" y="-229">send_data_clock[id] == CONFIG_DATA_DURATION</label>
 			<label kind="synchronisation" x="-110" y="-195">stop_sending_data?</label>
 			<label kind="assignment" x="-110" y="-212">is_busy[id] = false</label>
@@ -995,14 +1018,14 @@ send_data_clock[id] = 0</label>
 			<nail x="-110" y="-178"/>
 		</transition>
 		<transition>
-			<source ref="id38"/>
-			<target ref="id36"/>
+			<source ref="id41"/>
+			<target ref="id39"/>
 			<label kind="synchronisation" x="390" y="-42">beginTransmitData[id]!</label>
 			<label kind="comments" x="391" y="-59">Send to neighbor receivers</label>
 		</transition>
 		<transition>
-			<source ref="id41"/>
-			<target ref="id37"/>
+			<source ref="id44"/>
+			<target ref="id40"/>
 			<label kind="synchronisation" x="-425" y="-59">end_initial_full_beacon_scan[id]?</label>
 			<label kind="assignment" x="-425" y="-42">send_data_clock[id] = 0</label>
 			<label kind="comments" x="-425" y="-76">Start with beacon schedule</label>
@@ -1034,37 +1057,37 @@ void schedule_data(int my_id, int other_id) {
 
     OUTPUT_data_is_scheduled[my_id][other_id] = 3;
 }</declaration>
-		<location id="id42" x="221" y="119">
+		<location id="id45" x="221" y="119">
+			<urgent/>
+		</location>
+		<location id="id46" x="442" y="119">
 			<committed/>
 		</location>
-		<location id="id43" x="442" y="119">
-			<committed/>
-		</location>
-		<location id="id44" x="136" y="-229">
+		<location id="id47" x="136" y="-229">
 			<name x="59" y="-220">prepare_sync</name>
 			<committed/>
 		</location>
-		<location id="id45" x="-102" y="-93">
+		<location id="id48" x="-102" y="-93">
 			<name x="-170" y="-119">cleanup</name>
 			<committed/>
 		</location>
-		<location id="id46" x="204" y="-136">
+		<location id="id49" x="204" y="-136">
 			<name x="67" y="-188">collision</name>
 			<label kind="invariant" x="68" y="-170">receiving_data_clock &lt;= CONFIG_DATA_DURATION</label>
 		</location>
-		<location id="id47" x="382" y="-229">
+		<location id="id50" x="382" y="-229">
 			<name x="399" y="-255">receiving_data</name>
 			<label kind="invariant" x="399" y="-237">receiving_data_clock &lt;= CONFIG_DATA_DURATION</label>
 		</location>
-		<location id="id48" x="-102" y="17">
+		<location id="id51" x="-102" y="17">
 			<name x="-204" y="8">wait_for_data</name>
 		</location>
-		<branchpoint id="id49" x="501" y="119">
+		<branchpoint id="id52" x="501" y="119">
 		</branchpoint>
-		<init ref="id48"/>
+		<init ref="id51"/>
 		<transition>
-			<source ref="id42"/>
-			<target ref="id45"/>
+			<source ref="id45"/>
+			<target ref="id48"/>
 			<label kind="guard" x="8" y="51">data_intervals[id] - CONFIG_DATA_DURATION &lt;  send_data_clock[id]</label>
 			<label kind="comments" x="8" y="34">Overlap with sending data</label>
 			<nail x="221" y="76"/>
@@ -1072,36 +1095,36 @@ void schedule_data(int my_id, int other_id) {
 			<nail x="0" y="0"/>
 		</transition>
 		<transition>
-			<source ref="id42"/>
-			<target ref="id43"/>
+			<source ref="id45"/>
+			<target ref="id46"/>
 			<label kind="guard" x="245" y="144">data_intervals[id] - CONFIG_DATA_DURATION &gt;=  send_data_clock[id]</label>
 			<label kind="assignment" x="246" y="161">is_busy[id] = true,
 decrement_data_schedule(id, local_sender_id)</label>
 			<label kind="comments" x="246" y="127">No overlap with sending</label>
 		</transition>
 		<transition>
-			<source ref="id43"/>
-			<target ref="id49"/>
+			<source ref="id46"/>
+			<target ref="id52"/>
 		</transition>
 		<transition>
-			<source ref="id49"/>
-			<target ref="id47"/>
+			<source ref="id52"/>
+			<target ref="id50"/>
 			<label kind="comments" x="510" y="-119">Data is not lost</label>
 			<label kind="probability" x="510" y="-102">CONFIG_DATA_NOT_LOST_PROB</label>
 			<nail x="501" y="-136"/>
 			<nail x="399" y="-136"/>
 		</transition>
 		<transition>
-			<source ref="id49"/>
-			<target ref="id45"/>
+			<source ref="id52"/>
+			<target ref="id48"/>
 			<label kind="comments" x="102" y="-51">Data is lost</label>
 			<label kind="probability" x="102" y="-34">CONFIG_DATA_LOST_PROB</label>
 			<nail x="450" y="-8"/>
 			<nail x="17" y="-8"/>
 		</transition>
 		<transition>
-			<source ref="id47"/>
-			<target ref="id44"/>
+			<source ref="id50"/>
+			<target ref="id47"/>
 			<label kind="guard" x="161" y="-306">receiving_data_clock == CONFIG_DATA_DURATION</label>
 			<label kind="assignment" x="161" y="-289">schedule_data(id, local_sender_id),
 own_sync_id = id,
@@ -1109,43 +1132,43 @@ other_sync_id = local_sender_id</label>
 			<label kind="comments" x="161" y="-323">Prepare synchronize</label>
 		</transition>
 		<transition>
-			<source ref="id45"/>
-			<target ref="id48"/>
+			<source ref="id48"/>
+			<target ref="id51"/>
 			<label kind="assignment" x="-272" y="-76">is_busy[id] = false,
 local_sender_id = 0,
 receiving_data_clock = 0</label>
 			<label kind="comments" x="-272" y="-93">Reset</label>
 		</transition>
 		<transition>
-			<source ref="id46"/>
-			<target ref="id45"/>
+			<source ref="id49"/>
+			<target ref="id48"/>
 			<label kind="guard" x="-86" y="-109">receiving_data_clock == CONFIG_DATA_DURATION</label>
 			<label kind="comments" x="-85" y="-127">Wait for data sending ends</label>
 			<nail x="-85" y="-136"/>
 		</transition>
 		<transition>
-			<source ref="id47"/>
-			<target ref="id46"/>
-			<label kind="synchronisation" x="280" y="-110">transmitTo[id]?</label>
+			<source ref="id50"/>
+			<target ref="id49"/>
+			<label kind="synchronisation" x="280" y="-110">transmitDataTo[id]?</label>
 			<label kind="comments" x="280" y="-127">Collision</label>
 			<nail x="365" y="-136"/>
 		</transition>
 		<transition>
-			<source ref="id44"/>
-			<target ref="id45"/>
+			<source ref="id47"/>
+			<target ref="id48"/>
 			<label kind="synchronisation" x="-102" y="-254">beacon_synchronize!</label>
 			<label kind="comments" x="-102" y="-272">Tell scheduler to try synchronize</label>
 			<nail x="-102" y="-229"/>
 		</transition>
 		<transition>
-			<source ref="id48"/>
-			<target ref="id42"/>
+			<source ref="id51"/>
+			<target ref="id45"/>
 			<label kind="guard" x="-93" y="153">!is_busy[id]
 &amp;&amp; initialized[id]
 &amp;&amp; OUTPUT_data_is_scheduled[id][aux_id] &gt; 0
 &amp;&amp; (OUTPUT_beacon_period_counters[id] != BEACON_SCAN_INTERVAL
     || beacon_clocks[id] &lt;= CONFIG_BEACON_PERIOD - CONFIG_DATA_DURATION)</label>
-			<label kind="synchronisation" x="-93" y="246">transmitTo[id]?</label>
+			<label kind="synchronisation" x="-93" y="246">transmitDataTo[id]?</label>
 			<label kind="assignment" x="-93" y="263">receiving_data_clock = 0,
 local_sender_id = aux_id</label>
 			<label kind="comments" x="-93" y="128">Begin receive data</label>
@@ -1154,12 +1177,12 @@ local_sender_id = aux_id</label>
 	</template>
 	<template>
 		<name>synchronizer</name>
-		<location id="id50" x="0" y="0">
+		<location id="id53" x="0" y="0">
 		</location>
-		<init ref="id50"/>
+		<init ref="id53"/>
 		<transition>
-			<source ref="id50"/>
-			<target ref="id50"/>
+			<source ref="id53"/>
+			<target ref="id53"/>
 			<label kind="guard" x="0" y="-161">beacon_clocks[own_sync_id] &gt;= beacon_clocks[other_sync_id] - (CONFIG_BEACON_PERIOD / 2)
 &amp;&amp; beacon_clocks[own_sync_id] &lt;= beacon_clocks[other_sync_id] + (CONFIG_BEACON_PERIOD / 2)</label>
 			<label kind="synchronisation" x="0" y="-127">beacon_synchronize?</label>
@@ -5311,6 +5334,12 @@ OUTPUT_data_is_scheduled[63][63] &gt; 0
 		</query>
 		<query>
 			<formula>E&lt;&gt; exists(i:id_t) full_beacon_scan(i)._id16 &amp;&amp; is_busy[i] == true
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; OUTPUT_nr_node_relations &gt; 12
 			</formula>
 			<comment>
 			</comment>
