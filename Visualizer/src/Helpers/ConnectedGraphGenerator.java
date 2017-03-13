@@ -90,7 +90,7 @@ public class ConnectedGraphGenerator {
     }
 
     public static String optimizedMatrix(int size) {
-        String s = "int CONFIG_connected_opt[CONFIG_NR_NODES][CONFIG_NR_NODES] = {";
+        String s = "int CONFIG_connected_opt[CONFIG_num_nodes][CONFIG_num_nodes] = {";
         int index = 0;
         for(int i= 0 ; i < size; i++) {
             s += "\n{";
