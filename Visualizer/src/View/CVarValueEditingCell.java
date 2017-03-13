@@ -19,46 +19,25 @@ public class CVarValueEditingCell extends EditingCell<CVar, CVar> {
     }
 
     @Override
-    public void commitEdit(CVar value) {
-        super.commitEdit(value);
-        value.setValue(getValueText());
+    public String getStringValueFromItem(CVar item) {
+        return item.getValue();
     }
 
     @Override
     protected void processEdit() {
-        CVar var = getItem();
+        super.processEdit();
         MainWindowController.getInstance().constantsChanged = true;
-
-        switch (fieldType) {
-            case INT_FIELD:
-                if(RegexHelper.isValidInt(getValueText())) commitEdit(var);
-                else cancelEdit();
-                break;
-            case DOUBLE_FIELD:
-                if(RegexHelper.isValidDouble(getValueText())) commitEdit(var);
-                else cancelEdit();
-                break;
-            case BOOL_FIELD:
-                commitEdit(var);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown field type");
-        }
-    }
-
-    @Override
-    public void startEdit() {
-        super.startEdit();
-        CVar var = getItem();
-        if (var != null) {
-            setValueText(var.getValue());
-            setCorrectGraphic();
-        }
     }
 
     @Override
     public void cancelEdit() {
         super.cancelEdit();
         setValueText(getItem().getValue());
+    }
+
+    @Override
+    public void commitEdit(CVar value) {
+        super.commitEdit(value);
+        value.setValue(getValueText());
     }
 }

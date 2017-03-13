@@ -4,11 +4,12 @@ import Model.CVar;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
+import parsers.RegexHelper;
 
 /**
  * Created by batto on 14-Feb-17.
  */
-public class EditingCell<T, C> extends TableCell<T, C> {
+public abstract class EditingCell<T, C> extends TableCell<T, C> {
     protected TextField textField = new TextField();
     protected ComboBox comboBox = new ComboBox();
     protected enum FieldType {UNKNOWN, INT_FIELD, BOOL_FIELD, DOUBLE_FIELD}
@@ -40,6 +41,18 @@ public class EditingCell<T, C> extends TableCell<T, C> {
         return "";
     }
 
+    public abstract String getStringValueFromItem(C item);
+
+    @Override
+    public void startEdit() {
+        super.startEdit();
+        C var = getItem();
+        if (var != null) {
+            setValueText(getStringValueFromItem(var));
+            setCorrectGraphic();
+        }
+    }
+
     protected void setValueText(String value) {
         if(fieldType == FieldType.INT_FIELD || fieldType == FieldType.DOUBLE_FIELD) {
             textField.setText(value);
@@ -68,13 +81,34 @@ public class EditingCell<T, C> extends TableCell<T, C> {
         }
     }
 
-    protected void processEdit() { }
+    protected void processEdit() {
+        C var = getItem();
+        switch (fieldType) {
+            case INT_FIELD:
+                if(RegexHelper.isValidInt(getValueText()))
+                    commitEdit(var);
+                else
+                    cancelEdit();
+                break;
+            case DOUBLE_FIELD:
+                if(RegexHelper.isValidDouble(getValueText()))
+                    commitEdit(var);
+                else
+                    cancelEdit();
+                break;
+            case BOOL_FIELD:
+                commitEdit(var);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown field type");
+        }
+    }
 
     @Override
     public void cancelEdit() {
         super.cancelEdit();
         if (getItem() != null)
-            setValueText(getItem().toString());
+            setValueText(getStringValueFromItem(getItem()));
     }
 
     protected void setCorrectGraphic() {
