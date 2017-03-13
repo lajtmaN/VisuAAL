@@ -9,7 +9,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         //Get matrix for connected graph square topology. Input nr of nodes
-        //String s = Helpers.ConnectedGraphGenerator.optimizedMatrix(225);
+        //String s = Helpers.ConnectedGraphGenerator.optimizedMatrix(196);
 
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
         Parent root = FXMLLoader.load(getClass().getResource("View/MainWindow.fxml"));
