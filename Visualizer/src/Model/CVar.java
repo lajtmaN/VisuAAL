@@ -87,6 +87,7 @@ public class CVar implements Externalizable {
     }
 
     public Integer getValueAsInteger() throws NumberFormatException{
+        //TODO handle if getValue returns expression (fx 3+1)
         return Integer.parseInt(getValue());
     }
 
