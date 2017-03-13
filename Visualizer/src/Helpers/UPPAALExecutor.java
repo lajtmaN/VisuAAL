@@ -1,5 +1,6 @@
 package Helpers;
 
+import Model.Settings;
 import Model.SimulateOutput;
 import parsers.RegexHelper;
 import parsers.SimulateParser;
