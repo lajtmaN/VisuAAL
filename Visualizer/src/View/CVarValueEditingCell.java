@@ -1,10 +1,6 @@
 package View;
 
 import Model.CVar;
-import parsers.RegexHelper;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by rasmu on 27/02/2017.
@@ -14,8 +10,8 @@ public class CVarValueEditingCell extends EditingCell<CVar, CVar> {
 
     @Override
     protected void updateItem(CVar item, boolean empty) {
+        setFieldTypeBasedOnCVar(item);
         super.updateItem(item, empty);
-        handleVariableTypes(item);
     }
 
     @Override
