@@ -2,23 +2,23 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
 	<declaration>// Place global declarations here.
-const int CONFIG_NR_NODES = 300;
+const int CONFIG_NR_NODES = 200;
 
 typedef int [0, CONFIG_NR_NODES-1] id_t;
 
-broadcast chan send[CONFIG_NR_NODES];</declaration>
+//broadcast chan send[CONFIG_NR_NODES];</declaration>
 	<template>
 		<name x="5" y="5">node</name>
 		<parameter>id_t id</parameter>
 		<declaration>// Place local declarations here.
 int received = 0;
 
-int nextId() {
+/*int nextId() {
     if(id == CONFIG_NR_NODES-1)
         return 0;
     else 
         return id+1;
-}
+}*/
 
 clock timer;</declaration>
 		<location id="id0" x="0" y="0">
