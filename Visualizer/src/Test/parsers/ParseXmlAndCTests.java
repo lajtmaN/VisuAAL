@@ -110,6 +110,16 @@ public class ParseXmlAndCTests {
     }
 
     @Test
+    public void parseScopedOutputVariableFromScopeWithArraySizeDefinedInGlobal() {
+        ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("topologytest.xml");
+
+        assertEquals(1, outputVars.size());
+        assertEquals("OUTPUT_variable", outputVars.get(0).getName());
+        assertEquals(1337, outputVars.get(0).getVariableArraySize());
+        assertTrue(outputVars.get(0).getIsEdgeData());
+    }
+
+    @Test
     public void updateVariablesInXMLFile() throws IOException {
         File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
         ArrayList<CVar> orgConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());

@@ -44,11 +44,9 @@ typedef struct {
 beacon_data sent_beacon;
 
 broadcast chan 
-    beacon_start_chan,                          //Begins sending beacon
     beacon_prepare_send_chan,                   //Prepare nodes to receive
     beacon_synchronize,                         //Tell synchronizer to test sync
-    send_data_chan[CONFIG_NR_NODES],                             //Data is being send
-    stop_sending_data;                          //Force data sender to stop
+    stop_sending_data[CONFIG_NR_NODES];         //Force data sender to stop
 
 //We pass the ID of the node as the index of the array
 broadcast chan 
@@ -187,7 +185,7 @@ return CONFIG_connected[my_id][other_id];
 			<label kind="guard" x="-595" y="-603">beacon_clocks[id] == CONFIG_BEACON_PERIOD
 &amp;&amp; OUTPUT_beacon_period_counters[id] 
 == BEACON_SCAN_INTERVAL</label>
-			<label kind="synchronisation" x="-596" y="-552">stop_sending_data!</label>
+			<label kind="synchronisation" x="-596" y="-552">stop_sending_data[id]!</label>
 			<label kind="comments" x="-595" y="-620">Force send_data to continue</label>
 			<nail x="-603" y="-595"/>
 		</transition>
@@ -1014,7 +1012,7 @@ send_data_clock[id] = 0</label>
 			<source ref="id42"/>
 			<target ref="id43"/>
 			<label kind="guard" x="-110" y="-229">send_data_clock[id] == CONFIG_DATA_DURATION</label>
-			<label kind="synchronisation" x="-110" y="-195">stop_sending_data?</label>
+			<label kind="synchronisation" x="-110" y="-195">stop_sending_data[id]?</label>
 			<label kind="assignment" x="-110" y="-212">is_busy[id] = false</label>
 			<label kind="comments" x="-110" y="-246">Done sending</label>
 			<nail x="348" y="-178"/>
@@ -5348,7 +5346,7 @@ OUTPUT_data_is_scheduled[63][63] &gt; 0
 			</comment>
 		</query>
 		<query>
-			<formula>simulate 5 [&lt;=60000] { OUTPUT_nr_node_relations }
+			<formula>simulate 1 [&lt;=60000] { OUTPUT_nr_node_relations }
 			</formula>
 			<comment>
 			</comment>

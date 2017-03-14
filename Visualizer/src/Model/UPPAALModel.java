@@ -1,5 +1,6 @@
 package Model;
 
+import Helpers.GUIHelper;
 import Helpers.UPPAALExecutor;
 import View.AlertData;
 import javafx.collections.FXCollections;
@@ -91,12 +92,18 @@ public class UPPAALModel implements Externalizable, Cloneable {
 
     public Simulation runQuery(String query) throws IOException {
         SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getModelPath(), query);
-        //TODO use errorState on simulateOutput
-
-        FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
-        //TODO we only use the first simulation
-        List<SimulationPoint> simulationPoints = simulateOutput.zip(vars, 0);
-        return new Simulation(this, query, simulationPoints);
+        if (simulateOutput == null)
+            return null;
+        else if (simulateOutput.getErrorDescription() != null) {
+            GUIHelper.showError(simulateOutput.getErrorDescription());
+            return null;
+        } else
+        {
+            FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
+            //TODO we only use the first simulation
+            List<SimulationPoint> simulationPoints = simulateOutput.zip(vars, 0);
+            return new Simulation(this, query, simulationPoints);
+        }
     }
 
     public ObservableList<TemplateUpdate> getTemplateUpdates() {

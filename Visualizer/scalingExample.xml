@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int CONFIG_NR_NODES = 200;
+
+typedef int [0, CONFIG_NR_NODES-1] id_t;
+
+//broadcast chan send[CONFIG_NR_NODES];</declaration>
+	<template>
+		<name x="5" y="5">node</name>
+		<parameter>id_t id</parameter>
+		<declaration>// Place local declarations here.
+int received = 0;
+
+/*int nextId() {
+    if(id == CONFIG_NR_NODES-1)
+        return 0;
+    else 
+        return id+1;
+}*/
+
+clock timer;</declaration>
+		<location id="id0" x="0" y="0">
+			<label kind="invariant" x="17" y="8">timer &lt;= 2</label>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="246" y="-119">timer == 2</label>
+			<label kind="assignment" x="246" y="-102">timer = 0</label>
+			<nail x="204" y="0"/>
+			<nail x="204" y="-187"/>
+			<nail x="0" y="-187"/>
+			<nail x="0" y="-17"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+// List one or more processes to be composed into a system.
+system node;
+    </system>
+	<queries>
+		<query>
+			<formula>simulate 10 [&lt;= 1000] {node(0).received}
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

@@ -44,10 +44,6 @@ public class FileHelper {
         }
     }
 
-    public static FileChooser.ExtensionFilter UPPAALModelExtensionFilter = new FileChooser.ExtensionFilter("UPPAAL Model", "*.xml");
-    public static FileChooser.ExtensionFilter SimulationExtensionFilter = new FileChooser.ExtensionFilter("Simulation", "*.sim");
-    public static FileChooser.ExtensionFilter TopologyExtensionFilter = new FileChooser.ExtensionFilter("Topology", "*.topo");
-
     public static File chooseFileToSave(FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select destination file");
@@ -71,12 +67,20 @@ public class FileHelper {
         return selectedFile;
     }
 
-    public static File chooseFileToLoad(Window window, FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
+    public static File chooseFileToLoad(String title, String initialSelectedFile, FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select UPPAAL model or simulation");
+        fileChooser.setTitle(title);
         fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
         fileChooser.getExtensionFilters().add(firstFilter);
         fileChooser.getExtensionFilters().addAll(filters);
-        return fileChooser.showOpenDialog(window);
+
+        if (initialSelectedFile != null) {
+            File f = new File(initialSelectedFile);
+            if (f.exists()) {
+                fileChooser.setInitialDirectory(f.getParentFile());
+                fileChooser.setInitialFileName(f.getName());
+            }
+        }
+        return fileChooser.showOpenDialog(MainWindowController.getInstance().getWindow());
     }
  }

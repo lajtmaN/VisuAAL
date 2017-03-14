@@ -13,7 +13,7 @@ public class ExportTopologyOption extends SimulationOption {
     }
 
     @Override
-    public void performAction(Simulation currentSimulation) {
+    public void startAction(Simulation currentSimulation) {
         TopologyHelper.saveTopology(currentSimulation.getTopology());
     }
 }
