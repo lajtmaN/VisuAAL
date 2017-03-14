@@ -23,6 +23,7 @@ int CONFIG_connected[9][9] = {
 		<declaration>// Place local declarations here.
 			const int CONFIG_LOCAL = 123,
 					heste_kager = 1;
+			int OUTPUT_variable[CONFIG_TESTING_CONSTANT];
 		</declaration>
 		<location id="id0" x="119" y="8">
 		</location>

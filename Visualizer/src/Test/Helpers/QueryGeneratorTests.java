@@ -8,6 +8,8 @@ import parsers.UPPAALParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -165,6 +167,21 @@ public class QueryGeneratorTests {
         OutputVariable outVar = CHandler.parseOutputVariableArray(createTestCVar("OUTPUT_data", null, "CONFIG_SIZE"), constants);
 
         String actualQuery = QueryGenerator.generateSimulationQuery(123, 5, Arrays.asList(outVar), new ArrayList<>());
+        assertEquals(expectedSimulationQuery, actualQuery);
+    }
+
+    @Test
+    public void parseOutputVariableFromScope() {
+        String expectedSimulationQuery = "simulate 5 [<=123] { Node.OUTPUT_data[0] > 0, Node.OUTPUT_data[1] > 0, Node.OUTPUT_data[2] > 0 }";
+        int constantSize = 3;
+
+        ArrayList<CVar> constants = new ArrayList<>();
+        constants.add(new CVar("CONFIG_SIZE", String.valueOf(constantSize)));
+
+        OutputVariable outVar = CHandler.parseOutputVariableArray(createTestCVar("OUTPUT_data", "Node", "CONFIG_SIZE"), constants);
+        String process = "Node";
+
+        String actualQuery = QueryGenerator.generateSimulationQuery(123, 5, Collections.singletonList(outVar), Collections.singletonList(process));
         assertEquals(expectedSimulationQuery, actualQuery);
     }
 }

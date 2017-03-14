@@ -109,7 +109,7 @@ public class OutputVariable implements Externalizable{
         if (getScope() != null ? !getScope().equals(variable.getScope()) : variable.getScope() != null) return false;
         if (getIsEdgeData() != variable.getIsEdgeData()) return false;
         if (getIsNodeData() != variable.getIsNodeData()) return false;
-        return getIsSelected() != variable.getIsSelected();
+        return getIsSelected() == variable.getIsSelected();
     }
 
     @Override
