@@ -2,6 +2,8 @@ package View;
 
 import Model.CVar;
 import Model.TemplateUpdate;
+import com.sun.javafx.geom.PickRay;
+import com.sun.javafx.scene.input.PickResultChooser;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 
@@ -41,7 +43,12 @@ public class TemplateUpdateValueEditingCell extends EditingCell<TemplateUpdate, 
 
     @Override
     public void commitEdit(TemplateUpdate value) {
+        setObjectValue(value);
         super.commitEdit(value);
+    }
+
+    private void setObjectValue(TemplateUpdate value) {
+
         value.setTheValue(getValueText());
     }
 }

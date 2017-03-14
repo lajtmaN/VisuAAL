@@ -34,6 +34,7 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
     String getValueText() {
         switch (fieldType) {
             case INT_FIELD:
+                return textField.getText();
             case DOUBLE_FIELD:
                 return textField.getText();
             case BOOL_FIELD:
@@ -48,8 +49,10 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
             case INT_FIELD:
             case DOUBLE_FIELD:
                 textField.setText(value);
+                break;
             case BOOL_FIELD:
                 comboBox.setValue(value);
+                break;
         }
     }
 
