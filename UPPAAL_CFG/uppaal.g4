@@ -50,7 +50,7 @@ grammar uppaal;
     fieldDeclId : ID arrayDecl* ;
 
          prefix : ( ( 'urgent' )? ( 'broadcast' )? | ('const' )? | ('meta')? ) ;
-          range : '[' expression ',' expression ']' ;
+		 range : '[' expression ',' expression ']' ;
 
 block : '{' ( variableDecl | typeDecl )* statement* '}' ;
 
@@ -102,7 +102,7 @@ caseExpr       : 'case' expression ':' statement*
 
    assignOp : '=' | '+=' | '-=' | '*=' | '/=' | '%=' 
             | '|=' | '&=' | '^=' | '<<=' | '>>=' ;
-    unaryOp : '-' | '!'  ;
+    unaryOp : '-' | '!'  | '+';
         rel : '<' | '<=' | '==' | '!=' | '>=' | '>' ;
    binIntOp : '+' | '-' | '*' | '/' | '%' | '&' | '|' | '^' | '<<' | '>>'  ;
   binBoolOp : '&&' | '||' ;
