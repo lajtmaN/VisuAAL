@@ -4,6 +4,7 @@ import Helpers.*;
 import Model.*;
 import View.simulation.SimulationDataContainer;
 import View.simulation.SimulationResultController;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
@@ -19,6 +20,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -55,10 +57,10 @@ public class MainWindowController implements Initializable {
     @FXML private TableColumn<OutputVariable, Boolean> outputVarUse;
     @FXML private TextField txtQueryTimeBound;
     @FXML private TextField txtQuerySimulations;
-    @FXML private TableView<TemplateUpdate> dynamicTable;
+    @FXML private GuiTable<TemplateUpdate> dynamicTable;
     @FXML private TableColumn<TemplateUpdate, String> dynColumnName;
-    @FXML private TableColumn<TemplateUpdate, TemplateUpdate> dynColumnValue;
-    @FXML private TableColumn<TemplateUpdate, TemplateUpdate> dynColumnTime;
+    @FXML private TableColumn<TemplateUpdate, String> dynColumnValue;
+    @FXML private TableColumn<TemplateUpdate, Number> dynColumnTime;
     @FXML private Tab configurationTab;
     @FXML private Button saveModelButton;
     @FXML private GridPane globalVarGridPane;
@@ -90,11 +92,12 @@ public class MainWindowController implements Initializable {
     }
 
     private void initializeDynamicTable() {
-        dynColumnValue.setCellValueFactory(p -> p.getValue().getObjectProperty());
-        dynColumnValue.setCellFactory(p -> new TemplateUpdateValueEditingCell());
+        dynamicTable.setEditable(true);
+        dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
+        dynColumnValue.setCellValueFactory(p -> p.getValue().theValueProperty());
+        dynColumnTime.setCellValueFactory(p -> p.getValue().timeProperty());
 
-        //dynColumnTime.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        dynColumnTime.setCellValueFactory(p -> p.getValue().getObjectProperty());
+        dynColumnValue.setCellFactory(p -> new TemplateUpdateValueEditingCell());
         dynColumnTime.setCellFactory(p -> new TemplateUpdateModelTimeEditingCell());
 
         dynamicTable.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
@@ -106,6 +109,11 @@ public class MainWindowController implements Initializable {
                 }
             }
         });
+    }
+
+
+    private void initializeWithLoadedModel() {
+        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
     }
 
     private void initializeWidths() {
@@ -140,11 +148,6 @@ public class MainWindowController implements Initializable {
         outputVarUse.setCellValueFactory(p -> p.getValue().isSelected());
 
         tableOutputVars.setSelectionModel(null);
-    }
-
-    private void initializeWithLoadedModel() {
-        dynColumnName.setCellValueFactory(p -> p.getValue().variableNameProperty());
-        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
     }
 
     private void resetGUI() {
