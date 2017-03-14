@@ -4,15 +4,11 @@ package View.simulation;
 import Model.Simulation;
 import View.Options.*;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.util.StringConverter;
 
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.ResourceBundle;
 
 /**
  * Created by lajtman on 08-03-2017.
@@ -36,7 +32,8 @@ public class SimulationMenuController {
         lstExportOptions.getItems().add(new ExportTopologyOption());
 
         currentSimulation.getOutputVariables().forEach(outputVariable -> {
-            lstDisplayOptions.getItems().add(new ShowHideDataOption(outputVariable));
+            if (outputVariable.getIsSelected()) //Only add all the variables that was enabled when running query
+                lstDisplayOptions.getItems().add(new ShowHideDataOption(outputVariable));
         });
     }
 
