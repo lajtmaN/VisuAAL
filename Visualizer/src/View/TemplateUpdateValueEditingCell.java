@@ -4,6 +4,8 @@ import Model.CVar;
 import Model.TemplateUpdate;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import parsers.RegexHelper;
@@ -12,20 +14,41 @@ import parsers.RegexHelper;
  * Created by batto on 14-Feb-17.
  */
 public class TemplateUpdateValueEditingCell extends TableCell<TemplateUpdate, String> {
-
     private final TextField textField = new TextField();
+    private final ComboBox comboBox = new ComboBox();
 
     public TemplateUpdateValueEditingCell() {
+        /*this.getTableRow().focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue) {
+                chooseGraphic(getTemplateUpdate().getTheValue());
+            }
+        });*/
         textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (! isNowFocused) {
                 processEdit();
             }
         });
         textField.setOnAction(event -> processEdit());
+        comboBox.setOnAction(event -> processEdit());
+
+        comboBox.getItems().addAll("true", "false");
+    }
+
+    private void chooseGraphic(String value) {
+        if(isBooleanType()) {
+            setGraphic(comboBox);
+            textField.setText(value);
+        } else {
+            setGraphic(textField);
+            comboBox.setValue(value.toString());
+        }
     }
 
     private void processEdit() {
-        commitEdit(textField.getText());
+        if(!isBooleanType())
+            commitEdit(textField.getText());
+        else
+            commitEdit(comboBox.getValue().toString());
     }
 
     @Override
@@ -36,8 +59,7 @@ public class TemplateUpdateValueEditingCell extends TableCell<TemplateUpdate, St
             setGraphic(null);
         } else if (isEditing()) {
             setText(null);
-            textField.setText(value);
-            setGraphic(textField);
+            chooseGraphic(value);
         } else {
             setText(value.toString());
             setGraphic(null);
@@ -49,8 +71,7 @@ public class TemplateUpdateValueEditingCell extends TableCell<TemplateUpdate, St
         super.startEdit();
         String value = getItem();
         if (value != null) {
-            textField.setText(value);
-            setGraphic(textField);
+            chooseGraphic(value);
             setText(null);
         }
     }
@@ -90,5 +111,12 @@ public class TemplateUpdateValueEditingCell extends TableCell<TemplateUpdate, St
         FilteredList<CVar> filteredList = listOfVars.filtered(p -> p.getName().equals(item.getVariableName()));
 
         return filteredList != null && filteredList.size() > 0 ? filteredList.get(0) : null;
+    }
+
+    private boolean isBooleanType() {
+        CVar c = getCorrespondingCVar(getTemplateUpdate());
+        if(c != null)
+            return c.hasBoolType();
+        return false;
     }
 }
