@@ -56,4 +56,12 @@ public class Settings {
     public void setVerifytaLocation(String verifytaLocation) {
         properties.setProperty("verifytaLocation", verifytaLocation);
     }
+
+    public String getRecentLoadedModel() {
+        return properties.getProperty("recentModel");
+    }
+
+    public void setRecentLoadedModel(String recentLoadedModel) {
+        properties.setProperty("recentModel", recentLoadedModel);
+    }
 }

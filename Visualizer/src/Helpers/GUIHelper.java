@@ -41,7 +41,7 @@ public class GUIHelper {
                 return verifytaLocation;
         }
 
-        File verifytaFile = FileHelper.chooseFileToLoad(ExtensionFilters.VerifytaExtensionFilter);
+        File verifytaFile = FileHelper.chooseFileToLoad("Select verifyta executable from UPPAAL", null, ExtensionFilters.VerifytaExtensionFilter);
         if (verifytaFile == null)
             return null;
 

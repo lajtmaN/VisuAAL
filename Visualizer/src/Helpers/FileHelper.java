@@ -67,16 +67,20 @@ public class FileHelper {
         return selectedFile;
     }
 
-    public static File chooseFileToLoad(FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
-        return chooseFileToLoad(MainWindowController.getInstance().getWindow(), firstFilter, filters);
-    }
-
-    public static File chooseFileToLoad(Window window, FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
+    public static File chooseFileToLoad(String title, String initialSelectedFile, FileChooser.ExtensionFilter firstFilter, FileChooser.ExtensionFilter... filters) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select UPPAAL model or simulation");
+        fileChooser.setTitle(title);
         fileChooser.setInitialDirectory(Paths.get(".").toAbsolutePath().normalize().toFile());
         fileChooser.getExtensionFilters().add(firstFilter);
         fileChooser.getExtensionFilters().addAll(filters);
-        return fileChooser.showOpenDialog(window);
+
+        if (initialSelectedFile != null) {
+            File f = new File(initialSelectedFile);
+            if (f.exists()) {
+                fileChooser.setInitialDirectory(f.getParentFile());
+                fileChooser.setInitialFileName(f.getName());
+            }
+        }
+        return fileChooser.showOpenDialog(MainWindowController.getInstance().getWindow());
     }
  }
