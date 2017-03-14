@@ -109,6 +109,14 @@ public class Simulation implements Serializable {
         }
     }
 
+    public void showDataFrom(OutputVariable variable) {
+        throw new UnsupportedOperationException("This method is not implemented yet");
+    }
+
+    public void hideDataFrom(OutputVariable variable) {
+        throw new UnsupportedOperationException("This method is not implemented yet");
+    }
+
     public int queryTimeBound() {
         return Integer.parseInt(RegexHelper.getFirstMatchedValueFromRegex("\\[<=(\\d+)\\]", query));
     }
