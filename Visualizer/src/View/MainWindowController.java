@@ -163,8 +163,9 @@ public class MainWindowController implements Initializable {
     }
 
     public void loadModel(ActionEvent actionEvent) throws IOException, InterruptedException {
-        File selectedFile = FileHelper.chooseFileToLoad(rootElement.getScene().getWindow(),
-                ExtensionFilters.UPPAALModelExtensionFilter, ExtensionFilters.SimulationExtensionFilter);
+        File selectedFile = FileHelper.chooseFileToLoad("Select UPPAAL model or simulation",
+                Settings.Instance().getRecentLoadedModel(), ExtensionFilters.UPPAALModelExtensionFilter,
+                ExtensionFilters.SimulationExtensionFilter);
         if (selectedFile == null || !selectedFile.exists() || !selectedFile.isFile())
             return;
 
@@ -223,6 +224,9 @@ public class MainWindowController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Settings.Instance().setRecentLoadedModel(selectedFile.getPath());
+        Settings.Instance().saveChanges();
+
         uppaalModel = new UPPAALModel(tempFile.getPath());
         uppaalModel.load();
         constantsTable.setItems(uppaalModel.getAllConfigVars());
