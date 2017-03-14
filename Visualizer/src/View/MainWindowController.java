@@ -1,10 +1,7 @@
 package View;
 
-import Helpers.ConnectedGraphGenerator;
-import Helpers.FileHelper;
-import Helpers.GUIHelper;
+import Helpers.*;
 import Model.*;
-import Helpers.QueryGenerator;
 import View.simulation.SimulationDataContainer;
 import View.simulation.SimulationResultController;
 import javafx.beans.property.SimpleStringProperty;
@@ -22,13 +19,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 import javafx.util.Callback;
-import javafx.util.converter.IntegerStringConverter;
 import org.xml.sax.SAXException;
 import parsers.UPPAALParser;
 
@@ -168,8 +163,9 @@ public class MainWindowController implements Initializable {
     }
 
     public void loadModel(ActionEvent actionEvent) throws IOException, InterruptedException {
-        File selectedFile = FileHelper.chooseFileToLoad(rootElement.getScene().getWindow(),
-                FileHelper.UPPAALModelExtensionFilter, FileHelper.SimulationExtensionFilter);
+        File selectedFile = FileHelper.chooseFileToLoad("Select UPPAAL model or simulation",
+                Settings.Instance().getRecentLoadedModel(), ExtensionFilters.UPPAALModelExtensionFilter,
+                ExtensionFilters.SimulationExtensionFilter);
         if (selectedFile == null || !selectedFile.exists() || !selectedFile.isFile())
             return;
 
@@ -192,7 +188,7 @@ public class MainWindowController implements Initializable {
 
     public void saveModel(ActionEvent actionEvent) throws IOException, TransformerException, SAXException, ParserConfigurationException {
         setConstantTableSaveOnUnFocus();
-        File selectedFile = FileHelper.chooseFileToSave(FileHelper.UPPAALModelExtensionFilter);
+        File selectedFile = FileHelper.chooseFileToSave(ExtensionFilters.UPPAALModelExtensionFilter);
         if (selectedFile == null) return;
         uppaalModel.saveToPath(selectedFile.getPath());
         GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Model successfully saved");
@@ -228,6 +224,9 @@ public class MainWindowController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Settings.Instance().setRecentLoadedModel(selectedFile.getPath());
+        Settings.Instance().saveChanges();
+
         uppaalModel = new UPPAALModel(tempFile.getPath());
         uppaalModel.load();
         constantsTable.setItems(uppaalModel.getAllConfigVars());
@@ -280,6 +279,9 @@ public class MainWindowController implements Initializable {
         handleRandomTopologyIfActivated(true);
         Simulation out = uppaalModel.runQuery(query); //Run in uppaal - takes long time
         simulationProgress.setVisible(false);
+
+        if (out == null)
+            return;
 
         String simulationName = txtSimulationName.getText();
         if (simulationName.length() == 0) simulationName = "Result";

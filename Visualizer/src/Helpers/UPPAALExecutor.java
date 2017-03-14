@@ -18,6 +18,10 @@ public class UPPAALExecutor {
 
     //TODO Refactor and use CompletableFuture<T> to run async
     public static SimulateOutput provideQueryResult(String modelPath, String query) throws IOException {
+        String verifytaLocation = GUIHelper.getVerifytaLocationFromUser();
+        if (verifytaLocation == null)
+            return null;
+
         String simulateCountString = RegexHelper.getFirstMatchedValueFromRegex("simulate (\\d+)", query);
         if (simulateCountString == null)
             return null;
@@ -26,9 +30,7 @@ public class UPPAALExecutor {
 
         File queryFile = UPPAALParser.generateQueryFile(query);
 
-        ProcessBuilder builder = new ProcessBuilder(
-                "cmd.exe", "/c", "lib\\verifyta.exe \"" + modelPath + "\" " + queryFile
-        );
+        ProcessBuilder builder = new ProcessBuilder(verifytaLocation, modelPath, queryFile.getPath());
         builder.redirectErrorStream(true);
         try {
             Process p = builder.start();

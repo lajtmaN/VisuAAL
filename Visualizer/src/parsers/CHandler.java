@@ -20,10 +20,23 @@ public class CHandler {
         return "typedef\\s+int\\s+\\[\\s*0,\\s*(CONFIG_\\w+)([*+-]\\d+)?\\]\\s+" + typedefName;
     }
 
+    private static void filterConfigVariables(List<CVar> vars) {
+        vars.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || var.isArrayType());
+    }
+
+    private static void filterOutputVariables(List<CVar> vars) {
+        vars.removeIf(var -> !var.getName().startsWith(OutputVariablePrefix));
+        vars.removeIf(var -> !var.hasIntType()); // TODO OUTPUT variables are limited to int only right now
+    }
+
+    private static void setScopeOnAll(List<CVar> vars, String scope) {
+        vars.forEach(c -> c.setScope(scope));
+    }
+
     public static ArrayList<CVar> getConfigVariables(String decls, String scope) {
         ArrayList<CVar> returnvars = VariableParser.getInstantiations(decls);
-        returnvars.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || var.isArrayType());
-        returnvars.forEach(var -> var.setScope(scope));
+        filterConfigVariables(returnvars);
+        setScopeOnAll(returnvars, scope);
         return returnvars;
     }
 
@@ -37,22 +50,26 @@ public class CHandler {
 
     public static ArrayList<OutputVariable> getOutputVars(HashMap<String, String> declarations) {
         ArrayList<OutputVariable> outputVariables = new ArrayList<>();
+        ArrayList<CVar> globalDecls = getConfigVariables(declarations.get(null), null);
+
         for (String scopeKey : declarations.keySet()) {
-            outputVariables.addAll(getOutputVars(declarations.get(scopeKey), scopeKey));
+            outputVariables.addAll(getOutputVars(declarations.get(scopeKey), scopeKey, globalDecls));
         }
         return outputVariables;
     }
 
-    public static List<OutputVariable> getOutputVars(String decls, String scope) {
+    public static List<OutputVariable> getOutputVars(String decls, String scope, List<CVar> globalConstants) {
         ArrayList<CVar> returnvars = VariableParser.getInstantiations(decls);
-        returnvars.forEach(var -> var.setScope(scope));
+        setScopeOnAll(returnvars, scope);
 
-        //TODO Only constants from current scope is checked, we should use constants from this scope AND global
-        ArrayList<CVar> constants = new ArrayList<>(returnvars);
-        constants.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || var.isArrayType());
+        List<CVar> constants = new ArrayList<>(globalConstants);
+        if (scope != null) { //If global scope, we have already parsed the constants
+            ArrayList<CVar> scopedConstants = new ArrayList<>(returnvars);
+            filterConfigVariables(scopedConstants);
+            constants.addAll(scopedConstants);
+        }
 
-        returnvars.removeIf(var -> !var.getName().startsWith(OutputVariablePrefix));
-        returnvars.removeIf(var -> !var.hasIntType()); // TODO OUTPUT variables are limited to int only right now
+        filterOutputVariables(returnvars);
 
         return returnvars.stream().map(p -> parseOutputVariableArray(p, constants)).collect(Collectors.toList());
     }
