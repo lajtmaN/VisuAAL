@@ -137,7 +137,9 @@ public class UPPAALModel implements Externalizable, Cloneable {
     }
 
     public AlertData saveTemplateUpdatesToXml() {
-        List<TemplateUpdate> updates = templateUpdates.stream().filter(p -> p.getVariableName().length() > 0).collect(Collectors.toList());
+        List<TemplateUpdate> updates = templateUpdates.stream().filter(
+                p -> p.getVariableName().length() > 0 && p.getTheValue().length() > 0
+                        && p.getTime() >= 0).collect(Collectors.toList());
         if (updates.size() != 0) {
             updates.sort((o1, o2) -> Integer.compare(o1.getTime(), o2.getTime()));
 
