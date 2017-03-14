@@ -18,14 +18,16 @@ public class TemplateUpdate implements Externalizable {
     }
 
     public TemplateUpdate(String variable, String value, int time) {
-        setVariable(variable);
-        setTheValue(value);
-        setTime(time);
+        this.variable = new SimpleStringProperty(this, "variable", variable);
+        this.theValue = new SimpleStringProperty(this, "theValue", value);
+        this.time = new SimpleIntegerProperty(this, "time", time);
+
+        //TODO: Remove
         propertyInstance = new SimpleObjectProperty<>(this);
     }
 
     public TemplateUpdate() {
-        this("", "", 20);
+        this("", "", 0);
     }
 
     public int getTime() {
@@ -37,10 +39,7 @@ public class TemplateUpdate implements Externalizable {
     }
 
     public void setTime(int time) {
-        if (this.time == null && time == 20)
-            this.time = new SimpleIntegerProperty();
-        else
-            this.time = new SimpleIntegerProperty(time);
+        this.time.set(time);
     }
 
     public String getVariableName() {
@@ -52,7 +51,7 @@ public class TemplateUpdate implements Externalizable {
     }
 
     public void setVariable(String variable) {
-        this.variable = new SimpleStringProperty(variable);
+        this.variable.set(variable);
     }
 
     public String getTheValue() {
@@ -64,7 +63,7 @@ public class TemplateUpdate implements Externalizable {
     }
 
     public void setTheValue(String theValue) {
-        this.theValue = new SimpleStringProperty(theValue);
+        this.theValue.set(theValue);
     }
 
     @Override
