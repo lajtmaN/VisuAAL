@@ -10,14 +10,18 @@ public class SimulationEdgePoint extends SimulationPoint implements Serializable
     private String _source;
     private String _destination;
 
-    public SimulationEdgePoint(double time, String source, String destination, double value, double previousValue) {
-        super(source+"-"+destination, time, value, SimulationPointType.EdgePoint, previousValue);
+    public SimulationEdgePoint(String identifier, double time, String source, String destination, double value, double previousValue) {
+        super(identifier, time, value, SimulationPointType.EdgePoint, previousValue);
         this._source = source;
         this._destination = destination;
     }
 
     public SimulationEdgePoint(double time, String source, String destination, double value) {
-        this(time, source, destination, value, 0);
+        this(source + "-" + destination, time, source, destination, value, 0);
+    }
+
+    public String getEdgeIdentifier() {
+        return _source + "-" + _destination;
     }
 
     @Override
