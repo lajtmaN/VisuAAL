@@ -25,14 +25,14 @@ public class ShowHideDataOption extends EnableDisableSimulationOption {
     @Override
     public void startAction(Simulation currentSimulation) {
         //TODO:
-        //currentSimulation.showDataFrom(variable);
+        currentSimulation.showDataFrom(variable);
 
     }
 
     @Override
     public void disableAction(Simulation currentSimulation) {
         //TODO:
-        // currentSimulation.hideDataFrom(variable);
+        currentSimulation.hideDataFrom(variable);
 
     }
 }
