@@ -12,7 +12,7 @@ import parsers.RegexHelper;
 public abstract class EditingCell<T, C> extends TableCell<T, C> {
     protected TextField textField = new TextField();
     protected ComboBox comboBox = new ComboBox();
-    protected enum FieldType {UNKNOWN, INT_FIELD, BOOL_FIELD, DOUBLE_FIELD}
+    protected enum FieldType {UNKNOWN, INT_FIELD, BOOL_FIELD, DOUBLE_FIELD, COMBO_BOX_STRING_FIELD}
     protected FieldType fieldType = FieldType.UNKNOWN;
 
     public EditingCell() {
@@ -27,18 +27,21 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
                 processEdit();
             }
         });
-        textField.setOnAction(event -> processEdit());
+        //textField.setOnAction(event -> processEdit());
+        //comboBox.setOnAction(event -> processEdit());
         comboBox.getItems().addAll("true", "false");
+
+
     }
 
     String getValueText() {
         switch (fieldType) {
             case INT_FIELD:
-                return textField.getText();
             case DOUBLE_FIELD:
                 return textField.getText();
             case BOOL_FIELD:
-                return comboBox.getValue().toString();
+            case COMBO_BOX_STRING_FIELD:
+                return (String) comboBox.getValue();
             default:
                 return "";
         }
@@ -50,6 +53,7 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
             case DOUBLE_FIELD:
                 textField.setText(value);
                 break;
+            case COMBO_BOX_STRING_FIELD:
             case BOOL_FIELD:
                 comboBox.setValue(value);
                 break;
@@ -83,10 +87,10 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
     @Override
     protected void updateItem(C item, boolean empty) {
         super.updateItem(item, empty);
-        if (item == null) {
+        if (item == null || empty) {
             setValueText(null);
             setGraphic(null);
-        } else {
+        } else if(isEditing()){
             setValueText(getStringValueFromItem(item));
             setCorrectGraphic();
         }
@@ -94,7 +98,8 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
 
     protected void processEdit() {
         if (isValidText(getValueText()))
-            commitEdit(getItem());
+            //Works only when C is a string
+            commitEdit((C)getValueText());
         else
             cancelEdit();
     }
@@ -117,12 +122,25 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
         }
     }
 
-    private void setCorrectGraphic() {
+    @Override
+    public void commitEdit(C value) {
+        if(canValueParse(getStringValueFromItem(value))) {
+            super.commitEdit(value);
+            setValueText(getStringValueFromItem(value));
+        }
+    }
+
+    protected boolean canValueParse(String value) {
+        return true;
+    }
+
+    protected void setCorrectGraphic() {
         switch (fieldType) {
             case INT_FIELD:
             case DOUBLE_FIELD:
                 setGraphic(textField);
                 break;
+            case COMBO_BOX_STRING_FIELD:
             case BOOL_FIELD:
                 setGraphic(comboBox);
                 break;
@@ -130,5 +148,9 @@ public abstract class EditingCell<T, C> extends TableCell<T, C> {
                 setGraphic(null);
                 break;
         }
+    }
+
+    protected T getRowObject() {
+        return (T)this.getTableRow().getItem();
     }
 }
