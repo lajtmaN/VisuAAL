@@ -4,6 +4,7 @@ import Model.CVar;
 import Model.OutputVariable;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
+import javafx.util.Pair;
 import parsers.Declaration.VariableParser;
 
 import java.util.*;
@@ -17,7 +18,7 @@ public class CHandler {
     private static final String TopologyRegex = TopologyName + "\\[.+\\n((?:[^;])+)\\};";
     private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
     private static final String TypedefRegex(String typedefName) {
-        return "typedef\\s+int\\s+\\[\\s*0,\\s*(CONFIG_\\w+)([*+-]\\d+)?\\]\\s+" + typedefName;
+        return "typedef\\s+int\\s*\\[\\s*(CONFIG_\\w+|\\d+)([*+-]\\d+)?,\\s*(CONFIG_\\w+|\\d+)([*+-]\\d+)?\\]\\s+" + typedefName+ "\\s*;";
     }
 
     private static void filterConfigVariables(List<CVar> vars) {
@@ -144,30 +145,51 @@ public class CHandler {
         return result;
     }
 
-    public static int getSizeOfParam(String paramForProc, String globalDecls, List<CVar> constants) {
+    public static Pair<Integer, Integer> getSizesOfParam(String paramForProc, String globalDecls, List<CVar> constants) {
         String regex = TypedefRegex(paramForProc);
-        String constantName = RegexHelper.getNthMatchedValueFromRegex(regex, globalDecls, 1);
-        String optionalExpression = RegexHelper.getNthMatchedValueFromRegex(regex, globalDecls, 2);
+        String[] constantNames = new String[2];
+        constantNames[0] = RegexHelper.getNthMatchedValueFromRegex(regex, globalDecls, 1); //Lower bound name
+        constantNames[1] = RegexHelper.getNthMatchedValueFromRegex(regex, globalDecls, 3); // Upper bound name
 
-        Optional<CVar> matchedConstant = constants.stream().filter(p -> p.getName().equals(constantName)).findFirst();
-        if (matchedConstant.isPresent()) {
-            int constValue = Integer.parseInt(matchedConstant.get().getValue());
+        String[] optionalExpressions = new String[2];
+        optionalExpressions[0] = RegexHelper.getNthMatchedValueFromRegex(regex, globalDecls, 2); //Lower bound optionalExpression
+        optionalExpressions[1] = RegexHelper.getNthMatchedValueFromRegex(regex, globalDecls, 4); //Upper bound optionalExpression
+        int[] resultArray = new int[2];
 
-            if (optionalExpression != null) {
-                String operator = RegexHelper.getFirstMatchedValueFromRegex("([*+-])", optionalExpression);
-                int num = Integer.parseInt(RegexHelper.getFirstMatchedValueFromRegex("(\\d+)", optionalExpression));
-                switch (operator) {
-                    case "*":
-                        return constValue * num;
-                    case "+":
-                        return constValue + num;
-                    case "-":
-                        return constValue - num;
+        for(int upperOrLower = 0; upperOrLower < 2; upperOrLower++) {
+            String name = constantNames[upperOrLower];
+            String expression = optionalExpressions[upperOrLower];
+            Optional<CVar> matchedConstant = constants.stream().filter(p -> p.getName().equals(name)).findFirst();
+            Integer constantValue = null;
+            if (matchedConstant.isPresent()) {
+                constantValue = Integer.parseInt(matchedConstant.get().getValue());
+            } else {
+                try {
+                    constantValue = Integer.parseInt(name);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
                 }
             }
-            return constValue;
+            if (constantValue != null) {
+                if (expression != null) {
+                    String operator = RegexHelper.getFirstMatchedValueFromRegex("([*+-])", expression);
+                    int num = Integer.parseInt(RegexHelper.getFirstMatchedValueFromRegex("(\\d+)", expression));
+                    switch (operator) {
+                        case "*":
+                            resultArray[upperOrLower] = constantValue * num;
+                            break;
+                        case "+":
+                            resultArray[upperOrLower] = constantValue + num;
+                            break;
+                        case "-":
+                            resultArray[upperOrLower] = constantValue - num;
+                    }
+                } else {
+                    resultArray[upperOrLower] = constantValue;
+                }
+            }
         }
-        return 0;
+        return new Pair<>(resultArray[0],resultArray[1]);
     }
 
     public static String StringUPPAALTopology(UPPAALTopology top) {
