@@ -3,6 +3,7 @@ package parsers;
 import Helpers.ConnectedGraphGenerator;
 import Helpers.FileHelper;
 import Model.*;
+import javafx.util.Pair;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -241,12 +242,14 @@ public class ParseXmlAndCTests {
     public void calculateCorrectParameterSize() throws IOException, ParserConfigurationException, SAXException {
         File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
 
-        int expected = 35;
+        int expectedlhs = 0;
+        int expectedrhs = 35;
 
         XmlHandler handler = new XmlHandler(f.getPath());
         String parameter = handler.getParamaterForTemplate("Node");
-        int actual = CHandler.getSizeOfParam(parameter, handler.getGlobalDeclarations(), UPPAALParser.getUPPAALConfigConstants(f.getPath()));
-        assertEquals(expected, actual);
+        Pair<Integer,Integer> actualbounds = CHandler.getSizesOfParam(parameter, handler.getGlobalDeclarations(), UPPAALParser.getUPPAALConfigConstants(f.getPath()));
+        assertEquals(expectedlhs, actualbounds.getKey().intValue());
+        assertEquals(expectedrhs, actualbounds.getValue().intValue());
     }
 
     @Test
@@ -344,6 +347,31 @@ public class ParseXmlAndCTests {
         }
     }
 
+    @Test
+    public void parseTemplatesFromModelsWithTwoTypesOfNodes() throws IOException, SAXException, ParserConfigurationException {
+        UPPAALModel model = new UPPAALModel(new File("MultipleTemplatesMultipleParameterTypes.xml").getPath());
+        model.load();
+        assertNotNull(model);
+        assertNotNull(model.getProcesses());
+        assertEquals("Wrong number of templates",3, model.getProcesses().size());
+        assertTrue("Template1(0) does not exist",model.getProcesses().contains("Template1(0)"));
+        assertTrue("Template0(1) does not exist",model.getProcesses().contains("Template0(1)"));
+        assertTrue("Template0(2) does not exist",model.getProcesses().contains("Template0(2)"));
+        assertNotNull(model);
+    }
+
+    @Test
+    public void parseTemplatesFromModelsWithTwoTypesOfNodesSystemInstantiated() throws IOException, SAXException, ParserConfigurationException {
+        UPPAALModel model = new UPPAALModel(new File("MultipleTemplatesMultipleParameterTypesSystemInstantiated.xml").getPath());
+        model.load();
+        assertNotNull(model);
+        assertNotNull(model.getProcesses());
+        assertEquals("Wrong number of templates",3, model.getProcesses().size());
+        assertTrue("t0 does not exist",model.getProcesses().contains("t0"));
+        assertTrue("t1 does not exist",model.getProcesses().contains("t1"));
+        assertTrue("t2 does not exist",model.getProcesses().contains("t2"));
+        assertNotNull(model);
+    }
     private void assertEdge(int expectedSource, int expectedDest, UPPAALEdge e) {
         assertEquals(expectedSource, e.getSourceAsInt());
         assertEquals(expectedDest, e.getDestinationAsInt());

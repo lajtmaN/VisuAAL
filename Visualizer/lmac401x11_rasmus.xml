@@ -13,7 +13,8 @@ const int CONFIG_frame = 5;          // number of slots in a frame
 const int frame = CONFIG_frame;
 const int max_vec = (1&lt;&lt;(frame))-1; // maximal value of bit vector (if all entries are 1)
 
-typedef int [0,CONFIG_NR_NODES-1] id_t;
+typedef int [0,0] id_tt;
+typedef int [1,CONFIG_NR_NODES-1] id_t;
 
 // the following are variable that contains data send from one node to another;
 //int[0,max_vec] aux_vec;
@@ -484,14 +485,454 @@ mode=2</label>
 		</transition>
 	</template>
 	<template>
+		<name>SpecialNode</name>
+		<parameter>id_tt id</parameter>
+		<declaration>//Insert local declarations of clocks, variables and constants.
+
+//int next;	   // wait 0..3 frames before choosing a slot, counts the number of slots without receiving a message
+//int[0,number_of_nodes] rec_id;		// received id
+int[0,max_vec] aux_vec, rec_vec;
+	
+int[-1,frame] OUTPUT_current=-1;	// some counters, current is the current slot no.
+int[-1,3*frame] counter=-1; 
+int[-1,frame-1] col=-1, collision=-1;
+	// vector to keep track of when a collision did occur.
+
+int[0,4] mode=0;// just for book keeping.
+//clock t;
+
+void setgatewayVars() {
+    OUTPUT_current = 0;
+    counter = 4;
+    mode = 3;
+}</declaration>
+		<location id="id20" x="190" y="158">
+			<name x="180" y="124">TIMELOCKED</name>
+		</location>
+		<location id="id21" x="632" y="354">
+			<committed/>
+		</location>
+		<location id="id22" x="632" y="294">
+			<name x="572" y="252">waiting</name>
+			<label kind="invariant" x="572" y="269">t &lt;= 2</label>
+		</location>
+		<location id="id23" x="71" y="22">
+			<name x="12" y="-12">select_node_or_gateway</name>
+			<urgent/>
+		</location>
+		<location id="id24" x="631" y="25">
+			<name x="655" y="17">initial</name>
+		</location>
+		<location id="id25" x="631" y="881">
+			<committed/>
+		</location>
+		<location id="id26" x="631" y="689">
+			<committed/>
+		</location>
+		<location id="id27" x="631" y="553">
+			<label kind="invariant" x="647" y="561">t&lt;=2</label>
+			<committed/>
+		</location>
+		<location id="id28" x="247" y="1153">
+			<name x="239" y="1169">sending</name>
+			<committed/>
+		</location>
+		<location id="id29" x="567" y="1153">
+			<name x="559" y="1185">sent</name>
+			<label kind="invariant" x="557" y="1168">t&lt;=2</label>
+		</location>
+		<location id="id30" x="631" y="153">
+			<name x="621" y="119">wait_selected</name>
+			<label kind="invariant" x="655" y="145">t&lt;=2</label>
+		</location>
+		<location id="id31" x="335" y="153">
+			<name x="325" y="119">wait_uninit</name>
+			<label kind="invariant" x="279" y="145">t&lt;=2</label>
+		</location>
+		<location id="id32" x="247" y="465">
+			<name x="231" y="433">rec_one0</name>
+			<label kind="invariant" x="239" y="417">t&lt;=2</label>
+		</location>
+		<location id="id33" x="631" y="465">
+			<name x="564" y="464">listening0</name>
+			<label kind="invariant" x="559" y="481">t&lt;=2</label>
+		</location>
+		<location id="id34" x="631" y="241">
+			<committed/>
+		</location>
+		<location id="id35" x="247" y="977">
+			<name x="239" y="929">ready</name>
+			<label kind="invariant" x="239" y="945">t&lt;=1</label>
+		</location>
+		<location id="id36" x="831" y="881">
+			<name x="815" y="833">listening</name>
+			<label kind="invariant" x="815" y="849">t&lt;=2</label>
+		</location>
+		<location id="id37" x="1039" y="881">
+			<name x="1055" y="889">rec_one</name>
+			<label kind="invariant" x="1055" y="873">t&lt;=2</label>
+		</location>
+		<location id="id38" x="415" y="593">
+			<name x="399" y="561">done0</name>
+			<label kind="invariant" x="399" y="601">t&lt;=2</label>
+		</location>
+		<location id="id39" x="695" y="1153">
+			<name x="679" y="1169">done</name>
+			<label kind="invariant" x="687" y="1193">t&lt;=2</label>
+		</location>
+		<init ref="id23"/>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id20"/>
+			<label kind="guard" x="683" y="252">t &gt; 2</label>
+			<nail x="683" y="260"/>
+			<nail x="615" y="209"/>
+			<nail x="564" y="192"/>
+			<nail x="258" y="192"/>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id22"/>
+			<label kind="guard" x="445" y="311">counter &lt; 3*frame-1</label>
+			<label kind="assignment" x="504" y="328">counter++</label>
+			<nail x="581" y="354"/>
+			<nail x="581" y="294"/>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id33"/>
+			<label kind="guard" x="649" y="362">counter == frame-1 ||
+counter == 2*frame-1 ||
+counter == 3*frame-1</label>
+			<label kind="assignment" x="649" y="413">counter = 0,
+mode = 2</label>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id21"/>
+			<label kind="guard" x="632" y="303">counter &lt;= 3*frame-1</label>
+			<label kind="synchronisation" x="632" y="320">tick?</label>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id20"/>
+			<label kind="guard" x="589" y="1136">t &gt; 2</label>
+			<nail x="632" y="1170"/>
+			<nail x="632" y="1255"/>
+			<nail x="190" y="1255"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id35"/>
+			<label kind="guard" x="89" y="941">id == 0</label>
+			<label kind="assignment" x="89" y="975">setgatewayVars()</label>
+			<nail x="71" y="974"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id24"/>
+			<label kind="guard" x="250" y="-3">id &gt; 0</label>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id30"/>
+			<label kind="guard" x="647" y="41">CONFIG_connected[id][aux_id]==1</label>
+			<label kind="synchronisation" x="647" y="57">sendWM?</label>
+			<label kind="assignment" x="647" y="73">OUTPUT_current=OUTPUT_slot_no[aux_id]</label>
+		</transition>
+		<transition>
+			<source ref="id34"/>
+			<target ref="id33"/>
+			<label kind="assignment" x="439" y="345">counter=0,
+mode=2</label>
+			<nail x="431" y="321"/>
+			<nail x="431" y="377"/>
+		</transition>
+		<transition>
+			<source ref="id34"/>
+			<target ref="id22"/>
+			<label kind="assignment" x="657" y="201">counter=0,
+mode=1</label>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id26"/>
+			<label kind="guard" x="639" y="601">counter&gt;=frame-1</label>
+			<label kind="assignment" x="639" y="617">aux_vec=first[id]|second[id],
+second[id]=0, 
+mode=3</label>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id25"/>
+			<label kind="guard" x="511" y="729">!((aux_vec&gt;&gt;1)&amp;1)</label>
+			<label kind="assignment" x="511" y="769">OUTPUT_slot_no[id]=1,
+aux_vec=0</label>
+			<nail x="503" y="705"/>
+			<nail x="503" y="825"/>
+			<nail x="631" y="841"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id34"/>
+			<label kind="guard" x="223" y="665">aux_vec==max_vec</label>
+			<label kind="assignment" x="223" y="689">counter=-1,
+aux_vec=0,
+first[id]=0,
+second[id]=0,
+collision=-1</label>
+			<nail x="211" y="687"/>
+			<nail x="215" y="241"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id25"/>
+			<label kind="guard" x="383" y="729">!((aux_vec&gt;&gt;0)&amp;1)</label>
+			<label kind="assignment" x="383" y="761">OUTPUT_slot_no[id]=0,
+aux_vec=0</label>
+			<nail x="375" y="721"/>
+			<nail x="375" y="809"/>
+			<nail x="631" y="841"/>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id36"/>
+			<label kind="guard" x="663" y="849">OUTPUT_current!=OUTPUT_slot_no[id]</label>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id29"/>
+			<label kind="synchronisation" x="415" y="1153">sendWM!</label>
+			<label kind="assignment" x="407" y="1177">collision=-1</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id31"/>
+			<label kind="guard" x="423" y="121">CONFIG_connected[id][aux_id]==1</label>
+			<label kind="synchronisation" x="423" y="138">sendWM?</label>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id24"/>
+			<label kind="synchronisation" x="423" y="74">tick?</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id34"/>
+			<label kind="synchronisation" x="639" y="177">tick?</label>
+			<label kind="assignment" x="639" y="193">OUTPUT_current=(OUTPUT_current+1)%frame</label>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id32"/>
+			<label kind="guard" x="335" y="433">CONFIG_connected[id][aux_id]==1</label>
+			<label kind="synchronisation" x="335" y="449">sendWM?</label>
+			<label kind="assignment" x="335" y="465">rec_vec=first[aux_id],
+first[id]|=(1&lt;&lt;OUTPUT_current)</label>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id38"/>
+			<label kind="guard" x="247" y="593">CONFIG_connected[id][aux_id]==1</label>
+			<label kind="synchronisation" x="247" y="609">sendWM?</label>
+			<label kind="assignment" x="247" y="625">collision=(collision&lt;0)?OUTPUT_current:collision,
+rec_vec=0</label>
+			<nail x="247" y="529"/>
+			<nail x="247" y="593"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id27"/>
+			<label kind="synchronisation" x="327" y="497">tick?</label>
+			<label kind="assignment" x="335" y="513">OUTPUT_current=(OUTPUT_current+1)%frame,
+second[id]=second[id]|rec_vec,
+rec_vec=0</label>
+			<nail x="247" y="513"/>
+			<nail x="599" y="513"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id27"/>
+			<label kind="synchronisation" x="831" y="481">tick?</label>
+			<label kind="assignment" x="835" y="500">OUTPUT_current=(OUTPUT_current+1)%frame</label>
+			<nail x="827" y="476"/>
+			<nail x="827" y="524"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id33"/>
+			<label kind="guard" x="639" y="481">counter&lt;frame-1</label>
+			<label kind="assignment" x="639" y="497">counter++</label>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id25"/>
+			<label kind="guard" x="639" y="729">!((aux_vec&gt;&gt;2)&amp;1)</label>
+			<label kind="assignment" x="639" y="769">OUTPUT_slot_no[id]=2,
+aux_vec=0</label>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id25"/>
+			<label kind="guard" x="767" y="729">!((aux_vec&gt;&gt;3)&amp;1)</label>
+			<label kind="assignment" x="767" y="769">OUTPUT_slot_no[id]=3,
+aux_vec=0</label>
+			<nail x="759" y="705"/>
+			<nail x="759" y="825"/>
+			<nail x="631" y="841"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id25"/>
+			<label kind="guard" x="895" y="729">!((aux_vec&gt;&gt;4)&amp;1)</label>
+			<label kind="assignment" x="895" y="769">OUTPUT_slot_no[id]=4,
+aux_vec=0</label>
+			<nail x="887" y="721"/>
+			<nail x="887" y="809"/>
+			<nail x="631" y="841"/>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id35"/>
+			<label kind="guard" x="295" y="969">OUTPUT_current==OUTPUT_slot_no[id]</label>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id28"/>
+			<label kind="guard" x="255" y="1073">t==1</label>
+			<label kind="assignment" x="255" y="1089">aux_id=id,
+aux_col=collision</label>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id25"/>
+			<label kind="synchronisation" x="671" y="1057">tick?</label>
+			<label kind="assignment" x="671" y="1073">OUTPUT_current=(OUTPUT_current+1)%frame</label>
+			<nail x="631" y="1009"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id37"/>
+			<label kind="guard" x="855" y="857">CONFIG_connected[id][aux_id]==1</label>
+			<label kind="synchronisation" x="855" y="881">sendWM?</label>
+			<label kind="assignment" x="855" y="897">col=aux_col,
+first[id]|=(1&lt;&lt;OUTPUT_current)</label>
+		</transition>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id39"/>
+			<label kind="guard" x="1047" y="1065">CONFIG_connected[id][aux_id]==1</label>
+			<label kind="synchronisation" x="1047" y="1049">sendWM?</label>
+			<label kind="assignment" x="1047" y="1081">collision=(collision&lt;0)?OUTPUT_current:collision</label>
+			<nail x="1039" y="1153"/>
+		</transition>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id25"/>
+			<label kind="guard" x="657" y="991">col!=OUTPUT_slot_no[id]</label>
+			<label kind="synchronisation" x="655" y="1009">tick?</label>
+			<label kind="assignment" x="655" y="1025">OUTPUT_current=(OUTPUT_current+1)%frame</label>
+			<nail x="983" y="993"/>
+			<nail x="655" y="993"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id25"/>
+			<label kind="synchronisation" x="663" y="929">tick?</label>
+			<label kind="assignment" x="663" y="945">OUTPUT_current=(OUTPUT_current+1)%frame</label>
+			<nail x="791" y="945"/>
+			<nail x="655" y="945"/>
+		</transition>
+		<transition>
+			<source ref="id38"/>
+			<target ref="id27"/>
+			<label kind="synchronisation" x="439" y="577">tick?</label>
+			<label kind="assignment" x="439" y="593">OUTPUT_current=(OUTPUT_current+1)%frame</label>
+			<nail x="615" y="593"/>
+		</transition>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id33"/>
+			<label kind="guard" x="1055" y="553">(col==OUTPUT_slot_no[id])</label>
+			<label kind="synchronisation" x="1055" y="585">tick?</label>
+			<label kind="assignment" x="1055" y="609">counter=0,
+OUTPUT_current=(OUTPUT_current+1)%frame,
+col=-1,
+collision=-1,
+OUTPUT_slot_no[id]=-1,
+first[id]=0,
+rec_vec=0,
+mode=2</label>
+			<nail x="1039" y="465"/>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id25"/>
+			<label kind="synchronisation" x="415" y="1057">tick?</label>
+			<label kind="assignment" x="415" y="1073">OUTPUT_current=(OUTPUT_current+1)%frame</label>
+			<nail x="631" y="1009"/>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id20"/>
+			<label kind="guard" x="700" y="142">t &gt; 2</label>
+			<nail x="564" y="192"/>
+			<nail x="258" y="192"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id20"/>
+			<label kind="guard" x="164" y="906">t &gt; 2</label>
+			<nail x="572" y="932"/>
+			<nail x="190" y="897"/>
+		</transition>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id20"/>
+			<label kind="guard" x="1099" y="864">t &gt; 2</label>
+			<nail x="1014" y="1008"/>
+			<nail x="1014" y="1255"/>
+			<nail x="190" y="1255"/>
+			<nail x="190" y="872"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id20"/>
+			<label kind="guard" x="156" y="456">t &gt; 2</label>
+			<nail x="190" y="447"/>
+			<nail x="190" y="175"/>
+		</transition>
+		<transition>
+			<source ref="id38"/>
+			<target ref="id20"/>
+			<label kind="guard" x="156" y="524">t &gt; 2</label>
+			<nail x="190" y="515"/>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id20"/>
+			<label kind="guard" x="632" y="1136">t &gt; 2</label>
+			<nail x="632" y="1170"/>
+			<nail x="632" y="1255"/>
+			<nail x="190" y="1255"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id20"/>
+			<label kind="guard" x="394" y="396">t &gt; 2</label>
+			<nail x="351" y="362"/>
+			<nail x="190" y="362"/>
+		</transition>
+	</template>
+	<template>
 		<name x="5" y="5">scheduler</name>
-		<location id="id20" x="136" y="120">
+		<location id="id40" x="136" y="120">
 			<label kind="invariant" x="126" y="135">t&lt;=2</label>
 		</location>
-		<init ref="id20"/>
+		<init ref="id40"/>
 		<transition>
-			<source ref="id20"/>
-			<target ref="id20"/>
+			<source ref="id40"/>
+			<target ref="id40"/>
 			<label kind="guard" x="76" y="90">t==2</label>
 			<label kind="synchronisation" x="76" y="105">tick!</label>
 			<label kind="assignment" x="76" y="120">t=0</label>
@@ -503,10 +944,10 @@ mode=2</label>
 
 
 //Edit system definition.
-system node,scheduler;</system>
+system SpecialNode,node,scheduler;</system>
 	<queries>
 		<query>
-			<formula>simulate 1 [&lt;=200] { OUTPUT_slot_no[0] &gt; 0, OUTPUT_slot_no[1] &gt; 0, OUTPUT_slot_no[2] &gt; 0, OUTPUT_slot_no[3] &gt; 0, node0.OUTPUT_current, node1.OUTPUT_current, node2.OUTPUT_current, node3.OUTPUT_current }
+			<formula>simulate 1 [&lt;=2000] { SpecialNode(0).OUTPUT_current,node(1).OUTPUT_current,node(2).OUTPUT_current,node(3).OUTPUT_current }
 			</formula>
 			<comment>
 			</comment>

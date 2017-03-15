@@ -4,6 +4,7 @@ import Model.CVar;
 import Model.OutputVariable;
 import Model.TemplateUpdate;
 import Model.UPPAALTopology;
+import javafx.util.Pair;
 import parsers.Declaration.VariableParser;
 
 import java.io.*;
@@ -115,8 +116,8 @@ public class UPPAALParser {
                 if (paramForProc == null)
                     out.add(proc);
                 else {
-                    int sizeOfParam = CHandler.getSizeOfParam(paramForProc, handler.getGlobalDeclarations(), constants);
-                    for (int i = 0; i <= sizeOfParam; i++) {
+                    Pair<Integer, Integer> sizesOfParam = CHandler.getSizesOfParam(paramForProc, handler.getGlobalDeclarations(), constants);
+                    for (int i = sizesOfParam.getKey(); i <= sizesOfParam.getValue(); i++) {
                         out.add(String.format("%s(%d)", proc, i));
                     }
                 }
