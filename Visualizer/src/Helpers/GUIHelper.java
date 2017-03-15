@@ -1,6 +1,7 @@
 package Helpers;
 
 import Model.Settings;
+import javafx.event.EventTarget;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
