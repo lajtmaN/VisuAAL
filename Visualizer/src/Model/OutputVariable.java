@@ -97,6 +97,15 @@ public class OutputVariable implements Externalizable{
         scope = new SimpleStringProperty(newScope);
     }
 
+    public SimulationPoint.SimulationPointType getCorrespondingSimulationPointType() {
+        if (getIsEdgeData())
+            return SimulationPoint.SimulationPointType.EdgePoint;
+        else if (getIsNodeData())
+            return SimulationPoint.SimulationPointType.NodePoint;
+        else
+            return SimulationPoint.SimulationPointType.Variable;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

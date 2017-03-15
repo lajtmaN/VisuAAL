@@ -13,7 +13,7 @@ public abstract class EnableDisableSimulationOption extends SimulationOption  {
 
     public BooleanProperty onProperty() {
         if (onProperty == null)
-            onProperty = new SimpleBooleanProperty(false);
+            onProperty = new SimpleBooleanProperty(true);
         return onProperty;
     }
 
