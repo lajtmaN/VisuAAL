@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextInputControl;
 import org.xml.sax.SAXException;
 import parsers.UPPAALParser;
 import parsers.XmlHandler;
@@ -90,8 +91,8 @@ public class UPPAALModel implements Externalizable, Cloneable {
         return modelTimeUnit;
     }
 
-    public Simulation runQuery(String query) throws IOException {
-        SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getModelPath(), query);
+    public Simulation runQuery(String query, TextInputControl feedbackCtrl) throws IOException {
+        SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getModelPath(), query, feedbackCtrl);
         if (simulateOutput == null)
             return null;
         else if (simulateOutput.getErrorDescription() != null) {

@@ -275,7 +275,7 @@ public class MainWindowController implements Initializable {
 
         simulationProgress.setVisible(true);
         handleRandomTopologyIfActivated(true);
-        Simulation out = uppaalModel.runQuery(query); //Run in uppaal - takes long time
+        Simulation out = uppaalModel.runQuery(query, txtUppaalOutput); //Run in uppaal - takes long time
         simulationProgress.setVisible(false);
 
         if (out == null)
