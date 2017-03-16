@@ -16,8 +16,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<?import View.GuiTable?>
-<GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainWindowController">
+<GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainWindowController">
 
     <children>
 <GridPane fx:id="horizontalGrid" prefHeight="48.0">
@@ -49,13 +48,13 @@
        <Tab closable="false" text="Dynamic Updates">
            <content>
                <VBox alignment="TOP_CENTER">
-               <GuiTable fx:id="dynamicTable" editable="true" prefWidth="800.0">
+               <TableView fx:id="dynamicTable" editable="true" prefWidth="800.0">
                    <columns>
                        <TableColumn fx:id="dynColumnName" prefWidth="440" text="Variable" />
                        <TableColumn fx:id="dynColumnValue" text="New value" />
                        <TableColumn fx:id="dynColumnTime" text="Model time" />
                    </columns>
-               </GuiTable>
+               </TableView>
                      <Button fx:id="btnAddDynamicUpdateRow" alignment="CENTER" mnemonicParsing="false" onAction="#btnAddDynamicUpdateRowClicked" text="Add new update" />
                    <Button mnemonicParsing="false" onAction="#addUpdates" text="Add Updates" />
                </VBox>

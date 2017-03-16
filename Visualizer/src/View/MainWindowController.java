@@ -57,7 +57,7 @@ public class MainWindowController implements Initializable {
     @FXML private TableColumn<OutputVariable, Boolean> outputVarUse;
     @FXML private TextField txtQueryTimeBound;
     @FXML private TextField txtQuerySimulations;
-    @FXML private GuiTable<TemplateUpdate> dynamicTable;
+    @FXML private TableView<TemplateUpdate> dynamicTable;
     @FXML private TableColumn<TemplateUpdate, String> dynColumnName;
     @FXML private TableColumn<TemplateUpdate, String> dynColumnValue;
     @FXML private TableColumn<TemplateUpdate, Number> dynColumnTime;
