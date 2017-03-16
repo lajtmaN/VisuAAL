@@ -88,7 +88,8 @@ public class TemplateUpdateValueEditingCell extends TableCell<TemplateUpdate, St
     private boolean canValueParse(String value) {
         TemplateUpdate t = getTemplateUpdate();
         CVar cVar= getCorrespondingCVar(t);
-        return (cVar.hasDoubleType() && RegexHelper.isValidDouble(value)
+        return cVar != null &&
+                (cVar.hasDoubleType() && RegexHelper.isValidDouble(value)
                 || cVar.hasIntType() && RegexHelper.isValidInt(value)
                 || cVar.hasBoolType() && (value.equals("true") || value.equals("false")));
     }
