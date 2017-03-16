@@ -4,7 +4,6 @@ import Model.CVar;
 import Model.TemplateUpdate;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;

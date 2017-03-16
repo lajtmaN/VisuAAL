@@ -5,8 +5,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import parsers.RegexHelper;
 
-import java.util.regex.Pattern;
-
 /**
  * Created by lajtman on 13-03-2017.
  */
