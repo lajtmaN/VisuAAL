@@ -25,22 +25,15 @@ public class ParseXmlAndCTests {
 
     @Test
     public void getXmlDeclarationsTest() {
-        ArrayList<CVar> vars = UPPAALParser.getUPPAALConfigConstants("mac_model_test.xml");
+        ArrayList<CVar> vars = UPPAALParser.getUPPAALConfigConstants("test_resources/eksempel.xml");
 
-        assertEquals(12, vars.size());
+        assertEquals(5, vars.size());
         int i = 0;
         assertGlobalCVar("CONFIG_TEST_BOOLEAN", "true", vars.get(i++));
         assertGlobalCVar("CONFIG_TEST_DOUBLE", "0.5", vars.get(i++));
-        assertGlobalCVar("CONFIG_NR_NODES", 36, vars.get(i++));
-        assertGlobalCVar("CONFIG_NR_BEACON_SLOTS", 8, vars.get(i++));
-        assertGlobalCVar("CONFIG_BEACON_PERIOD", 1000, vars.get(i++));
-        assertGlobalCVar("CONFIG_MAX_DATA_OFFSET", 63, vars.get(i++));
-        assertGlobalCVar("CONFIG_DATA_INTERVAL", 1000, vars.get(i++));
-        assertGlobalCVar("CONFIG_DATA_DURATION", 1, vars.get(i++));
-        assertGlobalCVar("CONFIG_BCN_LOST_PROB", 1, vars.get(i++));
-        assertGlobalCVar("CONFIG_BCN_NOT_LOST_PROB", 99, vars.get(i++));
-        assertGlobalCVar("CONFIG_DATA_LOST_PROB", 1, vars.get(i++));
-        assertGlobalCVar("CONFIG_DATA_NOT_LOST_PROB", 99, vars.get(i++));
+        assertGlobalCVar("CONFIG_MODEL_TIME_UNIT", "20.0", vars.get(i++));
+        assertGlobalCVar("CONFIG_global_test", 11, vars.get(i++));
+        assertCVar("Template", "CONFIG_local_test", 10, vars.get(i++));
     }
 
     @Test
@@ -58,14 +51,15 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseDeclarationsMultipleScopesTest() throws IOException, SAXException, ParserConfigurationException {
-        XmlHandler handler = new XmlHandler("eksempel.xml");
+        XmlHandler handler = new XmlHandler("test_resources/eksempel.xml");
         HashMap<String, String> declarations = handler.getAllDeclarations();
 
         ArrayList<CVar> globalConfigVariables = CHandler.getConfigVariables(declarations.get(null), null);
-        assertEquals(1, globalConfigVariables.size());
-        CVar actualGlobalVar = globalConfigVariables.get(0);
+        assertEquals(4, globalConfigVariables.size());
+        Optional<CVar> actualGlobalVar = globalConfigVariables.stream().filter(c -> c.getName().equals("CONFIG_global_test")).findFirst();
+        assertTrue(actualGlobalVar.isPresent());
 
-        assertCVar(null, "CONFIG_global_test", 11, actualGlobalVar);
+        assertCVar(null, "CONFIG_global_test", 11, actualGlobalVar.get());
 
         ArrayList<CVar> localConfigVariables = CHandler.getConfigVariables(declarations.get("Template"), "Template");
         assertEquals(1, localConfigVariables.size());
@@ -76,53 +70,36 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseDeclarationsMultipleScopesHashmapTest() throws IOException, SAXException, ParserConfigurationException {
-        XmlHandler handler = new XmlHandler("eksempel.xml");
+        XmlHandler handler = new XmlHandler("test_resources/eksempel.xml");
         HashMap<String, String> declarations = handler.getAllDeclarations();
 
         ArrayList<CVar> configVariables = CHandler.getConfigVariables(declarations);
-        assertEquals(2, configVariables.size());
+        assertEquals(5, configVariables.size());
 
         assertTrue(configVariables.contains(new CVar(null, "CONFIG_global_test", "11", false, "int")));
         assertTrue(configVariables.contains(new CVar("Template", "CONFIG_local_test", "10", false,"int")));
     }
 
-    @Test
-    public void parseOutputDataIsScheduled() {
-        String expected1 = "OUTPUT_beacon_period_counters";
-        String expected2 = "OUTPUT_data_is_scheduled";
-        String expected3 = "OUTPUT_nr_node_relations";
-
-        ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("mac_model_test.xml");
-
-        assertEquals(expected1, outputVars.get(0).getName());
-        assertEquals(expected2, outputVars.get(1).getName());
-        assertEquals(expected3, outputVars.get(2).getName());
-    }
-
-    @Test
-    public void parseScopedOutputVariables() {
-        ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("RoutingWithPathTracking.xml");
-
-        assertEquals(3, outputVars.size());
-        assertEquals("OUTPUT_current_repeat", outputVars.get(0).getName());
-        assertTrue(outputVars.get(0).getIsNodeData()); //Current_repeat is not an array and is placed in template scope
-        assertEquals("OUTPUT_current_data", outputVars.get(1).getName());
-        assertEquals("OUTPUT_has_race", outputVars.get(2).getName());
-    }
 
     @Test
     public void parseScopedOutputVariableFromScopeWithArraySizeDefinedInGlobal() {
-        ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("topologytest.xml");
+        ArrayList<OutputVariable> outputVars = UPPAALParser.getUPPAALOutputVars("test_resources/topologytest.xml");
 
-        assertEquals(1, outputVars.size());
-        assertEquals("OUTPUT_variable", outputVars.get(0).getName());
-        assertEquals(1337, outputVars.get(0).getVariableArraySize());
-        assertTrue(outputVars.get(0).getIsEdgeData());
+        assertEquals(3, outputVars.size());
+        assertEquals("OUTPUT_test", outputVars.get(0).getName());
+
+        assertEquals("OUTPUT_node_data", outputVars.get(1).getName());
+        assertTrue(outputVars.get(1).getIsNodeData());
+
+        assertEquals("OUTPUT_variable", outputVars.get(2).getName());
+        assertEquals(1337, outputVars.get(2).getVariableArraySize());
+        assertTrue(outputVars.get(2).getIsEdgeData());
+
     }
 
     @Test
     public void updateVariablesInXMLFile() throws IOException {
-        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         ArrayList<CVar> orgConfigs = UPPAALParser.getUPPAALConfigConstants(f.getPath());
         assertEquals(3, orgConfigs.size());
 
@@ -150,7 +127,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseLocalConfigVarsInXMLFile() throws IOException {
-        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         ArrayList<CVar> vars = UPPAALParser.getUPPAALConfigConstants(f.getPath());
         assertEquals(3, vars.size());
         assertTrue(vars.contains(new CVar(null, "CONFIG_TESTING_CONSTANT", "1337", true, "int")));
@@ -160,7 +137,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseModel_ChangeAndSaveAsNewFile() throws IOException, TransformerException, SAXException, ParserConfigurationException {
-        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         UPPAALModel uppaalModel = new UPPAALModel(f.getPath());
         uppaalModel.load();
         CVar expected1 = new CVar(null, "CONFIG_TESTING_CONSTANT", "1337", true, "int");
@@ -190,7 +167,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseModelTimeUnitConstantsDefaultsTo1() throws IOException {
-        File f = FileHelper.copyFileIntoTempFile(new File("eksempel.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
 
         double constant = UPPAALParser.getModelTimeUnitConstant(f.getPath());
 
@@ -199,7 +176,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseModelTimeUnitConstants() throws IOException {
-        File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/eksempel.xml"));
 
         UPPAALModel model = new UPPAALModel(f.getPath());
         model.load();
@@ -209,30 +186,30 @@ public class ParseXmlAndCTests {
 
     @Test
     public void getProcessesFromModel() throws IOException {
-        File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/MultipleTemplatesMultipleParameterTypesSystemInstantiated.xml"));
 
         UPPAALModel model = new UPPAALModel(f.getPath());
         model.load();
 
-        assertEquals(37, model.getProcesses().size());
-        assertEquals("Node(0)", model.getProcesses().get(0));
-        assertEquals("Node(35)", model.getProcesses().get(35));
-        assertEquals("SetupTemplate", model.getProcesses().get(36));
+        assertEquals(3, model.getProcesses().size());
+        assertEquals("t0", model.getProcesses().get(0));
+        assertEquals("t1", model.getProcesses().get(1));
+        assertEquals("t2", model.getProcesses().get(2));
     }
 
     @Test
     public void getSystemDeclarationFromFile() throws IOException {
-        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         List<String> actual = UPPAALParser.getUPPAALProcesses(f.getPath(), UPPAALParser.getUPPAALConfigConstants(f.getPath()));
         assertEquals("Template", actual.get(0));
     }
 
     @Test
     public void getParameterFromTemplate() throws IOException, ParserConfigurationException, SAXException {
-        File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/MultipleTemplatesMultipleParameterTypes.xml"));
         XmlHandler handler = new XmlHandler(f.getPath());
-        String actual = handler.getParamaterForTemplate("Node");
-        assertEquals("node_id", actual);
+        String actual = handler.getParamaterForTemplate("Template0");
+        assertEquals("id_tt", actual);
 
         assertNull(handler.getParamaterForTemplate("SetupTemplate"));
         assertNull(handler.getParamaterForTemplate("BLA"));
@@ -240,13 +217,13 @@ public class ParseXmlAndCTests {
 
     @Test
     public void calculateCorrectParameterSize() throws IOException, ParserConfigurationException, SAXException {
-        File f = FileHelper.copyFileIntoTempFile(new File("RoutingWithPathTracking.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/MultipleTemplatesMultipleParameterTypes.xml"));
 
-        int expectedlhs = 0;
-        int expectedrhs = 35;
+        int expectedlhs = 1;
+        int expectedrhs = 2;
 
         XmlHandler handler = new XmlHandler(f.getPath());
-        String parameter = handler.getParamaterForTemplate("Node");
+        String parameter = handler.getParamaterForTemplate("Template0");
         Pair<Integer,Integer> actualbounds = CHandler.getSizesOfParam(parameter, handler.getGlobalDeclarations(), UPPAALParser.getUPPAALConfigConstants(f.getPath()));
         assertEquals(expectedlhs, actualbounds.getKey().intValue());
         assertEquals(expectedrhs, actualbounds.getValue().intValue());
@@ -254,7 +231,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void getBoolAndDoubleGlobalVars() throws IOException, SAXException, ParserConfigurationException {
-        XmlHandler handler = new XmlHandler("mac_model_test.xml");
+        XmlHandler handler = new XmlHandler("test_resources/eksempel.xml");
         String globalDecls = handler.getGlobalDeclarations();
         ArrayList<CVar> vars = CHandler.getConfigVariables(globalDecls, null);
 
@@ -264,7 +241,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void doNotParseFunctionVariables() throws IOException, ParserConfigurationException, SAXException {
-        File f = FileHelper.copyFileIntoTempFile(new File("eksempel.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/eksempel.xml"));
 
         XmlHandler handler = new XmlHandler(f.getPath());
         ArrayList<CVar> vars = CHandler.getConfigVariables(handler.getAllDeclarations());
@@ -275,7 +252,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void setTopologyForUPPAALTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
-        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         UPPAALTopology top = new UPPAALTopology();
         top.setNumberOfNodes(4);
         top.add(new UPPAALEdge("0","1"));
@@ -301,7 +278,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void setRandomTopologyForUPPAALTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
-        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         UPPAALTopology top = ConnectedGraphGenerator.generateRandomTopology(36);
 
         XmlHandler xmlHandler = new XmlHandler(f.getPath());
@@ -319,7 +296,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void setTopologyForUPPAALMoreCasesTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
-        File f = FileHelper.copyFileIntoTempFile(new File("topologytest.xml"));
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         UPPAALTopology top = new UPPAALTopology();
         top.setNumberOfNodes(4);
         top.add(new UPPAALEdge("2","0"));
@@ -349,7 +326,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseTemplatesFromModelsWithTwoTypesOfNodes() throws IOException, SAXException, ParserConfigurationException {
-        UPPAALModel model = new UPPAALModel(new File("MultipleTemplatesMultipleParameterTypes.xml").getPath());
+        UPPAALModel model = new UPPAALModel(new File("test_resources/MultipleTemplatesMultipleParameterTypes.xml").getPath());
         model.load();
         assertNotNull(model);
         assertNotNull(model.getProcesses());
@@ -362,7 +339,7 @@ public class ParseXmlAndCTests {
 
     @Test
     public void parseTemplatesFromModelsWithTwoTypesOfNodesSystemInstantiated() throws IOException, SAXException, ParserConfigurationException {
-        UPPAALModel model = new UPPAALModel(new File("MultipleTemplatesMultipleParameterTypesSystemInstantiated.xml").getPath());
+        UPPAALModel model = new UPPAALModel(new File("test_resources/MultipleTemplatesMultipleParameterTypesSystemInstantiated.xml").getPath());
         model.load();
         assertNotNull(model);
         assertNotNull(model.getProcesses());

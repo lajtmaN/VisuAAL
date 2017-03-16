@@ -17,7 +17,7 @@ public class ParseXMLTopologyTests {
 
     @Test
     public void parse3by3Topology() {
-        String uppaalFileName = "topologytest.xml";
+        String uppaalFileName = "test_resources/topologytest.xml";
         UPPAALTopology expected = generateTopology(3);
         UPPAALTopology actual = UPPAALParser.getUPPAALTopology(uppaalFileName);
         assertUPPAALTopology(expected, actual);
@@ -25,7 +25,7 @@ public class ParseXMLTopologyTests {
 
     @Test
     public void generateSquareTopology() throws InterruptedException {
-        String uppaalFileName = "topologytest.xml";
+        String uppaalFileName = "test_resources/topologytest.xml";
         UPPAALTopology expected = UPPAALParser.getUPPAALTopology(uppaalFileName);
         UPPAALTopology actual = ConnectedGraphGenerator.generateSquareTopology(3);
         assertUPPAALTopology(expected, actual);
