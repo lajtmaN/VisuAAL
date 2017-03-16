@@ -13,17 +13,10 @@ public class TemplateUpdate implements Externalizable {
 
     private SimpleObjectProperty<TemplateUpdate> propertyInstance;
 
-    public SimpleObjectProperty<TemplateUpdate> getObjectProperty() {
-        return propertyInstance;
-    }
-
     public TemplateUpdate(String variable, String value, int time) {
         this.variable = new SimpleStringProperty(this, "variable", variable);
         this.theValue = new SimpleStringProperty(this, "theValue", value);
         this.time = new SimpleIntegerProperty(this, "time", time);
-
-        //TODO: Remove
-        propertyInstance = new SimpleObjectProperty<>(this);
     }
 
     public TemplateUpdate() {

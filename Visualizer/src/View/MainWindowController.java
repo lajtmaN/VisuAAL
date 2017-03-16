@@ -111,7 +111,6 @@ public class MainWindowController implements Initializable {
         });
     }
 
-
     private void initializeWithLoadedModel() {
         dynColumnName.setCellFactory(p -> new TemplateUpdateNameEditingCell());
     }

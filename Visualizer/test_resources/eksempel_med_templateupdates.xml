@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><nta>
+	<declaration>// Place global declarations here.
+bool CONFIG_TEST_BOOLEAN = true;
+double CONFIG_TEST_DOUBLE = 0.5;
+const double CONFIG_MODEL_TIME_UNIT = 20.0;
+int CONFIG_global_test = 11;
+clock x;
+void Bar() {
+	int CONFIG_do_not_parse = 0;
+}	
+
+
+</declaration>
+	<template><name>visualizer_updater_AUTO_GENERATED_DO_NOT_CHANGE</name><declaration>clock visualizer_updater_clock;</declaration><location id="id2000" x="0" y="0"><label kind="invariant" x="20" y="0">visualizer_updater_clock &lt;= 0</label></location><location id="id2001" x="0" y="70"/><init ref="id2000"/><transition><source ref="id2000"/><target ref="id2001"/><label kind="guard" x="20" y="15">visualizer_updater_clock == 0</label><label kind="assignment" x="20" y="30">CONFIG_TEST_BOOLEAN = true</label></transition></template><template>
+		<name x="5" y="5">Template</name>
+		<declaration>// Place local declarations here.
+		int CONFIG_local_test = 10;
+		void Foo() {
+			int CONFIG_do_not_read = 0;
+		}
+	</declaration>
+		<location id="id0" x="161" y="136">
+			<name x="151" y="102">s5</name>
+		</location>
+		<location id="id1" x="102" y="8">
+			<name x="92" y="-26">s3</name>
+			<label kind="invariant" x="136" y="-8">x&lt;=6</label>
+		</location>
+		<location id="id2" x="-8" y="0">
+			<name x="-18" y="-34">s2</name>
+			<label kind="invariant" x="-25" y="17">x&lt;=4</label>
+		</location>
+		<location id="id3" x="-119" y="0">
+			<name x="-129" y="-34">s1</name>
+			<label kind="invariant" x="-153" y="8">x&lt;=2</label>
+		</location>
+		<init ref="id3"/>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-25" y="102">x == 6</label>
+			<label kind="assignment" x="-25" y="119">x=0</label>
+			<nail x="-17" y="110"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="34" y="-93">x==4</label>
+			<nail x="51" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-76" y="-85">x==2</label>
+			<nail x="-59" y="-59"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+P = Template();
+// List one or more processes to be composed into a system.
+system P;
+   , visualizer_updater_AUTO_GENERATED_DO_NOT_CHANGE;</system>
+	<queries>
+		<query>
+			<formula>/* */
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; P.s1
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; P.s1
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr [&lt;= 5] (&lt;&gt; x &gt; 0)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>Pr [&lt;= 100] (&lt;&gt; P.s5)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E[] P.s1
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

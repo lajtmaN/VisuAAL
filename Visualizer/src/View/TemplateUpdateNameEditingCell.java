@@ -6,9 +6,23 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 /**
  * Created by batto on 16-Mar-17.
  */
-public class TemplateUpdateNameEditingCell extends ComboBoxTableCell<TemplateUpdate, String> {
+public class  TemplateUpdateNameEditingCell extends ComboBoxTableCell<TemplateUpdate, String> {
+
     public TemplateUpdateNameEditingCell() {
+        super();
+        updateComboValues();
+    }
+
+    private void updateComboValues() {
+        this.getItems().clear();
         this.getItems().addAll(MainWindowController.getInstance().getUppaalModel().getDynamicTemplateVarNames());
+    }
+
+    @Override
+    public void startEdit() {
+        //TODO: Can be optimized to only call when new models are loaded.
+        updateComboValues();
+        super.startEdit();
     }
 
     @Override
