@@ -111,8 +111,9 @@ public class MainWindowController implements Initializable {
         });
     }
 
+
     private void initializeWithLoadedModel() {
-        dynColumnName.setCellFactory(p -> new TemplateUpdateNameEditingCell());
+        dynColumnName.setCellFactory(ComboBoxTableCell.forTableColumn(uppaalModel.getDynamicTemplateVarNames()));
     }
 
     private void initializeWidths() {
@@ -323,9 +324,5 @@ public class MainWindowController implements Initializable {
 
         dynamicTable.getItems().add(new TemplateUpdate());
         dynamicTable.getSelectionModel().selectLast();
-    }
-
-    public UPPAALModel getUppaalModel() {
-        return uppaalModel;
     }
 }
