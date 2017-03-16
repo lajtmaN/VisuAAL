@@ -6,9 +6,9 @@ import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
 
 public class MouseClickListener extends Thread implements ViewerListener {
-    protected boolean loop = true;
-    ViewerPipe fromViewer;
-    SimulationDataContainer simulationDataContainer;
+    private boolean loop = true;
+    private ViewerPipe fromViewer;
+    private SimulationDataContainer simulationDataContainer;
 
     public MouseClickListener(Viewer viewer, Graph graph, SimulationDataContainer simulationDataContainer) {
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);

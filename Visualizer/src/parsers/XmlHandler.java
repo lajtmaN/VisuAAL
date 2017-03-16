@@ -98,6 +98,9 @@ public class XmlHandler {
                 String typeNameAndId = getTagOfTemplate("parameter", templateNodes); //ex: node_id id
                 if (typeNameAndId == null)
                     return null;
+                if(typeNameAndId.startsWith("const")){
+                    typeNameAndId = typeNameAndId.replace("const", "");
+                }
                 return RegexHelper.getFirstMatchedValueFromRegex("(\\w+)", typeNameAndId); //node_id
             }
         }
