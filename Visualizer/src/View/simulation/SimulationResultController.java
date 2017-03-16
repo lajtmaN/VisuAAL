@@ -1,5 +1,6 @@
 package View.simulation;
 
+import Model.Simulation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -13,15 +14,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
-
-import java.net.URL;
-import java.util.ResourceBundle;
-
-import Model.Simulation;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 
 import javax.swing.*;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 /**
  * Created by Tim on 09-03-2017.
@@ -44,7 +42,6 @@ public class SimulationResultController implements Initializable {
         timeSlider.valueProperty().addListener(((observable, oldValue, newValue) -> {
             handleCurrentTimeChanged(newValue, oldValue);
         }));
-
     }
 
     public void loadWithSimulation(Simulation run) {

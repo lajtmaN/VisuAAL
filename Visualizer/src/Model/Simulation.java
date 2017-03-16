@@ -13,6 +13,7 @@ import parsers.RegexHelper;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Created by lajtman on 13-02-2017.
@@ -22,6 +23,7 @@ public class Simulation implements Serializable {
     private final List<? extends SimulationPoint> run;
     private String query;
     private int currentSimulationIndex = 0;
+    private double currentTime = 0;
 
     public Simulation(UPPAALModel uppModel, String uppQuery, List<SimulationPoint> points) {
         query = uppQuery;
@@ -50,33 +52,27 @@ public class Simulation implements Serializable {
         return model.getModelTimeUnit();
     }
 
-    public List<? extends SimulationPoint> getRun() {
-        return run;
-    }
-
     public void markGraphAtTime(Number oldTimeValue, Number newTimeValue,
                                 GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
+        if (run.size() == 0) return;
+
         double newTime = newTimeValue.doubleValue();
         double oldTime = oldTimeValue.doubleValue();
         if (newTime > oldTime)
             markGraphForward(newTime, oldTime, globalVarGridPane, varGridPane);
         else
             markGraphBackwards(newTime, oldTime, globalVarGridPane, varGridPane);
+
+        currentTime = newTime;
     }
 
     private void markGraphForward(double newTimeValue, double oldTime, GridPane globalVarGridPane,
                                   SimulationDataContainer varGridPane) {
         SimulationPoint sp;
         //Make sure that more elements at same end time all are included
-        while(!((sp = run.get(currentSimulationIndex)).getClock() > newTimeValue)) {
-            if(sp.getClock() >= oldTime) {
-                if(sp.getType() == SimulationPoint.SimulationPointType.Variable)
-                    updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(sp.getValue()), globalVarGridPane);
-
-                if(sp.getType() == SimulationPoint.SimulationPointType.NodePoint)
-                    varGridPane.updateVariable(((SimulationNodePoint)sp).getNodeId(), sp.getTrimmedIdentifier(), sp.getValue());
-
-                model.getTopology().handleUpdate(sp, sp.getValue() > 0);
+        while (!((sp = run.get(currentSimulationIndex)).getClock() > newTimeValue)) {
+            if (sp.getClock() >= oldTime) {
+                handleUpdate(sp, sp.getValue(), globalVarGridPane, varGridPane);
             }
             if (currentSimulationIndex + 1 >= run.size())
                 break;
@@ -89,17 +85,9 @@ public class Simulation implements Serializable {
     private void markGraphBackwards(double newTimeValue, double oldTime, GridPane globalVarGridPane,
                                     SimulationDataContainer varGridPane) {
         SimulationPoint sp;
-        while(!((sp = run.get(currentSimulationIndex)).getClock() < newTimeValue)) {
-            if(sp.getClock() <= oldTime) {
-                if(sp.getType() == SimulationPoint.SimulationPointType.Variable)
-                    updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(sp.getPreviousValue()),
-                            globalVarGridPane);
-
-                if(sp.getType() == SimulationPoint.SimulationPointType.NodePoint )
-                    varGridPane.updateVariable(((SimulationNodePoint)sp).getNodeId(), sp.getTrimmedIdentifier(),
-                            sp.getPreviousValue());
-
-                model.getTopology().handleUpdate(sp, sp.getPreviousValue() > 0);
+        while (!((sp = run.get(currentSimulationIndex)).getClock() < newTimeValue)) {
+            if (sp.getClock() <= oldTime) {
+                handleUpdate(sp, sp.getPreviousValue(), globalVarGridPane, varGridPane);
             }
             if (currentSimulationIndex - 1 < 0)
                 break;
@@ -107,6 +95,33 @@ public class Simulation implements Serializable {
                 currentSimulationIndex--;
             else break;
         }
+    }
+
+    private void handleUpdate(SimulationPoint sp, double valueOfSp, GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
+        if (sp.getType() == SimulationPoint.SimulationPointType.Variable)
+            updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(valueOfSp), globalVarGridPane);
+
+        if (sp.getType() == SimulationPoint.SimulationPointType.NodePoint)
+            varGridPane.updateVariable(((SimulationNodePoint)sp).getNodeId(), sp.getTrimmedIdentifier(), valueOfSp);
+
+        model.getTopology().handleUpdate(sp, valueOfSp > 0);
+    }
+
+    private Stream<? extends SimulationPoint> relatedSimulationPoints(OutputVariable variable) {
+        return run.stream().filter(data ->
+                    data.getType() == variable.getCorrespondingSimulationPointType()
+                    && data.getTrimmedIdentifier().equals(variable.getName()));
+    }
+
+    public void showDataFrom(OutputVariable variable) {
+        relatedSimulationPoints(variable).forEach(SimulationPoint::show);
+        relatedSimulationPoints(variable).filter(sp -> sp.getClock() <= currentTime).forEach(sp -> model.getTopology().handleUpdate(sp, sp.isShown()));
+    }
+
+    public void hideDataFrom(OutputVariable variable) {
+        relatedSimulationPoints(variable).forEach(SimulationPoint::hide);
+        relatedSimulationPoints(variable).forEach(sp -> model.getTopology().handleUpdate(sp, sp.isShown()));
+        //TODO if other output variables have set this node/edge as marked, it should not be changed
     }
 
     public int queryTimeBound() {

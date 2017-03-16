@@ -100,7 +100,7 @@ public class SimulateOutput extends UPPAALOutput {
         for(DataPoint dp : simulationData.get(key).get(simId)) {
             int source = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(sourceDestinationRegex, key, 1));
             int destination = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(sourceDestinationRegex, key, 2));
-            result.add(new SimulationEdgePoint(dp.getClock(), String.valueOf(source),
+            result.add(new SimulationEdgePoint(key, dp.getClock(), String.valueOf(source),
                     String.valueOf(destination), dp.getValue(), dp.getPreviousValue()));
         }
         return  result;

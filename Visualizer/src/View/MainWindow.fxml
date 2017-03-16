@@ -32,12 +32,12 @@
         <Button fx:id="saveModelButton" mnemonicParsing="false" onAction="#saveModel" prefWidth="200" text="Save Model" visible="false" GridPane.columnIndex="1" GridPane.halignment="LEFT" />
     </children>
 </GridPane>
-<TabPane fx:id="tabPane" GridPane.rowIndex="1">
+<TabPane fx:id="tabPane" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
 
    <tabs>
       <Tab fx:id="configurationTab" closable="false" onSelectionChanged="#onLeaveConfigurationTab" text="Configuration">
          <content>
-            <TableView fx:id="constantsTable" editable="true" prefHeight="665.0" prefWidth="769.0" GridPane.rowIndex="0">
+            <TableView fx:id="constantsTable" editable="true" GridPane.rowIndex="0">
               <columns>
                 <TableColumn fx:id="columnScope" editable="false" prefWidth="150.0" text="Scope" />
                 <TableColumn fx:id="columnName" editable="false" prefWidth="150.0" text="Name" />
@@ -48,7 +48,7 @@
        <Tab closable="false" text="Dynamic Updates">
            <content>
                <VBox alignment="TOP_CENTER">
-               <TableView fx:id="dynamicTable" editable="true" prefWidth="800.0">
+               <TableView fx:id="dynamicTable" editable="true">
                    <columns>
                        <TableColumn fx:id="dynColumnName" prefWidth="440" text="Variable" />
                        <TableColumn fx:id="dynColumnValue" text="New value" />
@@ -77,8 +77,8 @@
                            <columns>
                                <TableColumn fx:id="outputVarUse" text="Use" />
                                <TableColumn fx:id="outputVarName" editable="false" text="Name" />
-                               <TableColumn fx:id="outputVarEdge" text="Edge" />
-                               <TableColumn fx:id="outputVarNode" text="Node" />
+                               <TableColumn fx:id="outputVarEdge" editable="false" text="Edge" />
+                               <TableColumn fx:id="outputVarNode" editable="false" text="Node" />
                            </columns>
                        </TableView>
                        <GridPane GridPane.rowIndex="1">

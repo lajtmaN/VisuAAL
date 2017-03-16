@@ -2,11 +2,16 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
 	<declaration>// Place global declarations here.
+bool CONFIG_TEST_BOOLEAN = true;
+double CONFIG_TEST_DOUBLE = 0.5;
+const double CONFIG_MODEL_TIME_UNIT = 20.0;
 int CONFIG_global_test = 11;
 clock x;
 void Bar() {
 	int CONFIG_do_not_parse = 0;
 }	
+
+
 </declaration>
 	<template>
 		<name x="5" y="5">Template</name>

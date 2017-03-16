@@ -40,6 +40,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             //TODO Edges are added with just i as name, we should use the actual names on simulation points
         }
         for(UPPAALEdge s : this){
+            String identifier = s.getSource() + "-" + s.getDestination();
             SimulationEdgePoint sep = new SimulationEdgePoint(0, s.getSource(), s.getDestination(), 1);
             addEdge(sep);
         }
@@ -67,6 +68,8 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     }
 
     protected void handleUpdate(SimulationPoint s, boolean mark) {
+        mark &= s.isShown();
+
         switch (s.getType()) {
             case EdgePoint:
                 handleEdgeEdit((SimulationEdgePoint) s, mark);
@@ -87,7 +90,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     }
 
     protected void handleEdgeEdit(SimulationEdgePoint s, boolean mark) {
-        Edge edge = getGraph().getEdge(s.getIdentifier());
+        Edge edge = getGraph().getEdge(s.getEdgeIdentifier());
         if (edge == null)
             return;
         if (mark){

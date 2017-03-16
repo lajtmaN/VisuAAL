@@ -12,6 +12,7 @@ public class SimulationPoint extends DataPoint implements Serializable {
 
     private SimulationPointType type;
     private String identifier;
+    private boolean shown = true;
 
     SimulationPoint(String identifier, double time, double value, SimulationPointType pType, double previousValue) {
         super(time, value, previousValue);
@@ -35,6 +36,17 @@ public class SimulationPoint extends DataPoint implements Serializable {
         return type;
     }
 
+    public boolean isShown() {
+        return shown;
+    }
+
+    public void hide() {
+        shown = false;
+    }
+
+    public void show() {
+        shown = true;
+    }
 
     public String getTrimmedIdentifier() {
         String s = getIdentifier();

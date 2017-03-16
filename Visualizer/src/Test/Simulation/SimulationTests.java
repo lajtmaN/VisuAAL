@@ -28,7 +28,7 @@ public class SimulationTests  {
     public void testSerializeAndDeserialize(){
         String filePath = generateTempSimFileForTest();
 
-        UPPAALModel model = new UPPAALModel("topologytest.xml");
+        UPPAALModel model = new UPPAALModel("test_resources/topologytest.xml");
         model.load();
         String query = "test";
         ArrayList<SimulationPoint> points = new ArrayList<>();
@@ -51,7 +51,7 @@ public class SimulationTests  {
     public void testSaveSimulationAndLoadSimulationOfDeletedModel() throws IOException {
         String simulationFileName = generateTempSimFileForTest();
         String uppaalModelFile = generateTempSimFileForTest() + ".xml";
-        Files.copy(new File("topologytest.xml").toPath(), new File(uppaalModelFile).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(new File("test_resources/topologytest.xml").toPath(), new File(uppaalModelFile).toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         //Create simulation
         UPPAALModel model = new UPPAALModel(uppaalModelFile);
