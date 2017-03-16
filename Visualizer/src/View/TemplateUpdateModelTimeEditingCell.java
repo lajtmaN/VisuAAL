@@ -3,6 +3,7 @@ package View;
 import Model.TemplateUpdate;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
+import parsers.RegexHelper;
 
 import java.util.regex.Pattern;
 
@@ -12,7 +13,6 @@ import java.util.regex.Pattern;
 public class TemplateUpdateModelTimeEditingCell extends TableCell<TemplateUpdate, Number> {
 
     private final TextField textField = new TextField();
-    private final Pattern intPattern = Pattern.compile("-?\\d+");
 
     public TemplateUpdateModelTimeEditingCell() {
         textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
@@ -25,7 +25,7 @@ public class TemplateUpdateModelTimeEditingCell extends TableCell<TemplateUpdate
 
     private void processEdit() {
         String text = textField.getText();
-        if (intPattern.matcher(text).matches()) {
+        if (RegexHelper.isValidInt(text)) {
             commitEdit(Integer.parseInt(text));
         } else {
             cancelEdit();
