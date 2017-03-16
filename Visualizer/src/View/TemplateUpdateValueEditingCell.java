@@ -18,18 +18,12 @@ public class TemplateUpdateValueEditingCell extends TableCell<TemplateUpdate, St
     private final ComboBox comboBox = new ComboBox();
 
     public TemplateUpdateValueEditingCell() {
-        /*this.getTableRow().focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue) {
-                chooseGraphic(getTemplateUpdate().getTheValue());
-            }
-        });*/
         textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (! isNowFocused) {
                 processEdit();
             }
         });
         textField.setOnAction(event -> processEdit());
-        comboBox.setOnAction(event -> processEdit());
 
         comboBox.getItems().addAll("true", "false");
     }
@@ -37,10 +31,10 @@ public class TemplateUpdateValueEditingCell extends TableCell<TemplateUpdate, St
     private void chooseGraphic(String value) {
         if(isBooleanType()) {
             setGraphic(comboBox);
-            textField.setText(value);
+            comboBox.setValue(value);
         } else {
             setGraphic(textField);
-            comboBox.setValue(value.toString());
+            textField.setText(value);
         }
     }
 
@@ -88,7 +82,6 @@ public class TemplateUpdateValueEditingCell extends TableCell<TemplateUpdate, St
     public void commitEdit(String value) {
         if(canValueParse(value)) {
             super.commitEdit(value);
-            getTemplateUpdate().setTheValue(value);
         }
     }
 
@@ -118,5 +111,16 @@ public class TemplateUpdateValueEditingCell extends TableCell<TemplateUpdate, St
         if(c != null)
             return c.hasBoolType();
         return false;
+    }
+
+    protected void setGraphicIfTypeChanged(String value) {
+        if(isBooleanType()) {
+            getTemplateUpdate().setTheValue("true");
+            comboBox.setValue("true");
+        }
+        else {
+            getTemplateUpdate().setTheValue("0");
+            textField.setText("0");
+        }
     }
 }
