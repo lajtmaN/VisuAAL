@@ -4,6 +4,7 @@ import Helpers.*;
 import Model.*;
 import View.simulation.SimulationDataContainer;
 import View.simulation.SimulationResultController;
+import View.topology.TopologyGeneratorController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
@@ -62,7 +63,7 @@ public class MainWindowController implements Initializable {
     @FXML private GridPane globalVarGridPane;
     @FXML private SimulationDataContainer nodeVarGridPane;
     @FXML private ToggleSwitch chkUseRandomTopology;
-
+    @FXML private TopologyGeneratorController topologyGeneratorController;
 
     private UPPAALModel uppaalModel;
     public boolean constantsChanged;
