@@ -17,6 +17,7 @@ import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static parsers.Declaration.VariableParser.updateTopologyAndNrNodes;
@@ -91,20 +92,22 @@ public class UPPAALModel implements Externalizable, Cloneable {
         return modelTimeUnit;
     }
 
-    public Simulation runQuery(String query, TextInputControl feedbackCtrl) throws IOException {
-        SimulateOutput simulateOutput = UPPAALExecutor.provideQueryResult(getModelPath(), query, feedbackCtrl);
+    public CompletableFuture<Simulation> runQuery(String query, TextInputControl feedbackCtrl) throws IOException {
+        CompletableFuture<SimulateOutput> simulateOutput = UPPAALExecutor.startUppaalQuery(getModelPath(), query, feedbackCtrl);
         if (simulateOutput == null)
             return null;
-        else if (simulateOutput.getErrorDescription() != null) {
-            GUIHelper.showError(simulateOutput.getErrorDescription());
-            return null;
-        } else
-        {
+
+        return simulateOutput.thenApply(output -> {
+            if (output.getErrorDescription() != null) {
+                GUIHelper.showError(output.getErrorDescription());
+                return null;
+            }
+
             FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
             //TODO we only use the first simulation
-            List<SimulationPoint> simulationPoints = simulateOutput.zip(vars, 0);
+            List<SimulationPoint> simulationPoints = output.zip(vars, 0);
             return new Simulation(this, query, simulationPoints);
-        }
+        });
     }
 
     public ObservableList<TemplateUpdate> getTemplateUpdates() {

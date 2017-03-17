@@ -1,9 +1,16 @@
 package Helpers;
 
 import Model.Settings;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.event.EventTarget;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Tab;
+import javafx.scene.effect.Glow;
+import javafx.util.Duration;
 
 import java.io.File;
 
@@ -51,6 +58,21 @@ public class GUIHelper {
         Settings.Instance().saveChanges();
 
         return verifytaLocation;
+    }
+
+    public static Glow getGlowingEffect() {
+        final Glow glow = new Glow();
+        glow.setLevel(0.0);
+
+        final Timeline timeline = new Timeline();
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.setAutoReverse(true);
+        final KeyValue kv = new KeyValue(glow.levelProperty(), 0.5);
+        final KeyFrame kf = new KeyFrame(Duration.millis(700), kv);
+        timeline.getKeyFrames().add(kf);
+        timeline.play();
+
+        return glow;
     }
 }
 

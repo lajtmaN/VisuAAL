@@ -11,14 +11,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by rasmu on 07/02/2017.
  */
 public class UPPAALExecutor {
-
-    //TODO Refactor and use CompletableFuture<T> to run async
-    public static SimulateOutput provideQueryResult(String modelPath, String query, TextInputControl feedbackCtrl) throws IOException {
+    
+    public static CompletableFuture<SimulateOutput> startUppaalQuery(String modelPath, String query, TextInputControl feedbackCtrl) throws IOException {
         String verifytaLocation = GUIHelper.getVerifytaLocationFromUser();
         if (verifytaLocation == null)
             return null;
@@ -31,36 +31,29 @@ public class UPPAALExecutor {
 
         File queryFile = UPPAALParser.generateQueryFile(query);
 
+        return CompletableFuture.supplyAsync(() -> runUppaal(modelPath, verifytaLocation, queryFile.getPath(), simulateCount, feedbackCtrl));
+    }
+
+    private static SimulateOutput runUppaal(String modelPath, String verifytaLocation, String queryFile, int simulateCount, TextInputControl feedbackCtrl) { {
         try {
-            String uppaalOutput = runUppaal(modelPath, verifytaLocation, queryFile.getPath(), feedbackCtrl);
-            if (uppaalOutput == null || uppaalOutput.length() == 0)
+            ProcessBuilder builder = new ProcessBuilder(verifytaLocation, modelPath, queryFile);
+            Process p = builder.start();
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            redirect(p.getInputStream(), new PrintStream(buffer), new PrintStreamRedirector(feedbackCtrl));
+
+            p.waitFor();
+
+            String uppaalOutput = new String(buffer.toByteArray(), StandardCharsets.UTF_8);
+            if (uppaalOutput.length() == 0)
                 return null;
 
             List<String> lines = Arrays.asList(uppaalOutput.split("\n"));
             return SimulateParser.parse(lines, simulateCount);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InterruptedException | IOException e) {
+            return null;
         }
-        return null;
-    }
-
-    private static String runUppaal(String modelPath, String verifytaLocation, String queryFile, TextInputControl feedbackCtrl) throws IOException, InterruptedException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        new Thread(() -> {
-            try {
-                ProcessBuilder builder = new ProcessBuilder(verifytaLocation, modelPath, queryFile);
-                Process p = builder.start();
-                redirect(p.getInputStream(), new PrintStreamRedirector(feedbackCtrl), new PrintStream(buffer));
-
-                p.waitFor();
-            } catch (Exception ignored) {
-
-            }
-        }).start();
-
-        return new String(buffer.toByteArray(), StandardCharsets.UTF_8);
-    }
+    }}
 
     private static void redirect(final InputStream src, final PrintStream... dest) {
          new Thread(() -> {
