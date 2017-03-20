@@ -1,23 +1,24 @@
 package Helpers;
 
 import Model.SimulateOutput;
+import javafx.scene.control.TextInputControl;
 import parsers.RegexHelper;
 import parsers.SimulateParser;
 import parsers.UPPAALParser;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by rasmu on 07/02/2017.
  */
 public class UPPAALExecutor {
-
-    //TODO Refactor and use CompletableFuture<T> to run async
-    public static SimulateOutput provideQueryResult(String modelPath, String query) throws IOException {
+    
+    public static CompletableFuture<SimulateOutput> startUppaalQuery(String modelPath, String query, TextInputControl feedbackCtrl) throws IOException {
         String verifytaLocation = GUIHelper.getVerifytaLocationFromUser();
         if (verifytaLocation == null)
             return null;
@@ -30,23 +31,38 @@ public class UPPAALExecutor {
 
         File queryFile = UPPAALParser.generateQueryFile(query);
 
-        ProcessBuilder builder = new ProcessBuilder(verifytaLocation, modelPath, queryFile.getPath());
-        builder.redirectErrorStream(true);
+        return CompletableFuture.supplyAsync(() -> runUppaal(modelPath, verifytaLocation, queryFile.getPath(), simulateCount, feedbackCtrl));
+    }
+
+    private static SimulateOutput runUppaal(String modelPath, String verifytaLocation, String queryFile, int simulateCount, TextInputControl feedbackCtrl) { {
         try {
+            ProcessBuilder builder = new ProcessBuilder(verifytaLocation, modelPath, queryFile);
             Process p = builder.start();
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            redirect(p.getInputStream(), new PrintStream(buffer), new PrintStreamRedirector(feedbackCtrl));
 
-            String line;
-            ArrayList<String> lines = new ArrayList<>();
-            while ((line = r.readLine()) != null) {
-                lines.add(line);
-            }
+            p.waitFor();
 
+            String uppaalOutput = new String(buffer.toByteArray(), StandardCharsets.UTF_8);
+            if (uppaalOutput.length() == 0)
+                return null;
+
+            List<String> lines = Arrays.asList(uppaalOutput.split("\n"));
             return SimulateParser.parse(lines, simulateCount);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | IOException e) {
+            return null;
         }
-        return null;
+    }}
+
+    private static void redirect(final InputStream src, final PrintStream... dest) {
+         new Thread(() -> {
+            Scanner sc = new Scanner(src);
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine();
+                for (PrintStream p : dest)
+                    p.println(line);
+            }
+        }).start();
     }
 }

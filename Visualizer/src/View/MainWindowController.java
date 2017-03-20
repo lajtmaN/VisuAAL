@@ -5,6 +5,7 @@ import Model.*;
 import View.simulation.SimulationDataContainer;
 import View.simulation.SimulationResultController;
 import View.topology.TopologyGeneratorController;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
@@ -32,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 public class MainWindowController implements Initializable {
 
@@ -272,28 +274,39 @@ public class MainWindowController implements Initializable {
         }
 
         String query = queryGeneratedTextField.getText();
-        txtUppaalOutput.setText("Running following query in UPPAAL: \n" + query );
+        txtUppaalOutput.setText("Running query in UPPAAL..." + System.lineSeparator());
 
         simulationProgress.setVisible(true);
         handleRandomTopologyIfActivated(true);
-        Simulation out = uppaalModel.runQuery(query); //Run in uppaal - takes long time
-        simulationProgress.setVisible(false);
 
-        if (out == null)
-            return;
+        CompletableFuture<Simulation> out = uppaalModel.runQuery(query, txtUppaalOutput); //Run in uppaal - takes long time
+        out.exceptionally(th -> {
+            simulationProgress.setVisible(false);
+            Platform.runLater(() -> GUIHelper.showError("Simulation failed: " + System.lineSeparator()+ th.getMessage()));
+            return null;
+        });
+        out.thenAccept(simulation -> {
+            simulationProgress.setVisible(false);
+            if (simulation != null) {
+                String simulationName = txtSimulationName.getText().length() > 0 ? txtSimulationName.getText() : "Result";
+                Platform.runLater(() -> addNewResults(simulationName, simulation));
+                simulation.save(simulationName);
+            }
+        });
 
-        String simulationName = txtSimulationName.getText();
-        if (simulationName.length() == 0) simulationName = "Result";
-
-        addNewResults(simulationName, out);
-        out.save(simulationName);
     }
 
-    private void addNewResults(String simulationName, Simulation out) throws IOException {
-        FXMLLoader simulationResultLoader = new FXMLLoader(getClass().getResource("simulation/SimulationResult.fxml"));
-        Parent simulationResultView = simulationResultLoader.load();
-        SimulationResultController controller = simulationResultLoader.getController();
-        controller.loadWithSimulation(out);
+        private void addNewResults(String simulationName, Simulation out) {
+            Parent simulationResultView = null;
+        try {
+            FXMLLoader simulationResultLoader = new FXMLLoader(getClass().getResource("simulation/SimulationResult.fxml"));
+            simulationResultView = simulationResultLoader.load();
+            SimulationResultController controller = simulationResultLoader.getController();
+            controller.loadWithSimulation(out);
+        } catch (IOException e) {
+            GUIHelper.showError("Could not load results");
+            return;
+        }
 
         //Tab
         Tab tab = new Tab();
