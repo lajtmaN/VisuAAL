@@ -59,20 +59,5 @@ public class GUIHelper {
 
         return verifytaLocation;
     }
-
-    public static Glow getGlowingEffect() {
-        final Glow glow = new Glow();
-        glow.setLevel(0.0);
-
-        final Timeline timeline = new Timeline();
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.setAutoReverse(true);
-        final KeyValue kv = new KeyValue(glow.levelProperty(), 0.5);
-        final KeyFrame kf = new KeyFrame(Duration.millis(700), kv);
-        timeline.getKeyFrames().add(kf);
-        timeline.play();
-
-        return glow;
-    }
 }
 
