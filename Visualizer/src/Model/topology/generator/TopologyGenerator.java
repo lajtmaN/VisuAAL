@@ -5,5 +5,13 @@ package Model.topology.generator;
  */
 public class TopologyGenerator {
 
-    //private GlobalOptions options;
+    private GlobalOptions options;
+
+    public TopologyGenerator() {
+        options = new GlobalOptions();
+    }
+
+    public GlobalOptions getOptions() {
+        return options;
+    }
 }

@@ -1,6 +1,9 @@
 package View;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.TextField;
+import javafx.util.converter.NumberStringConverter;
 import parsers.RegexHelper;
 
 /**
@@ -13,5 +16,9 @@ public class IntegerTextField extends TextField {
             if (newValue.length() > 0 && !RegexHelper.isValidInt(newValue))
                 setText(oldValue);
         });
+    }
+
+    public void bindProperty(IntegerProperty intProperty) {
+        textProperty().bindBidirectional(intProperty, new NumberStringConverter());
     }
 }

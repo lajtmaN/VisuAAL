@@ -1,6 +1,8 @@
 package View;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.scene.control.TextField;
+import javafx.util.converter.NumberStringConverter;
 import parsers.RegexHelper;
 
 /**
@@ -13,5 +15,9 @@ public class DoubleTextField extends TextField {
             if (newValue.length() > 0 && !RegexHelper.isValidTextFieldDouble(newValue))
                 setText(oldValue);
         });
+    }
+
+    public void bindProperty(DoubleProperty doubleProperty) {
+        textProperty().bindBidirectional(doubleProperty, new NumberStringConverter());
     }
 }
