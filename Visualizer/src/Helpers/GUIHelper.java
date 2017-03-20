@@ -1,16 +1,8 @@
 package Helpers;
 
 import Model.Settings;
-import javafx.animation.FadeTransition;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.event.EventTarget;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Tab;
-import javafx.scene.effect.Glow;
-import javafx.util.Duration;
 
 import java.io.File;
 
