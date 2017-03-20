@@ -1,21 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import View.IntegerTextField?>
 <?import View.DoubleTextField?>
-<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.topology.TopologyGeneratorController">
+<?import View.IntegerTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<?import javafx.scene.control.Button?>
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.topology.TopologyGeneratorController">
    <right>
-      <Accordion BorderPane.alignment="CENTER">
+      <Accordion fx:id="accordion" BorderPane.alignment="CENTER">
         <panes>
-          <TitledPane text="Options">
+          <TitledPane fx:id="optionsPane" text="Options">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0">
                  <children>
                     <GridPane>
                         <padding>
-                            <Insets top="5.0" left="5.0" right="5.0" />
+                            <Insets left="5.0" right="5.0" top="5.0" />
                         </padding>
                       <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -42,6 +50,20 @@
                         <IntegerTextField fx:id="txtAvgNumNodesPrCellDefault" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                         <Label text="Deviation" GridPane.columnIndex="0" GridPane.rowIndex="7" />
                         <DoubleTextField fx:id="txtNumNodesPrCellDeviationDefault" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                        <padding><Insets bottom="10.0" /></padding>
+
+                        <Button text="Update" onAction="#updateGlobalOptions" minWidth="100" GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.columnSpan="2" GridPane.halignment="CENTER"/>
+                           <rowConstraints>
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                           </rowConstraints>
                     </GridPane>
                  </children>
               </AnchorPane>
@@ -50,4 +72,7 @@
         </panes>
       </Accordion>
    </right>
+   <center>
+      <GridPane BorderPane.alignment="CENTER" fx:id="gridPaneCells" gridLinesVisible="true" alignment="CENTER"/>
+   </center>
 </BorderPane>
