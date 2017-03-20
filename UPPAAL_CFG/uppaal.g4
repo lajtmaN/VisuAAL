@@ -1,7 +1,8 @@
 grammar uppaal;
             xta : declaration* EOF;
     declaration : functionDecl | variableDecl | typeDecl | procDecl ;
-  instantiation : ID '=' ID '(' argList ')' ';' ;
+  instantiation : ID '=' ID '(' argList ')' ';'
+				| ID ':=' ID '(' argList ')' ';' ;
          system : 'system' ID (',' ID)* ';'  ;
 
   parameterList : '(' ( parameter ( ',' parameter )* )? ')' ;
@@ -37,7 +38,8 @@ grammar uppaal;
 
 
    variableDecl : type declId (',' declId)* ';'  ;
-         declId : ID arrayDecl* ( '=' initialiser )? ;
+         declId : ID arrayDecl* ( '=' initialiser )? 
+				| ID arrayDecl* ( ':=' initialiser )? ;
     initialiser : expression 
                  |  '{' fieldInit ( ',' fieldInit )* '}' ;
       fieldInit : ( ID ':' )? initialiser ;
@@ -100,7 +102,7 @@ caseExpr       : 'case' expression ':' statement*
 
     argList : (expression ( ',' expression )* )? ;
 
-   assignOp : '=' | '+=' | '-=' | '*=' | '/=' | '%=' 
+   assignOp : '=' | ':=' | '+=' | '-=' | '*=' | '/=' | '%=' 
             | '|=' | '&=' | '^=' | '<<=' | '>>=' ;
     unaryOp : '-' | '!'  | '+';
         rel : '<' | '<=' | '==' | '!=' | '>=' | '>' ;

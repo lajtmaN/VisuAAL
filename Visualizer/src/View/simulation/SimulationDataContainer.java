@@ -68,7 +68,12 @@ public class SimulationDataContainer extends GridPane {
     }
 
     public void updateVariable(int nodeId, String variable, double value) {
-        nodeVariableMapper.get(nodeId).get(variable).setSecond(value);
-        labels.get(variable).setText(String.valueOf(value));
+        try {
+            nodeVariableMapper.get(nodeId).get(variable).setSecond(value);
+            labels.get(variable).setText(String.valueOf(value));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

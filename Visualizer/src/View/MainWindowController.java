@@ -279,19 +279,24 @@ public class MainWindowController implements Initializable {
         handleRandomTopologyIfActivated(true);
 
         CompletableFuture<Simulation> out = uppaalModel.runQuery(query, txtUppaalOutput); //Run in uppaal - takes long time
+        out.exceptionally(th -> {
+            simulationProgress.setVisible(false);
+            Platform.runLater(() -> GUIHelper.showError("Simulation failed: " + System.lineSeparator()+ th.getMessage()));
+            return null;
+        });
         out.thenAccept(simulation -> {
+            simulationProgress.setVisible(false);
             if (simulation != null) {
-                simulationProgress.setVisible(false);
                 String simulationName = txtSimulationName.getText().length() > 0 ? txtSimulationName.getText() : "Result";
-
                 Platform.runLater(() -> addNewResults(simulationName, simulation));
                 simulation.save(simulationName);
             }
         });
+
     }
 
-    private void addNewResults(String simulationName, Simulation out) {
-        Parent simulationResultView = null;
+        private void addNewResults(String simulationName, Simulation out) {
+            Parent simulationResultView = null;
         try {
             FXMLLoader simulationResultLoader = new FXMLLoader(getClass().getResource("simulation/SimulationResult.fxml"));
             simulationResultView = simulationResultLoader.load();
