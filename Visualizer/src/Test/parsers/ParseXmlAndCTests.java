@@ -349,6 +349,7 @@ public class ParseXmlAndCTests {
         assertTrue("t2 does not exist",model.getProcesses().contains("t2"));
         assertNotNull(model);
     }
+
     private void assertEdge(int expectedSource, int expectedDest, UPPAALEdge e) {
         assertEquals(expectedSource, e.getSourceAsInt());
         assertEquals(expectedDest, e.getDestinationAsInt());
