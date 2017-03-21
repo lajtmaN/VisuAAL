@@ -70,8 +70,12 @@ public class TopologyGenerator {
     }
 
     public UPPAALTopology generateUppaalTopology() {
-        UPPAALTopology result = new UPPAALTopology();
         ArrayList<CellNode> nodes = generateNodes();
+        return generateUppaalTopology(nodes);
+    }
+
+    public UPPAALTopology generateUppaalTopology(ArrayList<CellNode> nodes) {
+        UPPAALTopology result = new UPPAALTopology(nodes.size());
         for(int i = 0; i < nodes.size(); i++) {
             for(int j = 0; j < nodes.size(); j++){
                 if(i != j && isInRange(nodes.get(i), nodes.get(j))){

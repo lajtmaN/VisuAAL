@@ -23,6 +23,10 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         }
     }
 
+    public UPPAALTopology(int numberOfNodes) {
+        _numberOfNodes = numberOfNodes;
+    }
+
     public UPPAALTopology() {}
 
     public int getNumberOfNodes() {
