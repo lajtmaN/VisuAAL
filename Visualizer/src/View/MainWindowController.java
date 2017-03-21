@@ -209,7 +209,7 @@ public class MainWindowController implements Initializable {
         if(constantsChanged){
             UPPAALParser.updateUPPAALConfigConstants(uppaalModel.getModelPath(), uppaalModel.getAllConfigVars());
             //TODO reload appropriate views and update. Save stuff that should not be updated (i.e. selection in outputvars)
-            uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath()));
+            reloadOutputVariables();
             constantsChanged = false;
         }
     }
@@ -261,6 +261,12 @@ public class MainWindowController implements Initializable {
         }
     }
 
+    public void onLeaveTopologyGeneratorTab(Event event) {
+        Tab selectedTab = (event.getSource() instanceof Tab ? (Tab)event.getSource() : null);
+        if (selectedTab != null && !selectedTab.isSelected())
+            handleRandomTopologyIfActivated(true);
+    }
+
     private void handleRandomTopologyIfActivated(boolean updateXML) {
         boolean useRandomTopology = chkUseRandomTopology.switchOnProperty().get();
         if (!useRandomTopology) return;
@@ -271,6 +277,14 @@ public class MainWindowController implements Initializable {
 
         UPPAALTopology randomTopology = topologyGeneratorController.generateTopology();
         uppaalModel.setTopology(randomTopology, updateXML);
+
+        //Reload outputvariables which could use nr_nodes
+        reloadOutputVariables();
+    }
+
+    private void reloadOutputVariables() {
+        uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath()));
+        queryGeneratedTextField.setText("");
     }
 
     public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException {
@@ -283,7 +297,6 @@ public class MainWindowController implements Initializable {
         txtUppaalOutput.setText("Running query in UPPAAL..." + System.lineSeparator());
 
         simulationProgress.setVisible(true);
-        handleRandomTopologyIfActivated(true);
 
         CompletableFuture<Simulation> out = uppaalModel.runQuery(query, txtUppaalOutput); //Run in uppaal - takes long time
         out.exceptionally(th -> {
@@ -344,4 +357,5 @@ public class MainWindowController implements Initializable {
     protected UPPAALModel getUppaalModel() {
         return this.uppaalModel;
     }
+
 }

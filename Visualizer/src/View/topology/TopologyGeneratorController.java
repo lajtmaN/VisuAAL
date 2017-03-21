@@ -110,4 +110,7 @@ public class TopologyGeneratorController implements Initializable {
         return topologyGenerator.generateUppaalTopology();
     }
 
+    public void preview(ActionEvent actionEvent) {
+        generateTopology().getGraph().display();
+    }
 }

@@ -3,6 +3,7 @@ package Model;
 import Helpers.GUIHelper;
 import Helpers.UPPAALExecutor;
 import View.AlertData;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -97,7 +98,15 @@ public class UPPAALModel implements Externalizable, Cloneable {
         if (simulateOutput == null)
             return null;
 
+        simulateOutput.exceptionally(throwable -> {
+            Platform.runLater(() -> GUIHelper.showError(throwable.getMessage()));
+            return null;
+        });
+
         return simulateOutput.thenApply(output -> {
+            if (output == null)
+                return null;
+
             if (output.getErrorDescription() != null) {
                 GUIHelper.showError(output.getErrorDescription());
                 return null;
