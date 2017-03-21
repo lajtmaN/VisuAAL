@@ -9,15 +9,15 @@ import javafx.beans.property.SimpleIntegerProperty;
  * Created by lajtman on 17-03-2017.
  */
 public class GlobalOptions {
-    private IntegerProperty cellX, cellY, avgRange, avgNodesPrCell;
-    private DoubleProperty rangeDeviation, nodesCellDeviation;
+    private IntegerProperty cellX, cellY, avgNodesPrCell;
+    private DoubleProperty avgRange, rangeDeviation, nodesCellDeviation;
 
     public GlobalOptions() {
         cellX = new SimpleIntegerProperty(this, "cellX", 4);
         cellY = new SimpleIntegerProperty(this, "cellY", 4);
-        avgRange = new SimpleIntegerProperty(this, "avgRange", 100);
+        avgRange = new SimpleDoubleProperty(this, "avgRange", 0.8);
         avgNodesPrCell = new SimpleIntegerProperty(this, "avgNodesPrCell", 5);
-        rangeDeviation = new SimpleDoubleProperty(this, "rangeDeviation", 1);
+        rangeDeviation = new SimpleDoubleProperty(this, "rangeDeviation", 0.05);
         nodesCellDeviation = new SimpleDoubleProperty(this, "nodesCellDeviation", 1);
     }
 
@@ -45,15 +45,15 @@ public class GlobalOptions {
         this.cellY.set(cellY);
     }
 
-    public int getAvgRange() {
+    public double getAvgRange() {
         return avgRange.get();
     }
 
-    public IntegerProperty avgRangeProperty() {
+    public DoubleProperty avgRangeProperty() {
         return avgRange;
     }
 
-    public void setAvgRange(int avgRange) {
+    public void setAvgRange(double avgRange) {
         this.avgRange.set(avgRange);
     }
 

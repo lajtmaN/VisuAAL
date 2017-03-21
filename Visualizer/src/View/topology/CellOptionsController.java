@@ -13,7 +13,7 @@ public class CellOptionsController {
     @FXML private DoubleTextField txtNodesCellDeviation;
     @FXML private IntegerTextField txtAvgNodesPrCell;
     @FXML private DoubleTextField txtCellAvgRangeDeviation;
-    @FXML private IntegerTextField txtCellAvgRangeMean;
+    @FXML private DoubleTextField txtCellAvgRangeMean;
 
     private CellOptions options;
 

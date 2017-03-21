@@ -13,7 +13,7 @@
     <Label text="Range" underline="true" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="0">
     </Label>
     <Label text="Avg. Range" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-    <IntegerTextField fx:id="txtCellAvgRangeMean" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+    <DoubleTextField fx:id="txtCellAvgRangeMean" GridPane.columnIndex="1" GridPane.rowIndex="1" />
     <Label text="Deviation" GridPane.columnIndex="0" GridPane.rowIndex="2" />
     <DoubleTextField fx:id="txtCellAvgRangeDeviation" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 

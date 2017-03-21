@@ -34,7 +34,7 @@ public class TopologyGeneratorController implements Initializable {
     @FXML private Accordion accordion;
     @FXML private IntegerTextField txtNumCellsX;
     @FXML private IntegerTextField txtNumCellsY;
-    @FXML private IntegerTextField txtAvgRangeMean;
+    @FXML private DoubleTextField txtAvgRangeMean;
     @FXML private DoubleTextField txtAvgRangeDeviation;
     @FXML private DoubleTextField txtNumNodesPrCellDeviationDefault;
     @FXML private IntegerTextField txtAvgNumNodesPrCellDefault;
