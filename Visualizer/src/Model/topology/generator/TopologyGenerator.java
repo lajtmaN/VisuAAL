@@ -52,7 +52,7 @@ public class TopologyGenerator {
 
     public ArrayList<CellNode> generateNodesForCell(int x, int y){
         Random rand = new Random();
-        CellOptions cellOption = cellOptions[x][y];
+        CellOptions cellOption = getOptionsForCell(x, y);
         int nodesInCell = (int)(Math.abs(rand.nextGaussian()*cellOption.getNodesCellDeviation())+cellOption.getAvgNodesPrCell());
 
         ArrayList<CellNode> result = new ArrayList<>();
