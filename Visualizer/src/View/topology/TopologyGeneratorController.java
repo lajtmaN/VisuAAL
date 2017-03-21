@@ -1,5 +1,6 @@
 package View.topology;
 
+import Model.UPPAALTopology;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
 import View.IntegerTextField;
@@ -104,4 +105,9 @@ public class TopologyGeneratorController implements Initializable {
     public void updateGlobalOptions(ActionEvent actionEvent) {
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
     }
+
+    public UPPAALTopology generateTopology() {
+        return topologyGenerator.generateUppaalTopology();
+    }
+
 }

@@ -38,6 +38,7 @@ import java.util.concurrent.CompletableFuture;
 public class MainWindowController implements Initializable {
 
 
+
     @FXML private ProgressIndicator simulationProgress;
     @FXML private TextArea txtUppaalOutput;
     @FXML private TextField txtSimulationName;
@@ -66,6 +67,7 @@ public class MainWindowController implements Initializable {
     @FXML private SimulationDataContainer nodeVarGridPane;
     @FXML private ToggleSwitch chkUseRandomTopology;
     @FXML private TopologyGeneratorController topologyGeneratorController;
+    @FXML private Tab topologyGeneratorTab;
 
     private UPPAALModel uppaalModel;
     public boolean constantsChanged;
@@ -88,6 +90,7 @@ public class MainWindowController implements Initializable {
         initializeOutputVarsTable();
         initializeWidths();
         initializeDynamicTable();
+        topologyGeneratorTab.disableProperty().bind(chkUseRandomTopology.switchOnProperty().not());
     }
 
     private void initializeDynamicTable() {
@@ -262,8 +265,11 @@ public class MainWindowController implements Initializable {
         boolean useRandomTopology = chkUseRandomTopology.switchOnProperty().get();
         if (!useRandomTopology) return;
 
-        int originalNumberOfNodes = uppaalModel.getTopology().getNumberOfNodes();
-        UPPAALTopology randomTopology = ConnectedGraphGenerator.generateRandomTopology(originalNumberOfNodes);
+
+        //int originalNumberOfNodes = uppaalModel.getTopology().getNumberOfNodes();
+        //ConnectedGraphGenerator.generateRandomTopology(originalNumberOfNodes);
+
+        UPPAALTopology randomTopology = topologyGeneratorController.generateTopology();
         uppaalModel.setTopology(randomTopology, updateXML);
     }
 
