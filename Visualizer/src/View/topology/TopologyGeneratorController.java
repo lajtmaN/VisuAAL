@@ -111,6 +111,6 @@ public class TopologyGeneratorController implements Initializable {
     }
 
     public void preview(ActionEvent actionEvent) {
-        generateTopology().getGraph().display();
+        generateTopology().getGraph(true).display();
     }
 }
