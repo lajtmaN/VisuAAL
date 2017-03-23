@@ -343,6 +343,29 @@ public class ParseXmlAndCTests {
     }
 
     @Test
+    public void generateQueryTwoTemplates() {
+        List<String> expectedSimulationQueryParts = new ArrayList<>();
+        expectedSimulationQueryParts.add("simulate 5 [<=123] {");
+        expectedSimulationQueryParts.add("Template1(0).OUTPUT_TEST");
+        expectedSimulationQueryParts.add("Template0(1).OUTPUT_TEST");
+        expectedSimulationQueryParts.add("Template0(2).OUTPUT_TEST");
+        expectedSimulationQueryParts.add("}");
+
+        UPPAALModel model = new UPPAALModel(new File("test_resources/MultipleTemplatesMultipleParameterTypes.xml").getPath());
+        model.load();
+        assertNotNull(model);
+        assertNotNull(model.getProcesses());
+        assertEquals("Wrong number of templates",3, model.getProcesses().size());
+
+        String actualQuery = QueryGenerator.generateSimulationQuery(123, 5, model.getOutputVars(), model.getProcesses());
+        assertTrue(actualQuery.startsWith(expectedSimulationQueryParts.get(0)));
+        for(String part : expectedSimulationQueryParts) {
+            assertTrue(actualQuery.contains(part));
+        }
+        assertTrue(actualQuery.endsWith(expectedSimulationQueryParts.get(4)));
+    }
+
+    @Test
     public void parseTemplatesFromModelsWithTwoTypesOfNodesSystemInstantiated() throws IOException, SAXException, ParserConfigurationException {
         UPPAALModel model = new UPPAALModel(new File("test_resources/MultipleTemplatesMultipleParameterTypesSystemInstantiated.xml").getPath());
         model.load();
