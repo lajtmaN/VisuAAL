@@ -8,7 +8,7 @@ pipeline {
 	stages {
 		stage('Static Code') {
 			steps {
-				sh 'C:\tools\cloc.exe --by-file --xml --out=Visualizer/build/reports/cloc/cloc.xml Visualizer/src'
+				sh 'C:/tools/cloc.exe --by-file --xml --out=Visualizer/build/reports/cloc/cloc.xml Visualizer/src'
 			}
 		}
 		stage('Compile') {
