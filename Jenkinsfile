@@ -8,17 +8,17 @@ pipeline {
 	stages {
 		/*stage('Static Code') {
 			steps {
-				sh 'C:/tools/cloc.exe --by-file --xml --out=Visualizer/build/reports/cloc/cloc.xml Visualizer/src'
+				bat 'C:/tools/cloc.exe --by-file --xml --out=Visualizer/build/reports/cloc/cloc.xml Visualizer/src'
 			}
 		}*/
 		stage('Compile') {
 			steps {
-				sh 'gradle assemble --build-file Visualizer/build.gradle'
+				bat 'gradle assemble --build-file Visualizer/build.gradle'
 			}
 		}
 		stage('Test') {
 			steps {
-				sh 'gradle check --build-file Visualizer/build.gradle'
+				bat 'gradle check --build-file Visualizer/build.gradle'
 			}
 		}
 		stage('Statistics') {
@@ -31,7 +31,7 @@ pipeline {
 		}
 		stage('Cleaning') {
 			steps {
-				sh 'gradle clean --build-file Visualizer/build.gradle'
+				bat 'gradle clean --build-file Visualizer/build.gradle'
 			}
 		}
 	}
