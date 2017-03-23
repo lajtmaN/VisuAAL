@@ -18,10 +18,22 @@ public class GoogleMapsHelper {
         context = new GeoApiContext().setApiKey(Settings.Instance().getGoogleAPIKey());
     }
 
+    public static LatLng getCurrentLocation() {
+        try {
+            return GeolocationApi
+                    .geolocate(context, new GeolocationPayload())
+                    .await().location;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static String getCurrentAddress() {
         try {
-            LatLng location = GeolocationApi.geolocate(context, new GeolocationPayload()).await().location;
-            return GeocodingApi.reverseGeocode(context, location).resultType(AddressType.STREET_ADDRESS).await()[0].formattedAddress;
+            return GeocodingApi
+                    .reverseGeocode(context, getCurrentLocation())
+                    .resultType(AddressType.STREET_ADDRESS)
+                    .await()[0].formattedAddress;
         } catch (Exception e) {
             return null;
         }

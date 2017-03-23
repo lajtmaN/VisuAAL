@@ -1,10 +1,19 @@
 package View.topology;
 
+import Helpers.GoogleMapsHelper;
 import Model.UPPAALTopology;
+import Model.topology.generator.CellOptions;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
 import View.IntegerTextField;
 import View.simulation.SimulationResultController;
+import com.google.maps.model.LatLng;
+import com.lynden.gmapsfx.GoogleMapView;
+import com.lynden.gmapsfx.MapComponentInitializedListener;
+import com.lynden.gmapsfx.javascript.object.GoogleMap;
+import com.lynden.gmapsfx.javascript.object.LatLong;
+import com.lynden.gmapsfx.javascript.object.MapOptions;
+import com.lynden.gmapsfx.javascript.object.MapTypeIdEnum;
 import javafx.beans.property.DoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -28,7 +37,8 @@ import java.util.stream.IntStream;
 /**
  * Created by lajtman on 17-03-2017.
  */
-public class TopologyGeneratorController implements Initializable {
+public class TopologyGeneratorController implements Initializable, MapComponentInitializedListener {
+    @FXML private GoogleMapView mapView;
     @FXML private GridPane gridPaneCells;
     @FXML private TitledPane optionsPane;
     @FXML private Accordion accordion;
@@ -40,6 +50,7 @@ public class TopologyGeneratorController implements Initializable {
     @FXML private IntegerTextField txtAvgNumNodesPrCellDefault;
     @FXML private BorderPane rootPane;
 
+    private GoogleMap map;
     private TopologyGenerator topologyGenerator;
 
     @Override
@@ -50,7 +61,27 @@ public class TopologyGeneratorController implements Initializable {
 
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
         enableZoom();
+        mapView.addMapInializedListener(this);
+    }
 
+    @Override
+    public void mapInitialized() {
+        MapOptions options = new MapOptions();
+
+        LatLng googleLocation = GoogleMapsHelper.getCurrentLocation();
+        options.center(new LatLong(googleLocation.lat, googleLocation.lng))
+               .mapType(MapTypeIdEnum.TERRAIN)
+               .overviewMapControl(false)
+               .panControl(true)
+               .rotateControl(false)
+               .scaleControl(true)
+               .streetViewControl(false)
+               .zoomControl(true)
+               .zoom(12);
+        map = mapView.createMap(options);
+
+        mapView.prefWidthProperty().bind(gridPaneCells.widthProperty());
+        mapView.prefHeightProperty().bind(gridPaneCells.heightProperty());
     }
 
     private void setGridSize(int rows, int columns) {
@@ -114,4 +145,5 @@ public class TopologyGeneratorController implements Initializable {
     public void preview(ActionEvent actionEvent) {
         generateTopology().getGraph(true).display();
     }
+
 }
