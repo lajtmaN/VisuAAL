@@ -20,11 +20,6 @@ public class SettingsTests {
         Settings settings = Settings.Instance();
         settings.setVerifytaLocation(verifytaLocation);
 
-        String actualBeforeSave = settings.getVerifytaLocation();
-        assertEquals(verifytaLocation, actualBeforeSave);
-
-        settings.saveChanges();
-
         String actualLoaded = settings.getVerifytaLocation();
         assertEquals(verifytaLocation, actualLoaded);
     }

@@ -50,6 +50,7 @@ public class TopologyGeneratorController implements Initializable {
 
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
         enableZoom();
+
     }
 
     private void setGridSize(int rows, int columns) {

@@ -229,7 +229,6 @@ public class MainWindowController implements Initializable {
             e.printStackTrace();
         }
         Settings.Instance().setRecentLoadedModel(selectedFile.getPath());
-        Settings.Instance().saveChanges();
 
         uppaalModel = new UPPAALModel(tempFile.getPath());
         uppaalModel.load();
