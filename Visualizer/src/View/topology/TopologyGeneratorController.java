@@ -83,9 +83,10 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
                .rotateControl(false)
                .scaleControl(true)
                .streetViewControl(false)
-               .zoomControl(true)
-               .zoom(12);
+               .zoomControl(false)
+               .zoom(13);
         map = mapView.createMap(options);
+
 
         mapView.prefWidthProperty().bind(gridPaneCells.widthProperty());
         mapView.prefHeightProperty().bind(gridPaneCells.heightProperty());
@@ -153,8 +154,11 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
     }
 
     public void updateGlobalOptions(ActionEvent actionEvent) {
+
+
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
     }
+
 
     public UPPAALTopology generateTopology() {
         return topologyGenerator.generateUppaalTopology();
