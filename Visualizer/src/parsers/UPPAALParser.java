@@ -1,10 +1,13 @@
 package parsers;
 
-import Model.CVar;
-import Model.OutputVariable;
-import Model.TemplateUpdate;
-import Model.UPPAALTopology;
+import Model.*;
 import javafx.util.Pair;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import parsers.Declaration.ANTLRGenerated.uppaalLexer;
+import parsers.Declaration.ANTLRGenerated.uppaalParser;
+import parsers.Declaration.SystemDeclParser;
 import parsers.Declaration.VariableParser;
 
 import java.io.*;
@@ -105,21 +108,42 @@ public class UPPAALParser {
         return 1;
     }
 
-    public static List<String> getUPPAALProcesses(String path, List<CVar> constants) {
+    private static CommonTokenStream getTokenStream(String decls) {
+        ANTLRInputStream in = new ANTLRInputStream(decls);
+        uppaalLexer lexer = new uppaalLexer(in);
+        return new CommonTokenStream(lexer);
+    }
+
+    private static uppaalParser getParser(String declarations) {
+        return new uppaalParser(getTokenStream(declarations));
+    }
+
+    private static uppaalParser.SystemBlockContext getRootElement(String declarations) {
+        return getParser(declarations).systemBlock();
+    }
+
+    public static List<UPPAALProcess> getUPPAALProcesses(String path, List<CVar> constants) {
         try {
-            ArrayList<String> out = new ArrayList<>();
+            ArrayList<UPPAALProcess> out = new ArrayList<>();
 
             XmlHandler handler = new XmlHandler(path);
             String systemDecl = handler.getSystemDeclaration();
-            for (String proc : RegexHelper.parseProcessesFromSystem(systemDecl)) {
-                String paramForProc = handler.getParamaterForTemplate(proc);
-                if (paramForProc == null)
-                    out.add(proc);
-                else {
-                    Pair<Integer, Integer> sizesOfParam = CHandler.getSizesOfParam(paramForProc, handler.getGlobalDeclarations(), constants);
-                    for (int i = sizesOfParam.getKey(); i <= sizesOfParam.getValue(); i++) {
-                        out.add(String.format("%s(%d)", proc, i));
+
+            SystemDeclParser listener = new SystemDeclParser();
+
+            new ParseTreeWalker().walk(listener, getRootElement(systemDecl));
+            ArrayList<UPPAALProcess> procs = listener.getProcesses();
+            for(UPPAALProcess proc : procs){
+                String parameterInTemplate = handler.getParamaterForTemplate(proc.getTemplateName());
+                if(!proc.isInstantiatedProcess() && parameterInTemplate !=null) {
+                    Pair<Integer, Integer> sizesOfParam = CHandler.getSizesOfParam(parameterInTemplate,
+                            handler.getGlobalDeclarations(), constants);
+                    for(int i = sizesOfParam.getKey(); i <= sizesOfParam.getValue(); i++) { //Add parametrised version of process. Still not instantiated
+                        out.add(new UPPAALProcess(proc.getTemplateName(), proc.getProcessName(), String.valueOf(i), false));
                     }
+                }
+                else {
+                    out.add(proc);
                 }
             }
 

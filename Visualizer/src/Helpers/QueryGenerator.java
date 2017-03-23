@@ -1,6 +1,7 @@
 package Helpers;
 
 import Model.OutputVariable;
+import Model.UPPAALProcess;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,14 +21,14 @@ public class QueryGenerator {
         return "simulate " + nrSimulations + " [<=" + time + "] { " + vars + " }";
     }
 
-    public static String generateSimulationQuery(int timebound, int nrSimulations, List<OutputVariable> outputVariables, List<String> processes) {
+    public static String generateSimulationQuery(int timebound, int nrSimulations, List<OutputVariable> outputVariables, List<UPPAALProcess> processes) {
         List<String> vars = outputVariables.stream().map(p -> QueryGenerator.generateSingleVariableQueryPart(p, processes))
                 .collect(Collectors.toList());
 
         return generateQueryStart(nrSimulations, timebound, String.join(", ", vars));
     }
 
-    private static String generateSingleVariableQueryPart(OutputVariable var, List<String> processes) {
+    private static String generateSingleVariableQueryPart(OutputVariable var, List<UPPAALProcess> processes) {
         boolean inScope = var.getScope() != null && var.getScope().length() > 0;
         if (inScope) {
             return handleScopedOutputVariable(var, processes);
@@ -42,9 +43,9 @@ public class QueryGenerator {
         }
     }
 
-    private static String handleScopedOutputVariable(OutputVariable var, List<String> processes) {
+    private static String handleScopedOutputVariable(OutputVariable var, List<UPPAALProcess> processes) {
         //TODO: Assumes processnames and template names are the same -> fx Template Node = process Node(1)
-        Stream<String> processQueryList = processes.stream().filter(p -> p.contains(var.getScope())).map(c -> c + "." + var.getName());
+        Stream<String> processQueryList = processes.stream().filter(p -> p.getTemplateName().equals(var.getScope())).map(c -> c.getProcessQueryIdentifier() + "." + var.getName());
         if (var.getIsEdgeData()) {
             processQueryList = processQueryList.map(p -> generate1DArrayQueryVariables(p, var.getVariableArraySize()));
         }

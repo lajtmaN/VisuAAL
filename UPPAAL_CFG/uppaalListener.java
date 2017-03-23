@@ -37,6 +37,16 @@ public interface uppaalListener extends ParseTreeListener {
 	 */
 	void exitInstantiation(uppaalParser.InstantiationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link uppaalParser#systemBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterSystemBlock(uppaalParser.SystemBlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link uppaalParser#systemBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitSystemBlock(uppaalParser.SystemBlockContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link uppaalParser#system}.
 	 * @param ctx the parse tree
 	 */

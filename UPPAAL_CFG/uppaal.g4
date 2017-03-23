@@ -3,6 +3,7 @@ grammar uppaal;
     declaration : functionDecl | variableDecl | typeDecl | procDecl ;
   instantiation : ID '=' ID '(' argList ')' ';'
 				| ID ':=' ID '(' argList ')' ';' ;
+	systemBlock : instantiation* system ;
          system : 'system' ID (',' ID)* ';'  ;
 
   parameterList : '(' ( parameter ( ',' parameter )* )? ')' ;

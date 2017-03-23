@@ -51,6 +51,18 @@ public class uppaalBaseListener implements uppaalListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSystemBlock(uppaalParser.SystemBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSystemBlock(uppaalParser.SystemBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSystem(uppaalParser.SystemContext ctx) { }
 	/**
 	 * {@inheritDoc}

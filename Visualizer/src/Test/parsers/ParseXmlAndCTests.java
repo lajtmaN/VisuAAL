@@ -2,6 +2,7 @@ package parsers;
 
 import Helpers.ConnectedGraphGenerator;
 import Helpers.FileHelper;
+import Helpers.QueryGenerator;
 import Model.*;
 import javafx.util.Pair;
 import org.junit.Test;
@@ -192,16 +193,16 @@ public class ParseXmlAndCTests {
         model.load();
 
         assertEquals(3, model.getProcesses().size());
-        assertEquals("t0", model.getProcesses().get(0));
-        assertEquals("t1", model.getProcesses().get(1));
-        assertEquals("t2", model.getProcesses().get(2));
+        assertEquals("t0", model.getProcesses().get(0).getProcessName());
+        assertEquals("t1", model.getProcesses().get(1).getProcessName());
+        assertEquals("t2", model.getProcesses().get(2).getProcessName());
     }
 
     @Test
     public void getSystemDeclarationFromFile() throws IOException {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
-        List<String> actual = UPPAALParser.getUPPAALProcesses(f.getPath(), UPPAALParser.getUPPAALConfigConstants(f.getPath()));
-        assertEquals("Template", actual.get(0));
+        List<UPPAALProcess> actual = UPPAALParser.getUPPAALProcesses(f.getPath(), UPPAALParser.getUPPAALConfigConstants(f.getPath()));
+        assertEquals("Template", actual.get(0).getProcessName());
     }
 
     @Test
@@ -331,9 +332,13 @@ public class ParseXmlAndCTests {
         assertNotNull(model);
         assertNotNull(model.getProcesses());
         assertEquals("Wrong number of templates",3, model.getProcesses().size());
-        assertTrue("Template1(0) does not exist",model.getProcesses().contains("Template1(0)"));
-        assertTrue("Template0(1) does not exist",model.getProcesses().contains("Template0(1)"));
-        assertTrue("Template0(2) does not exist",model.getProcesses().contains("Template0(2)"));
+        List<String> processParameterList = new ArrayList<>();
+        for (UPPAALProcess up: model.getProcesses()) {
+            processParameterList.add(up.getProcessQueryIdentifier());
+        }
+        assertTrue("Template1(0) does not exist",processParameterList.contains("Template1(0)"));
+        assertTrue("Template0(1) does not exist",processParameterList.contains("Template0(1)"));
+        assertTrue("Template0(2) does not exist",processParameterList.contains("Template0(2)"));
         assertNotNull(model);
     }
 
@@ -344,10 +349,37 @@ public class ParseXmlAndCTests {
         assertNotNull(model);
         assertNotNull(model.getProcesses());
         assertEquals("Wrong number of templates",3, model.getProcesses().size());
-        assertTrue("t0 does not exist",model.getProcesses().contains("t0"));
-        assertTrue("t1 does not exist",model.getProcesses().contains("t1"));
-        assertTrue("t2 does not exist",model.getProcesses().contains("t2"));
+
+        List<String> processParameterList = new ArrayList<>();
+        for (UPPAALProcess up: model.getProcesses()) {
+            processParameterList.add(up.getProcessQueryIdentifier());
+        }
+        assertTrue("t0 does not exist",processParameterList.contains("t0"));
+        assertTrue("t1 does not exist",processParameterList.contains("t1"));
+        assertTrue("t2 does not exist",processParameterList.contains("t2"));
+    }
+
+    @Test
+    public void generateQueryTwoTemplatesNonOverlappingParameters() {
+        List<String> expectedSimulationQueryParts = new ArrayList<>();
+        expectedSimulationQueryParts.add("simulate 5 [<=123] {");
+        expectedSimulationQueryParts.add("t0.OUTPUT_TEST");
+        expectedSimulationQueryParts.add("t1.OUTPUT_TEST");
+        expectedSimulationQueryParts.add("t2.OUTPUT_TEST");
+        expectedSimulationQueryParts.add("}");
+
+        UPPAALModel model = new UPPAALModel(new File("test_resources/MultipleTemplatesMultipleParameterTypesSystemInstantiated.xml").getPath());
+        model.load();
         assertNotNull(model);
+        assertNotNull(model.getProcesses());
+        assertEquals("Wrong number of templates",3, model.getProcesses().size());
+
+        String actualQuery = QueryGenerator.generateSimulationQuery(123, 5, model.getOutputVars(), model.getProcesses());
+        assertTrue(actualQuery.startsWith(expectedSimulationQueryParts.get(0)));
+        for(String part : expectedSimulationQueryParts) {
+            assertTrue(actualQuery.contains(part));
+        }
+        assertTrue(actualQuery.endsWith(expectedSimulationQueryParts.get(4)));
     }
 
     private void assertEdge(int expectedSource, int expectedDest, UPPAALEdge e) {

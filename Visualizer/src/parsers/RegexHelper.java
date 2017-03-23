@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 public class RegexHelper {
     private static final String DataPointRegex = "\\((\\d+(?:\\.\\d+)?),(\\d+(?:\\.\\d+)?)\\)";
     private static final String SystemProcessesRegex = "^system\\s+(\\w+(?:\\s*,\\s*\\w+)*);";
+    private static final String ParameterRegex = "(\\w+)\\((\\w+)?\\)";
     private static final String intPattern = "^-?\\d+$",
                                 doublePattern = "^-?\\d+(.\\d+)?$",
                                 doublePatternUnfinished = "^-?\\d+\\.?(\\d+)?$";
@@ -38,6 +39,14 @@ public class RegexHelper {
             dataPoints.add(d);
         }
         return dataPoints;
+    }
+
+    public static String ExtractParameterFromProcessInitializer(String processInitializer) {
+        return getNthMatchedValueFromRegex(ParameterRegex, processInitializer,2);
+    }
+
+    public static String ExtractTemplateNameFromProcessInitializer(String processInitializer) {
+        return getFirstMatchedValueFromRegex(ParameterRegex, processInitializer);
     }
 
     public static List<String> parseProcessesFromSystem(String input) {

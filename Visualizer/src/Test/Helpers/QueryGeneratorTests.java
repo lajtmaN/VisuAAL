@@ -2,6 +2,7 @@ package Helpers;
 
 import Model.CVar;
 import Model.OutputVariable;
+import Model.UPPAALProcess;
 import org.junit.Test;
 import parsers.CHandler;
 import parsers.UPPAALParser;
@@ -48,7 +49,7 @@ public class QueryGeneratorTests {
 
     @Test
     public void testParseQueryWithProcessNames() {
-        String expected = "simulate 1 [<=100] { Node(0).OUTPUT_test, Node(1).OUTPUT_test, OUTPUT_nr_node_relations }";
+        String expected = "simulate 1 [<=100] { firstNode.OUTPUT_test, secondNode.OUTPUT_test, OUTPUT_nr_node_relations }";
 
         //Setup
         ArrayList<OutputVariable> outVars = new ArrayList<>();
@@ -58,9 +59,9 @@ public class QueryGeneratorTests {
 
         outVars.add(new OutputVariable("OUTPUT_nr_node_relations"));
 
-        ArrayList<String> processes = new ArrayList<>();
-        processes.add("Node(0)");
-        processes.add("Node(1)");
+        ArrayList<UPPAALProcess> processes = new ArrayList<>();
+        processes.add(new UPPAALProcess("Node","firstNode", "0", true));
+        processes.add(new UPPAALProcess("Node","secondNode", "1", true));
 
         //ACT
         String actual = QueryGenerator.generateSimulationQuery(100, 1, outVars, processes);
@@ -81,10 +82,9 @@ public class QueryGeneratorTests {
         outVars.add(CHandler.parseOutputVariableArray(createTestCVar("OUTPUT_test", "Node", "CONFIG_SIZE"), constants));
         outVars.add(new OutputVariable("OUTPUT_nr_node_relations"));
 
-        ArrayList<String> processes = new ArrayList<>();
-        processes.add("Node(0)");
-        processes.add("Node(1)");
-
+        ArrayList<UPPAALProcess> processes = new ArrayList<>();
+        processes.add(new UPPAALProcess("Node",null, "0", false));
+        processes.add(new UPPAALProcess("Node",null, "1", false));
         //ACT
         String actual = QueryGenerator.generateSimulationQuery(100, 1, outVars, processes);
 
@@ -179,7 +179,7 @@ public class QueryGeneratorTests {
         constants.add(new CVar("CONFIG_SIZE", String.valueOf(constantSize)));
 
         OutputVariable outVar = CHandler.parseOutputVariableArray(createTestCVar("OUTPUT_data", "Node", "CONFIG_SIZE"), constants);
-        String process = "Node";
+        UPPAALProcess process = new UPPAALProcess("Node","Node", null, false);
 
         String actualQuery = QueryGenerator.generateSimulationQuery(123, 5, Collections.singletonList(outVar), Collections.singletonList(process));
         assertEquals(expectedSimulationQuery, actualQuery);

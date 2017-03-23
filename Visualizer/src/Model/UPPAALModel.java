@@ -35,7 +35,7 @@ public class UPPAALModel implements Externalizable, Cloneable {
     private double modelTimeUnit = 1;
 
     private String modelPath;
-    private List<String> processes;
+    private List<UPPAALProcess> processes;
 
     public UPPAALModel() {} //Only needed for Externalizable
     public UPPAALModel(String path) {
@@ -171,7 +171,7 @@ public class UPPAALModel implements Externalizable, Cloneable {
         handler.writeXMLToFilePath(newPath);
     }
 
-    public List<String> getProcesses() {
+    public List<UPPAALProcess> getProcesses() {
         return processes;
     }
 
