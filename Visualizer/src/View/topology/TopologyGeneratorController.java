@@ -6,6 +6,7 @@ import Model.topology.generator.CellOptions;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
 import View.IntegerTextField;
+import View.ToggleSwitch;
 import View.simulation.SimulationResultController;
 import com.google.maps.model.LatLng;
 import com.lynden.gmapsfx.GoogleMapView;
@@ -20,10 +21,12 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
@@ -38,6 +41,7 @@ import java.util.stream.IntStream;
  * Created by lajtman on 17-03-2017.
  */
 public class TopologyGeneratorController implements Initializable, MapComponentInitializedListener {
+    @FXML private ToggleSwitch chkShowGridSettings;
     @FXML private GoogleMapView mapView;
     @FXML private GridPane gridPaneCells;
     @FXML private TitledPane optionsPane;
@@ -62,6 +66,9 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
         enableZoom();
         mapView.addMapInializedListener(this);
+        chkShowGridSettings.switchOnProperty().addListener((observable, oldValue, newValue) -> {
+            showGridSettingsChanged(newValue);
+        });
     }
 
     @Override
@@ -97,6 +104,8 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
                     CellOptionsController controller = cellOptionsLoader.getController();
                     controller.initWithOptions(topologyGenerator.getOptionsForCell(x,y));
 
+                    cellOptionsView.setUserData(controller);
+
                     gridPaneCells.add(cellOptionsView, x, y);
                 } catch (IOException ignored) {
 
@@ -123,6 +132,15 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
                 gridPaneCells.setScaleY(gridPaneCells.getScaleY() * scaleFactor);
             }
         });
+    }
+
+    private void showGridSettingsChanged(Boolean newValue) {
+        for (Node n : gridPaneCells.getChildren()) {
+            if (n.getUserData() instanceof CellOptionsController) {
+                ((CellOptionsController)n.getUserData()).showCellOptions(newValue);
+            }
+        }
+
     }
 
     private void bindGlobalOptionsProperties() {
