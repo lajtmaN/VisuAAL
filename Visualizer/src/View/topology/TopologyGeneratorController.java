@@ -178,7 +178,7 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
     }
 
     public void preview(ActionEvent actionEvent) {
-        generateTopology().getGraph(true).display();
+        generateTopology().getGraph(true).display(false);
     }
 
 }

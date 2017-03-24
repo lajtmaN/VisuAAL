@@ -1,9 +1,12 @@
 package Model.topology.generator;
 
 
+import Helpers.MathHelpers;
 import Helpers.Pair;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -49,14 +52,13 @@ public class TopologyGenerator {
     }
 
     public ArrayList<CellNode> generateNodesForCell(int x, int y){
-        Random rand = new Random();
         CellOptions cellOption = getOptionsForCell(x, y);
-        int nodesInCell = (int)(Math.abs(rand.nextGaussian()*cellOption.getNodesCellDeviation())+cellOption.getAvgNodesPrCell());
+        int nodesInCell = (int) MathHelpers.gaussian(cellOption.getAvgNodesPrCell(), cellOption.getNodesCellDeviation());
 
         ArrayList<CellNode> result = new ArrayList<>();
 
         for(int i = 0; i < nodesInCell; i++){
-            double range = Math.abs(rand.nextGaussian() * cellOption.getRangeDeviation()) + cellOption.getAvgRange();
+            double range = MathHelpers.gaussian(cellOption.getAvgRange(), cellOption.getRangeDeviation());
             double nodeX = (Math.random() + x) * cellWidthInMeters;
             double nodeY = (Math.random() + y) * cellHeightInMeters;
             result.add(new CellNode(range, nodeX, nodeY)); //New random for each number
@@ -75,7 +77,7 @@ public class TopologyGenerator {
     }
 
     public UPPAALTopology generateUppaalTopology(ArrayList<CellNode> nodes) {
-        UPPAALTopology result = new UPPAALTopology(nodes.size());
+        UPPAALTopology result = new UPPAALTopology(nodes);
         for(int i = 0; i < nodes.size(); i++) {
             for(int j = 0; j < nodes.size(); j++){
                 if(i != j && isInRange(nodes.get(i), nodes.get(j))){

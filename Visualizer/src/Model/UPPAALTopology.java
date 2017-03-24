@@ -1,5 +1,6 @@
 package Model;
 
+import Model.topology.generator.CellNode;
 import org.graphstream.graph.*;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.implementations.MultiGraph;
@@ -13,6 +14,7 @@ import java.util.*;
 public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializable {
     private int _numberOfNodes;
     private transient Graph _graphInstance;
+    private List<CellNode> nodes;
 
     public UPPAALTopology(Graph graph) {
         _graphInstance = graph;
@@ -27,6 +29,11 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         _numberOfNodes = numberOfNodes;
     }
 
+    public UPPAALTopology(List<CellNode> cellNodes) {
+        this(cellNodes.size());
+        nodes = cellNodes;
+    }
+
     public UPPAALTopology() {}
 
     public int getNumberOfNodes() {
@@ -38,21 +45,18 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     }
 
     public void updateGraph() {
+        boolean linkWithCellNodes = nodes != null;
+
         for (int i = 0; i < getNumberOfNodes(); i++) {
-            Node n = addNode(String.valueOf(i));
-            showLabelOnNode(n, String.valueOf(i));
-            //TODO Edges are added with just i as name, we should use the actual names on simulation points
+            addNode(i, linkWithCellNodes);
         }
         for(UPPAALEdge s : this){
-            String identifier = s.getSource() + "-" + s.getDestination();
             SimulationEdgePoint sep = new SimulationEdgePoint(0, s.getSource(), s.getDestination(), 1);
             addEdge(sep);
         }
     }
 
-    private void showLabelOnNode(Node n, String nodeName) {
-        n.addAttribute("ui.label", nodeName);
-    }
+
 
     private Edge addEdge(SimulationEdgePoint s){
         //TODO: Currently only undirected
@@ -122,8 +126,18 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         }
     }
 
-    private Node addNode(String id){
-        return getGraph(false).addNode(id);
+    private Node addNode(Integer id, boolean linkWithCellNodes){
+        Node graphNode = getGraph(false).addNode(String.valueOf(id));
+        showLabelOnNode(graphNode, String.valueOf(id));
+        if (linkWithCellNodes) {
+            graphNode.setAttribute("x", nodes.get(id).getX());
+            graphNode.setAttribute("y", nodes.get(id).getY());
+        }
+        return graphNode;
+    }
+
+    private void showLabelOnNode(Node n, String nodeName) {
+        n.addAttribute("ui.label", nodeName);
     }
 
     protected void markNode(Node node) {
