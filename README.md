@@ -1,3 +1,7 @@
+
+[![Build Status](http://lajtman.dk/globaljenkins/job/SW10/badge/icon)](http://lajtman.dk/globaljenkins) 
+[![Build Status](http://lajtman.dk/jenkins/job/SW10/badge/icon)](http://lajtman.dk/jenkins)
+
 # Visualizing Behavior of Distributed Network Protocols using UPPAAL Simulations
 
 If you load an UPPAAL model for a distributed network protocol into this application you can get usefull insight of what is actually going on in the protocol. 
