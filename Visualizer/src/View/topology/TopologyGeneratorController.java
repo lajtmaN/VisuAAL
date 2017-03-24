@@ -21,6 +21,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
@@ -28,6 +29,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -87,9 +89,10 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
                .zoom(13);
         map = mapView.createMap(options);
 
-
         mapView.prefWidthProperty().bind(gridPaneCells.widthProperty());
         mapView.prefHeightProperty().bind(gridPaneCells.heightProperty());
+        mapView.scaleXProperty().bind(gridPaneCells.scaleXProperty());
+        mapView.scaleYProperty().bind(gridPaneCells.scaleYProperty());
     }
 
     private void setGridSize(int rows, int columns) {
@@ -104,6 +107,7 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
                     Parent cellOptionsView = cellOptionsLoader.load();
                     CellOptionsController controller = cellOptionsLoader.getController();
                     controller.initWithOptions(topologyGenerator.getOptionsForCell(x,y));
+                    controller.showCellOptions(chkShowGridSettings.switchOnProperty().get());
 
                     cellOptionsView.setUserData(controller);
 
@@ -113,6 +117,7 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
                 }
             }
         }
+        gridPaneCells.autosize();
     }
 
     private void enableZoom() {
@@ -141,7 +146,6 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
                 ((CellOptionsController)n.getUserData()).showCellOptions(newValue);
             }
         }
-
     }
 
     private void bindGlobalOptionsProperties() {
@@ -154,8 +158,6 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
     }
 
     public void updateGlobalOptions(ActionEvent actionEvent) {
-
-
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
     }
 

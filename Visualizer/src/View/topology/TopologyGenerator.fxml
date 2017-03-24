@@ -14,10 +14,9 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
-
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.topology.TopologyGeneratorController">
    <right>
-      <Accordion fx:id="accordion" BorderPane.alignment="CENTER">
+      <Accordion fx:id="accordion">
         <panes>
           <TitledPane fx:id="optionsPane" text="Options">
             <content>
@@ -83,14 +82,14 @@
                             </padding>
                             <columnConstraints>
                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="90.0" halignment="RIGHT" />
+                                <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="90.0" />
                             </columnConstraints>
                            <rowConstraints>
                               <RowConstraints />
                            </rowConstraints>
                            <children>
-                              <Label text="Show Cell Options:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                              <ToggleSwitch fx:id="chkShowGridSettings" GridPane.halignment="RIGHT" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                              <Label text="Show Cell Options:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                              <ToggleSwitch fx:id="chkShowGridSettings" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="0" />
                            </children>
                         </GridPane>
                      </children>
@@ -101,11 +100,17 @@
       </Accordion>
    </right>
    <center>
-      <AnchorPane BorderPane.alignment="CENTER">
-         <children>
-            <GoogleMapView fx:id="mapView" />
-            <GridPane fx:id="gridPaneCells" gridLinesVisible="true" pickOnBounds="false" />
-         </children>
-      </AnchorPane>
+       <GridPane alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity">
+           <columnConstraints>
+               <ColumnConstraints hgrow="NEVER" fillWidth="false"/>
+           </columnConstraints>
+           <rowConstraints>
+               <RowConstraints vgrow="NEVER" fillHeight="false"/>
+           </rowConstraints>
+           <children>
+               <GoogleMapView fx:id="mapView" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-border-color: green"/>
+               <GridPane alignment="CENTER" fx:id="gridPaneCells" pickOnBounds="false" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+           </children>
+       </GridPane>
    </center>
 </BorderPane>
