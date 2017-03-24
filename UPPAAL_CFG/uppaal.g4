@@ -4,7 +4,7 @@ grammar uppaal;
   instantiation : ID '=' ID '(' argList ')' ';'
 				| ID ':=' ID '(' argList ')' ';' ;
 	systemBlock : instantiation* system ;
-         system : 'system' ID (',' ID)* ';'  ;
+         system : 'system' ID ((','|'<') ID)* ';'  ;
 
   parameterList : '(' ( parameter ( ',' parameter )* )? ')' ;
       parameter : type ( '&' )? ID arrayDecl* ;

@@ -7,17 +7,12 @@ public class UPPAALProcess {
     String templateName;
     String processName;
     String parameter;
-    boolean instantiatedProcess;
 
-    public boolean isInstantiatedProcess() {
-        return instantiatedProcess;
-    }
 
-    public UPPAALProcess(String templateName, String processName, String parameter, boolean instantiatedProcess) {
+    public UPPAALProcess(String templateName, String processName, String parameter) {
         this.templateName = templateName;
         this.processName = processName;
         this.parameter = parameter;
-        this.instantiatedProcess = instantiatedProcess;
     }
 
     public String getProcessName() {
@@ -37,7 +32,7 @@ public class UPPAALProcess {
     }
 
     public String getProcessQueryIdentifier() {
-        if(instantiatedProcess) {
+        if(isInstantiatedProcess()) {
             return processName;
         }
         if(parameter== null)
@@ -47,5 +42,9 @@ public class UPPAALProcess {
 
     public String getTemplateName() {
         return templateName;
+    }
+
+    public boolean isInstantiatedProcess() {
+        return processName != null;
     }
 }

@@ -202,7 +202,10 @@ public class ParseXmlAndCTests {
     public void getSystemDeclarationFromFile() throws IOException {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         List<UPPAALProcess> actual = UPPAALParser.getUPPAALProcesses(f.getPath(), UPPAALParser.getUPPAALConfigConstants(f.getPath()));
-        assertEquals("Template", actual.get(0).getProcessName());
+        assertNotNull(actual);
+        assertEquals(1, actual.size());
+        assertNull(actual.get(0).getProcessName());
+        assertEquals("Template", actual.get(0).getTemplateName());
     }
 
     @Test

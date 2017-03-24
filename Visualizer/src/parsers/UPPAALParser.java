@@ -139,7 +139,7 @@ public class UPPAALParser {
                     Pair<Integer, Integer> sizesOfParam = CHandler.getSizesOfParam(parameterInTemplate,
                             handler.getGlobalDeclarations(), constants);
                     for(int i = sizesOfParam.getKey(); i <= sizesOfParam.getValue(); i++) { //Add parametrised version of process. Still not instantiated
-                        out.add(new UPPAALProcess(proc.getTemplateName(), proc.getProcessName(), String.valueOf(i), false));
+                        out.add(new UPPAALProcess(proc.getTemplateName(), proc.getProcessName(), String.valueOf(i)));
                     }
                 }
                 else {

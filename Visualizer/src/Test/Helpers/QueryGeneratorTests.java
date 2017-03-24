@@ -60,8 +60,8 @@ public class QueryGeneratorTests {
         outVars.add(new OutputVariable("OUTPUT_nr_node_relations"));
 
         ArrayList<UPPAALProcess> processes = new ArrayList<>();
-        processes.add(new UPPAALProcess("Node","firstNode", "0", true));
-        processes.add(new UPPAALProcess("Node","secondNode", "1", true));
+        processes.add(new UPPAALProcess("Node","firstNode", "0"));
+        processes.add(new UPPAALProcess("Node","secondNode", "1"));
 
         //ACT
         String actual = QueryGenerator.generateSimulationQuery(100, 1, outVars, processes);
@@ -83,8 +83,8 @@ public class QueryGeneratorTests {
         outVars.add(new OutputVariable("OUTPUT_nr_node_relations"));
 
         ArrayList<UPPAALProcess> processes = new ArrayList<>();
-        processes.add(new UPPAALProcess("Node",null, "0", false));
-        processes.add(new UPPAALProcess("Node",null, "1", false));
+        processes.add(new UPPAALProcess("Node",null, "0"));
+        processes.add(new UPPAALProcess("Node",null, "1"));
         //ACT
         String actual = QueryGenerator.generateSimulationQuery(100, 1, outVars, processes);
 
@@ -179,7 +179,7 @@ public class QueryGeneratorTests {
         constants.add(new CVar("CONFIG_SIZE", String.valueOf(constantSize)));
 
         OutputVariable outVar = CHandler.parseOutputVariableArray(createTestCVar("OUTPUT_data", "Node", "CONFIG_SIZE"), constants);
-        UPPAALProcess process = new UPPAALProcess("Node","Node", null, false);
+        UPPAALProcess process = new UPPAALProcess("Node",null, null);
 
         String actualQuery = QueryGenerator.generateSimulationQuery(123, 5, Collections.singletonList(outVar), Collections.singletonList(process));
         assertEquals(expectedSimulationQuery, actualQuery);
