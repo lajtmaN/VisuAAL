@@ -11,10 +11,7 @@ import View.simulation.SimulationResultController;
 import com.google.maps.model.LatLng;
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
-import com.lynden.gmapsfx.javascript.object.GoogleMap;
-import com.lynden.gmapsfx.javascript.object.LatLong;
-import com.lynden.gmapsfx.javascript.object.MapOptions;
-import com.lynden.gmapsfx.javascript.object.MapTypeIdEnum;
+import com.lynden.gmapsfx.javascript.object.*;
 import javafx.beans.property.DoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -161,8 +158,22 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
     }
 
+    private void calculateGridSizeInMeters() {
+        LatLongBounds bounds = map.getBounds();
+        LatLong sw = bounds.getSouthWest();
+        LatLong ne = bounds.getNorthEast();
+        LatLong nw = new LatLong(ne.getLatitude(), sw.getLongitude());
+
+        double widthOnAllCells = GoogleMapsHelper.distanceBetween(nw, ne);
+        double heightOnAllCells = GoogleMapsHelper.distanceBetween(nw, sw);
+
+        topologyGenerator.setCellWidthInMeters(widthOnAllCells/topologyGenerator.getOptions().getCellX());
+        topologyGenerator.setCellHeightInMeters(heightOnAllCells/topologyGenerator.getOptions().getCellY());
+    }
+
 
     public UPPAALTopology generateTopology() {
+        calculateGridSizeInMeters();
         return topologyGenerator.generateUppaalTopology();
     }
 

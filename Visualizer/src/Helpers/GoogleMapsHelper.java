@@ -49,12 +49,7 @@ public class GoogleMapsHelper {
         }
     }
 
-    public static double calculateLengthInMeters(LatLongBounds bounds) {
-        return calculateLengthInMeters(bounds.getSouthWest(), bounds.getNorthEast());
-    }
-
-    public static double calculateLengthInMeters(LatLong sw, LatLong ne) {
-        double hypo = sw.distanceFrom(ne);
-        return Math.sin(Math.toRadians(45)) * hypo / Math.sin(Math.toRadians(90));
+    public static double distanceBetween(LatLong p1, LatLong p2) {
+        return p1.distanceFrom(p2);
     }
 }
