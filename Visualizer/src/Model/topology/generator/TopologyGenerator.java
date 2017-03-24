@@ -15,8 +15,8 @@ public class TopologyGenerator {
 
     private GlobalOptions options;
     private CellOptions[][] cellOptions;
-    private double cellWidthInMeters;
-    private double cellHeightInMeters;
+    private double cellWidthInMeters = 1;
+    private double cellHeightInMeters = 1;
 
 
     public TopologyGenerator() {
@@ -42,12 +42,7 @@ public class TopologyGenerator {
         ArrayList<CellNode> result = new ArrayList<>();
         for(int xIndex = 0; xIndex < options.getCellX(); xIndex++){
             for(int yIndex = 0; yIndex < options.getCellY(); yIndex++){
-                ArrayList<CellNode> cellNodes = generateNodesForCell(xIndex, yIndex);
-                for (CellNode node: cellNodes) {
-                    node.setX(node.getX()+xIndex);
-                    node.setY(node.getY()+yIndex);
-                    result.add(node);
-                }
+                result.addAll(generateNodesForCell(xIndex, yIndex));
             }
         }
         return result;
@@ -62,7 +57,9 @@ public class TopologyGenerator {
 
         for(int i = 0; i < nodesInCell; i++){
             double range = Math.abs(rand.nextGaussian() * cellOption.getRangeDeviation()) + cellOption.getAvgRange();
-            result.add(new CellNode(range, Math.random(), Math.random())); //New random for each number
+            double nodeX = (Math.random() + x) * cellWidthInMeters;
+            double nodeY = (Math.random() + y) * cellHeightInMeters;
+            result.add(new CellNode(range, nodeX, nodeY)); //New random for each number
         }
         return result;
     }

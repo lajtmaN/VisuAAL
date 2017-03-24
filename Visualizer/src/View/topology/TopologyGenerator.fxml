@@ -40,7 +40,7 @@
                             <padding><Insets top="10.0" /></padding>
                         </Label>
                         <Label text="Avg. Range" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                        <DoubleTextField fx:id="txtAvgRangeMean" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <IntegerTextField fx:id="txtAvgRangeMean" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <Label text="Deviation" GridPane.columnIndex="0" GridPane.rowIndex="4" />
                         <DoubleTextField fx:id="txtAvgRangeDeviation" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
