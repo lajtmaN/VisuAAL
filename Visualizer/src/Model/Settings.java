@@ -41,7 +41,7 @@ public class Settings {
             System.exit(1);
         }
     }
-    public void saveChanges() {
+    private void saveChanges() {
         try (OutputStream out = new FileOutputStream(settingsFileName)) {
             properties.store(out, null);
         } catch (IOException e) {
@@ -49,19 +49,36 @@ public class Settings {
         }
     }
 
+    private void set(String key, String value) {
+        properties.setProperty(key, value);
+        saveChanges();
+    }
+
+    private String get(String key) {
+        return properties.getProperty(key);
+    }
+
     public String getVerifytaLocation() {
-        return properties.getProperty("verifytaLocation");
+        return get("verifytaLocation");
     }
 
     public void setVerifytaLocation(String verifytaLocation) {
-        properties.setProperty("verifytaLocation", verifytaLocation);
+        set("verifytaLocation", verifytaLocation);
     }
 
     public String getRecentLoadedModel() {
-        return properties.getProperty("recentModel");
+        return get("recentModel");
     }
 
     public void setRecentLoadedModel(String recentLoadedModel) {
-        properties.setProperty("recentModel", recentLoadedModel);
+        set("recentModel", recentLoadedModel);
+    }
+
+    public String getGoogleAPIKey() {
+        return get("googleApiKey");
+    }
+
+    public void setGoogleAPIKey(String key) {
+        set("googleApiKey", key);
     }
 }
