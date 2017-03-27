@@ -28,6 +28,8 @@ public class IntegerTextField extends TextField {
 
             @Override
             public Number fromString(String string) {
+                if(string.length() == 0)
+                    return 0;
                 return Integer.parseInt(string);
             }
         });
