@@ -90,7 +90,6 @@ public class MainWindowController implements Initializable {
         initializeOutputVarsTable();
         initializeWidths();
         initializeDynamicTable();
-        topologyGeneratorTab.disableProperty().bind(chkUseRandomTopology.switchOnProperty().not());
     }
 
     private void initializeDynamicTable() {
@@ -289,6 +288,10 @@ public class MainWindowController implements Initializable {
     public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException {
         if(queryGeneratedTextField.getText().length() == 0) {
             GUIHelper.showAlert(Alert.AlertType.ERROR, "Please generate Query first");
+            return;
+        }
+        if (uppaalModel.getTopology() == null) {
+            GUIHelper.showInformation("Please create a topology in Topology Creator tab first");
             return;
         }
 

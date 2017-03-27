@@ -3,6 +3,7 @@ package View;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.TextField;
+import javafx.util.StringConverter;
 import javafx.util.converter.NumberStringConverter;
 import parsers.RegexHelper;
 
@@ -19,6 +20,18 @@ public class IntegerTextField extends TextField {
     }
 
     public void bindProperty(IntegerProperty intProperty) {
-        textProperty().bindBidirectional(intProperty, new NumberStringConverter());
+        textProperty().bindBidirectional(intProperty, new StringConverter<Number>() {
+            @Override
+            public String toString(Number num) {
+                return String.valueOf(num);
+            }
+
+            @Override
+            public Number fromString(String string) {
+                if(string.length() == 0)
+                    return 0;
+                return Integer.parseInt(string);
+            }
+        });
     }
 }

@@ -1,9 +1,11 @@
 package Model.topology.generator;
 
+import java.io.Serializable;
+
 /**
  * Created by rasmu on 20/03/2017.
  */
-public class CellNode {
+public class CellNode implements Serializable {
     double range;
     double x;
     double y;

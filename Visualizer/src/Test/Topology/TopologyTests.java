@@ -20,6 +20,7 @@ import java.util.List;
 import org.graphstream.graph.*;
 import parsers.CHandler;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -163,6 +164,21 @@ public class TopologyTests {
         //4 edges: 4 nodes
         //1 middle: 5 nodes
         assertIntDelta(((4*3+4*4+1*5)*2*numRuns), sum, DELTA);
+    }
+
+    @Test
+    public void nodesPlacedCorrectlyWhenGridInMetersAreChanged() {
+        TopologyGenerator gen = new TopologyGenerator();
+        gen.setCellWidthInMeters(500);
+        gen.setCellHeightInMeters(500);
+        List<CellNode> nodes = gen.generateNodesForCell(1,2);
+        assertFalse(nodes.isEmpty());
+        for (CellNode n : nodes) {
+            assertTrue("x position too low: " + n.getX(), n.getX() > 500);
+            assertTrue("x position too high: " + n.getX(), n.getX() < 1000);
+            assertTrue("y position too low: " + n.getY(), n.getY() > 1000);
+            assertTrue("y position too high: " + n.getY(), n.getY() < 1500);
+        }
     }
 
     private void assertIntDelta(int expected, int actual, int DELTA) {

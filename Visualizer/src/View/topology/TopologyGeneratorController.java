@@ -47,7 +47,7 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
     @FXML private Accordion accordion;
     @FXML private IntegerTextField txtNumCellsX;
     @FXML private IntegerTextField txtNumCellsY;
-    @FXML private DoubleTextField txtAvgRangeMean;
+    @FXML private IntegerTextField txtAvgRangeMean;
     @FXML private DoubleTextField txtAvgRangeDeviation;
     @FXML private DoubleTextField txtNumNodesPrCellDeviationDefault;
     @FXML private IntegerTextField txtAvgNumNodesPrCellDefault;
@@ -95,6 +95,8 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
     private void setGridSize(int rows, int columns) {
         gridPaneCells.getChildren().clear();
 
+        disposeOldCellControllers();
+
         topologyGenerator.initializeNewCellOptions(rows, columns);
 
         for (int x = 0; x < rows; x++) {
@@ -115,6 +117,16 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
             }
         }
         gridPaneCells.autosize();
+    }
+
+    private void disposeOldCellControllers() {
+        for (Node n : gridPaneCells.getChildren()) {
+            if (n.getUserData() != null && n.getUserData() instanceof CellOptionsController)
+                try {
+                    ((CellOptionsController)n.getUserData()).close();
+                } catch (Exception ignored) { }
+        }
+        gridPaneCells.getChildren().clear();
     }
 
     private void enableZoom() {
@@ -178,7 +190,7 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
     }
 
     public void preview(ActionEvent actionEvent) {
-        generateTopology().getGraph(true).display();
+        generateTopology().getGraph(true).display(false);
     }
 
 }
