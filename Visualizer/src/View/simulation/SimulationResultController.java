@@ -66,7 +66,8 @@ public class SimulationResultController implements Initializable {
 
     private void initializeGraphStreamViewer() {
         Viewer v = new Viewer(currentSimulation.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-        v.enableAutoLayout();
+        if (!currentSimulation.getTopology().nodesHasSpecificLocations())
+            v.enableAutoLayout();
         ViewPanel swingView = v.addDefaultView(false);
         SwingUtilities.invokeLater(() -> graphStreamNode.setContent(swingView));
 

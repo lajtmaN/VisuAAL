@@ -45,18 +45,14 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     }
 
     public void updateGraph() {
-        boolean linkWithCellNodes = nodes != null;
-
         for (int i = 0; i < getNumberOfNodes(); i++) {
-            addNode(i, linkWithCellNodes);
+            addNode(i);
         }
         for(UPPAALEdge s : this){
             SimulationEdgePoint sep = new SimulationEdgePoint(0, s.getSource(), s.getDestination(), 1);
             addEdge(sep);
         }
     }
-
-
 
     private Edge addEdge(SimulationEdgePoint s){
         //TODO: Currently only undirected
@@ -126,10 +122,10 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         }
     }
 
-    private Node addNode(Integer id, boolean linkWithCellNodes){
+    private Node addNode(Integer id){
         Node graphNode = getGraph(false).addNode(String.valueOf(id));
         showLabelOnNode(graphNode, String.valueOf(id));
-        if (linkWithCellNodes) {
+        if (nodesHasSpecificLocations()) {
             graphNode.setAttribute("x", nodes.get(id).getX());
             graphNode.setAttribute("y", nodes.get(id).getY());
         }
@@ -166,6 +162,10 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         return _graphInstance;
     }
 
+    public boolean nodesHasSpecificLocations() {
+        return nodes != null;
+    }
+
     private void initializeGraph() {
         _graphInstance.setStrict(false);
         _graphInstance.addAttribute("ui.stylesheet", styleSheet);
@@ -174,20 +174,6 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         _graphInstance.addAttribute("ui.antialias");
     }
 
-    public void startAddingEdgesOverTime(ArrayList<SimulationEdgePoint> edges) {
-        //TODO: Take into account model time units
-        long start = System.currentTimeMillis();
-        for(SimulationEdgePoint s : edges) { //Assumed to be sorted on time.
-            double relativeTime = s.getClock() - (System.currentTimeMillis() - start);
-            while (relativeTime >= 0) {
-                relativeTime = s.getClock() - (System.currentTimeMillis() - start);
-                try {
-                    Thread.sleep(100);
-                } catch (Exception e) {}
-            }
-            handleEdgeEdit(s, s.getValue() == 1);
-        }
-    }
     protected String styleSheet =
             "node {" +
                     "	fill-color: black;" +
@@ -218,13 +204,15 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
 
         UPPAALTopology that = (UPPAALTopology) o;
 
-        return _numberOfNodes == that._numberOfNodes;
+        if (_numberOfNodes != that._numberOfNodes) return false;
+        return nodes != null ? nodes.equals(that.nodes) : that.nodes == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + _numberOfNodes;
+        result = 31 * result + (nodes != null ? nodes.hashCode() : 0);
         return result;
     }
 }

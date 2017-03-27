@@ -220,6 +220,9 @@ public class UPPAALModel implements Externalizable, Cloneable {
             ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
             return in.readObject();
 
+        } catch (NotSerializableException nse) {
+            GUIHelper.showError("Could not serialize following object when deep cloning UPPAALModel: " + nse.getMessage());
+            return null;
         } catch (IOException | ClassNotFoundException e) {
             return null;
         }
