@@ -290,6 +290,10 @@ public class MainWindowController implements Initializable {
             GUIHelper.showAlert(Alert.AlertType.ERROR, "Please generate Query first");
             return;
         }
+        if (uppaalModel.getTopology() == null) {
+            GUIHelper.showInformation("Please create a topology in Topology Creator tab first");
+            return;
+        }
 
         String query = queryGeneratedTextField.getText();
         txtUppaalOutput.setText("Running query in UPPAAL..." + System.lineSeparator());
