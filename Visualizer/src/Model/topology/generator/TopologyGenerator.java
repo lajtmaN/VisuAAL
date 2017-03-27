@@ -1,9 +1,12 @@
 package Model.topology.generator;
 
 
+import Helpers.MathHelpers;
 import Helpers.Pair;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -15,8 +18,8 @@ public class TopologyGenerator {
 
     private GlobalOptions options;
     private CellOptions[][] cellOptions;
-    private double cellWidthInMeters;
-    private double cellHeightInMeters;
+    private double cellWidthInMeters = 1;
+    private double cellHeightInMeters = 1;
 
 
     public TopologyGenerator() {
@@ -42,27 +45,23 @@ public class TopologyGenerator {
         ArrayList<CellNode> result = new ArrayList<>();
         for(int xIndex = 0; xIndex < options.getCellX(); xIndex++){
             for(int yIndex = 0; yIndex < options.getCellY(); yIndex++){
-                ArrayList<CellNode> cellNodes = generateNodesForCell(xIndex, yIndex);
-                for (CellNode node: cellNodes) {
-                    node.setX(node.getX()+xIndex);
-                    node.setY(node.getY()+yIndex);
-                    result.add(node);
-                }
+                result.addAll(generateNodesForCell(xIndex, yIndex));
             }
         }
         return result;
     }
 
     public ArrayList<CellNode> generateNodesForCell(int x, int y){
-        Random rand = new Random();
         CellOptions cellOption = getOptionsForCell(x, y);
-        int nodesInCell = (int)(Math.abs(rand.nextGaussian()*cellOption.getNodesCellDeviation())+cellOption.getAvgNodesPrCell());
+        int nodesInCell = (int) MathHelpers.gaussian(cellOption.getAvgNodesPrCell(), cellOption.getNodesCellDeviation());
 
         ArrayList<CellNode> result = new ArrayList<>();
 
         for(int i = 0; i < nodesInCell; i++){
-            double range = Math.abs(rand.nextGaussian() * cellOption.getRangeDeviation()) + cellOption.getAvgRange();
-            result.add(new CellNode(range, Math.random(), Math.random())); //New random for each number
+            double range = MathHelpers.gaussian(cellOption.getAvgRange(), cellOption.getRangeDeviation());
+            double nodeX = (Math.random() + x) * cellWidthInMeters;
+            double nodeY = (Math.random() + y) * cellHeightInMeters;
+            result.add(new CellNode(range, nodeX, nodeY)); //New random for each number
         }
         return result;
     }
@@ -78,7 +77,7 @@ public class TopologyGenerator {
     }
 
     public UPPAALTopology generateUppaalTopology(ArrayList<CellNode> nodes) {
-        UPPAALTopology result = new UPPAALTopology(nodes.size());
+        UPPAALTopology result = new UPPAALTopology(nodes);
         for(int i = 0; i < nodes.size(); i++) {
             for(int j = 0; j < nodes.size(); j++){
                 if(i != j && isInRange(nodes.get(i), nodes.get(j))){

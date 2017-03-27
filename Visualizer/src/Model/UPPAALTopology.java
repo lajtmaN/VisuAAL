@@ -1,5 +1,6 @@
 package Model;
 
+import Model.topology.generator.CellNode;
 import org.graphstream.graph.*;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.implementations.MultiGraph;
@@ -13,6 +14,7 @@ import java.util.*;
 public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializable {
     private int _numberOfNodes;
     private transient Graph _graphInstance;
+    private List<CellNode> nodes;
 
     public UPPAALTopology(Graph graph) {
         _graphInstance = graph;
@@ -27,6 +29,11 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         _numberOfNodes = numberOfNodes;
     }
 
+    public UPPAALTopology(List<CellNode> cellNodes) {
+        this(cellNodes.size());
+        nodes = cellNodes;
+    }
+
     public UPPAALTopology() {}
 
     public int getNumberOfNodes() {
@@ -39,19 +46,12 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
 
     public void updateGraph() {
         for (int i = 0; i < getNumberOfNodes(); i++) {
-            Node n = addNode(String.valueOf(i));
-            showLabelOnNode(n, String.valueOf(i));
-            //TODO Edges are added with just i as name, we should use the actual names on simulation points
+            addNode(i);
         }
         for(UPPAALEdge s : this){
-            String identifier = s.getSource() + "-" + s.getDestination();
             SimulationEdgePoint sep = new SimulationEdgePoint(0, s.getSource(), s.getDestination(), 1);
             addEdge(sep);
         }
-    }
-
-    private void showLabelOnNode(Node n, String nodeName) {
-        n.addAttribute("ui.label", nodeName);
     }
 
     private Edge addEdge(SimulationEdgePoint s){
@@ -122,8 +122,18 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         }
     }
 
-    private Node addNode(String id){
-        return getGraph(false).addNode(id);
+    private Node addNode(Integer id){
+        Node graphNode = getGraph(false).addNode(String.valueOf(id));
+        showLabelOnNode(graphNode, String.valueOf(id));
+        if (nodesHasSpecificLocations()) {
+            graphNode.setAttribute("x", nodes.get(id).getX());
+            graphNode.setAttribute("y", nodes.get(id).getY());
+        }
+        return graphNode;
+    }
+
+    private void showLabelOnNode(Node n, String nodeName) {
+        n.addAttribute("ui.label", nodeName);
     }
 
     protected void markNode(Node node) {
@@ -152,6 +162,10 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         return _graphInstance;
     }
 
+    public boolean nodesHasSpecificLocations() {
+        return nodes != null;
+    }
+
     private void initializeGraph() {
         _graphInstance.setStrict(false);
         _graphInstance.addAttribute("ui.stylesheet", styleSheet);
@@ -160,20 +174,6 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         _graphInstance.addAttribute("ui.antialias");
     }
 
-    public void startAddingEdgesOverTime(ArrayList<SimulationEdgePoint> edges) {
-        //TODO: Take into account model time units
-        long start = System.currentTimeMillis();
-        for(SimulationEdgePoint s : edges) { //Assumed to be sorted on time.
-            double relativeTime = s.getClock() - (System.currentTimeMillis() - start);
-            while (relativeTime >= 0) {
-                relativeTime = s.getClock() - (System.currentTimeMillis() - start);
-                try {
-                    Thread.sleep(100);
-                } catch (Exception e) {}
-            }
-            handleEdgeEdit(s, s.getValue() == 1);
-        }
-    }
     protected String styleSheet =
             "node {" +
                     "	fill-color: black;" +
@@ -204,13 +204,15 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
 
         UPPAALTopology that = (UPPAALTopology) o;
 
-        return _numberOfNodes == that._numberOfNodes;
+        if (_numberOfNodes != that._numberOfNodes) return false;
+        return nodes != null ? nodes.equals(that.nodes) : that.nodes == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + _numberOfNodes;
+        result = 31 * result + (nodes != null ? nodes.hashCode() : 0);
         return result;
     }
 }

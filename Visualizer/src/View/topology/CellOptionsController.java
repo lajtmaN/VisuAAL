@@ -10,13 +10,13 @@ import javafx.scene.layout.Pane;
 /**
  * Created by lajtman on 20-03-2017.
  */
-public class CellOptionsController {
+public class CellOptionsController implements AutoCloseable {
     @FXML private Pane rootPane;
     @FXML private GridPane gridPane;
     @FXML private DoubleTextField txtNodesCellDeviation;
     @FXML private IntegerTextField txtAvgNodesPrCell;
     @FXML private DoubleTextField txtCellAvgRangeDeviation;
-    @FXML private DoubleTextField txtCellAvgRangeMean;
+    @FXML private IntegerTextField txtCellAvgRangeMean;
 
     private CellOptions options;
 
@@ -39,5 +39,15 @@ public class CellOptionsController {
         String style = show ? "-fx-opacity: 1" : "-fx-opacity: 0";
         gridPane.setStyle(style);
         rootPane.setMouseTransparent(!show);
+    }
+
+    @Override
+    public void close() throws Exception {
+        rootPane = null;
+        gridPane = null;
+        txtNodesCellDeviation = null;
+        txtAvgNodesPrCell = null;
+        txtCellAvgRangeDeviation = null;
+        txtCellAvgRangeMean = null;
     }
 }
