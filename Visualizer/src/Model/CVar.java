@@ -14,6 +14,7 @@ public class CVar implements Externalizable {
     private List<String> arraySizes;
     private String type;
     private SimpleObjectProperty<CVar> propertyInstance;
+    private boolean inFuncBody;
 
     public SimpleObjectProperty<CVar> getObjectProperty() {
         return propertyInstance;
@@ -176,4 +177,13 @@ public class CVar implements Externalizable {
     public boolean hasDoubleType() {
         return getType().equals("double");
     }
+
+    public boolean isInFuncBody() {
+        return inFuncBody;
+    }
+
+    public void setInFuncBody(boolean inFuncBody) {
+        this.inFuncBody = inFuncBody;
+    }
+
 }

@@ -1,6 +1,7 @@
 package parsers;
 
 import Model.*;
+import javafx.collections.FXCollections;
 import javafx.util.Pair;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -165,5 +166,9 @@ public class UPPAALParser {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static List<CVar> getUPPAALDynamicUpdateCandidates(String modelPath) {
+        return getUPPAALConfigConstants(modelPath).stream().filter(p -> !p.getIsConst() && p.getScope() == null && !p.isInFuncBody()).collect(Collectors.toList());
     }
 }
