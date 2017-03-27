@@ -90,7 +90,6 @@ public class MainWindowController implements Initializable {
         initializeOutputVarsTable();
         initializeWidths();
         initializeDynamicTable();
-        topologyGeneratorTab.disableProperty().bind(chkUseRandomTopology.switchOnProperty().not());
     }
 
     private void initializeDynamicTable() {
