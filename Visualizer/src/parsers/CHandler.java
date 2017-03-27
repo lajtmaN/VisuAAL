@@ -15,10 +15,6 @@ import java.util.stream.Stream;
 public class CHandler {
     private static final String ConfigVariablePrefix = "CONFIG_";
     private static final String OutputVariablePrefix = "OUTPUT_";
-    private static final String TopologyName = "CONFIG_connected";
-    private static final String NrNodesName = "NR_NODES";
-    private static final String TopologyRegex = TopologyName + "\\[.+\\n((?:[^;])+)\\};";
-    private static final String TopologyFormRegex = "((?:\\{(?:\\d\\s*,)*\\d\\}\\s*,)*(?:\\{(?:\\d,)*\\d\\})+)";
     private static final String TopologyPartFormRegex = "((?:\\d,)*\\d)";
     private static final String TypedefRegex(String typedefName) {
         return "typedef\\s+int\\s*\\[\\s*(CONFIG_\\w+|\\d+)([*+-]\\d+)?,\\s*(CONFIG_\\w+|\\d+)([*+-]\\d+)?\\]\\s+" + typedefName+ "\\s*;";
