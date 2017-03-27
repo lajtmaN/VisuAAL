@@ -417,7 +417,22 @@ public class ParseXmlAndCTests {
         assertTrue("Node(2) does not exist",processParameterList.contains("Node(2)"));
     }
 
-
+    @Test
+    public void getDynamicUpdateVars() {
+        /*bool CONFIG_TEST_BOOLEAN = true;
+        double CONFIG_TEST_DOUBLE = 0.5;
+        const double CONFIG_MODEL_TIME_UNIT = 20.0;
+        int CONFIG_global_test = 11;
+        clock x;
+        void Bar() {
+            int CONFIG_parse = 0;
+        }*/
+        List<CVar> vars = UPPAALParser.getUPPAALDynamicUpdateCandidates(new File("test_resources/eksempel.xml").getPath());
+        assertEquals(3,vars.size());
+        assertEquals(new CVar(null, "CONFIG_TEST_BOOLEAN", "true", false, "bool"), vars.get(0));
+        assertEquals(new CVar(null, "CONFIG_TEST_DOUBLE", "0.5", false, "double"), vars.get(1));
+        assertEquals(new CVar(null, "CONFIG_global_test", "11", false, "int"), vars.get(2));
+    }
 
     @Test
     public void generateQueryTwoTemplatesNonOverlappingParameters() {
