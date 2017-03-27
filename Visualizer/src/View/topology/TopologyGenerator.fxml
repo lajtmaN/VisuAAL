@@ -108,7 +108,7 @@
                <RowConstraints vgrow="NEVER" fillHeight="false"/>
            </rowConstraints>
            <children>
-               <GoogleMapView fx:id="mapView" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-border-color: green"/>
+               <fx:include source="TopologyViewer.fxml" fx:id="topologyViewer" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                <GridPane alignment="CENTER" fx:id="gridPaneCells" pickOnBounds="false" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
            </children>
        </GridPane>

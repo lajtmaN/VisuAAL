@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<?import com.lynden.gmapsfx.GoogleMapView?>
+<?import javafx.embed.swing.SwingNode?>
+<GridPane fx:id="rootPane" alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="View.topology.TopologyViewerController">
+    <!--maxHeight="-Infinity" maxWidth="-Infinity" -->
+    <!--   <columnConstraints>
+        <ColumnConstraints hgrow="NEVER" fillWidth="false"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="NEVER" fillHeight="false"/>
+    </rowConstraints>-->
+
+    <GoogleMapView fx:id="mapView" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+    <SwingNode fx:id="graphStreamNode" GridPane.columnIndex="0" GridPane.rowIndex="0" mouseTransparent="true" />
+</GridPane>

@@ -1,6 +1,7 @@
 package View.topology;
 
 import Helpers.GoogleMapsHelper;
+import Helpers.Pair;
 import Model.UPPAALTopology;
 import Model.topology.generator.CellOptions;
 import Model.topology.generator.TopologyGenerator;
@@ -40,8 +41,9 @@ import java.util.stream.IntStream;
  * Created by lajtman on 17-03-2017.
  */
 public class TopologyGeneratorController implements Initializable, MapComponentInitializedListener {
+    @FXML private TopologyViewerController topologyViewerController;
     @FXML private ToggleSwitch chkShowGridSettings;
-    @FXML private GoogleMapView mapView;
+    //@FXML private GoogleMapView mapView;
     @FXML private GridPane gridPaneCells;
     @FXML private TitledPane optionsPane;
     @FXML private Accordion accordion;
@@ -53,7 +55,7 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
     @FXML private IntegerTextField txtAvgNumNodesPrCellDefault;
     @FXML private BorderPane rootPane;
 
-    private GoogleMap map;
+    //private GoogleMap map;
     private TopologyGenerator topologyGenerator;
 
     @Override
@@ -64,15 +66,18 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
 
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
         enableZoom();
-        mapView.addMapInializedListener(this);
+        //mapView.addMapInializedListener(this);
         chkShowGridSettings.switchOnProperty().addListener((observable, oldValue, newValue) -> {
             showGridSettingsChanged(newValue);
         });
+
+        topologyViewerController.rootPane.prefWidthProperty().bind(gridPaneCells.widthProperty());
+        topologyViewerController.rootPane.prefHeightProperty().bind(gridPaneCells.heightProperty());
     }
 
     @Override
     public void mapInitialized() {
-        MapOptions options = new MapOptions();
+        /*MapOptions options = new MapOptions();
 
         LatLng googleLocation = GoogleMapsHelper.getCurrentLocation();
         options.center(new LatLong(googleLocation.lat, googleLocation.lng))
@@ -89,7 +94,7 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
         mapView.prefWidthProperty().bind(gridPaneCells.widthProperty());
         mapView.prefHeightProperty().bind(gridPaneCells.heightProperty());
         mapView.scaleXProperty().bind(gridPaneCells.scaleXProperty());
-        mapView.scaleYProperty().bind(gridPaneCells.scaleYProperty());
+        mapView.scaleYProperty().bind(gridPaneCells.scaleYProperty());*/
     }
 
     private void setGridSize(int rows, int columns) {
@@ -170,27 +175,15 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
     }
 
-    private void calculateGridSizeInMeters() {
-        LatLongBounds bounds = map.getBounds();
-        LatLong sw = bounds.getSouthWest();
-        LatLong ne = bounds.getNorthEast();
-        LatLong nw = new LatLong(ne.getLatitude(), sw.getLongitude());
-
-        double widthOnAllCells = GoogleMapsHelper.distanceBetween(nw, ne);
-        double heightOnAllCells = GoogleMapsHelper.distanceBetween(nw, sw);
-
-        topologyGenerator.setCellWidthInMeters(widthOnAllCells/topologyGenerator.getOptions().getCellX());
-        topologyGenerator.setCellHeightInMeters(heightOnAllCells/topologyGenerator.getOptions().getCellY());
-    }
-
-
     public UPPAALTopology generateTopology() {
-        calculateGridSizeInMeters();
+        Pair<Double, Double> widthAndHeight = topologyViewerController.calculateGridSizeInMeters();
+        topologyGenerator.setCellWidthInMeters(widthAndHeight.getFirst()/topologyGenerator.getOptions().getCellX());
+        topologyGenerator.setCellHeightInMeters(widthAndHeight.getSecond()/topologyGenerator.getOptions().getCellY());
         return topologyGenerator.generateUppaalTopology();
     }
 
     public void preview(ActionEvent actionEvent) {
-        generateTopology().getGraph(true).display(false);
+        topologyViewerController.showGraph(generateTopology().getGraph(true), false);
     }
 
 }
