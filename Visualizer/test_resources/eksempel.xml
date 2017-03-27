@@ -8,7 +8,7 @@ const double CONFIG_MODEL_TIME_UNIT = 20.0;
 int CONFIG_global_test = 11;
 clock x;
 void Bar() {
-	int CONFIG_do_not_parse = 0;
+	int CONFIG_parse = 0;
 }	
 
 
@@ -18,7 +18,7 @@ void Bar() {
 		<declaration>// Place local declarations here.
 		int CONFIG_local_test = 10;
 		void Foo() {
-			int CONFIG_do_not_read = 0;
+			int CONFIG_do_read = 0;
 		}
 	</declaration>
 		<location id="id0" x="161" y="136">

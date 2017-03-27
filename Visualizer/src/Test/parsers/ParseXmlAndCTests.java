@@ -28,13 +28,15 @@ public class ParseXmlAndCTests {
     public void getXmlDeclarationsTest() {
         ArrayList<CVar> vars = UPPAALParser.getUPPAALConfigConstants("test_resources/eksempel.xml");
 
-        assertEquals(5, vars.size());
+        assertEquals(7, vars.size());
         int i = 0;
         assertGlobalCVar("CONFIG_TEST_BOOLEAN", "true", vars.get(i++));
         assertGlobalCVar("CONFIG_TEST_DOUBLE", "0.5", vars.get(i++));
         assertGlobalCVar("CONFIG_MODEL_TIME_UNIT", "20.0", vars.get(i++));
         assertGlobalCVar("CONFIG_global_test", 11, vars.get(i++));
+        assertGlobalCVar("CONFIG_parse", 0, vars.get(i++));
         assertCVar("Template", "CONFIG_local_test", 10, vars.get(i++));
+        assertCVar("Template", "CONFIG_do_read", 0, vars.get(i++));
     }
 
     @Test
@@ -56,17 +58,19 @@ public class ParseXmlAndCTests {
         HashMap<String, String> declarations = handler.getAllDeclarations();
 
         ArrayList<CVar> globalConfigVariables = CHandler.getConfigVariables(declarations.get(null), null);
-        assertEquals(4, globalConfigVariables.size());
+        assertEquals(5, globalConfigVariables.size());
         Optional<CVar> actualGlobalVar = globalConfigVariables.stream().filter(c -> c.getName().equals("CONFIG_global_test")).findFirst();
         assertTrue(actualGlobalVar.isPresent());
 
         assertCVar(null, "CONFIG_global_test", 11, actualGlobalVar.get());
 
         ArrayList<CVar> localConfigVariables = CHandler.getConfigVariables(declarations.get("Template"), "Template");
-        assertEquals(1, localConfigVariables.size());
+        assertEquals(2, localConfigVariables.size());
         CVar actualLocalVar = localConfigVariables.get(0);
+        CVar actualLocalFuncVar = localConfigVariables.get(1);
 
         assertCVar("Template", "CONFIG_local_test", 10, actualLocalVar);
+        assertCVar("Template", "CONFIG_do_read", 0, actualLocalFuncVar);
     }
 
     @Test
@@ -75,7 +79,7 @@ public class ParseXmlAndCTests {
         HashMap<String, String> declarations = handler.getAllDeclarations();
 
         ArrayList<CVar> configVariables = CHandler.getConfigVariables(declarations);
-        assertEquals(5, configVariables.size());
+        assertEquals(7, configVariables.size());
 
         assertTrue(configVariables.contains(new CVar(null, "CONFIG_global_test", "11", false, "int")));
         assertTrue(configVariables.contains(new CVar("Template", "CONFIG_local_test", "10", false,"int")));
@@ -244,14 +248,14 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void doNotParseFunctionVariables() throws IOException, ParserConfigurationException, SAXException {
+    public void ParseFunctionVariables() throws IOException, ParserConfigurationException, SAXException {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/eksempel.xml"));
 
         XmlHandler handler = new XmlHandler(f.getPath());
         ArrayList<CVar> vars = CHandler.getConfigVariables(handler.getAllDeclarations());
 
-        assertFalse(vars.stream().anyMatch(p -> p.getName().equals("CONFIG_do_not_parse")));
-        assertFalse(vars.stream().anyMatch(p -> p.getName().equals("CONFIG_do_not_read")));
+        assertTrue(vars.stream().anyMatch(p -> p.getName().equals("CONFIG_parse")));
+        assertTrue(vars.stream().anyMatch(p -> p.getName().equals("CONFIG_do_read")));
     }
 
     @Test
