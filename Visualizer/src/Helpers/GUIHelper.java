@@ -47,7 +47,6 @@ public class GUIHelper {
 
         verifytaLocation = verifytaFile.getPath();
         Settings.Instance().setVerifytaLocation(verifytaLocation);
-        Settings.Instance().saveChanges();
 
         return verifytaLocation;
     }

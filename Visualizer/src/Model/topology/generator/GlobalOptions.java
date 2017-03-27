@@ -14,7 +14,7 @@ public class GlobalOptions {
 
     public GlobalOptions() {
         cellX = new SimpleIntegerProperty(this, "cellX", 4);
-        cellY = new SimpleIntegerProperty(this, "cellY", 4);
+        cellY = new SimpleIntegerProperty(this, "cellY", 3);
         avgRange = new SimpleDoubleProperty(this, "avgRange", 0.8);
         avgNodesPrCell = new SimpleIntegerProperty(this, "avgNodesPrCell", 5);
         rangeDeviation = new SimpleDoubleProperty(this, "rangeDeviation", 0.05);

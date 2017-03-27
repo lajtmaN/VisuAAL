@@ -15,6 +15,9 @@ public class TopologyGenerator {
 
     private GlobalOptions options;
     private CellOptions[][] cellOptions;
+    private double cellWidthInMeters;
+    private double cellHeightInMeters;
+
 
     public TopologyGenerator() {
         options = new GlobalOptions();
@@ -84,6 +87,13 @@ public class TopologyGenerator {
             }
         }
         return result;
+    }
+    public void setCellWidthInMeters(double cellWidthInMeters) {
+        this.cellWidthInMeters = cellWidthInMeters;
+    }
+
+    public void setCellHeightInMeters(double cellHeightInMeters) {
+        this.cellHeightInMeters = cellHeightInMeters;
     }
 
     public CellOptions getOptionsForCell(int x, int y) {

@@ -2,8 +2,11 @@
 
 <?import View.DoubleTextField?>
 <?import View.IntegerTextField?>
+<?import View.ToggleSwitch?>
+<?import com.lynden.gmapsfx.GoogleMapView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -11,11 +14,9 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
-
-<?import javafx.scene.control.Button?>
-<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.topology.TopologyGeneratorController">
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.topology.TopologyGeneratorController">
    <right>
-      <Accordion fx:id="accordion" BorderPane.alignment="CENTER">
+      <Accordion fx:id="accordion">
         <panes>
           <TitledPane fx:id="optionsPane" text="Options">
             <content>
@@ -50,10 +51,10 @@
                         <IntegerTextField fx:id="txtAvgNumNodesPrCellDefault" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                         <Label text="Deviation" GridPane.columnIndex="0" GridPane.rowIndex="7" />
                         <DoubleTextField fx:id="txtNumNodesPrCellDeviationDefault" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                        <padding><Insets bottom="10.0" /></padding>
 
-                        <Button text="Update" onAction="#updateGlobalOptions" minWidth="100" GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.columnSpan="2" GridPane.halignment="CENTER"/>
-                        <Button text="Preview Topology" onAction="#preview" minWidth="100" GridPane.columnIndex="0" GridPane.rowIndex="9" GridPane.columnSpan="2" GridPane.halignment="CENTER"/>
+                        <Button minWidth="100" onAction="#updateGlobalOptions" text="Update" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="8" />
+                        <Button minWidth="100" onAction="#preview" text="Preview Topology" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" />
+                        <padding><Insets bottom="10.0" /></padding>
                            <rowConstraints>
                               <RowConstraints />
                               <RowConstraints />
@@ -71,10 +72,45 @@
               </AnchorPane>
             </content>
           </TitledPane>
+          <TitledPane text="Layout">
+              <content>
+                  <AnchorPane>
+                     <children>
+                        <GridPane hgap="10">
+                            <padding>
+                                <Insets left="5.0" right="5.0" top="5.0" />
+                            </padding>
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="90.0" />
+                            </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints />
+                           </rowConstraints>
+                           <children>
+                              <Label text="Show Cell Options:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                              <ToggleSwitch fx:id="chkShowGridSettings" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="0" />
+                           </children>
+                        </GridPane>
+                     </children>
+                  </AnchorPane>
+              </content>
+          </TitledPane>
         </panes>
       </Accordion>
    </right>
    <center>
-      <GridPane BorderPane.alignment="CENTER" fx:id="gridPaneCells" gridLinesVisible="true" alignment="CENTER"/>
+       <GridPane alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity">
+           <columnConstraints>
+               <ColumnConstraints hgrow="NEVER" fillWidth="false"/>
+           </columnConstraints>
+           <rowConstraints>
+               <RowConstraints vgrow="NEVER" fillHeight="false"/>
+           </rowConstraints>
+           <children>
+               <GoogleMapView fx:id="mapView" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-border-color: green"/>
+               <GridPane alignment="CENTER" fx:id="gridPaneCells" pickOnBounds="false" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+           </children>
+       </GridPane>
    </center>
 </BorderPane>

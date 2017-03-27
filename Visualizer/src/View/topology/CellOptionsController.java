@@ -5,11 +5,14 @@ import View.DoubleTextField;
 import View.IntegerTextField;
 import javafx.fxml.FXML;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 
 /**
  * Created by lajtman on 20-03-2017.
  */
 public class CellOptionsController {
+    @FXML private Pane rootPane;
+    @FXML private GridPane gridPane;
     @FXML private DoubleTextField txtNodesCellDeviation;
     @FXML private IntegerTextField txtAvgNodesPrCell;
     @FXML private DoubleTextField txtCellAvgRangeDeviation;
@@ -29,9 +32,12 @@ public class CellOptionsController {
         txtCellAvgRangeDeviation.bindProperty(options.rangeDeviationProperty());
         txtCellAvgRangeMean.bindProperty(options.avgRangeProperty());
 
-        /*txtNodesCellDeviation.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            //TODO make this textbox more visible from all others
-        });*/
+        showCellOptions(false);
+    }
 
+    void showCellOptions(boolean show) {
+        String style = show ? "-fx-opacity: 1" : "-fx-opacity: 0";
+        gridPane.setStyle(style);
+        rootPane.setMouseTransparent(!show);
     }
 }
