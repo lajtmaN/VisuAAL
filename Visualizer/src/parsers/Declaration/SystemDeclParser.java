@@ -7,6 +7,7 @@ import parsers.Declaration.ANTLRGenerated.uppaalParser;
 import parsers.RegexHelper;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -17,6 +18,7 @@ public class SystemDeclParser extends uppaalBaseListener {
         return processes;
     }
 
+    private ArrayList<UPPAALProcess> instantiatedProcesses = new ArrayList<>();
     private ArrayList<UPPAALProcess> processes = new ArrayList<>();
     private boolean inProcDecl= false;
     private String templateName = null;
@@ -35,7 +37,7 @@ public class SystemDeclParser extends uppaalBaseListener {
     @Override
     public void exitInstantiation(uppaalParser.InstantiationContext ctx) {
         super.exitInstantiation(ctx);
-        processes.add(new UPPAALProcess(templateName, processName, parameters));
+        instantiatedProcesses.add(new UPPAALProcess(templateName, processName, parameters));
 
         parameters = null;
         processName = null;
@@ -48,8 +50,17 @@ public class SystemDeclParser extends uppaalBaseListener {
     public void enterSystem(uppaalParser.SystemContext ctx) {
         super.enterSystem(ctx);
         for(TerminalNode id : ctx.ID()){
-            if(id != null && processes.stream().noneMatch(p -> p.getProcessName() != null && p.getProcessName().equals(id.getText()))){
-                processes.add(new UPPAALProcess(id.getText(), null, null));
+            if(id != null) {
+                boolean instantiatedProcessFound = false;
+                for(UPPAALProcess up : instantiatedProcesses){
+                    if(id.getText().equals(up.getProcessName())){
+                        instantiatedProcessFound = true;
+                        processes.add(up);
+                    }
+                }
+                if(!instantiatedProcessFound){
+                    processes.add(new UPPAALProcess(id.getText(), null, null));
+                }
             }
         }
     }

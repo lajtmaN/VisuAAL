@@ -7,8 +7,10 @@ import Model.UPPAALTopology;
 import javafx.util.Pair;
 import parsers.Declaration.VariableParser;
 
+import java.security.cert.CollectionCertStoreParameters;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CHandler {
     private static final String ConfigVariablePrefix = "CONFIG_";
@@ -16,7 +18,8 @@ public class CHandler {
     private static final String TopologyName = "CONFIG_connected";
     private static final String NrNodesName = "NR_NODES";
     private static final String TopologyRegex = TopologyName + "\\[.+\\n((?:[^;])+)\\};";
-    private static final String TopologyFormRegex = "((?:\\{(?:\\d,)*\\d\\},)*(?:\\{(?:\\d,)*\\d\\})+)";
+    private static final String TopologyFormRegex = "((?:\\{(?:\\d\\s*,)*\\d\\}\\s*,)*(?:\\{(?:\\d,)*\\d\\})+)";
+    private static final String TopologyPartFormRegex = "((?:\\d,)*\\d)";
     private static final String TypedefRegex(String typedefName) {
         return "typedef\\s+int\\s*\\[\\s*(CONFIG_\\w+|\\d+)([*+-]\\d+)?,\\s*(CONFIG_\\w+|\\d+)([*+-]\\d+)?\\]\\s+" + typedefName+ "\\s*;";
     }
@@ -116,7 +119,12 @@ public class CHandler {
     }
 
     public static UPPAALTopology getTopology(String decls){
-        String definitionString = RegexHelper.getFirstMatchedValueFromRegex(TopologyRegex, decls);
+        ArrayList<CVar> vars = VariableParser.getInstantiations(decls);
+        Optional<CVar> topologyVar = vars.stream().filter(p -> p.getName().equals("CONFIG_connected")).findFirst();
+        if(!topologyVar.isPresent()){
+            return null;
+        }
+        String definitionString = topologyVar.get().getValue();
         if(definitionString != null) {
             return getTopologyFromInstantiation(definitionString);
         }
@@ -128,18 +136,21 @@ public class CHandler {
         int source_index = 0;
 
         definitionString = definitionString.replace(" ", "").replace("\n", "").replace("\t", "");
-        if (RegexHelper.getFirstMatchedValueFromRegex(TopologyFormRegex, definitionString) != null) {
-            for (String s : definitionString.split("}")) {
-                String temp = s.replace(",{", "").replace("}", "").replace("{", "");
-                int destination_index = 0;
-                for (String element : temp.split(",")) {
-                    if (element.equals("1")) { // TODO: Only binary relations can be defined
-                        result.add(new UPPAALEdge(String.valueOf(source_index), String.valueOf(destination_index)));
-                    }
-                    destination_index++;
+        String[] topologyParts = definitionString.split("}");
+        for(int i = 0; i < topologyParts.length; i++) {
+            topologyParts[i] = topologyParts[i].replace(",{", "").replace("}", "").replace("{", "");
+            if (RegexHelper.getFirstMatchedValueFromRegex(TopologyPartFormRegex, topologyParts[i]) == null) // All parts must be correctly formed.
+                return result;
+        }
+        for (String s : topologyParts) {
+            int destination_index = 0;
+            for (String element : s.split(",")) {
+                if (element.equals("1")) { // TODO: Only binary relations can be defined
+                    result.add(new UPPAALEdge(String.valueOf(source_index), String.valueOf(destination_index)));
                 }
-                source_index++;
+                destination_index++;
             }
+            source_index++;
         }
         result.setNumberOfNodes(source_index);
         return result;

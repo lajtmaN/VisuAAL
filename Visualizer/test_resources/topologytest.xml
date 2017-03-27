@@ -4,7 +4,6 @@
 clock x;
 const int CONFIG_TESTING_CONSTANT = 1337;
 
-void isConnected(int a, int b){
 int CONFIG_connected[9][9] = {
     {0, 1, 0, 1, 0, 0, 0, 0, 0}, 
     {1, 0, 1, 0, 1, 0, 0, 0, 0}, 
@@ -16,6 +15,9 @@ int CONFIG_connected[9][9] = {
     {0, 0, 0, 0, 1, 0, 1, 0, 1}, 
     {0, 0, 0, 0, 0, 1, 0, 1, 0}
 };
+
+void isConnected(int a, int b){
+	return CONFIG_connected[a][b];
 }
 
 int OUTPUT_test = 1;

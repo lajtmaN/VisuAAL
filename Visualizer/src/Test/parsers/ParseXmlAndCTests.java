@@ -281,6 +281,17 @@ public class ParseXmlAndCTests {
     }
 
     @Test
+    public void getTopologySizeMultipleCommentedTopologies() throws IOException, TransformerException, ParserConfigurationException, SAXException {
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/declarationMultipleTopoDecls.xml"));
+
+        XmlHandler xmlHandler = new XmlHandler(f.getPath());
+
+        UPPAALTopology topologyOut = CHandler.getTopology(xmlHandler.getGlobalDeclarations());
+
+        assertEquals(5, topologyOut.getNumberOfNodes());
+    }
+
+    @Test
     public void setRandomTopologyForUPPAALTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         UPPAALTopology top = ConnectedGraphGenerator.generateRandomTopology(36);
@@ -386,6 +397,25 @@ public class ParseXmlAndCTests {
     }
 
     @Test
+    public void parseProcessesInstantiatedButNotUsed() throws IOException, SAXException, ParserConfigurationException {
+        UPPAALModel model = new UPPAALModel(new File("test_resources/ProcessesInstantiatedButNotUsed.xml").getPath());
+        model.load();
+        assertNotNull(model);
+        assertNotNull(model.getProcesses());
+        assertEquals("Wrong number of templates",3, model.getProcesses().size());
+
+        List<String> processParameterList = new ArrayList<>();
+        for (UPPAALProcess up: model.getProcesses()) {
+            processParameterList.add(up.getProcessQueryIdentifier());
+        }
+        assertTrue("Node(0) does not exist",processParameterList.contains("Node(0)"));
+        assertTrue("Node(1) does not exist",processParameterList.contains("Node(1)"));
+        assertTrue("Node(2) does not exist",processParameterList.contains("Node(2)"));
+    }
+
+
+
+    @Test
     public void generateQueryTwoTemplatesNonOverlappingParameters() {
         List<String> expectedSimulationQueryParts = new ArrayList<>();
         expectedSimulationQueryParts.add("simulate 5 [<=123] {");
@@ -407,6 +437,8 @@ public class ParseXmlAndCTests {
         }
         assertTrue(actualQuery.endsWith(expectedSimulationQueryParts.get(4)));
     }
+
+
 
     private void assertEdge(int expectedSource, int expectedDest, UPPAALEdge e) {
         assertEquals(expectedSource, e.getSourceAsInt());

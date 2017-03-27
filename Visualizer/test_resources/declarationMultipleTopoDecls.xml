@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>const int CONFIG_NR_NODES = 5;// number of nodes in the network
+const int CONFIG_frame = 6;          // number of slots in a CONFIG_frame
+const int max_vec = (1&lt;&lt;(CONFIG_frame))-1; // maximal value of bit vector (if all entries are 1)
+
+// the topology of the network
+bool CONFIG_connected[CONFIG_NR_NODES] [CONFIG_NR_NODES] ={{ 0, 1, 0, 0, 0},{ 1, 0, 1, 0, 0},{ 0, 1, 0, 1, 0},{ 0, 0, 1, 0, 1},{ 0, 0, 0, 1, 0}};
+//bool CONFIG_connected[CONFIG_NR_NODES] [CONFIG_NR_NODES] ={{0,1,1,0},{1,0,1,1}, {1,1,0,1},{0,1,1,0}};
+//bool CONFIG_connected[4] [4] ={{ 0, 1, 0,0},{ 1, 0, 1,0},{ 0, 1, 0,1},{ 0, 0, 1,0}};// topology 1
+//bool CONFIG_connected[4] [4] ={{ 0, 1, 1,0},{ 1, 0, 0,1},{ 1, 0, 0,0},{ 0, 1, 0,0}}; // topology 4
+//bool CONFIG_connected[4] [4] ={{ 0, 1, 1,0},{ 1, 0, 0,1},{ 1, 0, 0,1},{ 0, 1, 1,0}};//topology 5
+//bool CONFIG_connected[4] [4] ={{ 0, 1, 0,0},{ 1, 0, 1,0},{ 0, 1, 0,1},{ 0, 0, 1,0}};
+
+// (not so) local data
+//int[-1,CONFIG_frame-1] current[CONFIG_NR_NODES]={0,-1,-1,-1};
+int[0,max_vec] first[CONFIG_NR_NODES];
+int[0,max_vec] second[CONFIG_NR_NODES]; 
+int[-1,CONFIG_frame] slot_no[CONFIG_NR_NODES]={0,-1,-1,-1,-1};</declaration>
+	<template>
+		<name x="5" y="5">Template</name>
+		<declaration>// Place local declarations here.</declaration>
+		<location id="id0" x="0" y="0">
+		</location>
+		<init ref="id0"/>
+	</template>
+	<system>// Place template instantiations here.
+Process = Template();
+// List one or more processes to be composed into a system.
+system Process;
+    </system>
+	<queries>
+	</queries>
+</nta>
