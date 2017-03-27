@@ -30,6 +30,8 @@ public class DoubleTextField extends TextField {
 
             @Override
             public Number fromString(String string) {
+                if(string.length() == 0)
+                    return 0.0;
                 return Double.parseDouble(string);
             }
         });
