@@ -8,7 +8,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 /**
  * Created by lajtman on 20-03-2017.
  */
-public class CellOptions {
+public class CellOptions implements AutoCloseable {
     private IntegerProperty avgRange, avgNodesPrCell;
     private DoubleProperty rangeDeviation, nodesCellDeviation;
 
@@ -65,5 +65,13 @@ public class CellOptions {
 
     public void setNodesCellDeviation(double nodesCellDeviation) {
         this.nodesCellDeviation.set(nodesCellDeviation);
+    }
+
+    @Override
+    public void close() throws Exception {
+        avgRange = null;
+        avgNodesPrCell = null;
+        rangeDeviation = null;
+        nodesCellDeviation = null;
     }
 }
