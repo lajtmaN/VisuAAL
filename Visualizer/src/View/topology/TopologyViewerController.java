@@ -68,7 +68,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
             //swingView.getCamera().resetView();
             //swingView.getCamera().setViewPercent(0.2);
 
-            //swingView.getCamera().setViewCenter(0, 0, 0)
+            swingView.getCamera().setViewCenter(widthAndHeight.getFirst()/2, widthAndHeight.getSecond()/2, 0);
             graphStreamNode.setContent(swingView);
         });
         //MouseClickListener mouse = new MouseClickListener(v, g, nodeVarGridPane);
