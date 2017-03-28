@@ -2,7 +2,7 @@ package View.simulation;
 
 import Helpers.Pair;
 import Model.OutputVariable;
-import Model.Simulation;
+import Model.Simulations;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -19,7 +19,7 @@ public class SimulationDataContainer extends GridPane {
 
     public SimulationDataContainer() {}
 
-    public void initialize(Simulation simulation) {
+    public void initialize(Simulations simulations) {
         labels = new HashMap<>();
         nodeVariableMapper = new HashMap<>();
 
@@ -27,7 +27,7 @@ public class SimulationDataContainer extends GridPane {
         this.addRow(0, nodeIdLabel);
 
         int j = 1;
-        for (OutputVariable var : simulation.getOutputVariables()) {
+        for (OutputVariable var : simulations.getOutputVariables()) {
             if(var.getIsSelected() && var.getIsNodeData()) {
                 Label zero = new Label("0");
                 zero.setPadding(new Insets(0, 0, 0, 10));
@@ -36,8 +36,8 @@ public class SimulationDataContainer extends GridPane {
             }
         }
 
-        for (int i = 0; i < simulation.getTopology().getNumberOfNodes(); i++) {
-            for (OutputVariable var : simulation.getOutputVariables()) {
+        for (int i = 0; i < simulations.getTopology().getNumberOfNodes(); i++) {
+            for (OutputVariable var : simulations.getOutputVariables()) {
                 if(var.getIsSelected() && var.getIsNodeData()) {
                     addVariable(i, var.getName());
                 }

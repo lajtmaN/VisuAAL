@@ -1,6 +1,6 @@
 package View.Options;
 
-import Model.Simulation;
+import Model.Simulations;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
@@ -17,5 +17,5 @@ public abstract class EnableDisableSimulationOption extends SimulationOption  {
         return onProperty;
     }
 
-    public abstract void disableAction(Simulation currentSimulation);
+    public abstract void disableAction(Simulations currentSimulations);
 }

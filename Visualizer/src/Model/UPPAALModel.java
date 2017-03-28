@@ -93,7 +93,7 @@ public class UPPAALModel implements Externalizable, Cloneable {
         return modelTimeUnit;
     }
 
-    public CompletableFuture<Simulation> runQuery(String query, TextInputControl feedbackCtrl) throws IOException {
+    public CompletableFuture<Simulations> runQuery(String query, TextInputControl feedbackCtrl) throws IOException {
         CompletableFuture<SimulateOutput> simulateOutput = UPPAALExecutor.startUppaalQuery(getModelPath(), query, feedbackCtrl);
         if (simulateOutput == null)
             return null;
@@ -113,9 +113,9 @@ public class UPPAALModel implements Externalizable, Cloneable {
             }
 
             FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
-            //TODO we only use the first simulation
-            List<SimulationPoint> simulationPoints = output.zip(vars, 0);
-            return new Simulation(this, query, simulationPoints);
+
+            List<Simulation> simulationPoints = output.zip(vars);
+            return new Simulations(this, query, simulationPoints);
         });
     }
 

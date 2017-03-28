@@ -4,6 +4,7 @@ import parsers.RegexHelper;
 
 import javax.xml.crypto.Data;
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Created by lajtman on 07-02-2017.
@@ -53,7 +54,15 @@ public class SimulateOutput extends UPPAALOutput {
         return simulationData.get(var);
     }
 
-    public List<SimulationPoint> zip(List<OutputVariable> outputVars, int simId) {
+    public List<Simulation> zip(List<OutputVariable> outputVars) {
+        List<Simulation> allSimulations = new ArrayList<>(nrSimulations);
+        for (int simId = 0; simId < nrSimulations; simId++) {
+            allSimulations.add(simId, zip(outputVars, simId));
+        }
+        return allSimulations;
+    }
+
+    public List<SimulationPoint> zipAsList(List<OutputVariable> outputVars, int simId) {
         ArrayList<SimulationPoint> result = new ArrayList<>();
 
         for (String variable : simulationData.keySet()) {
@@ -72,6 +81,10 @@ public class SimulateOutput extends UPPAALOutput {
 
         result.sort((o1, o2) -> o1.getClock() < o2.getClock() ? -1 : (o1.getClock() > o2.getClock() ? 1 : 0));
         return result;
+    }
+
+    public Simulation zip(List<OutputVariable> outputVars, int simId) {
+        return new Simulation(zipAsList(outputVars, simId));
     }
 
     private List<SimulationPoint> getZippedVariablePoints(String key, int simId) {

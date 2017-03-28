@@ -1,6 +1,6 @@
 package View.Options;
 
-import Model.Simulation;
+import Model.Simulations;
 
 /**
  * Created by Tim on 09-03-2017.
@@ -8,7 +8,7 @@ import Model.Simulation;
 public abstract class SimulationOption {
     public abstract String getDescription();
 
-    public abstract void startAction(Simulation currentSimulation);
+    public abstract void startAction(Simulations currentSimulations);
 
     //TODO maybe add icon
 }

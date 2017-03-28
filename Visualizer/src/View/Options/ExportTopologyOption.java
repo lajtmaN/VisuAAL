@@ -1,6 +1,6 @@
 package View.Options;
 
-import Model.Simulation;
+import Model.Simulations;
 import Helpers.TopologyHelper;
 
 /**
@@ -13,7 +13,7 @@ public class ExportTopologyOption extends SimulationOption {
     }
 
     @Override
-    public void startAction(Simulation currentSimulation) {
-        TopologyHelper.saveTopology(currentSimulation.getTopology());
+    public void startAction(Simulations currentSimulations) {
+        TopologyHelper.saveTopology(currentSimulations.getTopology());
     }
 }

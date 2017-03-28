@@ -1,7 +1,7 @@
 package View.simulation;
 
 
-import Model.Simulation;
+import Model.Simulations;
 import View.Options.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
@@ -18,10 +18,10 @@ public class SimulationMenuController {
     @FXML private ListView<EnableDisableSimulationOption> lstDisplayOptions;
     @FXML private ListView<SimulationOption> lstExportOptions;
 
-    private Simulation currentSimulation;
+    private Simulations currentSimulations;
 
-    public void loadWithSimulation(Simulation currentSimulation) {
-        this.currentSimulation = currentSimulation;
+    public void loadWithSimulation(Simulations currentSimulations) {
+        this.currentSimulations = currentSimulations;
         addOptionsToListViews();
         initializeExportOptions();
         initializeDisplayOptions();
@@ -31,7 +31,7 @@ public class SimulationMenuController {
     private void addOptionsToListViews() {
         lstExportOptions.getItems().add(new ExportTopologyOption());
 
-        currentSimulation.getOutputVariables().forEach(outputVariable -> {
+        currentSimulations.getOutputVariables().forEach(outputVariable -> {
             if (outputVariable.getIsSelected()) //Only add all the variables that was enabled when running query
                 lstDisplayOptions.getItems().add(new ShowHideDataOption(outputVariable));
         });
@@ -40,7 +40,7 @@ public class SimulationMenuController {
     private void initializeExportOptions() {
         lstExportOptions.setCellFactory(param -> new SimulationOptionCell());
         lstExportOptions.setOnMouseClicked(p -> {
-            lstExportOptions.getSelectionModel().getSelectedItem().startAction(currentSimulation);
+            lstExportOptions.getSelectionModel().getSelectedItem().startAction(currentSimulations);
         });
     }
 
@@ -64,9 +64,9 @@ public class SimulationMenuController {
 
         lstDisplayOptions.getItems().forEach(option -> option.onProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                option.startAction(currentSimulation);
+                option.startAction(currentSimulations);
             } else {
-                option.disableAction(currentSimulation);
+                option.disableAction(currentSimulations);
             }
         }));
     }

@@ -1,7 +1,7 @@
 package View.Options;
 
 import Model.OutputVariable;
-import Model.Simulation;
+import Model.Simulations;
 
 /**
  * Created by lajtman on 14-03-2017.
@@ -23,16 +23,16 @@ public class ShowHideDataOption extends EnableDisableSimulationOption {
     }
 
     @Override
-    public void startAction(Simulation currentSimulation) {
+    public void startAction(Simulations currentSimulations) {
         //TODO:
-        currentSimulation.showDataFrom(variable);
+        currentSimulations.showDataFrom(variable);
 
     }
 
     @Override
-    public void disableAction(Simulation currentSimulation) {
+    public void disableAction(Simulations currentSimulations) {
         //TODO:
-        currentSimulation.hideDataFrom(variable);
+        currentSimulations.hideDataFrom(variable);
 
     }
 }
