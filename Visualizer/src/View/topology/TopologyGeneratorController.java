@@ -1,49 +1,35 @@
 package View.topology;
 
-import Helpers.GoogleMapsHelper;
 import Helpers.Pair;
 import Model.UPPAALTopology;
-import Model.topology.generator.CellOptions;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
 import View.IntegerTextField;
 import View.ToggleSwitch;
-import View.simulation.SimulationResultController;
-import com.google.maps.model.LatLng;
-import com.lynden.gmapsfx.GoogleMapView;
-import com.lynden.gmapsfx.MapComponentInitializedListener;
-import com.lynden.gmapsfx.javascript.object.*;
-import javafx.beans.property.DoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.stream.IntStream;
 
 /**
  * Created by lajtman on 17-03-2017.
  */
 public class TopologyGeneratorController implements Initializable {
+    @FXML private ToggleSwitch chkShowMap;
     @FXML private TopologyViewerController topologyViewerController;
     @FXML private ToggleSwitch chkShowGridSettings;
-    //@FXML private GoogleMapView mapView;
     @FXML private GridPane gridPaneCells;
     @FXML private TitledPane optionsPane;
     @FXML private Accordion accordion;
@@ -55,7 +41,6 @@ public class TopologyGeneratorController implements Initializable {
     @FXML private IntegerTextField txtAvgNumNodesPrCellDefault;
     @FXML private BorderPane rootPane;
 
-    //private GoogleMap map;
     private TopologyGenerator topologyGenerator;
 
     @Override
@@ -72,6 +57,7 @@ public class TopologyGeneratorController implements Initializable {
 
         topologyViewerController.rootPane.prefWidthProperty().bind(gridPaneCells.widthProperty());
         topologyViewerController.rootPane.prefHeightProperty().bind(gridPaneCells.heightProperty());
+        chkShowMap.switchOnProperty().bindBidirectional(topologyViewerController.showMapProperty());
     }
 
     private void setGridSize(int rows, int columns) {

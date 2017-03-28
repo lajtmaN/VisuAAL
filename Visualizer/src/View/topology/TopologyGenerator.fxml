@@ -86,10 +86,14 @@
                             </columnConstraints>
                            <rowConstraints>
                               <RowConstraints />
+                              <RowConstraints />
                            </rowConstraints>
                            <children>
                               <Label text="Show Cell Options:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                               <ToggleSwitch fx:id="chkShowGridSettings" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="0" />
+
+                               <Label text="Show Map:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                               <ToggleSwitch fx:id="chkShowMap" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
                      </children>
