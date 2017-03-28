@@ -1,8 +1,10 @@
 package View;
 
-import Helpers.*;
+import Helpers.ExtensionFilters;
+import Helpers.FileHelper;
+import Helpers.GUIHelper;
+import Helpers.QueryGenerator;
 import Model.*;
-import View.simulation.SimulationDataContainer;
 import View.simulation.SimulationResultController;
 import View.topology.TopologyGeneratorController;
 import javafx.application.Platform;
@@ -36,9 +38,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
 public class MainWindowController implements Initializable {
-
-
-
     @FXML private ProgressIndicator simulationProgress;
     @FXML private TextArea txtUppaalOutput;
     @FXML private TextField txtSimulationName;
@@ -63,8 +62,6 @@ public class MainWindowController implements Initializable {
     @FXML private TableColumn<TemplateUpdate, Number> dynColumnTime;
     @FXML private Tab configurationTab;
     @FXML private Button saveModelButton;
-    @FXML private GridPane globalVarGridPane;
-    @FXML private SimulationDataContainer nodeVarGridPane;
     @FXML private ToggleSwitch chkUseRandomTopology;
     @FXML private TopologyGeneratorController topologyGeneratorController;
     @FXML private Tab topologyGeneratorTab;
@@ -268,10 +265,6 @@ public class MainWindowController implements Initializable {
     private void handleRandomTopologyIfActivated(boolean updateXML) {
         boolean useRandomTopology = chkUseRandomTopology.switchOnProperty().get();
         if (!useRandomTopology) return;
-
-
-        //int originalNumberOfNodes = uppaalModel.getTopology().getNumberOfNodes();
-        //ConnectedGraphGenerator.generateRandomTopology(originalNumberOfNodes);
 
         UPPAALTopology randomTopology = topologyGeneratorController.generateTopology();
         uppaalModel.setTopology(randomTopology, updateXML);
