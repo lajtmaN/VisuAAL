@@ -62,19 +62,14 @@ public class TopologyViewerController implements Initializable, MapComponentInit
             v.enableAutoLayout();
         ViewPanel swingView = v.addDefaultView(false);
         SwingUtilities.invokeLater(() -> {
-            swingView.getCamera().setBounds(0,0,0,
-                                            widthAndHeight.getFirst(), widthAndHeight.getSecond(), 0);
-            //swingView.getCamera().setGraphViewport(0,0, widthAndHeight.getFirst(), widthAndHeight.getSecond());
-            //swingView.getCamera().resetView();
-            //swingView.getCamera().setViewPercent(0.2);
-
+            //swingView.getCamera().setBounds(0,0,0, 8000, 8000, 0);
+            swingView.getCamera().setGraphViewport(0,0, widthAndHeight.getFirst(), widthAndHeight.getSecond());
             swingView.getCamera().setViewCenter(widthAndHeight.getFirst()/2, widthAndHeight.getSecond()/2, 0);
             graphStreamNode.setContent(swingView);
         });
         //MouseClickListener mouse = new MouseClickListener(v, g, nodeVarGridPane);
         //mouse.start();
     }
-
 
     Pair<Double, Double> calculateGridSizeInMeters() {
         LatLongBounds bounds = map.getBounds();

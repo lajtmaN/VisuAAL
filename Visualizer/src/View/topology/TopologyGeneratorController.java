@@ -40,7 +40,7 @@ import java.util.stream.IntStream;
 /**
  * Created by lajtman on 17-03-2017.
  */
-public class TopologyGeneratorController implements Initializable, MapComponentInitializedListener {
+public class TopologyGeneratorController implements Initializable {
     @FXML private TopologyViewerController topologyViewerController;
     @FXML private ToggleSwitch chkShowGridSettings;
     //@FXML private GoogleMapView mapView;
@@ -66,35 +66,12 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
 
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
         enableZoom();
-        //mapView.addMapInializedListener(this);
         chkShowGridSettings.switchOnProperty().addListener((observable, oldValue, newValue) -> {
             showGridSettingsChanged(newValue);
         });
 
         topologyViewerController.rootPane.prefWidthProperty().bind(gridPaneCells.widthProperty());
         topologyViewerController.rootPane.prefHeightProperty().bind(gridPaneCells.heightProperty());
-    }
-
-    @Override
-    public void mapInitialized() {
-        /*MapOptions options = new MapOptions();
-
-        LatLng googleLocation = GoogleMapsHelper.getCurrentLocation();
-        options.center(new LatLong(googleLocation.lat, googleLocation.lng))
-               .mapType(MapTypeIdEnum.TERRAIN)
-               .overviewMapControl(false)
-               .panControl(true)
-               .rotateControl(false)
-               .scaleControl(true)
-               .streetViewControl(false)
-               .zoomControl(false)
-               .zoom(13);
-        map = mapView.createMap(options);
-
-        mapView.prefWidthProperty().bind(gridPaneCells.widthProperty());
-        mapView.prefHeightProperty().bind(gridPaneCells.heightProperty());
-        mapView.scaleXProperty().bind(gridPaneCells.scaleXProperty());
-        mapView.scaleYProperty().bind(gridPaneCells.scaleYProperty());*/
     }
 
     private void setGridSize(int rows, int columns) {
@@ -115,7 +92,8 @@ public class TopologyGeneratorController implements Initializable, MapComponentI
 
                     cellOptionsView.setUserData(controller);
 
-                    gridPaneCells.add(cellOptionsView, x, y);
+                    //GridPanes has origo in NorthWest, whereas we (and graphstream) have in SouthWest
+                    gridPaneCells.add(cellOptionsView, x, columns-y);
                 } catch (IOException ignored) {
 
                 }
