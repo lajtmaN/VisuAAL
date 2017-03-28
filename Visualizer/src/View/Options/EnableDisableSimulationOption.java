@@ -9,13 +9,33 @@ import javafx.beans.property.SimpleBooleanProperty;
  */
 public abstract class EnableDisableSimulationOption extends SimulationOption  {
 
-    private BooleanProperty onProperty;
+    public EnableDisableSimulationOption(Simulations simulations) {
+        super(simulations);
+        onProperty.addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                startAction();
+            } else {
+                disableAction();
+            }
+        });
+    }
+
+    private BooleanProperty onProperty = new SimpleBooleanProperty(true);
 
     public BooleanProperty onProperty() {
-        if (onProperty == null)
-            onProperty = new SimpleBooleanProperty(true);
         return onProperty;
     }
 
-    public abstract void disableAction(Simulations currentSimulations);
+    public abstract void disableAction();
+
+    @Override
+    public String getDescription() {
+        if (onProperty().get())
+            return getEnabledDescription();
+        else
+            return getDisabledDescription();
+    }
+
+    public abstract String getEnabledDescription();
+    public abstract String getDisabledDescription();
 }

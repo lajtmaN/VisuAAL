@@ -6,9 +6,15 @@ import Model.Simulations;
  * Created by Tim on 09-03-2017.
  */
 public abstract class SimulationOption {
+    protected final Simulations simulations;
+
+    SimulationOption(Simulations simulations) {
+        this.simulations = simulations;
+    }
+
     public abstract String getDescription();
 
-    public abstract void startAction(Simulations currentSimulations);
+    public abstract void startAction();
 
     //TODO maybe add icon
 }

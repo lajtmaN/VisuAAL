@@ -51,6 +51,10 @@ public class Simulations implements Serializable {
         return model.getModelTimeUnit();
     }
 
+    public int getNumberOfSimulations() {
+        return runs.size();
+    }
+
     public void markGraphAtTime(int simId, Number oldTimeValue, Number newTimeValue,
                                 GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
         if (runs.size() == 0) return;
@@ -65,18 +69,27 @@ public class Simulations implements Serializable {
         if (sp.getType() == SimulationPoint.SimulationPointType.NodePoint)
             varGridPane.updateVariable(((SimulationNodePoint)sp).getNodeId(), sp.getTrimmedIdentifier(), valueOfSp);
 
-        model.getTopology().handleUpdate(sp, valueOfSp > 0);
+        handleUpdate(sp, valueOfSp > 0);
+    }
+
+    void handleUpdate(SimulationPoint sp, boolean mark) {
+        model.getTopology().handleUpdate(sp, mark);
     }
 
     public void showDataFrom(OutputVariable variable) {
-        runs.forEach(run -> run.relatedSimulationPoints(variable).forEach(SimulationPoint::show));
-        runs.forEach(run -> run.relatedSimulationPoints(variable).filter(sp -> sp.getClock() <= run.getCurrentTime()).forEach(sp -> model.getTopology().handleUpdate(sp, sp.isShown())));
+        runs.forEach(run -> run.showDataFrom(variable));
     }
 
     public void hideDataFrom(OutputVariable variable) {
-        runs.forEach(run -> run.relatedSimulationPoints(variable).forEach(SimulationPoint::hide));
-        runs.forEach(run -> run.relatedSimulationPoints(variable).forEach(sp -> model.getTopology().handleUpdate(sp, sp.isShown())));
-        //TODO if other output variables have set this node/edge as marked, it should not be changed
+        runs.forEach(run -> run.hideDataFrom(variable));
+    }
+
+    public void showSimulation(int simulationId) {
+        getSimulation(simulationId).show();
+    }
+
+    public void hideSimulation(int simulationId) {
+        getSimulation(simulationId).hide();
     }
 
     public int queryTimeBound() {
@@ -168,5 +181,4 @@ public class Simulations implements Serializable {
         result = 31 * result + query.hashCode();
         return result;
     }
-
 }

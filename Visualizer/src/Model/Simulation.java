@@ -5,6 +5,7 @@ import javafx.scene.layout.GridPane;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -15,6 +16,7 @@ public class Simulation implements Serializable {
     private double currentTime = 0;
     private final List<? extends SimulationPoint> run;
     private Simulations parent;
+    private boolean shown;
 
     public Simulation(List<? extends SimulationPoint> points) {
         this.run = points;
@@ -41,7 +43,6 @@ public class Simulation implements Serializable {
             markGraphForward(newTime, oldTime, globalVarGridPane, varGridPane);
         else
             markGraphBackwards(newTime, oldTime, globalVarGridPane, varGridPane);
-
         currentTime = newTime;
     }
 
@@ -76,7 +77,26 @@ public class Simulation implements Serializable {
         }
     }
 
-    Stream<? extends SimulationPoint> relatedSimulationPoints(OutputVariable variable) {
+    public void showDataFrom(OutputVariable variable) {
+        showPoints(relatedSimulationPoints(variable).collect(Collectors.toList()));
+    }
+
+    public void hideDataFrom(OutputVariable variable) {
+        hidePoints(relatedSimulationPoints(variable).collect(Collectors.toList()));
+    }
+
+    private void showPoints(List<? extends SimulationPoint> points) {
+        points.forEach(SimulationPoint::show);
+        points.stream().filter(sp -> sp.getClock() <= getCurrentTime()).forEach(sp -> parent.handleUpdate(sp, true));
+    }
+
+    private void hidePoints(List<? extends SimulationPoint> points) {
+        points.forEach(SimulationPoint::hide);
+        points.forEach(sp -> parent.handleUpdate(sp, false));
+        //TODO if other output variables have set this node/edge as marked, it should not be changed
+    }
+
+    private Stream<? extends SimulationPoint> relatedSimulationPoints(OutputVariable variable) {
         return run.stream().filter(data ->
                 data.getType() == variable.getCorrespondingSimulationPointType()
                         && data.getTrimmedIdentifier().equals(variable.getName()));
@@ -84,6 +104,17 @@ public class Simulation implements Serializable {
 
     public double getCurrentTime() {
         return currentTime;
+    }
+
+
+    public void show() {
+        shown = true;
+        showPoints(run);
+    }
+
+    public void hide() {
+        shown = false;
+        hidePoints(run);
     }
 
     @Override
