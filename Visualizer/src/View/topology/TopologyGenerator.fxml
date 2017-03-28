@@ -86,10 +86,14 @@
                             </columnConstraints>
                            <rowConstraints>
                               <RowConstraints />
+                              <RowConstraints />
                            </rowConstraints>
                            <children>
                               <Label text="Show Cell Options:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                               <ToggleSwitch fx:id="chkShowGridSettings" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="0" />
+
+                               <Label text="Show Map:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                               <ToggleSwitch fx:id="chkShowMap" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
                      </children>
@@ -108,7 +112,7 @@
                <RowConstraints vgrow="NEVER" fillHeight="false"/>
            </rowConstraints>
            <children>
-               <GoogleMapView fx:id="mapView" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-border-color: green"/>
+               <fx:include source="TopologyViewer.fxml" fx:id="topologyViewer" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                <GridPane alignment="CENTER" fx:id="gridPaneCells" pickOnBounds="false" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
            </children>
        </GridPane>

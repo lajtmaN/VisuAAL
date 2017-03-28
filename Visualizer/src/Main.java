@@ -23,6 +23,7 @@ public class Main extends Application {
         }
 
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+        System.setProperty("swing.jlf.contentPaneTransparent", "true");
         Parent root = FXMLLoader.load(getClass().getResource("View/MainWindow.fxml"));
         primaryStage.setTitle("UPPAAL Visualization Application");
         primaryStage.setScene(new Scene(root, 900, 650));
