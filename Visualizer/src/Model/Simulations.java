@@ -33,6 +33,7 @@ public class Simulations implements Serializable {
             s.initialize(this, getModelTimeUnit());
         }
         runs = points;
+        runs.get(0).show();
     }
 
     private Simulation getSimulation(int simId) {
@@ -55,12 +56,13 @@ public class Simulations implements Serializable {
         return runs.size();
     }
 
-    public void markGraphAtTime(int simId, Number oldTimeValue, Number newTimeValue,
+    public void markGraphAtTime(Number oldTimeValue, Number newTimeValue,
                                 GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
         if (runs.size() == 0) return;
 
-        getSimulation(simId).markGraphAtTime(oldTimeValue, newTimeValue, globalVarGridPane, varGridPane);
-    }
+        runs.stream()
+                .filter(run -> run.isShown())
+                .forEach(run -> run.markGraphAtTime(oldTimeValue, newTimeValue, globalVarGridPane, varGridPane));}
 
     void handleUpdate(SimulationPoint sp, double valueOfSp, GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
         if (sp.getType() == SimulationPoint.SimulationPointType.Variable)

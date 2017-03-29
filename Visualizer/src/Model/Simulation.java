@@ -16,7 +16,7 @@ public class Simulation implements Serializable {
     private double currentTime = 0;
     private final List<? extends SimulationPoint> run;
     private Simulations parent;
-    private boolean shown;
+    private boolean shown = false;
 
     public Simulation(List<? extends SimulationPoint> points) {
         this.run = points;
@@ -115,6 +115,10 @@ public class Simulation implements Serializable {
     public void hide() {
         shown = false;
         hidePoints(run);
+    }
+
+    public boolean isShown() {
+        return shown;
     }
 
     @Override

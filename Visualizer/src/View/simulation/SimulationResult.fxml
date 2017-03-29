@@ -41,7 +41,7 @@
       </StackPane>
    </center>
    <bottom>
-      <Button mnemonicParsing="false" onAction="#btnAnimateInRealtimeClicked" text="Animate in real-time" BorderPane.alignment="CENTER" />
+      <Button mnemonicParsing="false" onAction="#btnAnimateInRealTimeClicked" text="Animate in real-time" BorderPane.alignment="CENTER" />
    </bottom>
     <right>
         <fx:include fx:id="simulationMenu" source="SimulationMenu.fxml" />

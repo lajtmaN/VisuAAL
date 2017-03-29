@@ -15,6 +15,7 @@ public class ShowHideSimulationOption extends EnableDisableSimulationOption {
 
     @Override
     public String getEnabledDescription() {
+        //simulationId is 0-indexed, but we want to start from 1 when showing
         return "Show Simulation " + (simulationId + 1);
     }
 

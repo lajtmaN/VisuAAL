@@ -77,10 +77,10 @@ public class SimulationResultController implements Initializable {
 
     private void handleCurrentTimeChanged(Number newTime, Number oldTime) {
         lblCurrentTime.setText(String.format("%.1f ms", newTime.doubleValue()));
-        currentSimulations.markGraphAtTime(0, oldTime, newTime, globalVarGridPane, nodeVarGridPane);
+        currentSimulations.markGraphAtTime(oldTime, newTime, globalVarGridPane, nodeVarGridPane);
     }
 
-    public void btnAnimateInRealtimeClicked(ActionEvent actionEvent) {
+    public void btnAnimateInRealTimeClicked(ActionEvent actionEvent) {
         Timeline timeline = new Timeline();
         timeline.setAutoReverse(false);
         timeSlider.setValue(0);
