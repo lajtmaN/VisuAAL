@@ -13,7 +13,6 @@ import java.util.stream.Stream;
  */
 public class Simulation implements Serializable {
     private int currentSimulationIndex = 0;
-    private double currentTime = 0;
     private final List<? extends SimulationPoint> run;
     private Simulations parent;
     private boolean shown = false;
@@ -35,24 +34,14 @@ public class Simulation implements Serializable {
         }
     }
 
-    public void markGraphAtTime(Number oldTimeValue, Number newTimeValue,
-                                GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
-        double newTime = newTimeValue.doubleValue();
-        double oldTime = oldTimeValue.doubleValue();
-        if (newTime > oldTime)
-            markGraphForward(newTime, oldTime, globalVarGridPane, varGridPane);
-        else
-            markGraphBackwards(newTime, oldTime, globalVarGridPane, varGridPane);
-        currentTime = newTime;
-    }
-
-    private void markGraphForward(double newTimeValue, double oldTime, GridPane globalVarGridPane,
+    void markGraphForward(double newTimeValue, double oldTime, GridPane globalVarGridPane,
                                   SimulationDataContainer varGridPane) {
         SimulationPoint sp;
         //Make sure that more elements at same end time all are included
         while (!((sp = run.get(currentSimulationIndex)).getClock() > newTimeValue)) {
             if (sp.getClock() >= oldTime) {
-                parent.handleUpdate(sp, sp.getValue(), globalVarGridPane, varGridPane);
+                boolean shown = pointIsShown(sp, newTimeValue) && sp.getValue() > 0;
+                parent.handleUpdate(sp, shown, sp.getValue(), globalVarGridPane, varGridPane);
             }
             if (currentSimulationIndex + 1 >= run.size())
                 break;
@@ -62,12 +51,13 @@ public class Simulation implements Serializable {
         }
     }
 
-    private void markGraphBackwards(double newTimeValue, double oldTime, GridPane globalVarGridPane,
+    void markGraphBackwards(double newTimeValue, double oldTime, GridPane globalVarGridPane,
                                     SimulationDataContainer varGridPane) {
         SimulationPoint sp;
         while (!((sp = run.get(currentSimulationIndex)).getClock() < newTimeValue)) {
             if (sp.getClock() <= oldTime) {
-                parent.handleUpdate(sp, sp.getPreviousValue(), globalVarGridPane, varGridPane);
+                boolean shown = pointIsShown(sp, newTimeValue) && sp.getPreviousValue() > 0;
+                parent.handleUpdate(sp, shown, sp.getPreviousValue(), globalVarGridPane, varGridPane);
             }
             if (currentSimulationIndex - 1 < 0)
                 break;
@@ -77,23 +67,29 @@ public class Simulation implements Serializable {
         }
     }
 
+    private boolean pointIsShown(SimulationPoint sp, double atTime) {
+        return shown && sp.isShown(atTime);
+    }
+    private boolean pointIsShown(SimulationPoint sp) {
+        return pointIsShown(sp, parent.getCurrentTime());
+    }
+
     public void showDataFrom(OutputVariable variable) {
-        showPoints(relatedSimulationPoints(variable).collect(Collectors.toList()));
+        List<SimulationPoint> simulationPointsForThisVar = relatedSimulationPoints(variable).collect(Collectors.toList());
+        simulationPointsForThisVar.forEach(sp -> sp.showVariable());
+        if (isShown())
+            handleUpdate(simulationPointsForThisVar);
     }
 
     public void hideDataFrom(OutputVariable variable) {
-        hidePoints(relatedSimulationPoints(variable).collect(Collectors.toList()));
+        List<SimulationPoint> simulationPointsForThisVar = relatedSimulationPoints(variable).collect(Collectors.toList());
+        simulationPointsForThisVar.forEach(sp -> sp.hideVariable());
+        if (isShown())
+            handleUpdate(simulationPointsForThisVar);
     }
 
-    private void showPoints(List<? extends SimulationPoint> points) {
-        points.forEach(SimulationPoint::show);
-        points.stream().filter(sp -> sp.getClock() <= getCurrentTime()).forEach(sp -> parent.handleUpdate(sp, true));
-    }
-
-    private void hidePoints(List<? extends SimulationPoint> points) {
-        points.forEach(SimulationPoint::hide);
-        points.forEach(sp -> parent.handleUpdate(sp, false));
-        //TODO if other output variables have set this node/edge as marked, it should not be changed
+    private void handleUpdate(List<? extends SimulationPoint> points) {
+        points.forEach(sp -> parent.handleUpdate(sp, pointIsShown(sp)));
     }
 
     private Stream<? extends SimulationPoint> relatedSimulationPoints(OutputVariable variable) {
@@ -102,19 +98,14 @@ public class Simulation implements Serializable {
                         && data.getTrimmedIdentifier().equals(variable.getName()));
     }
 
-    public double getCurrentTime() {
-        return currentTime;
-    }
-
-
     public void show() {
         shown = true;
-        showPoints(run);
+        handleUpdate(run);
     }
 
     public void hide() {
         shown = false;
-        hidePoints(run);
+        handleUpdate(run);
     }
 
     public boolean isShown() {
@@ -129,17 +120,12 @@ public class Simulation implements Serializable {
         Simulation that = (Simulation) o;
 
         if (currentSimulationIndex != that.currentSimulationIndex) return false;
-        if (Double.compare(that.currentTime, currentTime) != 0) return false;
         return run != null ? run.equals(that.run) : that.run == null;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        result = currentSimulationIndex;
-        temp = Double.doubleToLongBits(currentTime);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        int result = currentSimulationIndex;
         result = 31 * result + (run != null ? run.hashCode() : 0);
         return result;
     }

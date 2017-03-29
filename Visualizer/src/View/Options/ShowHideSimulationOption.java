@@ -11,6 +11,9 @@ public class ShowHideSimulationOption extends EnableDisableSimulationOption {
     public ShowHideSimulationOption(Simulations simulations, int simulationId) {
         super(simulations);
         this.simulationId = simulationId;
+
+        if (simulationId > 0) //Only the first simulation is marked as shown at start
+            onProperty().set(false);
     }
 
     @Override

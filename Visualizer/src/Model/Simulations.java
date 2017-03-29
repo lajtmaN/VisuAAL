@@ -22,6 +22,7 @@ public class Simulations implements Serializable {
     private UPPAALModel model;
     private final List<Simulation> runs;
     private String query;
+    private double currentTime = 0;
 
     public Simulations(UPPAALModel uppModel, String uppQuery, List<Simulation> points) {
         query = uppQuery;
@@ -60,18 +61,24 @@ public class Simulations implements Serializable {
                                 GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
         if (runs.size() == 0) return;
 
-        runs.stream()
-                .filter(run -> run.isShown())
-                .forEach(run -> run.markGraphAtTime(oldTimeValue, newTimeValue, globalVarGridPane, varGridPane));}
+        double newTime = newTimeValue.doubleValue();
+        double oldTime = oldTimeValue.doubleValue();
+        if (newTime > oldTime)
+            runs.stream().filter(run -> run.isShown()).forEach(run -> run.markGraphForward(newTime, oldTime, globalVarGridPane, varGridPane));
+        else
+            runs.stream().filter(run -> run.isShown()).forEach(run -> run.markGraphBackwards(newTime, oldTime, globalVarGridPane, varGridPane));
 
-    void handleUpdate(SimulationPoint sp, double valueOfSp, GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
+        currentTime = newTime;
+    }
+
+    void handleUpdate(SimulationPoint sp, boolean shown, double valueOfSp, GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
         if (sp.getType() == SimulationPoint.SimulationPointType.Variable)
             updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(valueOfSp), globalVarGridPane);
 
         if (sp.getType() == SimulationPoint.SimulationPointType.NodePoint)
             varGridPane.updateVariable(((SimulationNodePoint)sp).getNodeId(), sp.getTrimmedIdentifier(), valueOfSp);
 
-        handleUpdate(sp, valueOfSp > 0);
+        handleUpdate(sp, shown);
     }
 
     void handleUpdate(SimulationPoint sp, boolean mark) {
@@ -162,6 +169,10 @@ public class Simulations implements Serializable {
         if(!foundLabel) {
             addGlobalVariableToGridPane(name, value, globalVarGridPane);
         }
+    }
+
+    double getCurrentTime() {
+        return currentTime;
     }
 
     @Override
