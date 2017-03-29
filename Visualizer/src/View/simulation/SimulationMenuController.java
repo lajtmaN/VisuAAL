@@ -1,7 +1,8 @@
 package View.simulation;
 
 
-import Model.Simulation;
+import Helpers.OptionsHelper;
+import Model.Simulations;
 import View.Options.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
@@ -15,60 +16,57 @@ import java.util.Arrays;
  */
 public class SimulationMenuController {
 
+    @FXML private ListView<EnableDisableSimulationOption> lstSimulationOptions;
     @FXML private ListView<EnableDisableSimulationOption> lstDisplayOptions;
     @FXML private ListView<SimulationOption> lstExportOptions;
 
-    private Simulation currentSimulation;
+    private Simulations currentSimulations;
 
-    public void loadWithSimulation(Simulation currentSimulation) {
-        this.currentSimulation = currentSimulation;
+    public void loadWithSimulation(Simulations currentSimulations) {
+        this.currentSimulations = currentSimulations;
         addOptionsToListViews();
         initializeExportOptions();
         initializeDisplayOptions();
+        initializeSimulationOptions();
         setHeight();
     }
 
     private void addOptionsToListViews() {
-        lstExportOptions.getItems().add(new ExportTopologyOption());
+        lstExportOptions.getItems().add(new ExportTopologyOption(currentSimulations));
 
-        currentSimulation.getOutputVariables().forEach(outputVariable -> {
+        currentSimulations.getOutputVariables().forEach(outputVariable -> {
             if (outputVariable.getIsSelected()) //Only add all the variables that was enabled when running query
-                lstDisplayOptions.getItems().add(new ShowHideDataOption(outputVariable));
+                lstDisplayOptions.getItems().add(new ShowHideDataOption(currentSimulations, outputVariable));
         });
+
+        for (int i = 0; i < currentSimulations.getNumberOfSimulations(); i++) {
+            lstSimulationOptions.getItems().add(new ShowHideSimulationOption(currentSimulations, i));
+        }
     }
 
     private void initializeExportOptions() {
         lstExportOptions.setCellFactory(param -> new SimulationOptionCell());
         lstExportOptions.setOnMouseClicked(p -> {
-            lstExportOptions.getSelectionModel().getSelectedItem().startAction(currentSimulation);
+            lstExportOptions.getSelectionModel().getSelectedItem().startAction();
         });
     }
 
     private void initializeDisplayOptions() {
         //TODO Description is not updated when the onProperty changes.
-        lstDisplayOptions.setCellFactory(CheckBoxListCell.forListView(item -> item.onProperty(), new StringConverter<EnableDisableSimulationOption>() {
-            @Override
-            public String toString(EnableDisableSimulationOption object) {
-                return object.getDescription();
-            }
-            @Override
-            public EnableDisableSimulationOption fromString(String string) {
-                return null;
-            }
-        }));
+        lstDisplayOptions.setCellFactory(OptionsHelper.optionListCell());
 
         lstDisplayOptions.setOnMouseClicked(p -> {
             EnableDisableSimulationOption optionClicked = lstDisplayOptions.getSelectionModel().getSelectedItem();
             optionClicked.onProperty().set(!optionClicked.onProperty().get());
         });
+    }
 
-        lstDisplayOptions.getItems().forEach(option -> option.onProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                option.startAction(currentSimulation);
-            } else {
-                option.disableAction(currentSimulation);
-            }
-        }));
+    private void initializeSimulationOptions() {
+        lstSimulationOptions.setCellFactory(OptionsHelper.optionListCell());
+        lstSimulationOptions.setOnMouseClicked(p -> {
+            EnableDisableSimulationOption optionClicked = lstSimulationOptions.getSelectionModel().getSelectedItem();
+            optionClicked.onProperty().set(!optionClicked.onProperty().get());
+        });
     }
 
     private void setHeight() {

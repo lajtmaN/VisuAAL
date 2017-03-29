@@ -1,6 +1,6 @@
 package View.simulation;
 
-import Model.Simulation;
+import Model.Simulations;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -34,7 +34,7 @@ public class SimulationResultController implements Initializable {
     @FXML private SwingNode graphStreamNode;
     @FXML private SimulationMenuController simulationMenuController;
 
-    private Simulation currentSimulation;
+    private Simulations currentSimulations;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -44,13 +44,13 @@ public class SimulationResultController implements Initializable {
         }));
     }
 
-    public void loadWithSimulation(Simulation run) {
-        currentSimulation = run;
+    public void loadWithSimulation(Simulations run) {
+        currentSimulations = run;
 
         setupControlsBasedOnCurrentSimulation();
         initializeGraphStreamViewer();
-        simulationMenuController.loadWithSimulation(currentSimulation);
-        nodeVarGridPane.initialize(currentSimulation);
+        simulationMenuController.loadWithSimulation(currentSimulations);
+        nodeVarGridPane.initialize(currentSimulations);
     }
 
     private void bindSizes() {
@@ -65,22 +65,22 @@ public class SimulationResultController implements Initializable {
     }
 
     private void initializeGraphStreamViewer() {
-        Viewer v = new Viewer(currentSimulation.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-        if (!currentSimulation.getTopology().nodesHasSpecificLocations())
+        Viewer v = new Viewer(currentSimulations.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+        if (!currentSimulations.getTopology().nodesHasSpecificLocations())
             v.enableAutoLayout();
         ViewPanel swingView = v.addDefaultView(false);
         SwingUtilities.invokeLater(() -> graphStreamNode.setContent(swingView));
 
-        MouseClickListener mouse = new MouseClickListener(v, currentSimulation.getGraph(), nodeVarGridPane);
+        MouseClickListener mouse = new MouseClickListener(v, currentSimulations.getGraph(), nodeVarGridPane);
         mouse.start();
     }
 
     private void handleCurrentTimeChanged(Number newTime, Number oldTime) {
         lblCurrentTime.setText(String.format("%.1f ms", newTime.doubleValue()));
-        currentSimulation.markGraphAtTime(oldTime, newTime, globalVarGridPane, nodeVarGridPane);
+        currentSimulations.markGraphAtTime(oldTime, newTime, globalVarGridPane, nodeVarGridPane);
     }
 
-    public void btnAnimateInRealtimeClicked(ActionEvent actionEvent) {
+    public void btnAnimateInRealTimeClicked(ActionEvent actionEvent) {
         Timeline timeline = new Timeline();
         timeline.setAutoReverse(false);
         timeSlider.setValue(0);
@@ -89,6 +89,6 @@ public class SimulationResultController implements Initializable {
     }
 
     private int maxTime() {
-        return (int)(currentSimulation.queryTimeBound() * currentSimulation.getModelTimeUnit());
+        return (int)(currentSimulations.queryTimeBound() * currentSimulations.getModelTimeUnit());
     }
 }

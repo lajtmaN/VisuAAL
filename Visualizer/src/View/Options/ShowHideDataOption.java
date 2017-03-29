@@ -1,7 +1,7 @@
 package View.Options;
 
 import Model.OutputVariable;
-import Model.Simulation;
+import Model.Simulations;
 
 /**
  * Created by lajtman on 14-03-2017.
@@ -10,29 +10,28 @@ public class ShowHideDataOption extends EnableDisableSimulationOption {
 
     private OutputVariable variable;
 
-    public ShowHideDataOption(OutputVariable var) {
+    public ShowHideDataOption(Simulations simulations, OutputVariable var) {
+        super(simulations);
         this.variable = var;
     }
 
     @Override
-    public String getDescription() {
-        if (onProperty().get())
-            return "Show " + variable.getName();
-        else
-            return "Hide " + variable.getName();
+    public String getEnabledDescription() {
+        return "Show " + variable.getName();
     }
 
     @Override
-    public void startAction(Simulation currentSimulation) {
-        //TODO:
-        currentSimulation.showDataFrom(variable);
-
+    public String getDisabledDescription() {
+        return "Hide " + variable.getName();
     }
 
     @Override
-    public void disableAction(Simulation currentSimulation) {
-        //TODO:
-        currentSimulation.hideDataFrom(variable);
+    public void startAction() {
+        simulations.showDataFrom(variable);
+    }
 
+    @Override
+    public void disableAction() {
+        simulations.hideDataFrom(variable);
     }
 }

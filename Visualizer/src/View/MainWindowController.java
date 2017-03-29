@@ -211,7 +211,7 @@ public class MainWindowController implements Initializable {
     }
 
     private void loadSavedSimulation(File selectedFile) throws IOException, InterruptedException {
-        Simulation loaded = Simulation.load(selectedFile);
+        Simulations loaded = Simulations.load(selectedFile);
         if (loaded != null) {
             addNewResults(selectedFile.getName(), loaded);
         }
@@ -293,10 +293,10 @@ public class MainWindowController implements Initializable {
 
         simulationProgress.setVisible(true);
 
-        CompletableFuture<Simulation> out = uppaalModel.runQuery(query, txtUppaalOutput); //Run in uppaal - takes long time
+        CompletableFuture<Simulations> out = uppaalModel.runQuery(query, txtUppaalOutput); //Run in uppaal - takes long time
         out.exceptionally(th -> {
             simulationProgress.setVisible(false);
-            Platform.runLater(() -> GUIHelper.showError("Simulation failed: " + System.lineSeparator()+ th.getMessage()));
+            Platform.runLater(() -> GUIHelper.showError("Simulations failed: " + System.lineSeparator()+ th.getMessage()));
             return null;
         });
         out.thenAccept(simulation -> {
@@ -310,8 +310,8 @@ public class MainWindowController implements Initializable {
 
     }
 
-        private void addNewResults(String simulationName, Simulation out) {
-            Parent simulationResultView = null;
+    private void addNewResults(String simulationName, Simulations out) {
+        Parent simulationResultView = null;
         try {
             FXMLLoader simulationResultLoader = new FXMLLoader(getClass().getResource("simulation/SimulationResult.fxml"));
             simulationResultView = simulationResultLoader.load();

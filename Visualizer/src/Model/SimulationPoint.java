@@ -12,7 +12,7 @@ public class SimulationPoint extends DataPoint implements Serializable {
 
     private SimulationPointType type;
     private String identifier;
-    private boolean shown = true;
+    private boolean variableShown = true; //Should match output_variable shown property default
 
     SimulationPoint(String identifier, double time, double value, SimulationPointType pType, double previousValue) {
         super(time, value, previousValue);
@@ -36,16 +36,16 @@ public class SimulationPoint extends DataPoint implements Serializable {
         return type;
     }
 
-    public boolean isShown() {
-        return shown;
+    public boolean isShown(double currentTime) {
+        return variableShown && getClock() <= currentTime;
     }
 
-    public void hide() {
-        shown = false;
+    public void hideVariable() {
+        variableShown = false;
     }
 
-    public void show() {
-        shown = true;
+    public void showVariable() {
+        variableShown = true;
     }
 
     public String getTrimmedIdentifier() {

@@ -1,19 +1,23 @@
 package View.Options;
 
-import Model.Simulation;
+import Model.Simulations;
 import Helpers.TopologyHelper;
 
 /**
  * Created by Tim on 09-03-2017.
  */
 public class ExportTopologyOption extends SimulationOption {
+    public ExportTopologyOption(Simulations simulations) {
+        super(simulations);
+    }
+
     @Override
     public String getDescription() {
         return "Export Topology...";
     }
 
     @Override
-    public void startAction(Simulation currentSimulation) {
-        TopologyHelper.saveTopology(currentSimulation.getTopology());
+    public void startAction() {
+        TopologyHelper.saveTopology(simulations.getTopology());
     }
 }

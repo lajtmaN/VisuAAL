@@ -18,9 +18,6 @@ public class SimulateParser {
 
     public static SimulateOutput parse(List<String> verifytaOutput, int nrSimulations) {
         int i;
-        String temp = "";
-        for(String s : verifytaOutput) temp += s;
-
         for (i = 0; i < verifytaOutput.size(); i++) {
             if (verifytaOutput.get(i).contains("Formula is satisfied")) {
                 i++;

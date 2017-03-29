@@ -55,12 +55,12 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     }
 
     private Edge addEdge(SimulationEdgePoint s){
-        //TODO: Currently only undirected
         Edge e = getGraph().getEdge(s.getIdentifier());
-        if(e == null)
-            return getGraph(false).addEdge(s.getIdentifier(), s.getSource(),
-                    s.getDestination(), true);
-        else return e;
+        if(e != null)
+            return e;
+
+        Edge newEdge = getGraph(false).addEdge(s.getIdentifier(), s.getSource(), s.getDestination(), true);
+        return newEdge;
     }
     private Edge removeEdge(SimulationEdgePoint s) {
         Graph g = getGraph(false);
@@ -72,8 +72,10 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     }
 
     protected void handleUpdate(SimulationPoint s, boolean mark) {
-        mark &= s.isShown();
-
+        /*TODO: When we show multiple "values" for each edge/node, we need to refactor this,
+         * because there is not an 1-1 relation between edge and simulation point anymore.
+         * I think we could add an map from edge to a set og simulation points, and if any of these points
+         * are shown, the edge should be shown. */
         switch (s.getType()) {
             case EdgePoint:
                 handleEdgeEdit((SimulationEdgePoint) s, mark);
@@ -86,8 +88,10 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
 
     private void handleNodeEdit(SimulationNodePoint point, boolean mark) {
         Node node = getGraph().getNode(point.getNodeId());
-        if (node == null) return;
-        if (mark)
+        if (node == null)
+            return;
+
+        if(mark)
             markNode(node);
         else
             unmarkNode(node);
@@ -97,15 +101,14 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         Edge edge = getGraph().getEdge(s.getEdgeIdentifier());
         if (edge == null)
             return;
-        if (mark){
+
+        if(mark)
             markEdge(edge);
-        }
-        else {
+        else
             unmarkEdge(edge);
-        }
     }
 
-    protected void markEdge(Edge edge) {
+    private void markEdge(Edge edge) {
         if(edge.getAttribute("ui.class") != "marked"){
             edge.setAttribute("ui.class", "marked");
         }
@@ -116,7 +119,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             e.setAttribute("ui.class", "unmarked");
     }
 
-    protected void unmarkEdge(Edge edge) {
+    private void unmarkEdge(Edge edge) {
         if(edge.getAttribute("ui.class") != "unmarked"){
             edge.setAttribute("ui.class", "unmarked");
         }
@@ -135,18 +138,17 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         n.addAttribute("ui.label", nodeName);
     }
 
-    protected void markNode(Node node) {
+    private void markNode(Node node) {
         if(node.getAttribute("ui.class") != "marked") {
             node.setAttribute("ui.class", "marked");
         }
     }
 
-    protected void unmarkNode(Node node) {
+    private void unmarkNode(Node node) {
         if(node.getAttribute("ui.class") != "unmarked"){
             node.setAttribute("ui.class", "unmarked");
         }
     }
-
 
     public Graph getGraph() { return getGraph(false); }
     public Graph getGraph(Boolean updateGraph) {

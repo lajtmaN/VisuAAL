@@ -162,7 +162,7 @@ public class SimulateParserTests {
         simOut.addDatapoint(out2.getName(), 0, new DataPoint(100, 15));
         simOut.addDatapoint(out2.getName(), 0, new DataPoint(0, 2));
 
-        List<SimulationPoint> actual = simOut.zip(outputVars, 0);
+        List<SimulationPoint> actual = simOut.zipAsList(outputVars, 0);
 
         AssertArrayList(expected, actual);
     }

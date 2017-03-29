@@ -16,6 +16,15 @@
                </AnchorPane>
            </content>
        </TitledPane>
+       <TitledPane text="Simulations">
+           <content>
+               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                   <children>
+                       <ListView fx:id="lstSimulationOptions" prefHeight="200.0" prefWidth="200.0" />
+                   </children>
+               </AnchorPane>
+           </content>
+       </TitledPane>
        <TitledPane text="Export">
            <content>
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

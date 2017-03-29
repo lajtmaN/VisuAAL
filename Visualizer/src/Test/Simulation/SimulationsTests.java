@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by lajtman on 14-02-2017.
  */
-public class SimulationTests  {
+public class SimulationsTests {
 
     private String generateTempSimFileForTest() {
         return "TMP_" + Long.toHexString(Double.doubleToLongBits(Math.random()));
@@ -36,10 +36,11 @@ public class SimulationTests  {
         points.add(new SimulationEdgePoint(0.0, "1", "0", 0.0));
         points.add(new SimulationEdgePoint(0.2, "0", "1", 1.0));
         points.add(new SimulationEdgePoint(0.2, "1", "0", 1.0));
-        Simulation sim = new Simulation(model, query, points);
+        Simulation oneSim = new Simulation(points);
+        Simulations sim = new Simulations(model, query, Arrays.asList(oneSim));
 
         sim.save(filePath);
-        Simulation sim2 = Simulation.load(filePath);
+        Simulations sim2 = Simulations.load(filePath);
 
         assertEquals(sim, sim2);
 
@@ -62,7 +63,8 @@ public class SimulationTests  {
         points.add(new SimulationEdgePoint(0.0, "1", "0", 0.0));
         points.add(new SimulationEdgePoint(0.2, "0", "1", 1.0));
         points.add(new SimulationEdgePoint(0.2, "1", "0", 1.0));
-        Simulation sim = new Simulation(model, query, points);
+        Simulation oneSim = new Simulation(points);
+        Simulations sim = new Simulations(model, query, Arrays.asList(oneSim));
 
         //Persist to file
         sim.save(simulationFileName);
@@ -71,7 +73,7 @@ public class SimulationTests  {
         assertTrue(new File(uppaalModelFile).delete());
 
         //Load simulation again and check if still equal
-        Simulation sim2 = Simulation.load(simulationFileName);
+        Simulations sim2 = Simulations.load(simulationFileName);
         assertEquals(sim, sim2);
 
         //cleanup

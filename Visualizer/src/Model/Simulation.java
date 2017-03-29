@@ -1,78 +1,47 @@
 package Model;
 
-import Helpers.FileHelper;
-import Helpers.GUIHelper;
 import View.simulation.SimulationDataContainer;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import org.graphstream.graph.Graph;
-import parsers.RegexHelper;
 
-import java.io.*;
-import java.util.*;
+import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Created by lajtman on 13-02-2017.
+ * Created by lajtman on 28-03-2017.
  */
 public class Simulation implements Serializable {
-    private UPPAALModel model;
-    private final List<? extends SimulationPoint> run;
-    private String query;
     private int currentSimulationIndex = 0;
-    private double currentTime = 0;
+    private final List<? extends SimulationPoint> run;
+    private Simulations parent;
+    private boolean shown = false;
 
-    public Simulation(UPPAALModel uppModel, String uppQuery, List<SimulationPoint> points) {
-        query = uppQuery;
-        model = uppModel.deepClone();
-        model.getTopology().updateGraph();
-        model.getTopology().unmarkAllEdges();
+    public Simulation(List<? extends SimulationPoint> points) {
+        this.run = points;
+    }
 
-        if (getModelTimeUnit() != 1) {
-            for (SimulationPoint p : points) {
-                p.setClock(p.getClock() * getModelTimeUnit());
+    public void initialize(Simulations parent, double modelTimeUnit) {
+        this.parent = parent;
+        applyModelTimeUnit(modelTimeUnit);
+    }
+
+    private void applyModelTimeUnit(double modelTimeUnit) {
+        if (modelTimeUnit != 1) {
+            for (SimulationPoint p : run) {
+                p.setClock(p.getClock() * modelTimeUnit);
             }
         }
-
-        run = points;
     }
 
-    public Graph getGraph() {
-        return getTopology().getGraph();
-    }
-
-    public UPPAALTopology getTopology() { return model.getTopology(); }
-
-    public List<OutputVariable> getOutputVariables() { return model.getOutputVars(); }
-
-    public double getModelTimeUnit() {
-        return model.getModelTimeUnit();
-    }
-
-    public void markGraphAtTime(Number oldTimeValue, Number newTimeValue,
-                                GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
-        if (run.size() == 0) return;
-
-        double newTime = newTimeValue.doubleValue();
-        double oldTime = oldTimeValue.doubleValue();
-        if (newTime > oldTime)
-            markGraphForward(newTime, oldTime, globalVarGridPane, varGridPane);
-        else
-            markGraphBackwards(newTime, oldTime, globalVarGridPane, varGridPane);
-
-        currentTime = newTime;
-    }
-
-    private void markGraphForward(double newTimeValue, double oldTime, GridPane globalVarGridPane,
+    void markGraphForward(double newTimeValue, double oldTime, GridPane globalVarGridPane,
                                   SimulationDataContainer varGridPane) {
         SimulationPoint sp;
         //Make sure that more elements at same end time all are included
         while (!((sp = run.get(currentSimulationIndex)).getClock() > newTimeValue)) {
             if (sp.getClock() >= oldTime) {
-                handleUpdate(sp, sp.getValue(), globalVarGridPane, varGridPane);
+                boolean shown = pointIsShown(sp, newTimeValue) && sp.getValue() > 0;
+                parent.handleUpdate(sp, shown, sp.getValue(), globalVarGridPane, varGridPane);
             }
             if (currentSimulationIndex + 1 >= run.size())
                 break;
@@ -82,12 +51,13 @@ public class Simulation implements Serializable {
         }
     }
 
-    private void markGraphBackwards(double newTimeValue, double oldTime, GridPane globalVarGridPane,
+    void markGraphBackwards(double newTimeValue, double oldTime, GridPane globalVarGridPane,
                                     SimulationDataContainer varGridPane) {
         SimulationPoint sp;
         while (!((sp = run.get(currentSimulationIndex)).getClock() < newTimeValue)) {
             if (sp.getClock() <= oldTime) {
-                handleUpdate(sp, sp.getPreviousValue(), globalVarGridPane, varGridPane);
+                boolean shown = pointIsShown(sp, newTimeValue) && sp.getPreviousValue() > 0;
+                parent.handleUpdate(sp, shown, sp.getPreviousValue(), globalVarGridPane, varGridPane);
             }
             if (currentSimulationIndex - 1 < 0)
                 break;
@@ -97,101 +67,49 @@ public class Simulation implements Serializable {
         }
     }
 
-    private void handleUpdate(SimulationPoint sp, double valueOfSp, GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
-        if (sp.getType() == SimulationPoint.SimulationPointType.Variable)
-            updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(valueOfSp), globalVarGridPane);
+    private boolean pointIsShown(SimulationPoint sp, double atTime) {
+        return shown && sp.isShown(atTime);
+    }
+    private boolean pointIsShown(SimulationPoint sp) {
+        return pointIsShown(sp, parent.getCurrentTime());
+    }
 
-        if (sp.getType() == SimulationPoint.SimulationPointType.NodePoint)
-            varGridPane.updateVariable(((SimulationNodePoint)sp).getNodeId(), sp.getTrimmedIdentifier(), valueOfSp);
+    public void showDataFrom(OutputVariable variable) {
+        List<SimulationPoint> simulationPointsForThisVar = relatedSimulationPoints(variable).collect(Collectors.toList());
+        simulationPointsForThisVar.forEach(sp -> sp.showVariable());
+        if (isShown())
+            handleUpdate(simulationPointsForThisVar);
+    }
 
-        model.getTopology().handleUpdate(sp, valueOfSp > 0);
+    public void hideDataFrom(OutputVariable variable) {
+        List<SimulationPoint> simulationPointsForThisVar = relatedSimulationPoints(variable).collect(Collectors.toList());
+        simulationPointsForThisVar.forEach(sp -> sp.hideVariable());
+        if (isShown())
+            handleUpdate(simulationPointsForThisVar);
+    }
+
+    private void handleUpdate(List<? extends SimulationPoint> points) {
+        points.forEach(sp -> parent.handleUpdate(sp, pointIsShown(sp)));
     }
 
     private Stream<? extends SimulationPoint> relatedSimulationPoints(OutputVariable variable) {
         return run.stream().filter(data ->
-                    data.getType() == variable.getCorrespondingSimulationPointType()
-                    && data.getTrimmedIdentifier().equals(variable.getName()));
+                data.getType() == variable.getCorrespondingSimulationPointType()
+                        && data.getTrimmedIdentifier().equals(variable.getName()));
     }
 
-    public void showDataFrom(OutputVariable variable) {
-        relatedSimulationPoints(variable).forEach(SimulationPoint::show);
-        relatedSimulationPoints(variable).filter(sp -> sp.getClock() <= currentTime).forEach(sp -> model.getTopology().handleUpdate(sp, sp.isShown()));
+    public void show() {
+        shown = true;
+        handleUpdate(run);
     }
 
-    public void hideDataFrom(OutputVariable variable) {
-        relatedSimulationPoints(variable).forEach(SimulationPoint::hide);
-        relatedSimulationPoints(variable).forEach(sp -> model.getTopology().handleUpdate(sp, sp.isShown()));
-        //TODO if other output variables have set this node/edge as marked, it should not be changed
+    public void hide() {
+        shown = false;
+        handleUpdate(run);
     }
 
-    public int queryTimeBound() {
-        return Integer.parseInt(RegexHelper.getFirstMatchedValueFromRegex("\\[<=(\\d+)\\]", query));
-    }
-
-    public void save(String fileName){
-        try {
-            File file = new File(FileHelper.simulationFileName(fileName));
-            file.getParentFile().mkdirs();
-            file.createNewFile();
-            FileOutputStream fileOut = new FileOutputStream(file,false);
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(this);
-            out.close();
-            fileOut.close();
-        }catch(IOException i) {
-            i.printStackTrace();
-        }
-    }
-
-    public static Simulation load(String fileName) {
-        return load(new File(FileHelper.simulationFileName(fileName)));
-    }
-    public static Simulation load(File file){
-        if (!Objects.equals(FileHelper.getExtension(file.getName()), ".sim"))
-            throw new IllegalArgumentException("Only files with named *.sim can be loaded");
-
-        try {
-            FileInputStream fileIn = new FileInputStream(file);
-            ObjectInputStream in = new ObjectInputStream(fileIn);
-            Simulation sim = (Simulation) in.readObject();
-            in.close();
-            fileIn.close();
-            sim.model.getTopology().updateGraph();
-            sim.model.getTopology().unmarkAllEdges();
-            return sim;
-        } catch(InvalidClassException i) {
-            GUIHelper.showAlert(Alert.AlertType.ERROR, "The simulation that you tried to load was created by an older version of this program.");
-        } catch (Exception ignored) {
-
-        }
-        return null;
-    }
-
-    private void addGlobalVariableToGridPane(String name, String value, GridPane globalVarGridPane) {
-        int nrRows = globalVarGridPane.getChildren().size() / 2;
-        Label labelName = new Label(name);
-        Label labelValue = new Label(value);
-        labelName.setPadding(new Insets(0,10, 0, 0));
-
-        globalVarGridPane.add(labelName, 0, nrRows);
-        globalVarGridPane.add(labelValue, 1, nrRows);
-    }
-
-    private void updateGlobalVariableInGridPane(String name, String value, GridPane globalVarGridPane) {
-        boolean foundLabel = false;
-        for(Node n : globalVarGridPane.getChildren()){
-            Label label = (Label) n;
-            if(foundLabel) {
-                label.setText(value);
-                break;
-            }
-            if(label.getText().equals(name)) {
-                foundLabel = true;
-            }
-        }
-        if(!foundLabel) {
-            addGlobalVariableToGridPane(name, value, globalVarGridPane);
-        }
+    public boolean isShown() {
+        return shown;
     }
 
     @Override
@@ -201,17 +119,14 @@ public class Simulation implements Serializable {
 
         Simulation that = (Simulation) o;
 
-        if (!model.equals(that.model)) return false;
-        if (!run.equals(that.run)) return false;
-        return query.equals(that.query);
+        if (currentSimulationIndex != that.currentSimulationIndex) return false;
+        return run != null ? run.equals(that.run) : that.run == null;
     }
 
     @Override
     public int hashCode() {
-        int result = model.hashCode();
-        result = 31 * result + run.hashCode();
-        result = 31 * result + query.hashCode();
+        int result = currentSimulationIndex;
+        result = 31 * result + (run != null ? run.hashCode() : 0);
         return result;
     }
-
 }
