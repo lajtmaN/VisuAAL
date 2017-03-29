@@ -1,6 +1,7 @@
 package Model;
 
 import Model.topology.generator.CellNode;
+import com.lynden.gmapsfx.javascript.object.LatLongBounds;
 import org.graphstream.graph.*;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.implementations.MultiGraph;
@@ -15,6 +16,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     private int _numberOfNodes;
     private transient Graph _graphInstance;
     private List<CellNode> nodes;
+    private transient LatLongBounds geographicMapBounds;
 
     public UPPAALTopology(Graph graph) {
         _graphInstance = graph;
@@ -29,9 +31,10 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         _numberOfNodes = numberOfNodes;
     }
 
-    public UPPAALTopology(List<CellNode> cellNodes) {
+    public UPPAALTopology(List<CellNode> cellNodes, LatLongBounds mapBounds) {
         this(cellNodes.size());
         nodes = cellNodes;
+        geographicMapBounds = mapBounds;
     }
 
     public UPPAALTopology() {}

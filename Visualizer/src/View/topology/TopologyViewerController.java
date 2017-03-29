@@ -58,7 +58,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
     }
 
     public void showGraph(Graph g, boolean autoLayout) {
-        Pair<Double, Double> widthAndHeight = calculateGridSizeInMeters();
+        Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateGridSizeInMeters(getMapBounds());
 
         Viewer v = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
         if (autoLayout)
@@ -73,17 +73,6 @@ public class TopologyViewerController implements Initializable, MapComponentInit
         //mouse.start();
     }
 
-    Pair<Double, Double> calculateGridSizeInMeters() {
-        LatLongBounds bounds = map.getBounds();
-        LatLong sw = bounds.getSouthWest();
-        LatLong ne = bounds.getNorthEast();
-        LatLong nw = new LatLong(ne.getLatitude(), sw.getLongitude());
-
-        double widthOnAllCells = GoogleMapsHelper.distanceBetween(nw, ne);
-        double heightOnAllCells = GoogleMapsHelper.distanceBetween(nw, sw);
-        return new Pair<Double, Double>(widthOnAllCells, heightOnAllCells);
-    }
-
     public boolean isMapShown() {
         return showMap.get();
     }
@@ -94,5 +83,9 @@ public class TopologyViewerController implements Initializable, MapComponentInit
 
     public void setShowMap(boolean showMap) {
         this.showMap.set(showMap);
+    }
+
+    public LatLongBounds getMapBounds() {
+        return map.getBounds();
     }
 }

@@ -52,4 +52,14 @@ public class GoogleMapsHelper {
     public static double distanceBetween(LatLong p1, LatLong p2) {
         return p1.distanceFrom(p2);
     }
+
+    public static Pair<Double, Double> calculateGridSizeInMeters(LatLongBounds bounds) {
+        LatLong sw = bounds.getSouthWest();
+        LatLong ne = bounds.getNorthEast();
+        LatLong nw = new LatLong(ne.getLatitude(), sw.getLongitude());
+
+        double widthOnAllCells = GoogleMapsHelper.distanceBetween(nw, ne);
+        double heightOnAllCells = GoogleMapsHelper.distanceBetween(nw, sw);
+        return new Pair<Double, Double>(widthOnAllCells, heightOnAllCells);
+    }
 }

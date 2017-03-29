@@ -1,10 +1,13 @@
 package Model.topology.generator;
 
 
+import Helpers.GoogleMapsHelper;
 import Helpers.MathHelpers;
 import Helpers.Pair;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
+import com.lynden.gmapsfx.javascript.object.LatLong;
+import com.lynden.gmapsfx.javascript.object.LatLongBounds;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
@@ -72,12 +75,25 @@ public class TopologyGenerator {
     }
 
     public UPPAALTopology generateUppaalTopology() {
-        ArrayList<CellNode> nodes = generateNodes();
-        return generateUppaalTopology(nodes);
+        return generateUppaalTopology(null);
     }
 
-    public UPPAALTopology generateUppaalTopology(ArrayList<CellNode> nodes) {
-        UPPAALTopology result = new UPPAALTopology(nodes);
+    public UPPAALTopology generateUppaalTopology(LatLongBounds bounds) {
+        if (bounds != null) {
+            Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateGridSizeInMeters(bounds);
+            setCellWidthInMeters(widthAndHeight.getFirst() / getOptions().getCellX());
+            setCellHeightInMeters(widthAndHeight.getSecond() / getOptions().getCellY());
+        } else {
+            setCellWidthInMeters(1);
+            setCellHeightInMeters(1);
+        }
+
+        ArrayList<CellNode> nodes = generateNodes();
+        return generateUppaalTopology(nodes, bounds);
+    }
+
+    private UPPAALTopology generateUppaalTopology(ArrayList<CellNode> nodes, LatLongBounds bounds) {
+        UPPAALTopology result = new UPPAALTopology(nodes, bounds);
         for(int i = 0; i < nodes.size(); i++) {
             for(int j = 0; j < nodes.size(); j++){
                 if(i != j && isInRange(nodes.get(i), nodes.get(j))){
@@ -87,6 +103,7 @@ public class TopologyGenerator {
         }
         return result;
     }
+
     public void setCellWidthInMeters(double cellWidthInMeters) {
         this.cellWidthInMeters = cellWidthInMeters;
     }
