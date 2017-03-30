@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
-<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.topology.TopologyGeneratorController">
+<BorderPane fx:id="borderPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.topology.TopologyGeneratorController">
    <right>
       <Accordion fx:id="accordion">
         <panes>

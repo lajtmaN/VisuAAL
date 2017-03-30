@@ -50,4 +50,11 @@ public class CellOptionsController implements AutoCloseable {
         txtCellAvgRangeDeviation = null;
         txtCellAvgRangeMean = null;
     }
+
+    public void setSize(double widthAndHeight) {
+        rootPane.setMaxHeight(widthAndHeight);
+        rootPane.setMinHeight(widthAndHeight);
+        rootPane.setMaxWidth(widthAndHeight);
+        rootPane.setMinWidth(widthAndHeight);
+    }
 }

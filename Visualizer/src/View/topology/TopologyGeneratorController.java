@@ -7,7 +7,6 @@ import View.DoubleTextField;
 import View.IntegerTextField;
 import View.ToggleSwitch;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -15,12 +14,12 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 /**
@@ -39,18 +38,20 @@ public class TopologyGeneratorController implements Initializable {
     @FXML private DoubleTextField txtAvgRangeDeviation;
     @FXML private DoubleTextField txtNumNodesPrCellDeviationDefault;
     @FXML private IntegerTextField txtAvgNumNodesPrCellDefault;
-    @FXML private BorderPane rootPane;
+    @FXML private BorderPane borderPane;
 
     private TopologyGenerator topologyGenerator;
+    private ArrayList<CellOptionsController> cellOptionsList;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        cellOptionsList = new ArrayList<>();
         accordion.setExpandedPane(optionsPane);
         topologyGenerator = new TopologyGenerator();
         bindGlobalOptionsProperties();
 
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
-        enableZoom();
+
         chkShowGridSettings.switchOnProperty().addListener((observable, oldValue, newValue) -> {
             showGridSettingsChanged(newValue);
         });
@@ -77,6 +78,7 @@ public class TopologyGeneratorController implements Initializable {
                     controller.showCellOptions(chkShowGridSettings.switchOnProperty().get());
 
                     cellOptionsView.setUserData(controller);
+                    cellOptionsList.add(controller);
 
                     //GridPanes has origo in NorthWest, whereas we (and graphstream) have in SouthWest
                     gridPaneCells.add(cellOptionsView, x, columns-y);
@@ -85,7 +87,32 @@ public class TopologyGeneratorController implements Initializable {
                 }
             }
         }
+        setCellSizes();
         gridPaneCells.autosize();
+    }
+
+    private void setCellSizes() {
+        double borderPaneCenterWidth = borderPane.getWidth() - accordion.getWidth(),
+               borderPaneCenterHeight = borderPane.getHeight();
+
+
+        if(borderPaneCenterHeight != 0 && borderPaneCenterWidth != 0) {
+            int rowsCount = topologyGenerator.getOptions().getCellY(),
+                    columnCount = topologyGenerator.getOptions().getCellX();
+
+            double heightRatio = borderPaneCenterHeight / rowsCount,
+                    widthRatio = borderPaneCenterWidth / columnCount,
+                    heightAndWidth;
+
+            if(heightRatio < widthRatio)
+                heightAndWidth = (borderPaneCenterHeight-20) / rowsCount;
+            else
+                heightAndWidth = (borderPaneCenterWidth-20) / columnCount;
+
+
+            for(CellOptionsController c : cellOptionsList)
+                 c.setSize(heightAndWidth);
+        }
     }
 
     private void disposeOldCellControllers() {
@@ -96,26 +123,6 @@ public class TopologyGeneratorController implements Initializable {
                 } catch (Exception ignored) { }
         }
         gridPaneCells.getChildren().clear();
-    }
-
-    private void enableZoom() {
-        rootPane.setOnScroll(new EventHandler<ScrollEvent>() {
-            @Override public void handle(ScrollEvent event) {
-                event.consume();
-
-                if (event.getDeltaY() == 0) {
-                    return;
-                }
-
-                double scaleFactor =
-                        (event.getDeltaY() > 0)
-                                ? 1.1
-                                : 1/1.1;
-
-                gridPaneCells.setScaleX(gridPaneCells.getScaleX() * scaleFactor);
-                gridPaneCells.setScaleY(gridPaneCells.getScaleY() * scaleFactor);
-            }
-        });
     }
 
     private void showGridSettingsChanged(Boolean newValue) {

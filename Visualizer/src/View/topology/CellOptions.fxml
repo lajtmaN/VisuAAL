@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 
 
-<Pane fx:id="rootPane" maxHeight="160" maxWidth="160" minHeight="160" minWidth="160" style="-fx-border-color: black;" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.topology.CellOptionsController">
+<Pane fx:id="rootPane" maxHeight="200" maxWidth="200" minHeight="200" minWidth="200" style="-fx-border-color: black;" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.topology.CellOptionsController">
    <children>
       <GridPane fx:id="gridPane">
           <padding>
