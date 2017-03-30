@@ -256,7 +256,7 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    public void onLeaveTopologyGeneratorTab(Event event) {
+    public void onChangeTopologyGeneratorTab(Event event) {
         Tab selectedTab = (event.getSource() instanceof Tab ? (Tab)event.getSource() : null);
         if (selectedTab != null && !selectedTab.isSelected())
             handleRandomTopologyIfActivated(true);

@@ -60,7 +60,7 @@
                </VBox>
            </content>
        </Tab>
-       <Tab fx:id="topologyGeneratorTab" closable="false" text="Topology Generator" onSelectionChanged="#onLeaveTopologyGeneratorTab">
+       <Tab fx:id="topologyGeneratorTab" closable="false" text="Topology Generator" onSelectionChanged="#onChangeTopologyGeneratorTab">
            <fx:include source="topology/TopologyGenerator.fxml" fx:id="topologyGenerator"/>
        </Tab>
       <Tab closable="false" text="Query Generator">

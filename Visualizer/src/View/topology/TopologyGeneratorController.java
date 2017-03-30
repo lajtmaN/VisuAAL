@@ -5,6 +5,7 @@ import Model.UPPAALTopology;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
 import View.IntegerTextField;
+import View.MainWindowController;
 import View.ToggleSwitch;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,6 +17,7 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import sun.applet.Main;
 
 import java.io.IOException;
 import java.net.URL;
@@ -95,7 +97,6 @@ public class TopologyGeneratorController implements Initializable {
         double borderPaneCenterWidth = borderPane.getWidth() - accordion.getWidth(),
                borderPaneCenterHeight = borderPane.getHeight();
 
-
         if(borderPaneCenterHeight != 0 && borderPaneCenterWidth != 0) {
             int rowsCount = topologyGenerator.getOptions().getCellY(),
                     columnCount = topologyGenerator.getOptions().getCellX();
@@ -108,7 +109,6 @@ public class TopologyGeneratorController implements Initializable {
                 heightAndWidth = (borderPaneCenterHeight-20) / rowsCount;
             else
                 heightAndWidth = (borderPaneCenterWidth-20) / columnCount;
-
 
             for(CellOptionsController c : cellOptionsList)
                  c.setSize(heightAndWidth);
@@ -156,5 +156,4 @@ public class TopologyGeneratorController implements Initializable {
     public void preview(ActionEvent actionEvent) {
         topologyViewerController.showGraph(generateTopology().getGraph(true), false);
     }
-
 }
