@@ -6,6 +6,7 @@ import Helpers.MathHelpers;
 import Helpers.Pair;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
+import Model.topology.LatLngBounds;
 import com.lynden.gmapsfx.javascript.object.LatLong;
 import com.lynden.gmapsfx.javascript.object.LatLongBounds;
 import org.graphstream.graph.Graph;
@@ -78,22 +79,27 @@ public class TopologyGenerator {
         return generateUppaalTopology(null);
     }
 
-    public UPPAALTopology generateUppaalTopology(LatLongBounds bounds) {
+    public UPPAALTopology generateUppaalTopology(LatLngBounds bounds) {
+        return generateUppaalTopology(bounds, null);
+    }
+
+    public UPPAALTopology generateUppaalTopology(LatLngBounds bounds, String backgroundImagePath) {
         if (bounds != null) {
             Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateGridSizeInMeters(bounds);
             setCellWidthInMeters(widthAndHeight.getFirst() / getOptions().getCellX());
             setCellHeightInMeters(widthAndHeight.getSecond() / getOptions().getCellY());
+
         } else {
             setCellWidthInMeters(1);
             setCellHeightInMeters(1);
         }
 
         ArrayList<CellNode> nodes = generateNodes();
-        return generateUppaalTopology(nodes, bounds);
+        return generateUppaalTopology(nodes, backgroundImagePath);
     }
 
-    private UPPAALTopology generateUppaalTopology(ArrayList<CellNode> nodes, LatLongBounds bounds) {
-        UPPAALTopology result = new UPPAALTopology(nodes, bounds);
+    private UPPAALTopology generateUppaalTopology(ArrayList<CellNode> nodes, String backgroundImagePath) {
+        UPPAALTopology result = new UPPAALTopology(nodes, backgroundImagePath);
         for(int i = 0; i < nodes.size(); i++) {
             for(int j = 0; j < nodes.size(); j++){
                 if(i != j && isInRange(nodes.get(i), nodes.get(j))){

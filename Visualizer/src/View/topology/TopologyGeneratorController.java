@@ -1,6 +1,6 @@
 package View.topology;
 
-import Helpers.Pair;
+import Helpers.FileHelper;
 import Model.UPPAALTopology;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
@@ -15,11 +15,13 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
+import javafx.scene.image.Image;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
 import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -141,6 +143,8 @@ public class TopologyGeneratorController implements Initializable {
 
     private UPPAALTopology lastGeneratedTopology;
     private void generateRandomTopology() {
+        /*File backgroundImageFile = new File("simulations/background.png");
+         *topologyViewerController.getMapSnapshot(backgroundImageFile); */
         lastGeneratedTopology = topologyGenerator.generateUppaalTopology(topologyViewerController.getMapBounds());
     }
     public UPPAALTopology generateTopology(boolean generateNew) {
@@ -150,7 +154,7 @@ public class TopologyGeneratorController implements Initializable {
     }
 
     public void preview(ActionEvent actionEvent) {
-        topologyViewerController.showGraph(generateTopology(true).getGraph(true), false);
+        topologyViewerController.showGraph(generateTopology(true).getGraph(true), false, null);
     }
 
 }
