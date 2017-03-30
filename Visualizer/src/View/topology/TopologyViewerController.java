@@ -76,6 +76,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
 
         mapView.prefWidthProperty().bind(rootPane.widthProperty());
         mapView.prefHeightProperty().bind(rootPane.heightProperty());
+        initialized.set(true);
     }
 
     public void showGraph(Graph g, boolean autoLayout, SimulationDataContainer nodeVarGridPane) {

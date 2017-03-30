@@ -1,5 +1,6 @@
 package Model;
 
+import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
 import javafx.scene.image.Image;
 import org.graphstream.graph.Edge;

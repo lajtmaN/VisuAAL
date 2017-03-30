@@ -1,6 +1,5 @@
 package View.topology;
 
-import Helpers.FileHelper;
 import Model.UPPAALTopology;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
@@ -15,13 +14,11 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
-import javafx.scene.image.Image;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
 import java.io.IOException;
-import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
