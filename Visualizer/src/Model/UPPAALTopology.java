@@ -1,12 +1,18 @@
 package Model;
 
+import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
-import org.graphstream.graph.*;
+import javafx.scene.image.Image;
 import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by rasmu on 09/02/2017.
@@ -15,6 +21,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     private int _numberOfNodes;
     private transient Graph _graphInstance;
     private List<CellNode> nodes;
+    private String backgroundFilePath;
 
     public UPPAALTopology(Graph graph) {
         _graphInstance = graph;
@@ -29,9 +36,10 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         _numberOfNodes = numberOfNodes;
     }
 
-    public UPPAALTopology(List<CellNode> cellNodes) {
+    public UPPAALTopology(List<CellNode> cellNodes, String backgroundFilePath) {
         this(cellNodes.size());
         nodes = cellNodes;
+        this.backgroundFilePath = backgroundFilePath;
     }
 
     public UPPAALTopology() {}
@@ -129,7 +137,9 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         Node graphNode = getGraph(false).addNode(String.valueOf(id));
         showLabelOnNode(graphNode, String.valueOf(id));
         if (nodesHasSpecificLocations()) {
+            graphNode.addAttribute("layout.frozen");
             graphNode.setAttribute("xy", nodes.get(id).getX(), nodes.get(id).getY());
+
         }
         return graphNode;
     }
@@ -161,6 +171,14 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             updateGraph();
 
         return _graphInstance;
+    }
+
+    public String getBackgroundFilePath() {
+        return backgroundFilePath;
+    }
+
+    public Image getBackgroundImage() throws IOException {
+        return new Image(new File(backgroundFilePath).toURI().toString());
     }
 
     public boolean nodesHasSpecificLocations() {

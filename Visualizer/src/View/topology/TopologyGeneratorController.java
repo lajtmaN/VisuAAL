@@ -1,6 +1,5 @@
 package View.topology;
 
-import Helpers.Pair;
 import Model.UPPAALTopology;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
@@ -146,14 +145,19 @@ public class TopologyGeneratorController implements Initializable {
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
     }
 
-    public UPPAALTopology generateTopology() {
-        Pair<Double, Double> widthAndHeight = topologyViewerController.calculateGridSizeInMeters();
-        topologyGenerator.setCellWidthInMeters(widthAndHeight.getFirst()/topologyGenerator.getOptions().getCellX());
-        topologyGenerator.setCellHeightInMeters(widthAndHeight.getSecond()/topologyGenerator.getOptions().getCellY());
-        return topologyGenerator.generateUppaalTopology();
+    private UPPAALTopology lastGeneratedTopology;
+    private void generateRandomTopology() {
+        /*File backgroundImageFile = new File("simulations/background.png");
+         *topologyViewerController.getMapSnapshot(backgroundImageFile); */
+        lastGeneratedTopology = topologyGenerator.generateUppaalTopology(topologyViewerController.getMapBounds());
+    }
+    public UPPAALTopology generateTopology(boolean generateNew) {
+        if (lastGeneratedTopology == null || generateNew)
+            generateRandomTopology();
+        return lastGeneratedTopology;
     }
 
     public void preview(ActionEvent actionEvent) {
-        topologyViewerController.showGraph(generateTopology().getGraph(true), false);
+        topologyViewerController.showGraph(generateTopology(true).getGraph(true), false, null);
     }
 }

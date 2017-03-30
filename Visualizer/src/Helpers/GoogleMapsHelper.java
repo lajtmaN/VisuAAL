@@ -1,6 +1,7 @@
 package Helpers;
 
 import Model.Settings;
+import Model.topology.LatLngBounds;
 import com.google.maps.DistanceMatrixApi;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
@@ -49,7 +50,19 @@ public class GoogleMapsHelper {
         }
     }
 
-    public static double distanceBetween(LatLong p1, LatLong p2) {
-        return p1.distanceFrom(p2);
+    public static double distanceBetween(LatLng p1, LatLng p2) {
+        LatLong first = new LatLong(p1.lat, p1.lng);
+        LatLong sec = new LatLong(p2.lat, p2.lng);
+        return first.distanceFrom(sec);
+    }
+
+    public static Pair<Double, Double> calculateGridSizeInMeters(LatLngBounds bounds) {
+        LatLng sw = bounds.getSouthWest();
+        LatLng ne = bounds.getNorthEast();
+        LatLng nw = new LatLng(ne.lat, sw.lng);
+
+        double widthOnAllCells = GoogleMapsHelper.distanceBetween(nw, ne);
+        double heightOnAllCells = GoogleMapsHelper.distanceBetween(nw, sw);
+        return new Pair<Double, Double>(widthOnAllCells, heightOnAllCells);
     }
 }
