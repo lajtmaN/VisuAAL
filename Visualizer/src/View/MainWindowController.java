@@ -266,7 +266,7 @@ public class MainWindowController implements Initializable {
         boolean useRandomTopology = chkUseRandomTopology.switchOnProperty().get();
         if (!useRandomTopology) return;
 
-        UPPAALTopology randomTopology = topologyGeneratorController.generateTopology();
+        UPPAALTopology randomTopology = topologyGeneratorController.generateTopology(false);
         uppaalModel.setTopology(randomTopology, updateXML);
 
         //Reload outputvariables which could use nr_nodes
