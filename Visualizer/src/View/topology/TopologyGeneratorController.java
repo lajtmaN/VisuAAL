@@ -1,6 +1,5 @@
 package View.topology;
 
-import Helpers.Pair;
 import Model.UPPAALTopology;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
@@ -150,7 +149,7 @@ public class TopologyGeneratorController implements Initializable {
     }
 
     public void preview(ActionEvent actionEvent) {
-        topologyViewerController.showGraph(generateTopology(true).getGraph(true), false);
+        topologyViewerController.showGraph(generateTopology(true).getGraph(true), false, null);
     }
 
 }

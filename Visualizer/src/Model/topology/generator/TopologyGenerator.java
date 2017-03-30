@@ -6,6 +6,7 @@ import Helpers.MathHelpers;
 import Helpers.Pair;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
+import Model.topology.LatLngBounds;
 import com.lynden.gmapsfx.javascript.object.LatLong;
 import com.lynden.gmapsfx.javascript.object.LatLongBounds;
 import org.graphstream.graph.Graph;
@@ -78,7 +79,7 @@ public class TopologyGenerator {
         return generateUppaalTopology(null);
     }
 
-    public UPPAALTopology generateUppaalTopology(LatLongBounds bounds) {
+    public UPPAALTopology generateUppaalTopology(LatLngBounds bounds) {
         if (bounds != null) {
             Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateGridSizeInMeters(bounds);
             setCellWidthInMeters(widthAndHeight.getFirst() / getOptions().getCellX());
@@ -92,7 +93,7 @@ public class TopologyGenerator {
         return generateUppaalTopology(nodes, bounds);
     }
 
-    private UPPAALTopology generateUppaalTopology(ArrayList<CellNode> nodes, LatLongBounds bounds) {
+    private UPPAALTopology generateUppaalTopology(ArrayList<CellNode> nodes, LatLngBounds bounds) {
         UPPAALTopology result = new UPPAALTopology(nodes, bounds);
         for(int i = 0; i < nodes.size(); i++) {
             for(int j = 0; j < nodes.size(); j++){

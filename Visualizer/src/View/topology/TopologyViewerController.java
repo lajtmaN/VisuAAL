@@ -2,7 +2,9 @@ package View.topology;
 
 import Helpers.GoogleMapsHelper;
 import Helpers.Pair;
+import Model.topology.LatLngBounds;
 import View.simulation.MouseClickListener;
+import View.simulation.SimulationDataContainer;
 import com.google.maps.model.LatLng;
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
@@ -29,6 +31,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
     public GridPane rootPane;
 
     private BooleanProperty showMap = new SimpleBooleanProperty(true);
+    private BooleanProperty initialized = new SimpleBooleanProperty(false);
     private GoogleMap map;
 
     @Override
@@ -55,22 +58,30 @@ public class TopologyViewerController implements Initializable, MapComponentInit
 
         mapView.prefWidthProperty().bind(rootPane.widthProperty());
         mapView.prefHeightProperty().bind(rootPane.heightProperty());
+        initialized.set(true);
     }
 
-    public void showGraph(Graph g, boolean autoLayout) {
-        Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateGridSizeInMeters(getMapBounds());
-
+    public void showGraph(Graph g, boolean autoLayout, SimulationDataContainer nodeVarGridPane) {
         Viewer v = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
         if (autoLayout)
             v.enableAutoLayout();
         ViewPanel swingView = v.addDefaultView(false);
         SwingUtilities.invokeLater(() -> {
-            swingView.getCamera().setGraphViewport(0,0, widthAndHeight.getFirst(), widthAndHeight.getSecond());
-            swingView.getCamera().setViewCenter(widthAndHeight.getFirst()/2, widthAndHeight.getSecond()/2, 0);
             graphStreamNode.setContent(swingView);
         });
-        //MouseClickListener mouse = new MouseClickListener(v, g, nodeVarGridPane);
-        //mouse.start();
+
+        if (isMapShown()) {
+            Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateGridSizeInMeters(getMapBounds());
+            SwingUtilities.invokeLater(() -> {
+                swingView.getCamera().setGraphViewport(0, 0, widthAndHeight.getFirst(), widthAndHeight.getSecond());
+                swingView.getCamera().setViewCenter(widthAndHeight.getFirst() / 2, widthAndHeight.getSecond() / 2, 0);
+            });
+        }
+
+        if (nodeVarGridPane != null) {
+            MouseClickListener mouse = new MouseClickListener(v, g, nodeVarGridPane);
+            mouse.start();
+        }
     }
 
     public boolean isMapShown() {
@@ -85,7 +96,15 @@ public class TopologyViewerController implements Initializable, MapComponentInit
         this.showMap.set(showMap);
     }
 
-    public LatLongBounds getMapBounds() {
-        return map.getBounds();
+    public LatLngBounds getMapBounds() {
+        return new LatLngBounds(map.getBounds());
+    }
+
+    public void setMapBounds(LatLngBounds bounds) {
+        map.fitBounds(bounds.getAsLatLongBounds());
+    }
+
+    public BooleanProperty isInitializedProperty() {
+        return initialized;
     }
 }

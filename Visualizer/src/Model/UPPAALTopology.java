@@ -1,5 +1,6 @@
 package Model;
 
+import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
 import com.lynden.gmapsfx.javascript.object.LatLongBounds;
 import org.graphstream.graph.*;
@@ -16,7 +17,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     private int _numberOfNodes;
     private transient Graph _graphInstance;
     private List<CellNode> nodes;
-    private transient LatLongBounds geographicMapBounds;
+    private LatLngBounds geographicMapBounds;
 
     public UPPAALTopology(Graph graph) {
         _graphInstance = graph;
@@ -31,7 +32,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         _numberOfNodes = numberOfNodes;
     }
 
-    public UPPAALTopology(List<CellNode> cellNodes, LatLongBounds mapBounds) {
+    public UPPAALTopology(List<CellNode> cellNodes, LatLngBounds mapBounds) {
         this(cellNodes.size());
         nodes = cellNodes;
         geographicMapBounds = mapBounds;
@@ -166,6 +167,9 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         return _graphInstance;
     }
 
+    public LatLngBounds getGeographicMapBounds() {
+        return geographicMapBounds;
+    }
     public boolean nodesHasSpecificLocations() {
         return nodes != null;
     }

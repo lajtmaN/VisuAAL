@@ -23,10 +23,7 @@
    <center>
       <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-             <SwingNode fx:id="graphStreamNode">
-               <StackPane.margin>
-                  <Insets left="5.0" right="5.0" />
-               </StackPane.margin></SwingNode>
+             <fx:include source="../topology/TopologyViewer.fxml" fx:id="topologyViewer"/>
             <GridPane fx:id="globalVarGridPane" pickOnBounds="false" StackPane.alignment="TOP_LEFT">
                <padding>
                   <Insets left="10.0" top="10.0" />

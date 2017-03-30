@@ -1,6 +1,7 @@
 package View.simulation;
 
 import Model.Simulations;
+import View.topology.TopologyViewerController;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -31,8 +32,8 @@ public class SimulationResultController implements Initializable {
     @FXML private SimulationDataContainer nodeVarGridPane;
     @FXML private Slider timeSlider;
     @FXML private Label lblCurrentTime;
-    @FXML private SwingNode graphStreamNode;
     @FXML private SimulationMenuController simulationMenuController;
+    @FXML private TopologyViewerController topologyViewerController;
 
     private Simulations currentSimulations;
 
@@ -48,9 +49,13 @@ public class SimulationResultController implements Initializable {
         currentSimulations = run;
 
         setupControlsBasedOnCurrentSimulation();
-        initializeGraphStreamViewer();
         simulationMenuController.loadWithSimulation(currentSimulations);
         nodeVarGridPane.initialize(currentSimulations);
+
+        topologyViewerController.isInitializedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue)
+                initializeGraphStreamViewer();
+        });
     }
 
     private void bindSizes() {
@@ -65,14 +70,13 @@ public class SimulationResultController implements Initializable {
     }
 
     private void initializeGraphStreamViewer() {
-        Viewer v = new Viewer(currentSimulations.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-        if (!currentSimulations.getTopology().nodesHasSpecificLocations())
-            v.enableAutoLayout();
-        ViewPanel swingView = v.addDefaultView(false);
-        SwingUtilities.invokeLater(() -> graphStreamNode.setContent(swingView));
-
-        MouseClickListener mouse = new MouseClickListener(v, currentSimulations.getGraph(), nodeVarGridPane);
-        mouse.start();
+        if (currentSimulations.getTopology().getGeographicMapBounds() != null) {
+            topologyViewerController.setMapBounds(currentSimulations.getTopology().getGeographicMapBounds());
+        } else {
+            topologyViewerController.setShowMap(false);
+        }
+        boolean autolayout = !currentSimulations.getTopology().nodesHasSpecificLocations();
+        topologyViewerController.showGraph(currentSimulations.getGraph(), autolayout, nodeVarGridPane);
     }
 
     private void handleCurrentTimeChanged(Number newTime, Number oldTime) {
