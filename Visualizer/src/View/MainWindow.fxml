@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import View.ToggleSwitch?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -13,10 +11,13 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import View.ToggleSwitch?>
 
-<GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainWindowController">
+<GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainWindowController">
 
     <children>
 <GridPane fx:id="horizontalGrid" prefHeight="48.0">
@@ -60,8 +61,8 @@
                </VBox>
            </content>
        </Tab>
-       <Tab fx:id="topologyGeneratorTab" closable="false" text="Topology Generator" onSelectionChanged="#onChangeTopologyGeneratorTab">
-           <fx:include source="topology/TopologyGenerator.fxml" fx:id="topologyGenerator"/>
+       <Tab fx:id="topologyGeneratorTab" closable="false" onSelectionChanged="#onChangeTopologyGeneratorTab" text="Topology Generator">
+           <fx:include fx:id="topologyGenerator" source="topology/TopologyGenerator.fxml" />
        </Tab>
       <Tab closable="false" text="Query Generator">
            <content>
@@ -70,6 +71,7 @@
                        <ColumnConstraints />
                    </columnConstraints>
                    <rowConstraints>
+                       <RowConstraints />
                        <RowConstraints />
                        <RowConstraints />
                        <RowConstraints />
@@ -116,35 +118,23 @@
                                <ToggleSwitch fx:id="chkUseRandomTopology" maxHeight="20.0" maxWidth="80.0" GridPane.columnIndex="6" />
                            </children>
                        </GridPane>
-                       <Button mnemonicParsing="false" onAction="#generateQuery" text="Generate Query" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                       <TextArea fx:id="queryGeneratedTextField" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.rowIndex="3">
-                           <padding>
-                               <Insets left="20.0" right="20.0" />
-                           </padding>
-                       </TextArea>
                    </children>
+                   <HBox alignment="CENTER" spacing="30.0" style="-fx-border-width: 1 0 0 0; -fx-border-color: black" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                       <TextField fx:id="txtSimulationName" alignment="CENTER" maxWidth="200.0" promptText="Simulation Name" />
+                       <Button mnemonicParsing="false" onAction="#runSimulationQuery" prefWidth="200.0" text="Run Simulation Query in UPPAAL" />
+                        <padding>
+                           <Insets top="10.0" />
+                        </padding>
+                   </HBox>
+                   <ProgressIndicator fx:id="simulationProgress" GridPane.rowIndex="3" />
+                   <TextArea fx:id="txtUppaalOutput" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.rowIndex="4">
+                       <padding>
+                           <Insets left="20.0" right="20.0" />
+                       </padding>
+                   </TextArea>
                </GridPane>
            </content>
        </Tab>
-      <Tab closable="false" text="Run Query">
-           <content>
-              <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-                 <children>
-                    <Button mnemonicParsing="false" onAction="#runSimulationQuery" prefWidth="200.0" text="Run Simulation Query in UPPAAL">
-                           <VBox.margin>
-                              <Insets top="20.0" />
-                           </VBox.margin></Button>
-                    <TextField fx:id="txtSimulationName" alignment="CENTER" maxWidth="200.0" promptText="Simulation Name" />
-                    <ProgressIndicator fx:id="simulationProgress" />
-                    <TextArea fx:id="txtUppaalOutput" prefHeight="200.0" prefWidth="200.0" wrapText="true">
-                       <padding>
-                          <Insets left="20.0" right="20.0" />
-                       </padding>
-                    </TextArea>
-                 </children>
-              </VBox>
-           </content>
-      </Tab>
    </tabs>
 </TabPane>
     </children>

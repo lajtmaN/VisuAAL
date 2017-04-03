@@ -11,7 +11,7 @@ import java.io.PrintStream;
  */
 public class PrintStreamRedirector extends PrintStream {
     private TextInputControl textField;
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     public PrintStreamRedirector(TextInputControl controlToUpdate) {
         super(new ByteArrayOutputStream());
@@ -20,7 +20,11 @@ public class PrintStreamRedirector extends PrintStream {
 
     @Override
     public void println(String x) {
-        if (x != null && x.contains("Formula is satisfied.")) {
+        if (x != null && x.contains("Verifying formula 1")) {
+            enabled = true;
+            return; //We don't want to print this line
+        }
+        else if (x != null && x.contains("Formula is satisfied.")) {
             enabled = false;
             String finishedMessage = "UPPAAL finished... " + System.lineSeparator() + "Crunching numbers..." + System.lineSeparator();
             Platform.runLater(() -> textField.appendText(finishedMessage));
