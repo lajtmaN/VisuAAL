@@ -36,7 +36,7 @@
 <TabPane fx:id="tabPane" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
 
    <tabs>
-      <Tab fx:id="configurationTab" closable="false" onSelectionChanged="#onLeaveConfigurationTab" text="Configuration">
+      <Tab fx:id="configurationTab" closable="false" text="Configuration">
          <content>
             <TableView fx:id="constantsTable" editable="true" GridPane.rowIndex="0">
               <columns>
@@ -61,10 +61,10 @@
                </VBox>
            </content>
        </Tab>
-       <Tab fx:id="topologyGeneratorTab" closable="false" onSelectionChanged="#onChangeTopologyGeneratorTab" text="Topology Generator">
+       <Tab fx:id="topologyGeneratorTab" closable="false" text="Topology Generator">
            <fx:include fx:id="topologyGenerator" source="topology/TopologyGenerator.fxml" />
        </Tab>
-      <Tab closable="false" text="Query Generator">
+      <Tab closable="false" text="Simulation Generator">
            <content>
                <GridPane fx:id="queryGridPane" hgap="10" vgap="10">
                    <columnConstraints>
@@ -81,6 +81,7 @@
                        <TableView fx:id="tableOutputVars" editable="true" prefHeight="200" prefWidth="800.0" GridPane.rowIndex="0">
                            <columns>
                                <TableColumn fx:id="outputVarUse" text="Use" />
+                               <TableColumn fx:id="outputVarScope" editable="false" text="Scope" />
                                <TableColumn fx:id="outputVarName" editable="false" text="Name" />
                                <TableColumn fx:id="outputVarEdge" editable="false" text="Edge" />
                                <TableColumn fx:id="outputVarNode" editable="false" text="Node" />

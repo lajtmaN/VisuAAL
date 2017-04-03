@@ -13,7 +13,6 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -50,6 +49,7 @@ public class MainWindowController implements Initializable {
     @FXML private GridPane rootElement;
     @FXML private TableView<OutputVariable> tableOutputVars;
     @FXML private TableColumn<OutputVariable, String> outputVarName;
+    @FXML private TableColumn<OutputVariable, String> outputVarScope;
     @FXML private TableColumn<OutputVariable, Boolean> outputVarEdge;
     @FXML private TableColumn<OutputVariable, Boolean> outputVarNode;
     @FXML private TableColumn<OutputVariable, Boolean> outputVarUse;
@@ -136,6 +136,12 @@ public class MainWindowController implements Initializable {
 
     private void initializeOutputVarsTable() {
         outputVarName.setCellValueFactory(p -> p.getValue().name());
+        outputVarScope.setCellValueFactory(cell -> ((Callback<OutputVariable, StringProperty>) cellValue -> {
+            if (cellValue.getScope() == null)
+                return new SimpleStringProperty("Global");
+            return cellValue.scopeProperty();
+        }).call(cell.getValue()));
+
         outputVarEdge.setCellValueFactory(p -> p.getValue().isEdgeData());
         outputVarEdge.setCellFactory(p -> new CheckBoxTableCell<>());
         outputVarNode.setCellValueFactory(p -> p.getValue().isNodeData());
