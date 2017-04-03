@@ -30,7 +30,7 @@ public class QueryGeneratorTests {
 
     @Test
     public void createRelationshipQuery() {
-        String expected = "simulate 1 [<=1000] { data[0][0] > 0, data[0][1] > 0, data[1][0] > 0, data[1][1] > 0 }";
+        String expected = "simulate 1 [<=1000] { data[0][0], data[0][1], data[1][0], data[1][1] }";
         String actual = QueryGenerator.generate2DQuadraticArrayQuery("data", 2, 1, 1000);
 
         assertEquals(expected, actual);
@@ -72,7 +72,7 @@ public class QueryGeneratorTests {
 
     @Test
     public void testParseArrayQueryWithProcessNames() {
-        String expected = "simulate 1 [<=100] { Node(0).OUTPUT_test[0] > 0, Node(0).OUTPUT_test[1] > 0, Node(1).OUTPUT_test[0] > 0, Node(1).OUTPUT_test[1] > 0, OUTPUT_nr_node_relations }";
+        String expected = "simulate 1 [<=100] { Node(0).OUTPUT_test[0], Node(0).OUTPUT_test[1], Node(1).OUTPUT_test[0], Node(1).OUTPUT_test[1], OUTPUT_nr_node_relations }";
 
         //Setup
         ArrayList<CVar> constants = new ArrayList<>();
@@ -158,7 +158,7 @@ public class QueryGeneratorTests {
 
     @Test
     public void testParseQueryVariableArray() {
-        String expectedSimulationQuery = "simulate 5 [<=123] { OUTPUT_data[0] > 0, OUTPUT_data[1] > 0, OUTPUT_data[2] > 0 }";
+        String expectedSimulationQuery = "simulate 5 [<=123] { OUTPUT_data[0], OUTPUT_data[1], OUTPUT_data[2] }";
         int constantSize = 3;
 
         ArrayList<CVar> constants = new ArrayList<>();
@@ -172,7 +172,7 @@ public class QueryGeneratorTests {
 
     @Test
     public void parseOutputVariableFromScope() {
-        String expectedSimulationQuery = "simulate 5 [<=123] { Node.OUTPUT_data[0] > 0, Node.OUTPUT_data[1] > 0, Node.OUTPUT_data[2] > 0 }";
+        String expectedSimulationQuery = "simulate 5 [<=123] { Node.OUTPUT_data[0], Node.OUTPUT_data[1], Node.OUTPUT_data[2] }";
         int constantSize = 3;
 
         ArrayList<CVar> constants = new ArrayList<>();

@@ -23,6 +23,6 @@ sourceSets {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'src.Main'
+        attributes 'Main-Class': 'Main'
     }
 }
