@@ -56,7 +56,7 @@ public class QueryGenerator {
         String res = "";
         for (int i = 0; i < size; i++)
             for (int j = 0; j < size; j++) {
-                res += String.format("%1$s[%2$d][%3$d] > 0", name, i, j);
+                res += String.format("%1$s[%2$d][%3$d]", name, i, j);
                 if (i < size-1 || j < size-1) res += ", ";
             }
 
@@ -66,7 +66,7 @@ public class QueryGenerator {
     private static String generate1DArrayQueryVariables(String name, int size) {
         String res = "";
         for (int i = 0; i < size; i++) {
-            res += String.format("%s[%d] > 0", name, i);
+            res += String.format("%s[%d]", name, i);
             if (i < size-1)
                 res += ", ";
         }

@@ -16,7 +16,6 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import sun.applet.Main;
 
 import java.io.IOException;
 import java.net.URL;
