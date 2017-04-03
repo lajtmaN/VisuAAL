@@ -14,12 +14,23 @@ import java.util.stream.Stream;
 public class Simulation implements Serializable {
     private int currentSimulationIndex = 0;
 
+    public double getMinValue() {
+        return minValue;
+    }
+
+    public double getMaxValue() {
+        return maxValue;
+    }
+
+    private double minValue, maxValue;
+
     protected final List<? extends SimulationPoint> simulationPoints;
     private Simulations parent;
     private boolean shown = false;
 
     public Simulation(List<? extends SimulationPoint> points) {
         this.simulationPoints = points;
+        calculateMinMaxValues();
     }
 
     public void initialize(Simulations parent, double modelTimeUnit) {
@@ -133,5 +144,20 @@ public class Simulation implements Serializable {
 
     public List<? extends SimulationPoint> getSimulationPoints() {
         return simulationPoints;
+    }
+
+    private void calculateMinMaxValues(){
+        minValue= Double.MAX_VALUE;
+        maxValue = Double.MIN_VALUE;
+
+        for (SimulationPoint sp : simulationPoints)
+        {
+            if (sp.getValue() < minValue){
+                minValue = sp.getValue();
+            }
+            if(sp.getValue() > maxValue){
+                maxValue = sp.getValue();
+            }
+        }
     }
 }
