@@ -13,7 +13,6 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -41,7 +40,6 @@ public class MainWindowController implements Initializable {
     @FXML private ProgressIndicator simulationProgress;
     @FXML private TextArea txtUppaalOutput;
     @FXML private TextField txtSimulationName;
-    @FXML private TextArea queryGeneratedTextField;
     @FXML private TableColumn<CVar, String> columnName;
     @FXML private TableColumn<CVar, CVar> columnValue;
     @FXML private TableColumn<CVar, String> columnScope;
@@ -51,6 +49,7 @@ public class MainWindowController implements Initializable {
     @FXML private GridPane rootElement;
     @FXML private TableView<OutputVariable> tableOutputVars;
     @FXML private TableColumn<OutputVariable, String> outputVarName;
+    @FXML private TableColumn<OutputVariable, String> outputVarScope;
     @FXML private TableColumn<OutputVariable, Boolean> outputVarEdge;
     @FXML private TableColumn<OutputVariable, Boolean> outputVarNode;
     @FXML private TableColumn<OutputVariable, Boolean> outputVarUse;
@@ -137,6 +136,12 @@ public class MainWindowController implements Initializable {
 
     private void initializeOutputVarsTable() {
         outputVarName.setCellValueFactory(p -> p.getValue().name());
+        outputVarScope.setCellValueFactory(cell -> ((Callback<OutputVariable, StringProperty>) cellValue -> {
+            if (cellValue.getScope() == null)
+                return new SimpleStringProperty("Global");
+            return cellValue.scopeProperty();
+        }).call(cell.getValue()));
+
         outputVarEdge.setCellValueFactory(p -> p.getValue().isEdgeData());
         outputVarEdge.setCellFactory(p -> new CheckBoxTableCell<>());
         outputVarNode.setCellValueFactory(p -> p.getValue().isNodeData());
@@ -150,8 +155,7 @@ public class MainWindowController implements Initializable {
     private void resetGUI() {
         Control[] controlsToReset = new Control[]{
                 txtUppaalOutput, txtQuerySimulations, txtQueryTimeBound,
-                txtSimulationName, queryGeneratedTextField,
-                constantsTable, dynamicTable, tableOutputVars
+                txtSimulationName, constantsTable, dynamicTable, tableOutputVars
         };
 
         for (Control ctrl : controlsToReset) {
@@ -194,12 +198,6 @@ public class MainWindowController implements Initializable {
         GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Model successfully saved");
     }
 
-    public void onLeaveConfigurationTab(Event event) {
-        Tab selectedTab = (event.getSource() instanceof Tab ? (Tab)event.getSource() : null);
-        if(selectedTab != null && !selectedTab.isSelected())
-            setConstantTableSaveOnUnFocus();
-    }
-
     private void setConstantTableSaveOnUnFocus() {
         constantsTable.requestFocus();
         if(constantsChanged){
@@ -234,7 +232,7 @@ public class MainWindowController implements Initializable {
         initializeWithLoadedModel();
     }
 
-    public void generateQuery(ActionEvent actionEvent) {
+    private String generateQuery() {
         FilteredList<OutputVariable> vars = tableOutputVars.getItems().filtered(
                 outputVariable -> outputVariable.isSelected().getValue());
         if(vars == null || vars.size() == 0) {
@@ -244,22 +242,17 @@ public class MainWindowController implements Initializable {
                 int time = Integer.parseInt(txtQueryTimeBound.getText());
                 int nrSimulations = Integer.parseInt(txtQuerySimulations.getText());
 
-                if(time > 0  && nrSimulations > 0) {
-                    queryGeneratedTextField.setText(QueryGenerator.generateSimulationQuery(time, nrSimulations, vars, uppaalModel.getProcesses()));
-                }
                 if(time <= 0 || nrSimulations <= 0){
                     GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Timebound and number of simulations must be positive integers");
+                }
+                else if (time > 0  && nrSimulations > 0) {
+                    return QueryGenerator.generateSimulationQuery(time, nrSimulations, vars, uppaalModel.getProcesses());
                 }
             } catch (Exception e) {
                 GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Timebound and number of simulations must be positive integers");
             }
         }
-    }
-
-    public void onChangeTopologyGeneratorTab(Event event) {
-        Tab selectedTab = (event.getSource() instanceof Tab ? (Tab)event.getSource() : null);
-        if (selectedTab != null && !selectedTab.isSelected())
-            handleRandomTopologyIfActivated(true);
+        return null;
     }
 
     private void handleRandomTopologyIfActivated(boolean updateXML) {
@@ -268,30 +261,30 @@ public class MainWindowController implements Initializable {
 
         UPPAALTopology randomTopology = topologyGeneratorController.generateTopology(false);
         uppaalModel.setTopology(randomTopology, updateXML);
-
-        //Reload outputvariables which could use nr_nodes
-        reloadOutputVariables();
     }
 
     private void reloadOutputVariables() {
         uppaalModel.getOutputVars().setAll(UPPAALParser.getUPPAALOutputVars(uppaalModel.getModelPath()));
-        queryGeneratedTextField.setText("");
     }
 
     public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException {
-        if(queryGeneratedTextField.getText().length() == 0) {
-            GUIHelper.showAlert(Alert.AlertType.ERROR, "Please generate Query first");
-            return;
-        }
+        setConstantTableSaveOnUnFocus();
+        handleRandomTopologyIfActivated(true);
+        reloadOutputVariables();
+
         if (uppaalModel.getTopology() == null) {
             GUIHelper.showInformation("Please create a topology in Topology Creator tab first");
             return;
         }
 
-        String query = queryGeneratedTextField.getText();
+        String query = generateQuery();
+        if (query == null)
+            return;
+
         txtUppaalOutput.setText("Running query in UPPAAL..." + System.lineSeparator());
 
         simulationProgress.setVisible(true);
+        String simulationName = txtSimulationName.getText().length() > 0 ? txtSimulationName.getText() : "Result";
 
         CompletableFuture<Simulations> out = uppaalModel.runQuery(query, txtUppaalOutput); //Run in uppaal - takes long time
         out.exceptionally(th -> {
@@ -302,12 +295,10 @@ public class MainWindowController implements Initializable {
         out.thenAccept(simulation -> {
             simulationProgress.setVisible(false);
             if (simulation != null) {
-                String simulationName = txtSimulationName.getText().length() > 0 ? txtSimulationName.getText() : "Result";
                 Platform.runLater(() -> addNewResults(simulationName, simulation));
                 simulation.save(simulationName);
             }
         });
-
     }
 
     private void addNewResults(String simulationName, Simulations out) {
