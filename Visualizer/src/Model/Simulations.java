@@ -23,6 +23,7 @@ public class Simulations implements Serializable {
     private final List<Simulation> runs;
     private String query;
     private double currentTime = 0;
+    private double minValue = 0, maxValue = 1;
 
     public Simulations(UPPAALModel uppModel, String uppQuery, List<Simulation> points) {
         query = uppQuery;
@@ -193,5 +194,21 @@ public class Simulations implements Serializable {
         result = 31 * result + runs.hashCode();
         result = 31 * result + query.hashCode();
         return result;
+    }
+
+    public double getMinValue() {
+        return minValue;
+    }
+
+    public void setMinValue(double minValue) {
+        this.minValue = minValue;
+    }
+
+    public double getMaxValue() {
+        return maxValue;
+    }
+
+    public void setMaxValue(double maxValue) {
+        this.maxValue = maxValue;
     }
 }

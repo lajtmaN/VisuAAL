@@ -3,7 +3,10 @@ package View.simulation;
 
 import Helpers.OptionsHelper;
 import Model.Simulations;
+import View.IntegerTextField;
 import View.Options.*;
+import com.sun.deploy.ref.Helpers;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.cell.CheckBoxListCell;
@@ -16,6 +19,8 @@ import java.util.Arrays;
  */
 public class SimulationMenuController {
 
+    @FXML public IntegerTextField minValueText;
+    @FXML public IntegerTextField maxValueText;
     @FXML private ListView<EnableDisableSimulationOption> lstSimulationOptions;
     @FXML private ListView<EnableDisableSimulationOption> lstDisplayOptions;
     @FXML private ListView<SimulationOption> lstExportOptions;
@@ -75,5 +80,12 @@ public class SimulationMenuController {
 
     private void setHeight(ListView list) {
         list.setPrefHeight(list.getItems().size() * 24 + 2);
+    }
+
+    public void saveMinMaxValues(ActionEvent actionEvent) {
+        if(!minValueText.getText().equals("") && !maxValueText.getText().equals("")) {
+            currentSimulations.setMinValue(Integer.valueOf(minValueText.getText()));
+            currentSimulations.setMaxValue(Integer.valueOf(maxValueText.getText()));
+        }
     }
 }
