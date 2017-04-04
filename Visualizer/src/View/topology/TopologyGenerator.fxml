@@ -87,6 +87,7 @@
                            <rowConstraints>
                               <RowConstraints />
                               <RowConstraints />
+                              <RowConstraints />
                            </rowConstraints>
                            <children>
                               <Label text="Show Cell Options:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
@@ -94,6 +95,9 @@
 
                                <Label text="Show Map:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                <ToggleSwitch fx:id="chkShowMap" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+
+                               <Label text="Freeze Map:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                               <ToggleSwitch fx:id="chkFreezeMap" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
                            </children>
                         </GridPane>
                      </children>

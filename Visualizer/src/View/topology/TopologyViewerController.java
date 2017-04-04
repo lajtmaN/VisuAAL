@@ -41,6 +41,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
     public ImageView backgroundView;
 
     private BooleanProperty showMap = new SimpleBooleanProperty(true);
+    private BooleanProperty showGraph = new SimpleBooleanProperty(true);
     private BooleanProperty initialized = new SimpleBooleanProperty(false);
     private BooleanProperty mapInteractable = new SimpleBooleanProperty(true);
     private BooleanProperty showBackgroundImage = new SimpleBooleanProperty(false);
@@ -56,6 +57,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
         mapView.mouseTransparentProperty().bind(mapInteractable.not());
         backgroundView.visibleProperty().bind(showBackgroundImage);
         graphStreamNode.mouseTransparentProperty().bind(graphDraggable.not());
+        graphStreamNode.visibleProperty().bind(showGraph);
     }
 
     @Override
@@ -84,7 +86,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
         if (autoLayout)
             v.enableAutoLayout();
         ViewPanel swingView = v.addDefaultView(false);
-        //swingView.setFocusable(false);
+
         SwingUtilities.invokeLater(() -> {
             graphStreamNode.setContent(swingView);
         });
@@ -137,6 +139,10 @@ public class TopologyViewerController implements Initializable, MapComponentInit
         return initialized;
     }
 
+    public BooleanProperty mapInteractableProperty() {
+        return mapInteractable;
+    }
+
     public void setIsMapInteractable(boolean interactable) {
         mapInteractable.set(interactable);
     }
@@ -166,5 +172,13 @@ public class TopologyViewerController implements Initializable, MapComponentInit
 
     public void setIsGraphDraggable(boolean isGraphDraggable) {
         graphDraggable.set(isGraphDraggable);
+    }
+
+    public BooleanProperty graphDraggableProperty() {
+        return graphDraggable;
+    }
+
+    public BooleanProperty showGraphProperty() {
+        return showGraph;
     }
 }
