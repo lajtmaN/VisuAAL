@@ -2,6 +2,7 @@ package View.simulation;
 
 import View.topology.NodeMovedEvent;
 import View.topology.NodeMovedEventListener;
+import javafx.application.Platform;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.ui.view.Viewer;
@@ -57,7 +58,7 @@ public class MouseClickListener extends Thread implements ViewerListener {
             Object[] newXYZ = graph.getNode(id).getAttribute("xyz");
             NodeMovedEvent evt = new NodeMovedEvent(this, id, (double)newXYZ[0], (double)newXYZ[1]);
 
-            eventListeners.forEach(l -> l.onNodeMoved(evt));
+            Platform.runLater(() -> eventListeners.forEach(l -> l.onNodeMoved(evt)));
         }
     }
 

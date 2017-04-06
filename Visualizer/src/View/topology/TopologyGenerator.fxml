@@ -52,8 +52,8 @@
                         <Label text="Deviation" GridPane.columnIndex="0" GridPane.rowIndex="7" />
                         <DoubleTextField fx:id="txtNumNodesPrCellDeviationDefault" GridPane.columnIndex="1" GridPane.rowIndex="7" />
 
-                        <Button minWidth="100" onAction="#updateGlobalOptions" text="Update" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="8" />
-                        <Button minWidth="100" onAction="#preview" text="Preview Topology" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" />
+                        <Button minWidth="100" onAction="#updateGlobalOptions" text="Update Settings" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="8" />
+                        <Button minWidth="100" onAction="#preview" text="Generate New Topology" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" />
                         <padding><Insets bottom="10.0" /></padding>
                            <rowConstraints>
                               <RowConstraints />
