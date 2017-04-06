@@ -13,6 +13,7 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -70,11 +71,6 @@ public class TopologyGenerator {
         return result;
     }
 
-    public boolean isInRange(CellNode node1, CellNode node2) {
-        double nodeDistance = Math.pow(node1.getX() - node2.getX(), 2) + Math.pow(node1.getY() - node2.getY(), 2);
-        return (Math.pow(node1.getRange(), 2) > nodeDistance);
-    }
-
     public UPPAALTopology generateUppaalTopology() {
         return generateUppaalTopology(null);
     }
@@ -98,11 +94,11 @@ public class TopologyGenerator {
         return generateUppaalTopology(nodes, backgroundImagePath);
     }
 
-    private UPPAALTopology generateUppaalTopology(ArrayList<CellNode> nodes, String backgroundImagePath) {
+    public UPPAALTopology generateUppaalTopology(List<CellNode> nodes, String backgroundImagePath) {
         UPPAALTopology result = new UPPAALTopology(nodes, backgroundImagePath);
         for(int i = 0; i < nodes.size(); i++) {
             for(int j = 0; j < nodes.size(); j++){
-                if(i != j && isInRange(nodes.get(i), nodes.get(j))){
+                if(i != j && nodes.get(i).isInRange(nodes.get(j))){
                     result.add(new UPPAALEdge(String.valueOf(i), String.valueOf(j)));
                 }
             }

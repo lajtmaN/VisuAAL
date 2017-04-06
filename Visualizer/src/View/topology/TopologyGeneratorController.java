@@ -1,11 +1,14 @@
 package View.topology;
 
+import Model.UPPAALEdge;
 import Model.UPPAALTopology;
+import Model.topology.generator.CellNode;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
 import View.IntegerTextField;
 import View.MainWindowController;
 import View.ToggleSwitch;
+import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,16 +19,19 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import org.graphstream.graph.Graph;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
  * Created by lajtman on 17-03-2017.
  */
-public class TopologyGeneratorController implements Initializable {
+public class TopologyGeneratorController implements Initializable, NodeMovedEventListener {
+    @FXML private ToggleSwitch chkFreezeMap;
     @FXML private ToggleSwitch chkShowMap;
     @FXML private TopologyViewerController topologyViewerController;
     @FXML private ToggleSwitch chkShowGridSettings;
@@ -56,9 +62,16 @@ public class TopologyGeneratorController implements Initializable {
             showGridSettingsChanged(newValue);
         });
 
+        setupTopologyViewer();
+    }
+
+    private void setupTopologyViewer() {
         topologyViewerController.rootPane.prefWidthProperty().bind(gridPaneCells.widthProperty());
         topologyViewerController.rootPane.prefHeightProperty().bind(gridPaneCells.heightProperty());
         chkShowMap.switchOnProperty().bindBidirectional(topologyViewerController.showMapProperty());
+        topologyViewerController.mapInteractableProperty().bind(chkFreezeMap.switchOnProperty().not());
+        topologyViewerController.graphDraggableProperty().bind(chkFreezeMap.switchOnProperty());
+        topologyViewerController.showGraphProperty().bind(chkShowGridSettings.switchOnProperty().not());
     }
 
     private void setGridSize(int rows, int columns) {
@@ -157,6 +170,28 @@ public class TopologyGeneratorController implements Initializable {
     }
 
     public void preview(ActionEvent actionEvent) {
-        topologyViewerController.showGraph(generateTopology(true).getGraph(true), false, null);
+        Graph graph = generateTopology(true).getGraph(true);
+        showGraph(graph);
+        chkFreezeMap.switchOnProperty().set(true);
+    }
+
+    private void showGraph(Graph g) {
+        topologyViewerController.showGraph(g, false, null, this);
+    }
+
+    @Override
+    public void onNodeMoved(NodeMovedEvent evt) {
+        int nodeId = Integer.parseInt(evt.getNodeIdentifier());
+        List<CellNode> cellNodes = lastGeneratedTopology.getNodesWithSpecificLocation();
+        CellNode updatedNode = cellNodes.get(nodeId);
+        updatedNode.setX(evt.getNewX());
+        updatedNode.setY(evt.getNewY());
+        cellNodes.set(nodeId, updatedNode);
+
+        //TODO generateUppaalTopology might be overkill to use here. It calculate ALL edges for ALL nodes.
+        //Now we know the x,y we could figure out what grid it could affect (of course using the range as well)
+        //and then only update the edges in the affected cells?
+        lastGeneratedTopology = topologyGenerator.generateUppaalTopology(cellNodes, null);
+        showGraph(lastGeneratedTopology.getGraph(true));
     }
 }

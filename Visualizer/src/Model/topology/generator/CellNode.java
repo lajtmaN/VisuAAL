@@ -40,6 +40,15 @@ public class CellNode implements Serializable {
         this.y = y;
     }
 
+    public boolean isInRange(CellNode node2) {
+        double nodeDistance = Math.pow(this.getX() - node2.getX(), 2) + Math.pow(this.getY() - node2.getY(), 2);
+        return (Math.pow(this.getRange(), 2) > nodeDistance);
+    }
+
+    public static boolean isInRange(CellNode node1, CellNode node2) {
+        return node1.isInRange(node2);
+    }
+
     @Override
     public String toString() {
         return "CellNode{" +
