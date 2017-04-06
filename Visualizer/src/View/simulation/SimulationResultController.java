@@ -81,7 +81,7 @@ public class SimulationResultController implements Initializable {
 
     private void handleCurrentTimeChanged(Number newTime, Number oldTime) {
         lblCurrentTime.setText(String.format("%.1f ms", newTime.doubleValue()));
-        currentSimulations.markGraphAtTime(oldTime, newTime, globalVarGridPane, nodeVarGridPane);
+        currentSimulations.markGraphAtTime(oldTime, newTime);
     }
 
     public void btnAnimateInRealTimeClicked(ActionEvent actionEvent) {

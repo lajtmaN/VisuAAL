@@ -2,6 +2,8 @@ package Model;
 
 import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
+import View.MainWindowController;
+import View.simulation.SimulationMenuController;
 import javafx.scene.image.Image;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -79,58 +81,77 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         return g.removeEdge(e);
     }
 
-    protected void handleUpdate(SimulationPoint s, boolean mark) {
-        /*TODO: When we show multiple "values" for each edge/node, we need to refactor this,
-         * because there is not an 1-1 relation between edge and simulation point anymore.
-         * I think we could add an map from edge to a set og simulation points, and if any of these points
-         * are shown, the edge should be shown. */
+    public void updateVariableGradient(SimulationPoint s, double min, double max) {
         switch (s.getType()) {
             case EdgePoint:
-                handleEdgeEdit((SimulationEdgePoint) s, mark);
+                handleEdgeEdit((SimulationEdgePoint) s, min, max);
                 break;
             case NodePoint:
-                handleNodeEdit((SimulationNodePoint) s, mark);
+                handleNodeEdit((SimulationNodePoint) s, min, max);
                 break;
         }
     }
 
-    private void handleNodeEdit(SimulationNodePoint point, boolean mark) {
+    private void handleNodeEdit(SimulationNodePoint point, double min, double max) {
         Node node = getGraph().getNode(point.getNodeId());
         if (node == null)
             return;
 
-        if(mark)
-            markNode(node);
-        else
-            unmarkNode(node);
+        //TODO: Consider negative values
+        double diff = max - min;
+        if(diff != 0) {
+            double gradientValue = point.getValue() / diff;
+            if(gradientValue >= 1.0)
+                markGradientNode(node, 1.0);
+            else if(gradientValue <= 0.0)
+                markGradientNode(node, 0.0);
+            else
+                markGradientNode(node, gradientValue);
+        }
     }
 
-    protected void handleEdgeEdit(SimulationEdgePoint s, boolean mark) {
-        Edge edge = getGraph().getEdge(s.getEdgeIdentifier());
+    private void markGradientNode(Node node, double gradientValue) {
+        node.setAttribute("ui.color", gradientValue);
+    }
+
+    private void handleEdgeEdit(SimulationEdgePoint sp, double min, double max) {
+        Edge edge = getGraph().getEdge(sp.getEdgeIdentifier());
         if (edge == null)
             return;
 
-        if(mark)
-            markEdge(edge);
-        else
-            unmarkEdge(edge);
+        //TODO: Consider negative values
+        double diff = max - min;
+        if(diff != 0) {
+            double gradientValue = sp.getValue() / diff;
+            if(gradientValue >= 1.0)
+                markGradientEdge(edge, 1.0);
+            else if(gradientValue <= 0.0)
+                markGradientEdge(edge, 0.0);
+            else
+                markGradientEdge(edge, gradientValue);
+        }
+    }
+
+    private void markGradientEdge(Edge edge, double gradientValue) {
+        edge.setAttribute("ui.color", gradientValue);
     }
 
     private void markEdge(Edge edge) {
-        if(edge.getAttribute("ui.class") != "marked"){
-            edge.setAttribute("ui.class", "marked");
-        }
+        edge.setAttribute("ui.color", 1.0);
     }
 
     protected void unmarkAllEdges() {
         for (Edge e : getGraph().getEdgeSet())
-            e.setAttribute("ui.class", "unmarked");
+            unmarkEdge(e);
     }
 
     private void unmarkEdge(Edge edge) {
-        if(edge.getAttribute("ui.class") != "unmarked"){
-            edge.setAttribute("ui.class", "unmarked");
-        }
+        edge.setAttribute("ui.color", 0.0);
+    }
+
+    public void unmarkAllNodes() {
+        for(Node n : getGraph().getNodeSet())
+            unmarkNode(n);
     }
 
     private Node addNode(Integer id){
@@ -139,7 +160,6 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         if (nodesHasSpecificLocations()) {
             graphNode.addAttribute("layout.frozen");
             graphNode.setAttribute("xy", nodes.get(id).getX(), nodes.get(id).getY());
-
         }
         return graphNode;
     }
@@ -149,15 +169,11 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     }
 
     private void markNode(Node node) {
-        if(node.getAttribute("ui.class") != "marked") {
-            node.setAttribute("ui.class", "marked");
-        }
+        node.setAttribute("ui.color", 1.0);
     }
 
     private void unmarkNode(Node node) {
-        if(node.getAttribute("ui.class") != "unmarked"){
-            node.setAttribute("ui.class", "unmarked");
-        }
+        node.setAttribute("ui.color", 0.0);
     }
 
     public Graph getGraph() { return getGraph(false); }
@@ -199,24 +215,14 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
                     "padding: 0,0;" +
                     "}" +
             "node {" +
-                    "	fill-color: black;" +
+                    "   fill-mode: dyn-plain;" +
+                    "   fill-color: black, red;" +
                     "   text-alignment: under;" +
                     "   text-background-mode: rounded-box;" +
                     "}" +
-            "node.marked {" +
-                    "	fill-color: red;" +
-                    "}" +
-            "node.unmarked {"+
-                    "   fill-color: black;" +
-                    "}"+
             "edge {" +
-                    "   fill-color: rgba(0,0,0,32);" +
-                    "}" +
-            "edge.marked {" +
-                    "   fill-color: red;"+
-                    "}" +
-            "edge.unmarked {"+
-                    "   fill-color: rgba(0,0,0,32);" +
+                    "fill-mode: dyn-plain;" +
+                    "fill-color: white, red;" +
                     "}";
 
     @Override

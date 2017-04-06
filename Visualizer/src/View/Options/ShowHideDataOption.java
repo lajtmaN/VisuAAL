@@ -13,6 +13,7 @@ public class ShowHideDataOption extends EnableDisableSimulationOption {
     public ShowHideDataOption(Simulations simulations, OutputVariable var) {
         super(simulations);
         this.variable = var;
+        this.onProperty().setValue(false);
     }
 
     @Override
@@ -26,12 +27,12 @@ public class ShowHideDataOption extends EnableDisableSimulationOption {
     }
 
     @Override
-    public void startAction() {
-        simulations.showDataFrom(variable);
-    }
+    public void startAction() {}
 
     @Override
-    public void disableAction() {
-        simulations.hideDataFrom(variable);
+    public void disableAction() {}
+
+    public OutputVariable getOutputVariable() {
+        return variable;
     }
 }

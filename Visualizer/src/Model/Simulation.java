@@ -14,18 +14,8 @@ import java.util.stream.Stream;
 public class Simulation implements Serializable {
     private int currentSimulationIndex = 0;
 
-    public double getMinValue() {
-        return minValue;
-    }
-
-    public double getMaxValue() {
-        return maxValue;
-    }
-
-    private double minValue, maxValue;
-
     protected final List<? extends SimulationPoint> simulationPoints;
-    private Simulations parent;
+    private Simulations parentSimulations;
     private boolean shown = false;
 
     public Simulation(List<? extends SimulationPoint> points) {
@@ -34,7 +24,7 @@ public class Simulation implements Serializable {
     }
 
     public void initialize(Simulations parent, double modelTimeUnit) {
-        this.parent = parent;
+        this.parentSimulations = parent;
         applyModelTimeUnit(modelTimeUnit);
     }
 
@@ -46,83 +36,42 @@ public class Simulation implements Serializable {
         }
     }
 
-    void markGraphForward(double newTimeValue, double oldTime, GridPane globalVarGridPane,
-                                  SimulationDataContainer varGridPane) {
-        SimulationPoint sp;
-        //Make sure that more elements at same end time all are included
-        while (!((sp = simulationPoints.get(currentSimulationIndex)).getClock() > newTimeValue)) {
-            if (sp.getClock() >= oldTime) {
-                boolean shown = pointIsShown(sp, newTimeValue) && sp.getValue() > 0;
-                parent.handleUpdate(sp, shown, sp.getValue(), globalVarGridPane, varGridPane);
-            }
-            if (currentSimulationIndex + 1 >= simulationPoints.size())
-                break;
-            if (simulationPoints.get(currentSimulationIndex + 1).getClock() <= newTimeValue)
-                currentSimulationIndex++;
-            else break;
-        }
-    }
+    public void updateVariable(SimulationPoint sp, double min, double max) {
+        /*if (sp.getType() == SimulationPoint.SimulationPointType.Variable)
+            updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(sp.getValue()), globalVarGridPane);
 
-    void markGraphBackwards(double newTimeValue, double oldTime, GridPane globalVarGridPane,
-                                    SimulationDataContainer varGridPane) {
-        SimulationPoint sp;
-        while (!((sp = simulationPoints.get(currentSimulationIndex)).getClock() < newTimeValue)) {
-            if (sp.getClock() <= oldTime) {
-                boolean shown = pointIsShown(sp, newTimeValue) && sp.getPreviousValue() > 0;
-                parent.handleUpdate(sp, shown, sp.getPreviousValue(), globalVarGridPane, varGridPane);
-            }
-            if (currentSimulationIndex - 1 < 0)
-                break;
-            if (simulationPoints.get(currentSimulationIndex - 1).getClock() >= newTimeValue)
-                currentSimulationIndex--;
-            else break;
-        }
+        if (sp.getType() == SimulationPoint.SimulationPointType.NodePoint)
+                varGridPane.updateVariable(((SimulationNodePoint)sp).getNodeId(), sp.getTrimmedIdentifier(), sp.getValue());*/
+
+        parentSimulations.getTopology().updateVariableGradient(sp, min, max);
     }
 
     private boolean pointIsShown(SimulationPoint sp, double atTime) {
         return shown && sp.isShown(atTime);
     }
     private boolean pointIsShown(SimulationPoint sp) {
-        return pointIsShown(sp, parent.getCurrentTime());
+        return pointIsShown(sp, parentSimulations.getCurrentTime());
     }
 
-    public void showDataFrom(OutputVariable variable) {
+    /*public void showDataFor(OutputVariable variable) {
         List<SimulationPoint> simulationPointsForThisVar = relatedSimulationPoints(variable).collect(Collectors.toList());
         simulationPointsForThisVar.forEach(sp -> sp.showVariable());
         if (isShown())
             handleUpdate(simulationPointsForThisVar);
     }
 
-    public void hideDataFrom(OutputVariable variable) {
+    public void hideDataFor(OutputVariable variable) {
         List<SimulationPoint> simulationPointsForThisVar = relatedSimulationPoints(variable).collect(Collectors.toList());
         simulationPointsForThisVar.forEach(sp -> sp.hideVariable());
         if (isShown())
             handleUpdate(simulationPointsForThisVar);
     }
 
-    private void handleUpdate(List<? extends SimulationPoint> points) {
-        points.forEach(sp -> parent.handleUpdate(sp, pointIsShown(sp)));
-    }
-
     private Stream<? extends SimulationPoint> relatedSimulationPoints(OutputVariable variable) {
         return simulationPoints.stream().filter(data ->
                 data.getType() == variable.getCorrespondingSimulationPointType()
                         && data.getTrimmedIdentifier().equals(variable.getName()));
-    }
-
-    public void show() {
-        shown = true;
-        handleUpdate(simulationPoints);
-    }
-
-    public void hide() {
-        shown = false;
-        handleUpdate(simulationPoints);
-    }
-
-    public boolean isShown() {
-        return shown;
-    }
+    }*/
 
     @Override
     public boolean equals(Object o) {
@@ -147,7 +96,7 @@ public class Simulation implements Serializable {
     }
 
     private void calculateMinMaxValues(){
-        minValue= Double.MAX_VALUE;
+        /*minValue= Double.MAX_VALUE;
         maxValue = Double.MIN_VALUE;
 
         for (SimulationPoint sp : simulationPoints)
@@ -158,6 +107,6 @@ public class Simulation implements Serializable {
             if(sp.getValue() > maxValue){
                 maxValue = sp.getValue();
             }
-        }
+        }*/
     }
 }

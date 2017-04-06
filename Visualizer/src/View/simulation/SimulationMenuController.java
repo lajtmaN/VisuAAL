@@ -1,16 +1,15 @@
 package View.simulation;
 
 
+import Helpers.GUIHelper;
 import Helpers.OptionsHelper;
+import Model.OutputVariable;
 import Model.Simulations;
 import View.IntegerTextField;
 import View.Options.*;
-import com.sun.deploy.ref.Helpers;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
-import javafx.scene.control.cell.CheckBoxListCell;
-import javafx.util.StringConverter;
 
 import java.util.Arrays;
 
@@ -60,10 +59,43 @@ public class SimulationMenuController {
         //TODO Description is not updated when the onProperty changes.
         lstDisplayOptions.setCellFactory(OptionsHelper.optionListCell());
 
-        lstDisplayOptions.setOnMouseClicked(p -> {
-            EnableDisableSimulationOption optionClicked = lstDisplayOptions.getSelectionModel().getSelectedItem();
-            optionClicked.onProperty().set(!optionClicked.onProperty().get());
-        });
+        for(EnableDisableSimulationOption s : lstDisplayOptions.getItems()) {
+            s.onProperty().addListener((observable, oldValue, newValue) ->
+            {
+                if(!(s instanceof ShowHideDataOption) || oldValue.equals(newValue))
+                    return;
+
+                ShowHideDataOption option = (ShowHideDataOption) s;
+                OutputVariable v = option.getOutputVariable();
+                if(newValue) {
+                    //unmark other of same type
+                    for (EnableDisableSimulationOption eds : this.lstDisplayOptions.getItems().filtered(
+                            m -> (m instanceof ShowHideDataOption) && m != s)) {
+                        OutputVariable ov = ((ShowHideDataOption) eds).getOutputVariable();
+                        if (ov.getIsNodeData() && v.getIsNodeData())
+                            eds.onProperty().set(false);
+                        else if (ov.getIsEdgeData() && v.getIsEdgeData())
+                            eds.onProperty().set(false);
+                    }
+
+                    //Set the current node or data output variable
+                    if (v.getIsEdgeData()) {
+                        currentSimulations.setShownEdgeVariable(v);
+                    } else if(v.getIsNodeData()) {
+                        currentSimulations.setShownNodeVariable(v);
+                    }
+                }
+                else {
+                    //Disable the shown variable
+                    if (v.getIsEdgeData() && v == currentSimulations.getShownEdgeVariable()) {
+                        currentSimulations.setShownEdgeVariable(null);
+                    } else if (v.getIsNodeData() && v == currentSimulations.getShownNodeVariable()) {
+                        currentSimulations.setShownNodeVariable(null);
+                    }
+                }
+                //s.onProperty().set(newValue);
+            });
+        }
     }
 
     private void initializeSimulationOptions() {
@@ -84,8 +116,16 @@ public class SimulationMenuController {
 
     public void saveMinMaxValues(ActionEvent actionEvent) {
         if(!minValueText.getText().equals("") && !maxValueText.getText().equals("")) {
-            currentSimulations.setMinValue(Integer.valueOf(minValueText.getText()));
-            currentSimulations.setMaxValue(Integer.valueOf(maxValueText.getText()));
+            int min = Integer.valueOf(minValueText.getText());
+            int max = Integer.valueOf(maxValueText.getText());
+            if(max > min) {
+                currentSimulations.setMinValue(min);
+                currentSimulations.setMaxValue(max);
+            }
+            else
+                GUIHelper.showError("The maximum field must be larger than the minimum field");
         }
+        else
+            GUIHelper.showError("Please input an integer in both minimum and maximum field");
     }
 }

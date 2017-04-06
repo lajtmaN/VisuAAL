@@ -2,7 +2,6 @@ package Model;
 
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
-import View.simulation.SimulationDataContainer;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -13,17 +12,20 @@ import parsers.RegexHelper;
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * Created by lajtman on 13-02-2017.
  */
 public class Simulations implements Serializable {
     private UPPAALModel model;
-    private final List<Simulation> runs;
+    private final List<Simulation> simulations;
+    private Simulation shownSimulation;
+
+    private OutputVariable shownEdgeVariable, shownNodeVariable;
     private String query;
     private double currentTime = 0;
     private double minValue = 0, maxValue = 1;
+    private int currentSimulationIndex = 0;
 
     public Simulations(UPPAALModel uppModel, String uppQuery, List<Simulation> points) {
         query = uppQuery;
@@ -34,12 +36,13 @@ public class Simulations implements Serializable {
         for (Simulation s : points) {
             s.initialize(this, getModelTimeUnit());
         }
-        runs = points;
-        runs.get(0).show();
+        simulations = points;
+
+        showSimulation(0);
     }
 
     private Simulation getSimulation(int simId) {
-        return runs.get(simId);
+        return simulations.get(simId);
     }
 
     public Graph getGraph() {
@@ -55,51 +58,60 @@ public class Simulations implements Serializable {
     }
 
     public int getNumberOfSimulations() {
-        return runs.size();
+        return simulations.size();
     }
 
-    public void markGraphAtTime(Number oldTimeValue, Number newTimeValue,
-                                GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
-        if (runs.size() == 0) return;
+    public void markGraphAtTime(Number oldTimeValue, Number newTimeValue) {
+        if (simulations.size() == 0) return;
 
         double newTime = newTimeValue.doubleValue();
         double oldTime = oldTimeValue.doubleValue();
         if (newTime > oldTime)
-            runs.stream().filter(run -> run.isShown()).forEach(run -> run.markGraphForward(newTime, oldTime, globalVarGridPane, varGridPane));
-        else
-            runs.stream().filter(run -> run.isShown()).forEach(run -> run.markGraphBackwards(newTime, oldTime, globalVarGridPane, varGridPane));
+            markGraphForward(newTime, oldTime, minValue, maxValue);
+        else if(newTime < oldTime)
+            markGraphBackwards(newTime, oldTime, minValue, maxValue);
 
         currentTime = newTime;
     }
 
-    void handleUpdate(SimulationPoint sp, boolean shown, double valueOfSp, GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
-        if (sp.getType() == SimulationPoint.SimulationPointType.Variable)
-            updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(valueOfSp), globalVarGridPane);
-
-        if (sp.getType() == SimulationPoint.SimulationPointType.NodePoint)
-            varGridPane.updateVariable(((SimulationNodePoint)sp).getNodeId(), sp.getTrimmedIdentifier(), valueOfSp);
-
-        handleUpdate(sp, shown);
+    private boolean validSimPoint(SimulationPoint sp) {
+        String spId = (sp.getIdentifier().split("\\["))[0];
+        return shownEdgeVariable != null && shownEdgeVariable.getName().equals(spId)
+                || shownNodeVariable != null && shownNodeVariable.getName().equals(spId);
     }
 
-    void handleUpdate(SimulationPoint sp, boolean mark) {
-        model.getTopology().handleUpdate(sp, mark);
+    void markGraphForward(double newTimeValue, double oldTime, double min, double max) {
+        SimulationPoint sp;
+        //Make sure that more elements at same end time all are included
+        while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() > newTimeValue)) {
+            if (sp.getClock() >= oldTime && validSimPoint(sp)) {
+                getTopology().updateVariableGradient(sp, min, max);
+            }
+            if (currentSimulationIndex + 1 >= shownSimulation.getSimulationPoints().size())
+                break;
+            if (shownSimulation.getSimulationPoints().get(currentSimulationIndex + 1).getClock() <= newTimeValue)
+                currentSimulationIndex++;
+            else break;
+        }
     }
 
-    public void showDataFrom(OutputVariable variable) {
-        runs.forEach(run -> run.showDataFrom(variable));
-    }
-
-    public void hideDataFrom(OutputVariable variable) {
-        runs.forEach(run -> run.hideDataFrom(variable));
+    void markGraphBackwards(double newTimeValue, double oldTime, double min, double max) {
+        SimulationPoint sp;
+        while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() < newTimeValue)) {
+            if (sp.getClock() <= oldTime && validSimPoint(sp)) {
+                getTopology().updateVariableGradient(sp, min, max);
+            }
+            if (currentSimulationIndex - 1 < 0)
+                break;
+            if (shownSimulation.getSimulationPoints().get(currentSimulationIndex - 1).getClock() >= newTimeValue)
+                currentSimulationIndex--;
+            else break;
+        }
     }
 
     public void showSimulation(int simulationId) {
-        getSimulation(simulationId).show();
-    }
-
-    public void hideSimulation(int simulationId) {
-        getSimulation(simulationId).hide();
+        shownSimulation = getSimulation(simulationId);
+        resetToCurrentTime();
     }
 
     public int queryTimeBound() {
@@ -127,7 +139,6 @@ public class Simulations implements Serializable {
     public static Simulations load(File file){
         if (!Objects.equals(FileHelper.getExtension(file.getName()), ".sim"))
             throw new IllegalArgumentException("Only files with named *.sim can be loaded");
-
         try {
             FileInputStream fileIn = new FileInputStream(file);
             ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -184,31 +195,48 @@ public class Simulations implements Serializable {
         Simulations that = (Simulations) o;
 
         if (!model.equals(that.model)) return false;
-        if (!runs.equals(that.runs)) return false;
+        if (!simulations.equals(that.simulations)) return false;
         return query.equals(that.query);
     }
 
     @Override
     public int hashCode() {
         int result = model.hashCode();
-        result = 31 * result + runs.hashCode();
+        result = 31 * result + simulations.hashCode();
         result = 31 * result + query.hashCode();
         return result;
-    }
-
-    public double getMinValue() {
-        return minValue;
     }
 
     public void setMinValue(double minValue) {
         this.minValue = minValue;
     }
 
-    public double getMaxValue() {
-        return maxValue;
-    }
-
     public void setMaxValue(double maxValue) {
         this.maxValue = maxValue;
+    }
+
+    public void setShownEdgeVariable(OutputVariable shownEdgeVariable) {
+        this.shownEdgeVariable = shownEdgeVariable;
+        resetToCurrentTime();
+    }
+
+    public void setShownNodeVariable(OutputVariable shownNodeVariable) {
+        this.shownNodeVariable = shownNodeVariable;
+        resetToCurrentTime();
+    }
+
+    private void resetToCurrentTime() {
+        getTopology().unmarkAllEdges();
+        getTopology().unmarkAllNodes();
+        currentSimulationIndex = 0;
+        markGraphAtTime(0, getCurrentTime());
+    }
+
+    public OutputVariable getShownEdgeVariable() {
+        return shownEdgeVariable;
+    }
+
+    public OutputVariable getShownNodeVariable() {
+        return shownNodeVariable;
     }
 }
