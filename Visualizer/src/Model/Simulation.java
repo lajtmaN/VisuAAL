@@ -1,12 +1,7 @@
 package Model;
 
-import View.simulation.SimulationDataContainer;
-import javafx.scene.layout.GridPane;
-
 import java.io.Serializable;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by lajtman on 28-03-2017.
@@ -43,7 +38,7 @@ public class Simulation implements Serializable {
         if (sp.getType() == SimulationPoint.SimulationPointType.NodePoint)
                 varGridPane.updateVariable(((SimulationNodePoint)sp).getNodeId(), sp.getTrimmedIdentifier(), sp.getValue());*/
 
-        parentSimulations.getTopology().updateVariableGradient(sp, min, max);
+        parentSimulations.getTopology().updateVariableGradient(sp, sp.getValue(), min, max);
     }
 
     private boolean pointIsShown(SimulationPoint sp, double atTime) {

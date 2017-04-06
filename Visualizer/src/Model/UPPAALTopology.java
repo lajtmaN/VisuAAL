@@ -1,8 +1,6 @@
 package Model;
 
 import Model.topology.generator.CellNode;
-import View.MainWindowController;
-import View.simulation.SimulationMenuController;
 import javafx.scene.image.Image;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -80,18 +78,18 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         return g.removeEdge(e);
     }
 
-    public void updateVariableGradient(SimulationPoint s, double min, double max) {
+    public void updateVariableGradient(SimulationPoint s, double value, double min, double max) {
         switch (s.getType()) {
             case EdgePoint:
-                handleEdgeEdit((SimulationEdgePoint) s, min, max);
+                handleEdgeEdit((SimulationEdgePoint) s, value, min, max);
                 break;
             case NodePoint:
-                handleNodeEdit((SimulationNodePoint) s, min, max);
+                handleNodeEdit((SimulationNodePoint) s, value, min, max);
                 break;
         }
     }
 
-    private void handleNodeEdit(SimulationNodePoint point, double min, double max) {
+    private void handleNodeEdit(SimulationNodePoint point, double value, double min, double max) {
         Node node = getGraph().getNode(point.getNodeId());
         if (node == null)
             return;
@@ -99,7 +97,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         //TODO: Consider negative values
         double diff = max - min;
         if(diff != 0) {
-            double gradientValue = point.getValue() / diff;
+            double gradientValue = value / diff;
             if(gradientValue >= 1.0)
                 markGradientNode(node, 1.0);
             else if(gradientValue <= 0.0)
@@ -113,7 +111,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         node.setAttribute("ui.color", gradientValue);
     }
 
-    private void handleEdgeEdit(SimulationEdgePoint sp, double min, double max) {
+    private void handleEdgeEdit(SimulationEdgePoint sp, double value, double min, double max) {
         Edge edge = getGraph().getEdge(sp.getEdgeIdentifier());
         if (edge == null)
             return;
@@ -121,7 +119,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         //TODO: Consider negative values
         double diff = max - min;
         if(diff != 0) {
-            double gradientValue = sp.getValue() / diff;
+            double gradientValue = value / diff;
             if(gradientValue >= 1.0)
                 markGradientEdge(edge, 1.0);
             else if(gradientValue <= 0.0)

@@ -75,9 +75,8 @@ public class Simulations implements Serializable {
     }
 
     private boolean validSimPoint(SimulationPoint sp) {
-        String spId = (sp.getIdentifier().split("\\["))[0];
-        return shownEdgeVariable != null && shownEdgeVariable.getName().equals(spId)
-                || shownNodeVariable != null && shownNodeVariable.getName().equals(spId);
+        return shownEdgeVariable != null && shownEdgeVariable.getName().equals(sp.getTrimmedIdentifier())
+                || shownNodeVariable != null && shownNodeVariable.getName().equals(sp.getTrimmedIdentifier());
     }
 
     void markGraphForward(double newTimeValue, double oldTime, double min, double max) {
@@ -85,7 +84,7 @@ public class Simulations implements Serializable {
         //Make sure that more elements at same end time all are included
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() > newTimeValue)) {
             if (sp.getClock() >= oldTime && validSimPoint(sp)) {
-                getTopology().updateVariableGradient(sp, min, max);
+                getTopology().updateVariableGradient(sp, sp.getValue(), min, max);
             }
             if (currentSimulationIndex + 1 >= shownSimulation.getSimulationPoints().size())
                 break;
@@ -99,7 +98,7 @@ public class Simulations implements Serializable {
         SimulationPoint sp;
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() < newTimeValue)) {
             if (sp.getClock() <= oldTime && validSimPoint(sp)) {
-                getTopology().updateVariableGradient(sp, min, max);
+                getTopology().updateVariableGradient(sp, sp.getPreviousValue(), min, max);
             }
             if (currentSimulationIndex - 1 < 0)
                 break;
