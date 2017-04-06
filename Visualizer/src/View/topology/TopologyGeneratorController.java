@@ -1,6 +1,8 @@
 package View.topology;
 
+import Model.UPPAALEdge;
 import Model.UPPAALTopology;
+import Model.topology.generator.CellNode;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
 import View.IntegerTextField;
@@ -22,12 +24,13 @@ import org.graphstream.graph.Graph;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
  * Created by lajtman on 17-03-2017.
  */
-public class TopologyGeneratorController implements Initializable {
+public class TopologyGeneratorController implements Initializable, NodeMovedEventListener {
     @FXML private ToggleSwitch chkFreezeMap;
     @FXML private ToggleSwitch chkShowMap;
     @FXML private TopologyViewerController topologyViewerController;
@@ -168,7 +171,27 @@ public class TopologyGeneratorController implements Initializable {
 
     public void preview(ActionEvent actionEvent) {
         Graph graph = generateTopology(true).getGraph(true);
-        topologyViewerController.showGraph(graph, false, null);
+        showGraph(graph);
         chkFreezeMap.switchOnProperty().set(true);
+    }
+
+    private void showGraph(Graph g) {
+        topologyViewerController.showGraph(g, false, null, this);
+    }
+
+    @Override
+    public void onNodeMoved(NodeMovedEvent evt) {
+        int nodeId = Integer.parseInt(evt.getNodeIdentifier());
+        List<CellNode> cellNodes = lastGeneratedTopology.getNodesWithSpecificLocation();
+        CellNode updatedNode = cellNodes.get(nodeId);
+        updatedNode.setX(evt.getNewX());
+        updatedNode.setY(evt.getNewY());
+        cellNodes.set(nodeId, updatedNode);
+
+        //TODO generateUppaalTopology might be overkill to use here. It calculate ALL edges for ALL nodes.
+        //Now we know the x,y we could figure out what grid it could affect (of course using the range as well)
+        //and then only update the edges in the affected cells?
+        lastGeneratedTopology = topologyGenerator.generateUppaalTopology(cellNodes, null);
+        showGraph(lastGeneratedTopology.getGraph(true));
     }
 }

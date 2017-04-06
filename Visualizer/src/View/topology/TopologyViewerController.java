@@ -14,6 +14,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.embed.swing.SwingNode;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.Image;
@@ -35,10 +36,10 @@ import java.util.ResourceBundle;
  * Created by lajtman on 27-03-2017.
  */
 public class TopologyViewerController implements Initializable, MapComponentInitializedListener, MapReadyListener {
-    public GoogleMapView mapView;
-    public SwingNode graphStreamNode;
+    @FXML private GoogleMapView mapView;
+    @FXML private SwingNode graphStreamNode;
+    @FXML private ImageView backgroundView;
     public GridPane rootPane;
-    public ImageView backgroundView;
 
     private BooleanProperty showMap = new SimpleBooleanProperty(true);
     private BooleanProperty showGraph = new SimpleBooleanProperty(true);
@@ -48,6 +49,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
     private BooleanProperty graphDraggable = new SimpleBooleanProperty(false);
 
     private GoogleMap map;
+    private Graph currentlyShownGraph;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -82,9 +84,20 @@ public class TopologyViewerController implements Initializable, MapComponentInit
     }
 
     public void showGraph(Graph g, boolean autoLayout, SimulationDataContainer nodeVarGridPane) {
-        Viewer v = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-        if (autoLayout)
-            v.enableAutoLayout();
+        this.showGraph(g, autoLayout, nodeVarGridPane, null);
+    }
+    public void showGraph(Graph g, boolean autoLayout, SimulationDataContainer nodeVarGridPane, NodeMovedEventListener listener) {
+        currentlyShownGraph = g;
+
+        Viewer v = new Viewer(currentlyShownGraph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+
+        if (autoLayout) v.enableAutoLayout();
+        v.enableXYZfeedback(!autoLayout);
+
+        MouseClickListener mouse = new MouseClickListener(v, currentlyShownGraph, nodeVarGridPane);
+        if (listener != null) mouse.addNodesMovedListener(listener);
+        mouse.start();
+
         ViewPanel swingView = v.addDefaultView(false);
 
         SwingUtilities.invokeLater(() -> {
@@ -98,12 +111,8 @@ public class TopologyViewerController implements Initializable, MapComponentInit
                 swingView.getCamera().setViewCenter(widthAndHeight.getFirst() / 2, widthAndHeight.getSecond() / 2, 0);
             });
         }
-
-        if (nodeVarGridPane != null) {
-            MouseClickListener mouse = new MouseClickListener(v, g, nodeVarGridPane);
-            mouse.start();
-        }
     }
+
 
     public boolean isMapShown() {
         return showMap.get();
@@ -180,5 +189,9 @@ public class TopologyViewerController implements Initializable, MapComponentInit
 
     public BooleanProperty showGraphProperty() {
         return showGraph;
+    }
+
+    public Graph getCurrentlyShownGraph() {
+        return currentlyShownGraph;
     }
 }

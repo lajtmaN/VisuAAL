@@ -1,6 +1,5 @@
 package Model;
 
-import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
 import javafx.scene.image.Image;
 import org.graphstream.graph.Edge;
@@ -138,7 +137,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         showLabelOnNode(graphNode, String.valueOf(id));
         if (nodesHasSpecificLocations()) {
             graphNode.addAttribute("layout.frozen");
-            graphNode.setAttribute("xy", nodes.get(id).getX(), nodes.get(id).getY());
+            graphNode.setAttribute("xyz", nodes.get(id).getX(), nodes.get(id).getY(), 0);
 
         }
         return graphNode;
@@ -183,6 +182,14 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
 
     public boolean nodesHasSpecificLocations() {
         return nodes != null;
+    }
+
+    /**
+     * If the topology has been generated with nodes on a special location, they will be returned in this method
+     * @return List of Nodes which has range, x, y, all measured in meters
+     */
+    public List<CellNode> getNodesWithSpecificLocation() {
+        return nodes;
     }
 
     private void initializeGraph() {
