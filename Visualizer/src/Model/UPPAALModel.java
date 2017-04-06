@@ -57,6 +57,8 @@ public class UPPAALModel implements Externalizable, Cloneable {
     }
 
     public void setTopology(UPPAALTopology newTopo, boolean updateXML) {
+        boolean updateNrNodes = topology.getNumberOfNodes() != newTopo.getNumberOfNodes();
+
         topology = newTopo;
 
         if (updateXML) {
@@ -67,6 +69,12 @@ public class UPPAALModel implements Externalizable, Cloneable {
                 xmlHandler.setGlobalDeclarations(updatedDecls);
             } catch (Exception ignored) { }
         }
+
+        if (updateNrNodes) { //Only if nr_nodes has changed, we need to reload these.
+            allConfigVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALConfigConstants(modelPath));
+            processes = UPPAALParser.getUPPAALProcesses(modelPath, allConfigVars);
+        }
+
     }
 
     public ObservableList<CVar> getAllConfigVars() {
