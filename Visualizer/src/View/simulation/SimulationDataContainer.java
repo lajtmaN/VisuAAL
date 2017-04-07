@@ -3,6 +3,7 @@ package View.simulation;
 import Helpers.Pair;
 import Model.OutputVariable;
 import Model.Simulations;
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -73,7 +74,7 @@ public class SimulationDataContainer extends GridPane {
             labels.get(variable).setText(String.valueOf(value));
         }
         catch (Exception e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException(String.format("Could not update the variable (%s) on Node %d", variable, nodeId));
         }
     }
 }

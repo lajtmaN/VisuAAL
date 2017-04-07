@@ -168,6 +168,35 @@ public class SimulateParserTests {
     }
 
     @Test
+    public void zipOutputFromLocalArrayVariable(){
+        String uppaalOut1 = "dymo[1].OUTPUT_queues[2]";
+        String uppaalOut2 = "dymo[2].OUTPUT_queues[1]";
+
+        ArrayList<OutputVariable> outputVars = new ArrayList<>();
+        OutputVariable out1 = new OutputVariable("OUTPUT_queues");
+        out1.setEdgeData(true); //true because it is 2d array
+        outputVars.add(out1);
+
+        ArrayList<SimulationPoint> expected = new ArrayList<>();
+        expected.add(new SimulationEdgePoint(1,"1","2",5));
+        expected.add(new SimulationEdgePoint(2,"2","1",4));
+        expected.add(new SimulationEdgePoint(3,"2","1",3));
+        expected.add(new SimulationEdgePoint(4,"1","2",2));
+        expected.add(new SimulationEdgePoint(5,"1","2",1));
+
+        SimulateOutput simOut = new SimulateOutput(1);
+        simOut.addDatapoint(uppaalOut1, 0, new DataPoint(1,5));
+        simOut.addDatapoint(uppaalOut1, 0, new DataPoint(4,2));
+        simOut.addDatapoint(uppaalOut1, 0, new DataPoint(5,1));
+        simOut.addDatapoint(uppaalOut2, 0, new DataPoint(2,4));
+        simOut.addDatapoint(uppaalOut2, 0, new DataPoint(3,3));
+
+        List<SimulationPoint> actual = simOut.zipAsList(outputVars, 0);
+
+        AssertArrayList(expected, actual);
+    }
+
+    @Test
     public void zipOutputMultipleSims(){
         SimulateOutput simOut = new SimulateOutput(2);
         String from1to2 = "data[1][2]";

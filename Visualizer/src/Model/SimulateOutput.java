@@ -108,11 +108,26 @@ public class SimulateOutput extends UPPAALOutput {
             throw new IllegalArgumentException(nameWithoutArray + " was not present in list of outputVars");
     }
 
+    private int getSourceDestinationFromKey(String regex, String name, int groupId) {
+        String match = RegexHelper.getNthMatchedValueFromRegex(regex, name, groupId);
+        if (match == null)
+            throw new IllegalArgumentException("Could not parse output from variable. Cannot find source or destination id in following key: " + name);
+        return Integer.valueOf(match);
+    }
+
     public List<SimulationEdgePoint> getZippedEdgePoints(String key, int simId) {
         ArrayList<SimulationEdgePoint> result = new ArrayList<>();
+        String[] splittedKey = key.split("\\."); //If output is dymo[1].something[2], it will be splitted in two parts.
+        boolean isLocalVar = splittedKey.length > 1;
         for(DataPoint dp : simulationData.get(key).get(simId)) {
-            int source = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(sourceDestinationRegex, key, 1));
-            int destination = Integer.valueOf(RegexHelper.getNthMatchedValueFromRegex(sourceDestinationRegex, key, 2));
+            int source, destination;
+            if (isLocalVar) {
+                source = getSourceDestinationFromKey(nodeIdRegex, splittedKey[0], 1);
+                destination = getSourceDestinationFromKey(nodeIdRegex, splittedKey[1], 1);
+            } else {
+                source = getSourceDestinationFromKey(sourceDestinationRegex, key, 1);
+                destination = getSourceDestinationFromKey(sourceDestinationRegex, key, 2);
+            }
             result.add(new SimulationEdgePoint(key, dp.getClock(), String.valueOf(source),
                     String.valueOf(destination), dp.getValue(), dp.getPreviousValue()));
         }
