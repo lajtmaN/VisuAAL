@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+
 import java.util.HashMap;
 
 /**
@@ -77,7 +78,7 @@ public class SimulationDataContainer extends GridPane {
                 labels.get(variable).setText(String.valueOf(value));
         }
         catch (Exception e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException(String.format("Could not update the variable (%s) on Node %d", variable, nodeId));
         }
     }
 }

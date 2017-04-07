@@ -173,6 +173,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         Graph graph = generateTopology(true).getGraph(true);
         showGraph(graph);
         chkFreezeMap.switchOnProperty().set(true);
+        chkShowGridSettings.switchOnProperty().set(false);
     }
 
     private void showGraph(Graph g) {
