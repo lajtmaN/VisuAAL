@@ -25,12 +25,13 @@ public class SimulationDataContainer extends GridPane {
 
         nodeIdLabel = new Label("Node 0");
         this.addRow(0, nodeIdLabel);
+        this.setPadding(new Insets(5, 0, 0, 5));
 
         int j = 1;
         for (OutputVariable var : simulations.getOutputVariables()) {
             if(var.getIsSelected() && var.getIsNodeData()) {
                 Label zero = new Label("0");
-                zero.setPadding(new Insets(0, 0, 0, 10));
+                zero.setPadding(new Insets(0, 0, 0, 5));
                 this.addRow(j++, new Label(var.getName()), zero);
                 labels.put(var.getName(), zero);
             }

@@ -6,7 +6,6 @@ import Helpers.OptionsHelper;
 import Model.OutputVariable;
 import Model.Simulations;
 import View.DoubleTextField;
-import View.IntegerTextField;
 import View.Options.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -97,7 +96,6 @@ public class SimulationMenuController {
                         currentSimulations.setShownNodeVariable(null);
                     }
                 }
-                //s.onProperty().set(newValue);
             });
         }
     }

@@ -24,16 +24,6 @@
       <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
              <fx:include source="../topology/TopologyViewer.fxml" fx:id="topologyViewer"/>
-            <GridPane fx:id="globalVarGridPane" pickOnBounds="false" StackPane.alignment="TOP_LEFT">
-               <padding>
-                  <Insets left="10.0" top="10.0" />
-               </padding>
-            </GridPane>
-             <SimulationDataContainer fx:id="nodeVarGridPane" alignment="BOTTOM_LEFT" pickOnBounds="false">
-                 <padding>
-                     <Insets bottom="10.0" left="10.0" />
-                 </padding>
-             </SimulationDataContainer>
          </children>
       </StackPane>
    </center>
@@ -41,6 +31,18 @@
       <Button mnemonicParsing="false" onAction="#btnAnimateInRealTimeClicked" text="Animate in real-time" BorderPane.alignment="CENTER" />
    </bottom>
     <right>
-        <fx:include fx:id="simulationMenu" source="SimulationMenu.fxml" />
+        <GridPane>
+        <fx:include fx:id="simulationMenu" source="SimulationMenu.fxml" GridPane.rowIndex="0" />
+        <GridPane fx:id="globalVarGridPane" pickOnBounds="false" GridPane.rowIndex="1">
+            <padding>
+                <Insets left="5.0" top="5.0" />
+            </padding>
+        </GridPane>
+        <SimulationDataContainer fx:id="nodeVarGridPane" pickOnBounds="false" GridPane.rowIndex="2">
+            <padding>
+                <Insets bottom="10.0" left="10.0" />
+            </padding>
+        </SimulationDataContainer>
+        </GridPane>
     </right>
 </BorderPane>

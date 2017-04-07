@@ -2,11 +2,10 @@ package Model;
 
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
+import View.simulation.VariableUpdateObserver;
+import View.simulation.VariablesUpdateObservable;
+import javafx.beans.*;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
 import parsers.RegexHelper;
 
@@ -16,10 +15,11 @@ import java.util.*;
 /**
  * Created by lajtman on 13-02-2017.
  */
-public class Simulations implements Serializable {
+public class Simulations implements Serializable, VariablesUpdateObservable {
     private UPPAALModel model;
     private final List<Simulation> simulations;
     private Simulation shownSimulation;
+    private ArrayList<VariableUpdateObserver> observers = new ArrayList<>();
 
     private OutputVariable shownEdgeVariable, shownNodeVariable;
     private String query;
@@ -84,10 +84,13 @@ public class Simulations implements Serializable {
         SimulationPoint sp;
         //Make sure that more elements at same end time all are included
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() > newTimeValue)) {
-            if (sp.getClock() >= oldTime && validSimPoint(sp)) {
-                double min = getMinForSimPoint(sp),
-                       max = getMaxForSimPoint(sp);
-                getTopology().updateVariableGradient(sp, sp.getValue(), min, max);
+            if (sp.getClock() >= oldTime) {
+                if(validSimPoint(sp)) {
+                    double min = getMinForSimPoint(sp),
+                            max = getMaxForSimPoint(sp);
+                    getTopology().updateVariableGradient(sp, sp.getValue(), min, max);
+                }
+                updateAllObservers(sp, sp.getValue());
             }
             if (currentSimulationIndex + 1 >= shownSimulation.getSimulationPoints().size())
                 break;
@@ -100,10 +103,13 @@ public class Simulations implements Serializable {
     void markGraphBackwards(double newTimeValue, double oldTime) {
         SimulationPoint sp;
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() < newTimeValue)) {
-            if (sp.getClock() <= oldTime && validSimPoint(sp)) {
-                double min = getMinForSimPoint(sp),
-                       max = getMaxForSimPoint(sp);
-                getTopology().updateVariableGradient(sp, sp.getPreviousValue(), min, max);
+            if (sp.getClock() <= oldTime) {
+                if (validSimPoint(sp)) {
+                    double min = getMinForSimPoint(sp),
+                            max = getMaxForSimPoint(sp);
+                    getTopology().updateVariableGradient(sp, sp.getPreviousValue(), min, max);
+                }
+                updateAllObservers(sp, sp.getPreviousValue());
             }
             if (currentSimulationIndex - 1 < 0)
                 break;
@@ -172,33 +178,6 @@ public class Simulations implements Serializable {
 
         }
         return null;
-    }
-
-    private void addGlobalVariableToGridPane(String name, String value, GridPane globalVarGridPane) {
-        int nrRows = globalVarGridPane.getChildren().size() / 2;
-        Label labelName = new Label(name);
-        Label labelValue = new Label(value);
-        labelName.setPadding(new Insets(0,10, 0, 0));
-
-        globalVarGridPane.add(labelName, 0, nrRows);
-        globalVarGridPane.add(labelValue, 1, nrRows);
-    }
-
-    private void updateGlobalVariableInGridPane(String name, String value, GridPane globalVarGridPane) {
-        boolean foundLabel = false;
-        for(Node n : globalVarGridPane.getChildren()){
-            Label label = (Label) n;
-            if(foundLabel) {
-                label.setText(value);
-                break;
-            }
-            if(label.getText().equals(name)) {
-                foundLabel = true;
-            }
-        }
-        if(!foundLabel) {
-            addGlobalVariableToGridPane(name, value, globalVarGridPane);
-        }
     }
 
     double getCurrentTime() {
@@ -280,5 +259,22 @@ public class Simulations implements Serializable {
 
     public void setMaxNodeValue(double maxNodeValue) {
         this.maxNodeValue = maxNodeValue;
+    }
+
+    @Override
+    public void updateAllObservers(SimulationPoint sp, double value) {
+        for(VariableUpdateObserver o : observers) {
+            o.update(sp, value);
+        }
+    }
+
+    @Override
+    public void addListener(VariableUpdateObserver observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeListener(VariableUpdateObserver observer) {
+        observers.remove(observer);
     }
 }
