@@ -1,6 +1,7 @@
 package Helpers;
 
 import Model.SimulateOutput;
+import exceptions.UPPAALFailedException;
 import javafx.scene.control.TextInputControl;
 import parsers.RegexHelper;
 import parsers.SimulateParser;
@@ -42,6 +43,9 @@ public class UPPAALExecutor {
             redirect(p.getInputStream(), new PrintStream(buffer), new PrintStreamRedirector(feedbackCtrl));
 
             p.waitFor();
+
+            if (p.exitValue() > 0)
+                throw new UPPAALFailedException();
 
             String uppaalOutput = new String(buffer.toByteArray(), StandardCharsets.UTF_8);
             if (uppaalOutput.length() == 0)

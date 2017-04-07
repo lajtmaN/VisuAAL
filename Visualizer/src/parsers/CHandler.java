@@ -106,12 +106,22 @@ public class CHandler {
         }
 
         String constantWithArraySize = parsedUppaalVariable.getArraySizes().get(0); //TODO always assumes quadratic arrays
-        Optional<CVar> matchedConstant = constants.stream().filter(c -> c.getName().equals(constantWithArraySize)).findFirst();
+
+        int plusSomeExtra = 0; //If parsing OUTPUT_idle[CONFIG_NR_NODES+1] - then we want this variable to hold the 1
+        if (constantWithArraySize.contains("+")) {
+            String[] splitted = constantWithArraySize.split("\\+");
+            constantWithArraySize = splitted[0];
+            if (splitted[1].matches("\\d"))
+                plusSomeExtra = Integer.parseInt(splitted[1]);
+        }
+
+        final String configName = constantWithArraySize;
+        Optional<CVar> matchedConstant = constants.stream().filter(c -> c.getName().equals(configName)).findFirst();
         if (!matchedConstant.isPresent())
             throw new IllegalArgumentException("An output variable array (" + parsedUppaalVariable.getName() + ") " +
-                    "was defined with a Config parameter (" + constantWithArraySize + ") that was not found");
+                    "was defined with a Config parameter (" + configName + ") that was not found");
 
-        variable.setVariableArraySize(matchedConstant.get().getValueAsInteger());
+        variable.setVariableArraySize(matchedConstant.get().getValueAsInteger() + plusSomeExtra);
         return variable;
     }
 
