@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.graphstream.graph.Element;
 import org.graphstream.graph.implementations.MultiGraph;
 
 import java.io.File;
@@ -79,76 +80,42 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     }
 
     public void updateVariableGradient(SimulationPoint s, double value, double min, double max) {
-        switch (s.getType()) {
-            case EdgePoint:
-                handleEdgeEdit((SimulationEdgePoint) s, value, min, max);
-                break;
-            case NodePoint:
-                handleNodeEdit((SimulationNodePoint) s, value, min, max);
-                break;
-        }
-    }
+        Element e = null;
+        if(s.getType().equals(SimulationPoint.SimulationPointType.NodePoint))
+            e = getGraph().getNode(((SimulationNodePoint)s).getNodeId());
+        else if(s.getType().equals(SimulationPoint.SimulationPointType.EdgePoint))
+            e = getGraph().getEdge(((SimulationEdgePoint)s).getEdgeIdentifier());
 
-    private void handleNodeEdit(SimulationNodePoint point, double value, double min, double max) {
-        Node node = getGraph().getNode(point.getNodeId());
-        if (node == null)
-            return;
-
-        //TODO: Consider negative values
-        double diff = max - min;
-        if(diff != 0) {
-            double gradientValue = value / diff;
-            if(gradientValue >= 1.0)
-                markGradientNode(node, 1.0);
-            else if(gradientValue <= 0.0)
-                markGradientNode(node, 0.0);
+        if (e != null) {
+            double gradientValue = gradientValue(min, max, value);
+            if (gradientValue >= 1.0)
+                markGradientElement(e, 1.0);
+            else if (gradientValue <= 0.0)
+                markGradientElement(e, 0.0);
             else
-                markGradientNode(node, gradientValue);
+                markGradientElement(e, gradientValue);
         }
     }
 
-    private void markGradientNode(Node node, double gradientValue) {
-        node.setAttribute("ui.color", gradientValue);
-    }
-
-    private void handleEdgeEdit(SimulationEdgePoint sp, double value, double min, double max) {
-        Edge edge = getGraph().getEdge(sp.getEdgeIdentifier());
-        if (edge == null)
-            return;
-
-        //TODO: Consider negative values
+    double gradientValue(double min, double max, double value) {
         double diff = max - min;
-        if(diff != 0) {
-            double gradientValue = value / diff;
-            if(gradientValue >= 1.0)
-                markGradientEdge(edge, 1.0);
-            else if(gradientValue <= 0.0)
-                markGradientEdge(edge, 0.0);
-            else
-                markGradientEdge(edge, gradientValue);
-        }
+        if(diff > 0)
+            return value / diff;
+        return 0;
     }
 
-    private void markGradientEdge(Edge edge, double gradientValue) {
-        edge.setAttribute("ui.color", gradientValue);
-    }
+    private void markGradientElement(Element e, double gradientValue) { e.setAttribute("ui.color", gradientValue); }
+    private void unmarkElement(Element e) { e.setAttribute("ui.color", 0.0);}
+    private void markElement(Element e) { e.setAttribute("ui.color", 1.0); }
 
-    private void markEdge(Edge edge) {
-        edge.setAttribute("ui.color", 1.0);
+    public void unmarkAllNodes() {
+        for(Node n : getGraph().getNodeSet())
+            unmarkElement(n);
     }
 
     protected void unmarkAllEdges() {
         for (Edge e : getGraph().getEdgeSet())
-            unmarkEdge(e);
-    }
-
-    private void unmarkEdge(Edge edge) {
-        edge.setAttribute("ui.color", 0.0);
-    }
-
-    public void unmarkAllNodes() {
-        for(Node n : getGraph().getNodeSet())
-            unmarkNode(n);
+            unmarkElement(e);
     }
 
     private Node addNode(Integer id){
@@ -163,14 +130,6 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
 
     private void showLabelOnNode(Node n, String nodeName) {
         n.addAttribute("ui.label", nodeName);
-    }
-
-    private void markNode(Node node) {
-        node.setAttribute("ui.color", 1.0);
-    }
-
-    private void unmarkNode(Node node) {
-        node.setAttribute("ui.color", 0.0);
     }
 
     public Graph getGraph() { return getGraph(false); }

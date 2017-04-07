@@ -24,7 +24,8 @@ public class Simulations implements Serializable {
     private OutputVariable shownEdgeVariable, shownNodeVariable;
     private String query;
     private double currentTime = 0;
-    private double minValue = 0, maxValue = 1;
+
+    private double minEdgeValue = 0, maxEdgeValue = 1, minNodeValue = 0, maxNodeValue = 1;
     private int currentSimulationIndex = 0;
 
     public Simulations(UPPAALModel uppModel, String uppQuery, List<Simulation> points) {
@@ -34,7 +35,7 @@ public class Simulations implements Serializable {
         model.getTopology().unmarkAllEdges();
 
         for (Simulation s : points) {
-            s.initialize(this, getModelTimeUnit());
+            s.initialize(getModelTimeUnit());
         }
         simulations = points;
 
@@ -67,9 +68,9 @@ public class Simulations implements Serializable {
         double newTime = newTimeValue.doubleValue();
         double oldTime = oldTimeValue.doubleValue();
         if (newTime > oldTime)
-            markGraphForward(newTime, oldTime, minValue, maxValue);
+            markGraphForward(newTime, oldTime);
         else if(newTime < oldTime)
-            markGraphBackwards(newTime, oldTime, minValue, maxValue);
+            markGraphBackwards(newTime, oldTime);
 
         currentTime = newTime;
     }
@@ -79,11 +80,13 @@ public class Simulations implements Serializable {
                 || shownNodeVariable != null && shownNodeVariable.getName().equals(sp.getTrimmedIdentifier());
     }
 
-    void markGraphForward(double newTimeValue, double oldTime, double min, double max) {
+    void markGraphForward(double newTimeValue, double oldTime) {
         SimulationPoint sp;
         //Make sure that more elements at same end time all are included
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() > newTimeValue)) {
             if (sp.getClock() >= oldTime && validSimPoint(sp)) {
+                double min = getMinForSimPoint(sp),
+                       max = getMaxForSimPoint(sp);
                 getTopology().updateVariableGradient(sp, sp.getValue(), min, max);
             }
             if (currentSimulationIndex + 1 >= shownSimulation.getSimulationPoints().size())
@@ -94,10 +97,12 @@ public class Simulations implements Serializable {
         }
     }
 
-    void markGraphBackwards(double newTimeValue, double oldTime, double min, double max) {
+    void markGraphBackwards(double newTimeValue, double oldTime) {
         SimulationPoint sp;
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() < newTimeValue)) {
             if (sp.getClock() <= oldTime && validSimPoint(sp)) {
+                double min = getMinForSimPoint(sp),
+                       max = getMaxForSimPoint(sp);
                 getTopology().updateVariableGradient(sp, sp.getPreviousValue(), min, max);
             }
             if (currentSimulationIndex - 1 < 0)
@@ -106,6 +111,20 @@ public class Simulations implements Serializable {
                 currentSimulationIndex--;
             else break;
         }
+    }
+
+    private double getMaxForSimPoint(SimulationPoint sp) {
+        if(sp.getType().equals(SimulationPoint.SimulationPointType.EdgePoint))
+            return getMaxEdgeValue();
+        else
+            return getMaxNodeValue();
+    }
+
+    private double getMinForSimPoint(SimulationPoint sp) {
+        if(sp.getType().equals(SimulationPoint.SimulationPointType.EdgePoint))
+            return getMinEdgeValue();
+        else
+            return getMinNodeValue();
     }
 
     public void showSimulation(int simulationId) {
@@ -206,14 +225,6 @@ public class Simulations implements Serializable {
         return result;
     }
 
-    public void setMinValue(double minValue) {
-        this.minValue = minValue;
-    }
-
-    public void setMaxValue(double maxValue) {
-        this.maxValue = maxValue;
-    }
-
     public void setShownEdgeVariable(OutputVariable shownEdgeVariable) {
         this.shownEdgeVariable = shownEdgeVariable;
         resetToCurrentTime();
@@ -224,7 +235,7 @@ public class Simulations implements Serializable {
         resetToCurrentTime();
     }
 
-    private void resetToCurrentTime() {
+    public void resetToCurrentTime() {
         getTopology().unmarkAllEdges();
         getTopology().unmarkAllNodes();
         currentSimulationIndex = 0;
@@ -237,5 +248,37 @@ public class Simulations implements Serializable {
 
     public OutputVariable getShownNodeVariable() {
         return shownNodeVariable;
+    }
+
+    public double getMinEdgeValue() {
+        return minEdgeValue;
+    }
+
+    public void setMinEdgeValue(double minEdgeValue) {
+        this.minEdgeValue = minEdgeValue;
+    }
+
+    public double getMaxEdgeValue() {
+        return maxEdgeValue;
+    }
+
+    public void setMaxEdgeValue(double maxEdgeValue) {
+        this.maxEdgeValue = maxEdgeValue;
+    }
+
+    public double getMinNodeValue() {
+        return minNodeValue;
+    }
+
+    public void setMinNodeValue(double minNodeValue) {
+        this.minNodeValue = minNodeValue;
+    }
+
+    public double getMaxNodeValue() {
+        return maxNodeValue;
+    }
+
+    public void setMaxNodeValue(double maxNodeValue) {
+        this.maxNodeValue = maxNodeValue;
     }
 }

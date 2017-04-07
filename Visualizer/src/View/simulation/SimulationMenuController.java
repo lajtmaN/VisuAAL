@@ -5,6 +5,7 @@ import Helpers.GUIHelper;
 import Helpers.OptionsHelper;
 import Model.OutputVariable;
 import Model.Simulations;
+import View.DoubleTextField;
 import View.IntegerTextField;
 import View.Options.*;
 import javafx.event.ActionEvent;
@@ -18,8 +19,10 @@ import java.util.Arrays;
  */
 public class SimulationMenuController {
 
-    @FXML public IntegerTextField minValueText;
-    @FXML public IntegerTextField maxValueText;
+    @FXML public DoubleTextField minEdgeValueText;
+    @FXML public DoubleTextField maxEdgeValueText;
+    @FXML public DoubleTextField minNodeValueText;
+    @FXML public DoubleTextField maxNodeValueText;
     @FXML private ListView<EnableDisableSimulationOption> lstSimulationOptions;
     @FXML private ListView<EnableDisableSimulationOption> lstDisplayOptions;
     @FXML private ListView<SimulationOption> lstExportOptions;
@@ -56,6 +59,7 @@ public class SimulationMenuController {
     }
 
     private void initializeDisplayOptions() {
+        initializeMinMaxFields();
         //TODO Description is not updated when the onProperty changes.
         lstDisplayOptions.setCellFactory(OptionsHelper.optionListCell());
 
@@ -98,6 +102,13 @@ public class SimulationMenuController {
         }
     }
 
+    private void initializeMinMaxFields() {
+        minEdgeValueText.setText(String.valueOf(currentSimulations.getMinEdgeValue()));
+        maxEdgeValueText.setText(String.valueOf(currentSimulations.getMaxEdgeValue()));
+        minNodeValueText.setText(String.valueOf(currentSimulations.getMinNodeValue()));
+        maxNodeValueText.setText(String.valueOf(currentSimulations.getMaxNodeValue()));
+    }
+
     private void initializeSimulationOptions() {
         lstSimulationOptions.setCellFactory(OptionsHelper.optionListCell());
         lstSimulationOptions.setOnMouseClicked(p -> {
@@ -115,17 +126,24 @@ public class SimulationMenuController {
     }
 
     public void saveMinMaxValues(ActionEvent actionEvent) {
-        if(!minValueText.getText().equals("") && !maxValueText.getText().equals("")) {
-            int min = Integer.valueOf(minValueText.getText());
-            int max = Integer.valueOf(maxValueText.getText());
-            if(max > min) {
-                currentSimulations.setMinValue(min);
-                currentSimulations.setMaxValue(max);
+        if(!minEdgeValueText.getText().equals("") && !maxEdgeValueText.getText().equals("") &&
+                !minNodeValueText.getText().equals("") && !maxNodeValueText.getText().equals("")) {
+            double minEdge = Double.valueOf(minEdgeValueText.getText()),
+                   maxEdge = Double.valueOf(maxEdgeValueText.getText()),
+                   minNode = Double.valueOf(minNodeValueText.getText()),
+                   maxNode = Double.valueOf(maxNodeValueText.getText());
+
+            if(maxEdge > minEdge && maxNode > minNode) {
+                currentSimulations.setMinEdgeValue(minEdge);
+                currentSimulations.setMaxEdgeValue(maxEdge);
+                currentSimulations.setMinNodeValue(minNode);
+                currentSimulations.setMaxNodeValue(maxNode);
+                currentSimulations.resetToCurrentTime();
             }
             else
-                GUIHelper.showError("The maximum field must be larger than the minimum field");
+                GUIHelper.showError("Maximum fields must be larger than the corresponding minimum field");
         }
         else
-            GUIHelper.showError("Please input an integer in both minimum and maximum field");
+            GUIHelper.showError("All fields must have a value");
     }
 }

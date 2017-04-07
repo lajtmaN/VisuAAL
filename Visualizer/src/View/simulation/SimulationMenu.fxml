@@ -9,6 +9,8 @@
 <?import javafx.scene.control.Label?>
 <?import View.IntegerTextField?>
 <?import javafx.scene.control.Button?>
+<?import View.DoubleTextField?>
+<?import com.sun.javafx.scene.control.skin.DoubleField?>
 <Accordion xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.simulation.SimulationMenuController">
    <panes>
        <TitledPane text="Display">
@@ -42,10 +44,14 @@
            <content>
                <GridPane>
                    <Label text="Min edge value " GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                   <IntegerTextField fx:id="minValueText" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                   <DoubleTextField fx:id="minEdgeValueText" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                    <Label text="Max edge value " GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                   <IntegerTextField fx:id="maxValueText" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                   <Button text = "Save values" GridPane.halignment="CENTER" onAction="#saveMinMaxValues"  GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2"/>
+                   <DoubleTextField fx:id="maxEdgeValueText" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                   <Label text="Min node value " GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                   <DoubleTextField fx:id="minNodeValueText" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                   <Label text="Max node value " GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                   <DoubleTextField fx:id="maxNodeValueText" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                   <Button text = "Save values" GridPane.halignment="CENTER" onAction="#saveMinMaxValues"  GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4"/>
                </GridPane>
            </content>
        </TitledPane>
