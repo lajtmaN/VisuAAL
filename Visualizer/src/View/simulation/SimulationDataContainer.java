@@ -3,11 +3,11 @@ package View.simulation;
 import Helpers.Pair;
 import Model.OutputVariable;
 import Model.Simulations;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+
 import java.util.HashMap;
 
 /**
