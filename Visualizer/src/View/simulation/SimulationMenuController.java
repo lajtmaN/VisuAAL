@@ -1,13 +1,15 @@
 package View.simulation;
 
 
+import Helpers.GUIHelper;
 import Helpers.OptionsHelper;
+import Model.OutputVariable;
 import Model.Simulations;
+import View.DoubleTextField;
 import View.Options.*;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
-import javafx.scene.control.cell.CheckBoxListCell;
-import javafx.util.StringConverter;
 
 import java.util.Arrays;
 
@@ -16,6 +18,10 @@ import java.util.Arrays;
  */
 public class SimulationMenuController {
 
+    @FXML public DoubleTextField minEdgeValueText;
+    @FXML public DoubleTextField maxEdgeValueText;
+    @FXML public DoubleTextField minNodeValueText;
+    @FXML public DoubleTextField maxNodeValueText;
     @FXML private ListView<EnableDisableSimulationOption> lstSimulationOptions;
     @FXML private ListView<EnableDisableSimulationOption> lstDisplayOptions;
     @FXML private ListView<SimulationOption> lstExportOptions;
@@ -52,21 +58,70 @@ public class SimulationMenuController {
     }
 
     private void initializeDisplayOptions() {
+        initializeMinMaxFields();
         //TODO Description is not updated when the onProperty changes.
         lstDisplayOptions.setCellFactory(OptionsHelper.optionListCell());
 
-        lstDisplayOptions.setOnMouseClicked(p -> {
-            EnableDisableSimulationOption optionClicked = lstDisplayOptions.getSelectionModel().getSelectedItem();
-            optionClicked.onProperty().set(!optionClicked.onProperty().get());
-        });
+        for(EnableDisableSimulationOption s : lstDisplayOptions.getItems()) {
+            s.onProperty().addListener((observable, oldValue, newValue) ->
+            {
+                if(!(s instanceof ShowHideDataOption) || oldValue.equals(newValue))
+                    return;
+
+                ShowHideDataOption option = (ShowHideDataOption) s;
+                OutputVariable v = option.getOutputVariable();
+                if(newValue) {
+                    //unmark other of same type
+                    for (EnableDisableSimulationOption eds : this.lstDisplayOptions.getItems().filtered(
+                            m -> (m instanceof ShowHideDataOption) && m != s)) {
+                        OutputVariable ov = ((ShowHideDataOption) eds).getOutputVariable();
+                        if (ov.getIsNodeData() && v.getIsNodeData())
+                            eds.onProperty().set(false);
+                        else if (ov.getIsEdgeData() && v.getIsEdgeData())
+                            eds.onProperty().set(false);
+                    }
+
+                    //Set the current node or data output variable
+                    if (v.getIsEdgeData()) {
+                        currentSimulations.setShownEdgeVariable(v);
+                    } else if(v.getIsNodeData()) {
+                        currentSimulations.setShownNodeVariable(v);
+                    }
+                }
+                else {
+                    //Disable the shown variable
+                    if (v.getIsEdgeData() && v == currentSimulations.getShownEdgeVariable()) {
+                        currentSimulations.setShownEdgeVariable(null);
+                    } else if (v.getIsNodeData() && v == currentSimulations.getShownNodeVariable()) {
+                        currentSimulations.setShownNodeVariable(null);
+                    }
+                }
+            });
+        }
+    }
+
+    private void initializeMinMaxFields() {
+        minEdgeValueText.setText(String.valueOf(currentSimulations.getMinEdgeValue()));
+        maxEdgeValueText.setText(String.valueOf(currentSimulations.getMaxEdgeValue()));
+        minNodeValueText.setText(String.valueOf(currentSimulations.getMinNodeValue()));
+        maxNodeValueText.setText(String.valueOf(currentSimulations.getMaxNodeValue()));
     }
 
     private void initializeSimulationOptions() {
         lstSimulationOptions.setCellFactory(OptionsHelper.optionListCell());
-        lstSimulationOptions.setOnMouseClicked(p -> {
-            EnableDisableSimulationOption optionClicked = lstSimulationOptions.getSelectionModel().getSelectedItem();
-            optionClicked.onProperty().set(!optionClicked.onProperty().get());
-        });
+
+        for(EnableDisableSimulationOption o : lstSimulationOptions.getItems()) {
+            o.onProperty().addListener((observable, oldValue, newValue) -> {
+                if(newValue) {
+                    for(EnableDisableSimulationOption edso : lstSimulationOptions.getItems()) {
+                        if(edso != o) {
+                            edso.onProperty().setValue(false);
+                        }
+                    }
+                    //currentSimulations.setShownSimulation(((ShowHideSimulationOption)o).getSimulationId());
+                }
+            });
+        }
     }
 
     private void setHeight() {
@@ -75,5 +130,27 @@ public class SimulationMenuController {
 
     private void setHeight(ListView list) {
         list.setPrefHeight(list.getItems().size() * 24 + 2);
+    }
+
+    public void saveMinMaxValues(ActionEvent actionEvent) {
+        if(!minEdgeValueText.getText().equals("") && !maxEdgeValueText.getText().equals("") &&
+                !minNodeValueText.getText().equals("") && !maxNodeValueText.getText().equals("")) {
+            double minEdge = Double.valueOf(minEdgeValueText.getText()),
+                   maxEdge = Double.valueOf(maxEdgeValueText.getText()),
+                   minNode = Double.valueOf(minNodeValueText.getText()),
+                   maxNode = Double.valueOf(maxNodeValueText.getText());
+
+            if(maxEdge > minEdge && maxNode > minNode) {
+                currentSimulations.setMinEdgeValue(minEdge);
+                currentSimulations.setMaxEdgeValue(maxEdge);
+                currentSimulations.setMinNodeValue(minNode);
+                currentSimulations.setMaxNodeValue(maxNode);
+                currentSimulations.resetToCurrentTime();
+            }
+            else
+                GUIHelper.showError("Maximum fields must be larger than the corresponding minimum field");
+        }
+        else
+            GUIHelper.showError("All fields must have a value");
     }
 }

@@ -1,32 +1,35 @@
 package View.simulation;
 
+import Model.SimulationEdgePoint;
+import Model.SimulationNodePoint;
+import Model.SimulationPoint;
 import Model.Simulations;
 import View.topology.TopologyViewerController;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
-import org.graphstream.ui.swingViewer.ViewPanel;
-import org.graphstream.ui.view.Viewer;
 
-import javax.swing.*;
-import java.io.IOException;
 import java.net.URL;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.ResourceBundle;
 
 /**
  * Created by Tim on 09-03-2017.
  */
-public class SimulationResultController implements Initializable {
+public class SimulationResultController implements Initializable, VariableUpdateObserver {
     @FXML private HBox sliderBox;
     @FXML private BorderPane rootPane;
     @FXML private GridPane globalVarGridPane;
@@ -57,6 +60,7 @@ public class SimulationResultController implements Initializable {
             if (newValue)
                 initializeGraphStreamViewer();
         });
+        currentSimulations.addListener(this);
     }
 
     private void bindSizes() {
@@ -81,7 +85,7 @@ public class SimulationResultController implements Initializable {
 
     private void handleCurrentTimeChanged(Number newTime, Number oldTime) {
         lblCurrentTime.setText(String.format("%.1f ms", newTime.doubleValue()));
-        currentSimulations.markGraphAtTime(oldTime, newTime, globalVarGridPane, nodeVarGridPane);
+        currentSimulations.markGraphAtTime(oldTime, newTime);
     }
 
     public void btnAnimateInRealTimeClicked(ActionEvent actionEvent) {
@@ -94,5 +98,42 @@ public class SimulationResultController implements Initializable {
 
     private int maxTime() {
         return (int)(currentSimulations.queryTimeBound() * currentSimulations.getModelTimeUnit());
+    }
+
+    private void addGlobalVariableToGridPane(String name, String value) {
+        int nrRows = globalVarGridPane.getChildren().size() / 2;
+        Label labelName = new Label(name);
+        Label labelValue = new Label(value);
+        labelName.setPadding(new Insets(0,10, 0, 0));
+
+        globalVarGridPane.add(labelName, 0, nrRows);
+        globalVarGridPane.add(labelValue, 1, nrRows);
+    }
+
+    public void updateGridVars(String name, String value) {
+        boolean foundLabel = false;
+        for(Node n : globalVarGridPane.getChildren()){
+            Label label = (Label) n;
+            if(foundLabel) {
+                label.setText(value);
+                break;
+            }
+            if(label.getText().equals(name)) {
+                foundLabel = true;
+            }
+        }
+        if(!foundLabel) {
+            addGlobalVariableToGridPane(name, value);
+        }
+    }
+
+    @Override
+    public void update(SimulationPoint sp, double value) {
+        if(!(sp instanceof SimulationNodePoint) && !(sp instanceof SimulationEdgePoint)) {
+            updateGridVars(sp.getIdentifier(), String.valueOf(value));
+        }
+        if(sp instanceof SimulationNodePoint) {
+            nodeVarGridPane.updateVariable(((SimulationNodePoint) sp).getNodeId(), sp.getTrimmedIdentifier(), value);
+        }
     }
 }

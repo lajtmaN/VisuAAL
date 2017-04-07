@@ -2,27 +2,32 @@ package Model;
 
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
-import View.simulation.SimulationDataContainer;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
+import View.simulation.VariableUpdateObserver;
+import View.simulation.VariablesUpdateObservable;
+import javafx.beans.*;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
 import parsers.RegexHelper;
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * Created by lajtman on 13-02-2017.
  */
-public class Simulations implements Serializable {
+public class Simulations implements Serializable, VariablesUpdateObservable {
     private UPPAALModel model;
-    private final List<Simulation> runs;
+    private final List<Simulation> simulations;
+
+    private Simulation shownSimulation;
+    private ArrayList<VariableUpdateObserver> observers = new ArrayList<>();
+
+    private OutputVariable shownEdgeVariable, shownNodeVariable;
     private String query;
     private double currentTime = 0;
+
+    private double minEdgeValue = 0, maxEdgeValue = 1, minNodeValue = 0, maxNodeValue = 1;
+    private int currentSimulationIndex = 0;
 
     public Simulations(UPPAALModel uppModel, String uppQuery, List<Simulation> points) {
         query = uppQuery;
@@ -31,14 +36,15 @@ public class Simulations implements Serializable {
         model.getTopology().unmarkAllEdges();
 
         for (Simulation s : points) {
-            s.initialize(this, getModelTimeUnit());
+            s.initialize(getModelTimeUnit());
         }
-        runs = points;
-        runs.get(0).show();
+        simulations = points;
+
+        showSimulation(0);
     }
 
     private Simulation getSimulation(int simId) {
-        return runs.get(simId);
+        return simulations.get(simId);
     }
 
     public Graph getGraph() {
@@ -54,51 +60,83 @@ public class Simulations implements Serializable {
     }
 
     public int getNumberOfSimulations() {
-        return runs.size();
+        return simulations.size();
     }
 
-    public void markGraphAtTime(Number oldTimeValue, Number newTimeValue,
-                                GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
-        if (runs.size() == 0) return;
+    public void markGraphAtTime(Number oldTimeValue, Number newTimeValue) {
+        if (simulations.size() == 0) return;
 
         double newTime = newTimeValue.doubleValue();
         double oldTime = oldTimeValue.doubleValue();
         if (newTime > oldTime)
-            runs.stream().filter(run -> run.isShown()).forEach(run -> run.markGraphForward(newTime, oldTime, globalVarGridPane, varGridPane));
-        else
-            runs.stream().filter(run -> run.isShown()).forEach(run -> run.markGraphBackwards(newTime, oldTime, globalVarGridPane, varGridPane));
+            markGraphForward(newTime, oldTime);
+        else if(newTime < oldTime)
+            markGraphBackwards(newTime, oldTime);
 
         currentTime = newTime;
     }
 
-    void handleUpdate(SimulationPoint sp, boolean shown, double valueOfSp, GridPane globalVarGridPane, SimulationDataContainer varGridPane) {
-        if (sp.getType() == SimulationPoint.SimulationPointType.Variable)
-            updateGlobalVariableInGridPane(sp.getIdentifier(), String.valueOf(valueOfSp), globalVarGridPane);
-
-        if (sp.getType() == SimulationPoint.SimulationPointType.NodePoint)
-            varGridPane.updateVariable(((SimulationNodePoint)sp).getNodeId(), sp.getTrimmedIdentifier(), valueOfSp);
-
-        handleUpdate(sp, shown);
+    private boolean validSimPoint(SimulationPoint sp) {
+        return shownEdgeVariable != null && shownEdgeVariable.getName().equals(sp.getTrimmedIdentifier())
+                || shownNodeVariable != null && shownNodeVariable.getName().equals(sp.getTrimmedIdentifier());
     }
 
-    void handleUpdate(SimulationPoint sp, boolean mark) {
-        model.getTopology().handleUpdate(sp, mark);
+    void markGraphForward(double newTimeValue, double oldTime) {
+        SimulationPoint sp;
+        //Make sure that more elements at same end time all are included
+        while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() > newTimeValue)) {
+            if (sp.getClock() >= oldTime) {
+                if(validSimPoint(sp)) {
+                    double min = getMinForSimPoint(sp),
+                            max = getMaxForSimPoint(sp);
+                    getTopology().updateVariableGradient(sp, sp.getValue(), min, max);
+                }
+                updateAllObservers(sp, sp.getValue());
+            }
+            if (currentSimulationIndex + 1 >= shownSimulation.getSimulationPoints().size())
+                break;
+            if (shownSimulation.getSimulationPoints().get(currentSimulationIndex + 1).getClock() <= newTimeValue)
+                currentSimulationIndex++;
+            else break;
+        }
     }
 
-    public void showDataFrom(OutputVariable variable) {
-        runs.forEach(run -> run.showDataFrom(variable));
+    void markGraphBackwards(double newTimeValue, double oldTime) {
+        SimulationPoint sp;
+        while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() < newTimeValue)) {
+            if (sp.getClock() <= oldTime) {
+                if (validSimPoint(sp)) {
+                    double min = getMinForSimPoint(sp),
+                            max = getMaxForSimPoint(sp);
+                    getTopology().updateVariableGradient(sp, sp.getPreviousValue(), min, max);
+                }
+                updateAllObservers(sp, sp.getPreviousValue());
+            }
+            if (currentSimulationIndex - 1 < 0)
+                break;
+            if (shownSimulation.getSimulationPoints().get(currentSimulationIndex - 1).getClock() >= newTimeValue)
+                currentSimulationIndex--;
+            else break;
+        }
     }
 
-    public void hideDataFrom(OutputVariable variable) {
-        runs.forEach(run -> run.hideDataFrom(variable));
+    private double getMaxForSimPoint(SimulationPoint sp) {
+        if(sp.getType().equals(SimulationPoint.SimulationPointType.EdgePoint))
+            return getMaxEdgeValue();
+        else
+            return getMaxNodeValue();
+    }
+
+    private double getMinForSimPoint(SimulationPoint sp) {
+        if(sp.getType().equals(SimulationPoint.SimulationPointType.EdgePoint))
+            return getMinEdgeValue();
+        else
+            return getMinNodeValue();
     }
 
     public void showSimulation(int simulationId) {
-        getSimulation(simulationId).show();
-    }
-
-    public void hideSimulation(int simulationId) {
-        getSimulation(simulationId).hide();
+        shownSimulation = getSimulation(simulationId);
+        resetToCurrentTime();
     }
 
     public int queryTimeBound() {
@@ -126,7 +164,6 @@ public class Simulations implements Serializable {
     public static Simulations load(File file){
         if (!Objects.equals(FileHelper.getExtension(file.getName()), ".sim"))
             throw new IllegalArgumentException("Only files with named *.sim can be loaded");
-
         try {
             FileInputStream fileIn = new FileInputStream(file);
             ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -144,33 +181,6 @@ public class Simulations implements Serializable {
         return null;
     }
 
-    private void addGlobalVariableToGridPane(String name, String value, GridPane globalVarGridPane) {
-        int nrRows = globalVarGridPane.getChildren().size() / 2;
-        Label labelName = new Label(name);
-        Label labelValue = new Label(value);
-        labelName.setPadding(new Insets(0,10, 0, 0));
-
-        globalVarGridPane.add(labelName, 0, nrRows);
-        globalVarGridPane.add(labelValue, 1, nrRows);
-    }
-
-    private void updateGlobalVariableInGridPane(String name, String value, GridPane globalVarGridPane) {
-        boolean foundLabel = false;
-        for(Node n : globalVarGridPane.getChildren()){
-            Label label = (Label) n;
-            if(foundLabel) {
-                label.setText(value);
-                break;
-            }
-            if(label.getText().equals(name)) {
-                foundLabel = true;
-            }
-        }
-        if(!foundLabel) {
-            addGlobalVariableToGridPane(name, value, globalVarGridPane);
-        }
-    }
-
     double getCurrentTime() {
         return currentTime;
     }
@@ -183,15 +193,89 @@ public class Simulations implements Serializable {
         Simulations that = (Simulations) o;
 
         if (!model.equals(that.model)) return false;
-        if (!runs.equals(that.runs)) return false;
+        if (!simulations.equals(that.simulations)) return false;
         return query.equals(that.query);
     }
 
     @Override
     public int hashCode() {
         int result = model.hashCode();
-        result = 31 * result + runs.hashCode();
+        result = 31 * result + simulations.hashCode();
         result = 31 * result + query.hashCode();
         return result;
+    }
+
+    public void setShownEdgeVariable(OutputVariable shownEdgeVariable) {
+        this.shownEdgeVariable = shownEdgeVariable;
+        resetToCurrentTime();
+    }
+
+    public void setShownNodeVariable(OutputVariable shownNodeVariable) {
+        this.shownNodeVariable = shownNodeVariable;
+        resetToCurrentTime();
+    }
+
+    public void resetToCurrentTime() {
+        getTopology().unmarkAllEdges();
+        getTopology().unmarkAllNodes();
+        currentSimulationIndex = 0;
+        markGraphAtTime(0, getCurrentTime());
+    }
+
+    public OutputVariable getShownEdgeVariable() {
+        return shownEdgeVariable;
+    }
+
+    public OutputVariable getShownNodeVariable() {
+        return shownNodeVariable;
+    }
+
+    public double getMinEdgeValue() {
+        return minEdgeValue;
+    }
+
+    public void setMinEdgeValue(double minEdgeValue) {
+        this.minEdgeValue = minEdgeValue;
+    }
+
+    public double getMaxEdgeValue() {
+        return maxEdgeValue;
+    }
+
+    public void setMaxEdgeValue(double maxEdgeValue) {
+        this.maxEdgeValue = maxEdgeValue;
+    }
+
+    public double getMinNodeValue() {
+        return minNodeValue;
+    }
+
+    public void setMinNodeValue(double minNodeValue) {
+        this.minNodeValue = minNodeValue;
+    }
+
+    public double getMaxNodeValue() {
+        return maxNodeValue;
+    }
+
+    public void setMaxNodeValue(double maxNodeValue) {
+        this.maxNodeValue = maxNodeValue;
+    }
+
+    @Override
+    public void updateAllObservers(SimulationPoint sp, double value) {
+        for(VariableUpdateObserver o : observers) {
+            o.update(sp, value);
+        }
+    }
+
+    @Override
+    public void addListener(VariableUpdateObserver observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeListener(VariableUpdateObserver observer) {
+        observers.remove(observer);
     }
 }

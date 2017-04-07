@@ -14,9 +14,10 @@ import java.util.HashMap;
  * Created by batto on 09-Mar-17.
  */
 public class SimulationDataContainer extends GridPane {
-    private HashMap<Integer, HashMap<String, Pair<Integer, Double>>> nodeVariableMapper;
+    private HashMap<Integer, HashMap<String, Double>> nodeVariableMapper;
     private HashMap<String,  Label> labels;
     private Label nodeIdLabel;
+    private int currentNodeId = 0;
 
     public SimulationDataContainer() {}
 
@@ -26,12 +27,13 @@ public class SimulationDataContainer extends GridPane {
 
         nodeIdLabel = new Label("Node 0");
         this.addRow(0, nodeIdLabel);
+        this.setPadding(new Insets(5, 0, 0, 5));
 
         int j = 1;
         for (OutputVariable var : simulations.getOutputVariables()) {
             if(var.getIsSelected() && var.getIsNodeData()) {
                 Label zero = new Label("0");
-                zero.setPadding(new Insets(0, 0, 0, 10));
+                zero.setPadding(new Insets(0, 0, 0, 5));
                 this.addRow(j++, new Label(var.getName()), zero);
                 labels.put(var.getName(), zero);
             }
@@ -50,9 +52,10 @@ public class SimulationDataContainer extends GridPane {
         //Prevent JavaFX from throwing illegalStateExceptions
         Platform.runLater(() -> {
             for(String key : labels.keySet()){
-                labels.get(key).setText(String.valueOf(nodeVariableMapper.get(nodeId).get(key).getSecond()));
+                labels.get(key).setText(String.valueOf(nodeVariableMapper.get(nodeId).get(key)));
             }
             nodeIdLabel.setText("Node " + nodeId);
+            currentNodeId = nodeId;
         });
     }
 
@@ -61,17 +64,18 @@ public class SimulationDataContainer extends GridPane {
             nodeVariableMapper.put(nodeId, new HashMap());
         }
 
-        HashMap<String, Pair<Integer, Double>> node = nodeVariableMapper.get(nodeId);
+        HashMap<String, Double> node = nodeVariableMapper.get(nodeId);
 
         if(!node.containsKey(variable)) {
-            node.put(variable, new Pair(-1, 0));
+            node.put(variable, 0.0);
         }
     }
 
     public void updateVariable(int nodeId, String variable, double value) {
         try {
-            nodeVariableMapper.get(nodeId).get(variable).setSecond(value);
-            labels.get(variable).setText(String.valueOf(value));
+            nodeVariableMapper.get(nodeId).put(variable, value);
+            if(nodeId == currentNodeId)
+                labels.get(variable).setText(String.valueOf(value));
         }
         catch (Exception e) {
             throw new IllegalArgumentException(String.format("Could not update the variable (%s) on Node %d", variable, nodeId));

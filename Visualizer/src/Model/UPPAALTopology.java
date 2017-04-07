@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.graphstream.graph.Element;
 import org.graphstream.graph.implementations.MultiGraph;
 
 import java.io.File;
@@ -78,58 +79,43 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         return g.removeEdge(e);
     }
 
-    protected void handleUpdate(SimulationPoint s, boolean mark) {
-        /*TODO: When we show multiple "values" for each edge/node, we need to refactor this,
-         * because there is not an 1-1 relation between edge and simulation point anymore.
-         * I think we could add an map from edge to a set og simulation points, and if any of these points
-         * are shown, the edge should be shown. */
-        switch (s.getType()) {
-            case EdgePoint:
-                handleEdgeEdit((SimulationEdgePoint) s, mark);
-                break;
-            case NodePoint:
-                handleNodeEdit((SimulationNodePoint) s, mark);
-                break;
+    public void updateVariableGradient(SimulationPoint s, double value, double min, double max) {
+        Element e = null;
+        if(s.getType().equals(SimulationPoint.SimulationPointType.NodePoint))
+            e = getGraph().getNode(((SimulationNodePoint)s).getNodeId());
+        else if(s.getType().equals(SimulationPoint.SimulationPointType.EdgePoint))
+            e = getGraph().getEdge(((SimulationEdgePoint)s).getEdgeIdentifier());
+
+        if (e != null) {
+            double gradientValue = gradientValue(min, max, value);
+            if (gradientValue >= 1.0)
+                markGradientElement(e, 1.0);
+            else if (gradientValue <= 0.0)
+                markGradientElement(e, 0.0);
+            else
+                markGradientElement(e, gradientValue);
         }
     }
 
-    private void handleNodeEdit(SimulationNodePoint point, boolean mark) {
-        Node node = getGraph().getNode(point.getNodeId());
-        if (node == null)
-            return;
-
-        if(mark)
-            markNode(node);
-        else
-            unmarkNode(node);
+    double gradientValue(double min, double max, double value) {
+        double diff = max - min;
+        if(diff > 0)
+            return value / diff;
+        return 0;
     }
 
-    protected void handleEdgeEdit(SimulationEdgePoint s, boolean mark) {
-        Edge edge = getGraph().getEdge(s.getEdgeIdentifier());
-        if (edge == null)
-            return;
+    private void markGradientElement(Element e, double gradientValue) { e.setAttribute("ui.color", gradientValue); }
+    private void unmarkElement(Element e) { e.setAttribute("ui.color", 0.0);}
+    private void markElement(Element e) { e.setAttribute("ui.color", 1.0); }
 
-        if(mark)
-            markEdge(edge);
-        else
-            unmarkEdge(edge);
-    }
-
-    private void markEdge(Edge edge) {
-        if(edge.getAttribute("ui.class") != "marked"){
-            edge.setAttribute("ui.class", "marked");
-        }
+    public void unmarkAllNodes() {
+        for(Node n : getGraph().getNodeSet())
+            unmarkElement(n);
     }
 
     protected void unmarkAllEdges() {
         for (Edge e : getGraph().getEdgeSet())
-            e.setAttribute("ui.class", "unmarked");
-    }
-
-    private void unmarkEdge(Edge edge) {
-        if(edge.getAttribute("ui.class") != "unmarked"){
-            edge.setAttribute("ui.class", "unmarked");
-        }
+            unmarkElement(e);
     }
 
     private Node addNode(Integer id){
@@ -138,25 +124,12 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         if (nodesHasSpecificLocations()) {
             graphNode.addAttribute("layout.frozen");
             graphNode.setAttribute("xyz", nodes.get(id).getX(), nodes.get(id).getY(), 0);
-
         }
         return graphNode;
     }
 
     private void showLabelOnNode(Node n, String nodeName) {
         n.addAttribute("ui.label", nodeName);
-    }
-
-    private void markNode(Node node) {
-        if(node.getAttribute("ui.class") != "marked") {
-            node.setAttribute("ui.class", "marked");
-        }
-    }
-
-    private void unmarkNode(Node node) {
-        if(node.getAttribute("ui.class") != "unmarked"){
-            node.setAttribute("ui.class", "unmarked");
-        }
     }
 
     public Graph getGraph() { return getGraph(false); }
@@ -206,24 +179,14 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
                     "padding: 0,0;" +
                     "}" +
             "node {" +
-                    "	fill-color: black;" +
+                    "   fill-mode: dyn-plain;" +
+                    "   fill-color: black, red;" +
                     "   text-alignment: under;" +
                     "   text-background-mode: rounded-box;" +
                     "}" +
-            "node.marked {" +
-                    "	fill-color: red;" +
-                    "}" +
-            "node.unmarked {"+
-                    "   fill-color: black;" +
-                    "}"+
             "edge {" +
-                    "   fill-color: rgba(0,0,0,32);" +
-                    "}" +
-            "edge.marked {" +
-                    "   fill-color: red;"+
-                    "}" +
-            "edge.unmarked {"+
-                    "   fill-color: rgba(0,0,0,32);" +
+                    "fill-mode: dyn-plain;" +
+                    "fill-color: white, red;" +
                     "}";
 
     @Override
