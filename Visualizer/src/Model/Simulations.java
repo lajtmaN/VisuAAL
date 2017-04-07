@@ -18,6 +18,7 @@ import java.util.*;
 public class Simulations implements Serializable, VariablesUpdateObservable {
     private UPPAALModel model;
     private final List<Simulation> simulations;
+
     private Simulation shownSimulation;
     private ArrayList<VariableUpdateObserver> observers = new ArrayList<>();
 

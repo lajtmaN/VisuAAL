@@ -36,4 +36,8 @@ public class ShowHideSimulationOption extends EnableDisableSimulationOption {
     public void disableAction() {
         //simulations.hideSimulation(simulationId);
     }
+
+    public int getSimulationId() {
+        return simulationId;
+    }
 }

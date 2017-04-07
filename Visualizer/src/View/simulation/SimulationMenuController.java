@@ -109,10 +109,19 @@ public class SimulationMenuController {
 
     private void initializeSimulationOptions() {
         lstSimulationOptions.setCellFactory(OptionsHelper.optionListCell());
-        lstSimulationOptions.setOnMouseClicked(p -> {
-            EnableDisableSimulationOption optionClicked = lstSimulationOptions.getSelectionModel().getSelectedItem();
-            optionClicked.onProperty().set(!optionClicked.onProperty().get());
-        });
+
+        for(EnableDisableSimulationOption o : lstSimulationOptions.getItems()) {
+            o.onProperty().addListener((observable, oldValue, newValue) -> {
+                if(newValue) {
+                    for(EnableDisableSimulationOption edso : lstSimulationOptions.getItems()) {
+                        if(edso != o) {
+                            edso.onProperty().setValue(false);
+                        }
+                    }
+                    //currentSimulations.setShownSimulation(((ShowHideSimulationOption)o).getSimulationId());
+                }
+            });
+        }
     }
 
     private void setHeight() {
