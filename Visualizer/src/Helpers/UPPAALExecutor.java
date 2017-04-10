@@ -3,16 +3,29 @@ package Helpers;
 import Model.SimulateOutput;
 import exceptions.UPPAALFailedException;
 import javafx.scene.control.TextInputControl;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.HttpClients;
 import parsers.RegexHelper;
 import parsers.SimulateParser;
 import parsers.UPPAALParser;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by rasmu on 07/02/2017.
@@ -68,5 +81,23 @@ public class UPPAALExecutor {
                     p.println(line);
             }
         }).start();
+    }
+    public static List<String> runUppaalRemotely(String pathToWebservice, String modelPath, String query) {
+       try {
+            File file = new File(modelPath);
+            HttpPost post = new HttpPost(pathToWebservice);
+
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            reqEntity.addPart("upload-file", new FileBody(file));
+            reqEntity.addPart("query", new StringBody(query));
+            post.setEntity(reqEntity);
+
+            HttpResponse response = HttpClients.createDefault().execute(post);
+            InputStream uppaalOutput = response.getEntity().getContent();
+            return new BufferedReader(new InputStreamReader(uppaalOutput)).lines().parallel().collect(Collectors.toList());
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return null;
+        }
     }
 }
