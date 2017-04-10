@@ -15,9 +15,9 @@ grammar vq;
             ;
 
     parExpr : '(' expression ')';
-    unaryOp : '-' | '!'  | '+';
+    unaryOp : '-' | '!' ;
         rel : '<' | '<=' | '==' | '!=' | '>=' | '>' ;
-   binIntOp : '+' | '-' | '*' | '/' | '%' ;
+   binIntOp : '+' | '-' | '*' | '/' ;
   binBoolOp : '&&' | '||' ;
     
     BOOL: 'true' | 'false';

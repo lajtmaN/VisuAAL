@@ -25,6 +25,12 @@ public class VQListener extends vqBaseListener {
     }
 
     @Override
+    public void exitQuery(vqParser.QueryContext ctx) {
+        super.exitQuery(ctx);
+        vqExpression.saveExpression(currentNode);
+    }
+
+    @Override
     public void enterExpression(vqParser.ExpressionContext ctx) {
         super.enterExpression(ctx);
         VQNode vqNode = null;
@@ -38,7 +44,7 @@ public class VQListener extends vqBaseListener {
         else if(ctx.BOOL() != null)
             vqNode = new VQNodeBOOL(ctx.BOOL().getText());
         else if(ctx.unaryOp() != null)
-            vqNode = new VQNodeOperator(ctx.unaryOp().getText());
+            vqNode = new VQNodeUnaryOperator(ctx.unaryOp().getText());
         else if(ctx.rel() != null)
             vqNode = new VQNodeOperator(ctx.rel().getText());
         else if(ctx.binBoolOp() != null)
@@ -46,9 +52,11 @@ public class VQListener extends vqBaseListener {
         else if(ctx.binIntOp() != null)
             vqNode = new VQNodeOperator(ctx.binIntOp().getText());
 
-        vqNode.setParent(currentNode);
-        currentNode.addChild(vqNode);
-        currentNode = vqNode;
+        if(vqNode != null) {
+            vqNode.setParent(currentNode);
+            currentNode.addChild(vqNode);
+            currentNode = vqNode;
+        }
     }
 
     @Override
@@ -61,10 +69,10 @@ public class VQListener extends vqBaseListener {
     public void enterParExpr(vqParser.ParExprContext ctx) {
         super.enterParExpr(ctx);
 
-        VQNode vqNode = new VQNode();
-        vqNode.setParent(currentNode);
-        currentNode.addChild(vqNode);
-        currentNode = vqNode;
+        VQNodePar vqNodePar = new VQNodePar();
+        vqNodePar.setParent(currentNode);
+        currentNode.addChild(vqNodePar);
+        currentNode = vqNodePar;
     }
 }
 
