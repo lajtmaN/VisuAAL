@@ -93,9 +93,45 @@ public class VQParserTests {
         assertEquals(0.25, gradient, 0.01);
     }
 
+    @Test
+    public void above1Gradient() throws Exception {
+        String input = "[red:6, blue:10] 12";
+
+        VQExpression vqExpression = VQParse.parseVQ(input);
+
+        HashMap<String, Double> map = new HashMap<>();
+
+        double gradient = vqExpression.getGradient(map);
+        assertEquals(1, gradient, 0.01);
+    }
+
+    @Test
+    public void belowZeroGradient() throws Exception {
+        String input = "[red:6, blue:10] 4";
+
+        VQExpression vqExpression = VQParse.parseVQ(input);
+
+        HashMap<String, Double> map = new HashMap<>();
+
+        double gradient = vqExpression.getGradient(map);
+        assertEquals(0, gradient, 0.01);
+    }
+
     @Test(expected = Exception.class)
     public void gradientException() throws Exception {
         String input = "[red:10, blue:-6] x / y - --z";
         VQExpression vqExpression = VQParse.parseVQ(input);
+    }
+
+    @Test(expected = Exception.class)
+    public void valueMissingException() throws Exception {
+        String input = "[red:-10, blue:-6] x / y - --z";
+
+        VQExpression vqExpression = VQParse.parseVQ(input);
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 8.);
+        map.put("y", 4.);
+        double gradient = vqExpression.getGradient(map);
     }
 }
