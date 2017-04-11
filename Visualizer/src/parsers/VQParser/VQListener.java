@@ -1,8 +1,6 @@
 package parsers.VQParser;
 
 import Model.VQ.*;
-import View.DoubleTextField;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import parsers.VQParser.Generated.vqBaseListener;
 import parsers.VQParser.Generated.vqParser;
 

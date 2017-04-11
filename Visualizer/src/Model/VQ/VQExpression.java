@@ -1,7 +1,4 @@
 package Model.VQ;
-
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
 import java.util.Map;
 
 /**

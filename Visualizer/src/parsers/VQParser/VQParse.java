@@ -4,7 +4,6 @@ import Model.VQ.VQExpression;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.apache.commons.math3.analysis.function.Exp;
 import parsers.VQParser.Generated.vqLexer;
 import parsers.VQParser.Generated.vqParser;
 
