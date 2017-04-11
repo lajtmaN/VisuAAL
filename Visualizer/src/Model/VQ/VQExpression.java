@@ -1,9 +1,5 @@
 package Model.VQ;
 
-import Helpers.Pair;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,11 +7,28 @@ import java.util.Map;
  */
 public class VQExpression {
     private String firstColor, secondColor;
-    private int firstGradient, secondGradient;
     private VQNodeList nodes;
+    private double firstGradient, secondGradient;
 
-    public double getGradientForNode(Map<String, Double> variables) throws Exception {
-        return nodes.calculateGradient(variables, firstGradient, secondGradient);
+    public double getGradient(Map<String, Double> variables) throws Exception {
+        double gradientValue = gradientValue(firstGradient, secondGradient, getResultFromVQ(variables));
+        if (gradientValue >= 1.0)
+            return 1.0;
+        else if (gradientValue <= 0.0)
+            return 0.0;
+
+        return gradientValue;
+    }
+
+    double gradientValue(double min, double max, double value) {
+        double diff = max - min;
+        if (diff > 0)
+            return value / diff;
+        return 0;
+    }
+
+    public double getResultFromVQ(Map<String, Double> variables) throws Exception {
+        return nodes.calculateGradient(variables);
     }
 
     public void saveExpression(VQNode rootNode) {
@@ -40,27 +53,27 @@ public class VQExpression {
         this.secondColor = secondColor;
     }
 
-    public int getFirstGradient() {
+    public double getFirstGradient() {
         return firstGradient;
     }
 
-    public void setFirstGradient(int firstGradient) {
-        this.firstGradient = firstGradient;
-    }
-
-    public void setFirstGradient(int firstGradient, boolean negative) {
-        setFirstGradient(negative ? -firstGradient : firstGradient);
-    }
-
-    public int getSecondGradient() {
+    public double getSecondGradient() {
         return secondGradient;
     }
 
-    public void setSecondGradient(int secondGradient) {
+    public void setFirstGradient(double firstGradient) {
+        this.firstGradient = firstGradient;
+    }
+
+    public void setFirstGradient(double firstGradient, boolean negative) {
+        setFirstGradient(negative ? -firstGradient : firstGradient);
+    }
+
+    public void setSecondGradient(double secondGradient) {
         this.secondGradient = secondGradient;
     }
 
-    public void setSecondGradient(int secondGradient, boolean negative) {
+    public void setSecondGradient(double secondGradient, boolean negative) {
         setSecondGradient(negative ? -secondGradient : secondGradient);
     }
 }

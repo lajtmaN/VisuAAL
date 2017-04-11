@@ -7,14 +7,11 @@ import java.util.Map;
  * Created by batto on 10-Apr-17.
  */
 public class VQNodeList extends ArrayList<VQNode> {
-    double globalValue = 0, localValue = 0;
-    String unaryOperator = "", operator = "";
-    int firstGradient, secondGradient;
-    Map<String, Double> variables;
+    private double globalValue = 0, localValue = 0;
+    private String unaryOperator = "", operator = "";
+    private Map<String, Double> variables;
 
-    public double calculateGradient(Map<String, Double> variables, int firstGradient, int secondGradient) throws Exception {
-        this.firstGradient = firstGradient;
-        this.secondGradient = secondGradient;
+    public double calculateGradient(Map<String, Double> variables) throws Exception {
         this.variables = variables;
 
         //TODO: handle boolean
@@ -31,7 +28,7 @@ public class VQNodeList extends ArrayList<VQNode> {
                 isValue = false;
             }
             else if(n instanceof VQNodePar)
-                localValue = ((VQNodePar)n).getNodeList().calculateGradient(variables, firstGradient, secondGradient);
+                localValue = ((VQNodePar)n).getNodeList().calculateGradient(variables);
             else if(n instanceof VQNodeUnaryOperator) {
                 saveUnary(((VQNodeUnaryOperator) n).getOperator());
                 isValue = false;

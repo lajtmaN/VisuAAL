@@ -20,7 +20,7 @@ public class VQListener extends vqBaseListener {
         super.exitGradient(ctx);
         vqExpression.setFirstColor(ctx.ID(0).getText());
         vqExpression.setSecondColor(ctx.ID(1).getText());
-        vqExpression.setFirstGradient(Integer.parseInt(ctx.NAT(0).getText()), ctx.NEG(0) != null);
+        vqExpression.setFirstGradient(Double.parseDouble(ctx.NAT(0).getText()), ctx.NEG(0) != null);
         vqExpression.setSecondGradient(Integer.parseInt(ctx.NAT(1).getText()), ctx.NEG(1) != null);
     }
 
