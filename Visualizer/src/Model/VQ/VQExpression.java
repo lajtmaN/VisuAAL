@@ -7,7 +7,7 @@ import java.util.Map;
 public class VQExpression {
     private String firstColor, secondColor;
     private VQNodeList nodes;
-    private double firstGradient, secondGradient;
+    private double firstGradient = 0, secondGradient = 1;
 
     public double getGradient(Map<String, Double> variables) throws Exception {
         if(secondGradient <= firstGradient)

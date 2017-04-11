@@ -25,9 +25,11 @@ public class VQListener extends vqBaseListener {
         vqExpression.setFirstColor(firstGradient.ID().getText());
         vqExpression.setSecondColor(secondGradient.ID().getText());
 
-        vqExpression.setFirstGradient(Double.parseDouble(firstGradient.NAT().getText()),
+        if(firstGradient.NAT() != null)
+            vqExpression.setFirstGradient(Double.parseDouble(firstGradient.NAT().getText()),
                 firstGradient.NEG() != null);
-        vqExpression.setSecondGradient(Double.parseDouble(secondGradient.NAT().getText()),
+        if(secondGradient.NAT() != null)
+            vqExpression.setSecondGradient(Double.parseDouble(secondGradient.NAT().getText()),
                 secondGradient.NEG() != null);
     }
 

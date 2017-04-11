@@ -14,7 +14,7 @@ public class VQNodeList extends ArrayList<VQNode> {
     public double calculateGradient(Map<String, Double> variables) throws Exception {
         this.variables = variables;
 
-        //TODO: handle boolean
+        //TODO: handle boolean literal, expression, rel
         for(VQNode n : this) {
             boolean isValue = true;
             if(n instanceof VQNodeFLOAT)
@@ -45,6 +45,12 @@ public class VQNodeList extends ArrayList<VQNode> {
         if(isValue) {
             if (unaryOperator.equals("-"))
                 localValue = -localValue;
+            else if(unaryOperator.equals("!")) {
+                if (localValue == 0)
+                    localValue = 1;
+                else
+                    localValue = 0;
+            }
         }
     }
 
@@ -74,6 +80,30 @@ public class VQNodeList extends ArrayList<VQNode> {
                     throw new Exception("Division by 0 error");
                 else
                     globalValue /= localValue;
+                break;
+            case "<":
+                globalValue = globalValue < localValue ? 1 : 0;
+                break;
+            case "<=":
+                globalValue = globalValue <= localValue ? 1 : 0;
+                break;
+            case "==":
+                globalValue = globalValue == localValue ? 1 : 0;
+                break;
+            case "!=":
+                globalValue = globalValue != localValue ? 1 : 0;
+                break;
+            case ">=":
+                globalValue = globalValue >= localValue ? 1 : 0;
+                break;
+            case ">":
+                globalValue = globalValue > localValue ? 1 : 0;
+                break;
+            case "&&":
+                globalValue = globalValue != 0 && localValue != 0 ? 1 : 0;
+                break;
+            case "||":
+                globalValue = globalValue != 0 || localValue != 0 ? 1 : 0;
                 break;
             default: globalValue = localValue;
         }

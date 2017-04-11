@@ -134,4 +134,52 @@ public class VQParserTests {
         map.put("y", 4.);
         double gradient = vqExpression.getGradient(map);
     }
+
+    @Test
+    public void boolSimpleFalse() throws Exception {
+        String input = "[green, gray] x < y";
+
+        VQExpression vqExpression = VQParse.parseVQ(input);
+
+        assertEquals("green", vqExpression.getFirstColor());
+        assertEquals("gray", vqExpression.getSecondColor());
+        assertEquals(0, vqExpression.getFirstGradient(), 0.1);
+        assertEquals(1, vqExpression.getSecondGradient(), 0.1);
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 8.);
+        map.put("y", 4.);
+
+        double gradient = vqExpression.getGradient(map);
+        assertEquals(0., gradient, 0.01);
+    }
+
+    @Test
+    public void boolSimpleTrue() throws Exception {
+        String input = "[green, gray] x > y";
+
+        VQExpression vqExpression = VQParse.parseVQ(input);
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 8.);
+        map.put("y", 4.);
+
+        double gradient = vqExpression.getGradient(map);
+        assertEquals(1., gradient, 0.01);
+    }
+
+    @Test
+    public void boolNotXEqualY() throws Exception {
+        String input = "[green, gray] !!x && (y || z)";
+
+        VQExpression vqExpression = VQParse.parseVQ(input);
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 1.0);
+        map.put("y", 1.0);
+        map.put("z", 0.0);
+
+        double gradient = vqExpression.getGradient(map);
+        assertEquals(1., gradient, 0.01);
+    }
 }

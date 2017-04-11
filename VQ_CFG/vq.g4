@@ -1,9 +1,10 @@
 grammar vq;
-      query : gradient? expression EOF;
+      query : gradient expression EOF;
 
     gradient: '[' oneGradient ',' oneGradient ']';
 
-oneGradient : ID ':' NEG? NAT;
+oneGradient : ID ':' NEG? NAT
+            | ID;
 
  expression :   ID
             |   NAT 
