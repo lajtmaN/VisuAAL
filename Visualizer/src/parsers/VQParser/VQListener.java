@@ -1,6 +1,8 @@
 package parsers.VQParser;
 
 import Model.VQ.*;
+import View.DoubleTextField;
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import parsers.VQParser.Generated.vqBaseListener;
 import parsers.VQParser.Generated.vqParser;
 
@@ -18,10 +20,17 @@ public class VQListener extends vqBaseListener {
     @Override
     public void enterGradient(vqParser.GradientContext ctx) {
         super.exitGradient(ctx);
-        vqExpression.setFirstColor(ctx.ID(0).getText());
-        vqExpression.setSecondColor(ctx.ID(1).getText());
-        vqExpression.setFirstGradient(Double.parseDouble(ctx.NAT(0).getText()), ctx.NEG(0) != null);
-        vqExpression.setSecondGradient(Integer.parseInt(ctx.NAT(1).getText()), ctx.NEG(1) != null);
+
+        vqParser.OneGradientContext firstGradient = ctx.oneGradient(0),
+                                    secondGradient = ctx.oneGradient(1);
+
+        vqExpression.setFirstColor(firstGradient.ID().getText());
+        vqExpression.setSecondColor(secondGradient.ID().getText());
+
+        vqExpression.setFirstGradient(Double.parseDouble(firstGradient.NAT().getText()),
+                firstGradient.NEG() != null);
+        vqExpression.setSecondGradient(Double.parseDouble(secondGradient.NAT().getText()),
+                secondGradient.NEG() != null);
     }
 
     @Override

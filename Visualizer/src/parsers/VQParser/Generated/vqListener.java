@@ -27,6 +27,16 @@ public interface vqListener extends ParseTreeListener {
 	 */
 	void exitGradient(vqParser.GradientContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link vqParser#oneGradient}.
+	 * @param ctx the parse tree
+	 */
+	void enterOneGradient(vqParser.OneGradientContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link vqParser#oneGradient}.
+	 * @param ctx the parse tree
+	 */
+	void exitOneGradient(vqParser.OneGradientContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link vqParser#expression}.
 	 * @param ctx the parse tree
 	 */

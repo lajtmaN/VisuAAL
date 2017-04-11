@@ -1,5 +1,7 @@
 package Model.VQ;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import java.util.Map;
 
 /**
@@ -11,6 +13,9 @@ public class VQExpression {
     private double firstGradient, secondGradient;
 
     public double getGradient(Map<String, Double> variables) throws Exception {
+        if(secondGradient <= firstGradient)
+            throw new Exception("The maximum gradient must be greater than the minimum gradient");
+
         double gradientValue = gradientValue(firstGradient, secondGradient, getResultFromVQ(variables));
         if (gradientValue >= 1.0)
             return 1.0;
@@ -23,7 +28,7 @@ public class VQExpression {
     double gradientValue(double min, double max, double value) {
         double diff = max - min;
         if (diff > 0)
-            return value / diff;
+            return (value - min) / diff;
         return 0;
     }
 

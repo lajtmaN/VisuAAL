@@ -49,4 +49,53 @@ public class VQParserTests {
         double gradient = vqExpression.getGradient(map);
         assertEquals(0.5, gradient, 0.1);
     }
+
+    @Test
+    public void intGradient() throws Exception {
+        String input = "[red:2, blue:6] y * y - (x + x)";
+
+        VQExpression vqExpression = VQParse.parseVQ(input);
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("y", 2.);
+        map.put("x", 0.5);
+
+        double gradient = vqExpression.getGradient(map);
+        assertEquals(0.25, gradient, 0.01);
+    }
+
+    @Test
+    public void intGradientNegative() throws Exception {
+        String input = "[red:-2, blue:6] y * y - (x + x)";
+
+        VQExpression vqExpression = VQParse.parseVQ(input);
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("y", 3.);
+        map.put("x", 5.);
+
+        double gradient = vqExpression.getGradient(map);
+        assertEquals(0.125, gradient, 0.01);
+    }
+
+    @Test
+    public void intGradientDoubleNegative() throws Exception {
+        String input = "[red:-10, blue:-6] x / y - --z";
+
+        VQExpression vqExpression = VQParse.parseVQ(input);
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 8.);
+        map.put("y", 4.);
+        map.put("z", 11.);
+
+        double gradient = vqExpression.getGradient(map);
+        assertEquals(0.25, gradient, 0.01);
+    }
+
+    @Test(expected = Exception.class)
+    public void gradientException() throws Exception {
+        String input = "[red:10, blue:-6] x / y - --z";
+        VQExpression vqExpression = VQParse.parseVQ(input);
+    }
 }

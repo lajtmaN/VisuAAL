@@ -20,15 +20,15 @@ public class vqParser extends Parser {
 		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, 
 		T__17=18, BOOL=19, NEG=20, ID=21, NAT=22, FLOAT=23, WS=24;
 	public static final int
-		RULE_query = 0, RULE_gradient = 1, RULE_expression = 2, RULE_parExpr = 3, 
-		RULE_unaryOp = 4, RULE_rel = 5, RULE_binIntOp = 6, RULE_binBoolOp = 7;
+		RULE_query = 0, RULE_gradient = 1, RULE_oneGradient = 2, RULE_expression = 3, 
+		RULE_parExpr = 4, RULE_unaryOp = 5, RULE_rel = 6, RULE_binIntOp = 7, RULE_binBoolOp = 8;
 	public static final String[] ruleNames = {
-		"query", "gradient", "expression", "parExpr", "unaryOp", "rel", "binIntOp", 
-		"binBoolOp"
+		"query", "gradient", "oneGradient", "expression", "parExpr", "unaryOp", 
+		"rel", "binIntOp", "binBoolOp"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'['", "':'", "','", "']'", "'('", "')'", "'!'", "'<'", "'<='", 
+		null, "'['", "','", "']'", "':'", "'('", "')'", "'!'", "'<'", "'<='", 
 		"'=='", "'!='", "'>='", "'>'", "'+'", "'*'", "'/'", "'&&'", "'||'", null, 
 		"'-'"
 	};
@@ -115,19 +115,19 @@ public class vqParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(17);
+			setState(19);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==T__0) {
 				{
-				setState(16);
+				setState(18);
 				gradient();
 				}
 			}
 
-			setState(19);
+			setState(21);
 			expression(0);
-			setState(20);
+			setState(22);
 			match(EOF);
 			}
 		}
@@ -143,17 +143,11 @@ public class vqParser extends Parser {
 	}
 
 	public static class GradientContext extends ParserRuleContext {
-		public List<TerminalNode> ID() { return getTokens(vqParser.ID); }
-		public TerminalNode ID(int i) {
-			return getToken(vqParser.ID, i);
+		public List<OneGradientContext> oneGradient() {
+			return getRuleContexts(OneGradientContext.class);
 		}
-		public List<TerminalNode> NAT() { return getTokens(vqParser.NAT); }
-		public TerminalNode NAT(int i) {
-			return getToken(vqParser.NAT, i);
-		}
-		public List<TerminalNode> NEG() { return getTokens(vqParser.NEG); }
-		public TerminalNode NEG(int i) {
-			return getToken(vqParser.NEG, i);
+		public OneGradientContext oneGradient(int i) {
+			return getRuleContext(OneGradientContext.class,i);
 		}
 		public GradientContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -172,34 +166,61 @@ public class vqParser extends Parser {
 	public final GradientContext gradient() throws RecognitionException {
 		GradientContext _localctx = new GradientContext(_ctx, getState());
 		enterRule(_localctx, 2, RULE_gradient);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(24);
+			match(T__0);
+			setState(25);
+			oneGradient();
+			setState(26);
+			match(T__1);
+			setState(27);
+			oneGradient();
+			setState(28);
+			match(T__2);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class OneGradientContext extends ParserRuleContext {
+		public TerminalNode ID() { return getToken(vqParser.ID, 0); }
+		public TerminalNode NAT() { return getToken(vqParser.NAT, 0); }
+		public TerminalNode NEG() { return getToken(vqParser.NEG, 0); }
+		public OneGradientContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_oneGradient; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof vqListener ) ((vqListener)listener).enterOneGradient(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof vqListener ) ((vqListener)listener).exitOneGradient(this);
+		}
+	}
+
+	public final OneGradientContext oneGradient() throws RecognitionException {
+		OneGradientContext _localctx = new OneGradientContext(_ctx, getState());
+		enterRule(_localctx, 4, RULE_oneGradient);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(22);
-			match(T__0);
-			setState(23);
-			match(ID);
-			setState(24);
-			match(T__1);
-			setState(26);
-			_errHandler.sync(this);
-			_la = _input.LA(1);
-			if (_la==NEG) {
-				{
-				setState(25);
-				match(NEG);
-				}
-			}
-
-			setState(28);
-			match(NAT);
-			setState(29);
-			match(T__2);
 			setState(30);
 			match(ID);
 			setState(31);
-			match(T__1);
+			match(T__3);
 			setState(33);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -212,8 +233,6 @@ public class vqParser extends Parser {
 
 			setState(35);
 			match(NAT);
-			setState(36);
-			match(T__3);
 			}
 		}
 		catch (RecognitionException re) {
@@ -276,51 +295,51 @@ public class vqParser extends Parser {
 		int _parentState = getState();
 		ExpressionContext _localctx = new ExpressionContext(_ctx, _parentState);
 		ExpressionContext _prevctx = _localctx;
-		int _startState = 4;
-		enterRecursionRule(_localctx, 4, RULE_expression, _p);
+		int _startState = 6;
+		enterRecursionRule(_localctx, 6, RULE_expression, _p);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(47);
+			setState(46);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ID:
 				{
-				setState(39);
+				setState(38);
 				match(ID);
 				}
 				break;
 			case NAT:
 				{
-				setState(40);
+				setState(39);
 				match(NAT);
 				}
 				break;
 			case FLOAT:
 				{
-				setState(41);
+				setState(40);
 				match(FLOAT);
 				}
 				break;
 			case BOOL:
 				{
-				setState(42);
+				setState(41);
 				match(BOOL);
 				}
 				break;
 			case T__4:
 				{
-				setState(43);
+				setState(42);
 				parExpr();
 				}
 				break;
 			case T__6:
 			case NEG:
 				{
-				setState(44);
+				setState(43);
 				unaryOp();
-				setState(45);
+				setState(44);
 				expression(4);
 				}
 				break;
@@ -328,26 +347,26 @@ public class vqParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(63);
+			setState(62);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,5,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
 			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(61);
+					setState(60);
 					_errHandler.sync(this);
-					switch ( getInterpreter().adaptivePredict(_input,4,_ctx) ) {
+					switch ( getInterpreter().adaptivePredict(_input,3,_ctx) ) {
 					case 1:
 						{
 						_localctx = new ExpressionContext(_parentctx, _parentState);
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(49);
+						setState(48);
 						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
-						setState(50);
+						setState(49);
 						rel();
-						setState(51);
+						setState(50);
 						expression(4);
 						}
 						break;
@@ -355,11 +374,11 @@ public class vqParser extends Parser {
 						{
 						_localctx = new ExpressionContext(_parentctx, _parentState);
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(53);
+						setState(52);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
-						setState(54);
+						setState(53);
 						binBoolOp();
-						setState(55);
+						setState(54);
 						expression(3);
 						}
 						break;
@@ -367,20 +386,20 @@ public class vqParser extends Parser {
 						{
 						_localctx = new ExpressionContext(_parentctx, _parentState);
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(57);
+						setState(56);
 						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
-						setState(58);
+						setState(57);
 						binIntOp();
-						setState(59);
+						setState(58);
 						expression(2);
 						}
 						break;
 					}
 					} 
 				}
-				setState(65);
+				setState(64);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,5,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
 			}
 			}
 		}
@@ -415,15 +434,15 @@ public class vqParser extends Parser {
 
 	public final ParExprContext parExpr() throws RecognitionException {
 		ParExprContext _localctx = new ParExprContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_parExpr);
+		enterRule(_localctx, 8, RULE_parExpr);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(66);
+			setState(65);
 			match(T__4);
-			setState(67);
+			setState(66);
 			expression(0);
-			setState(68);
+			setState(67);
 			match(T__5);
 			}
 		}
@@ -455,12 +474,12 @@ public class vqParser extends Parser {
 
 	public final UnaryOpContext unaryOp() throws RecognitionException {
 		UnaryOpContext _localctx = new UnaryOpContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_unaryOp);
+		enterRule(_localctx, 10, RULE_unaryOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(70);
+			setState(69);
 			_la = _input.LA(1);
 			if ( !(_la==T__6 || _la==NEG) ) {
 			_errHandler.recoverInline(this);
@@ -500,12 +519,12 @@ public class vqParser extends Parser {
 
 	public final RelContext rel() throws RecognitionException {
 		RelContext _localctx = new RelContext(_ctx, getState());
-		enterRule(_localctx, 10, RULE_rel);
+		enterRule(_localctx, 12, RULE_rel);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(72);
+			setState(71);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__12))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -545,12 +564,12 @@ public class vqParser extends Parser {
 
 	public final BinIntOpContext binIntOp() throws RecognitionException {
 		BinIntOpContext _localctx = new BinIntOpContext(_ctx, getState());
-		enterRule(_localctx, 12, RULE_binIntOp);
+		enterRule(_localctx, 14, RULE_binIntOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(74);
+			setState(73);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__13) | (1L << T__14) | (1L << T__15) | (1L << NEG))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -590,12 +609,12 @@ public class vqParser extends Parser {
 
 	public final BinBoolOpContext binBoolOp() throws RecognitionException {
 		BinBoolOpContext _localctx = new BinBoolOpContext(_ctx, getState());
-		enterRule(_localctx, 14, RULE_binBoolOp);
+		enterRule(_localctx, 16, RULE_binBoolOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(76);
+			setState(75);
 			_la = _input.LA(1);
 			if ( !(_la==T__16 || _la==T__17) ) {
 			_errHandler.recoverInline(this);
@@ -620,7 +639,7 @@ public class vqParser extends Parser {
 
 	public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
 		switch (ruleIndex) {
-		case 2:
+		case 3:
 			return expression_sempred((ExpressionContext)_localctx, predIndex);
 		}
 		return true;
@@ -638,27 +657,27 @@ public class vqParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\32Q\4\2\t\2\4\3\t"+
-		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\3\2\5\2\24\n\2\3\2"+
-		"\3\2\3\2\3\3\3\3\3\3\3\3\5\3\35\n\3\3\3\3\3\3\3\3\3\3\3\5\3$\n\3\3\3\3"+
-		"\3\3\3\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4\62\n\4\3\4\3\4\3\4\3\4"+
-		"\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\7\4@\n\4\f\4\16\4C\13\4\3\5\3\5\3\5\3"+
-		"\5\3\6\3\6\3\7\3\7\3\b\3\b\3\t\3\t\3\t\2\3\6\n\2\4\6\b\n\f\16\20\2\6\4"+
-		"\2\t\t\26\26\3\2\n\17\4\2\20\22\26\26\3\2\23\24S\2\23\3\2\2\2\4\30\3\2"+
-		"\2\2\6\61\3\2\2\2\bD\3\2\2\2\nH\3\2\2\2\fJ\3\2\2\2\16L\3\2\2\2\20N\3\2"+
-		"\2\2\22\24\5\4\3\2\23\22\3\2\2\2\23\24\3\2\2\2\24\25\3\2\2\2\25\26\5\6"+
-		"\4\2\26\27\7\2\2\3\27\3\3\2\2\2\30\31\7\3\2\2\31\32\7\27\2\2\32\34\7\4"+
-		"\2\2\33\35\7\26\2\2\34\33\3\2\2\2\34\35\3\2\2\2\35\36\3\2\2\2\36\37\7"+
-		"\30\2\2\37 \7\5\2\2 !\7\27\2\2!#\7\4\2\2\"$\7\26\2\2#\"\3\2\2\2#$\3\2"+
-		"\2\2$%\3\2\2\2%&\7\30\2\2&\'\7\6\2\2\'\5\3\2\2\2()\b\4\1\2)\62\7\27\2"+
-		"\2*\62\7\30\2\2+\62\7\31\2\2,\62\7\25\2\2-\62\5\b\5\2./\5\n\6\2/\60\5"+
-		"\6\4\6\60\62\3\2\2\2\61(\3\2\2\2\61*\3\2\2\2\61+\3\2\2\2\61,\3\2\2\2\61"+
-		"-\3\2\2\2\61.\3\2\2\2\62A\3\2\2\2\63\64\f\5\2\2\64\65\5\f\7\2\65\66\5"+
-		"\6\4\6\66@\3\2\2\2\678\f\4\2\289\5\20\t\29:\5\6\4\5:@\3\2\2\2;<\f\3\2"+
-		"\2<=\5\16\b\2=>\5\6\4\4>@\3\2\2\2?\63\3\2\2\2?\67\3\2\2\2?;\3\2\2\2@C"+
-		"\3\2\2\2A?\3\2\2\2AB\3\2\2\2B\7\3\2\2\2CA\3\2\2\2DE\7\7\2\2EF\5\6\4\2"+
-		"FG\7\b\2\2G\t\3\2\2\2HI\t\2\2\2I\13\3\2\2\2JK\t\3\2\2K\r\3\2\2\2LM\t\4"+
-		"\2\2M\17\3\2\2\2NO\t\5\2\2O\21\3\2\2\2\b\23\34#\61?A";
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\32P\4\2\t\2\4\3\t"+
+		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\3\2\5\2\26"+
+		"\n\2\3\2\3\2\3\2\3\3\3\3\3\3\3\3\3\3\3\3\3\4\3\4\3\4\5\4$\n\4\3\4\3\4"+
+		"\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\5\5\61\n\5\3\5\3\5\3\5\3\5\3\5\3"+
+		"\5\3\5\3\5\3\5\3\5\3\5\3\5\7\5?\n\5\f\5\16\5B\13\5\3\6\3\6\3\6\3\6\3\7"+
+		"\3\7\3\b\3\b\3\t\3\t\3\n\3\n\3\n\2\3\b\13\2\4\6\b\n\f\16\20\22\2\6\4\2"+
+		"\t\t\26\26\3\2\n\17\4\2\20\22\26\26\3\2\23\24P\2\25\3\2\2\2\4\32\3\2\2"+
+		"\2\6 \3\2\2\2\b\60\3\2\2\2\nC\3\2\2\2\fG\3\2\2\2\16I\3\2\2\2\20K\3\2\2"+
+		"\2\22M\3\2\2\2\24\26\5\4\3\2\25\24\3\2\2\2\25\26\3\2\2\2\26\27\3\2\2\2"+
+		"\27\30\5\b\5\2\30\31\7\2\2\3\31\3\3\2\2\2\32\33\7\3\2\2\33\34\5\6\4\2"+
+		"\34\35\7\4\2\2\35\36\5\6\4\2\36\37\7\5\2\2\37\5\3\2\2\2 !\7\27\2\2!#\7"+
+		"\6\2\2\"$\7\26\2\2#\"\3\2\2\2#$\3\2\2\2$%\3\2\2\2%&\7\30\2\2&\7\3\2\2"+
+		"\2\'(\b\5\1\2(\61\7\27\2\2)\61\7\30\2\2*\61\7\31\2\2+\61\7\25\2\2,\61"+
+		"\5\n\6\2-.\5\f\7\2./\5\b\5\6/\61\3\2\2\2\60\'\3\2\2\2\60)\3\2\2\2\60*"+
+		"\3\2\2\2\60+\3\2\2\2\60,\3\2\2\2\60-\3\2\2\2\61@\3\2\2\2\62\63\f\5\2\2"+
+		"\63\64\5\16\b\2\64\65\5\b\5\6\65?\3\2\2\2\66\67\f\4\2\2\678\5\22\n\28"+
+		"9\5\b\5\59?\3\2\2\2:;\f\3\2\2;<\5\20\t\2<=\5\b\5\4=?\3\2\2\2>\62\3\2\2"+
+		"\2>\66\3\2\2\2>:\3\2\2\2?B\3\2\2\2@>\3\2\2\2@A\3\2\2\2A\t\3\2\2\2B@\3"+
+		"\2\2\2CD\7\7\2\2DE\5\b\5\2EF\7\b\2\2F\13\3\2\2\2GH\t\2\2\2H\r\3\2\2\2"+
+		"IJ\t\3\2\2J\17\3\2\2\2KL\t\4\2\2L\21\3\2\2\2MN\t\5\2\2N\23\3\2\2\2\7\25"+
+		"#\60>@";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
