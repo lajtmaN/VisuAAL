@@ -1,6 +1,6 @@
 package parsers;
 
-import Model.VQ.VQExpression;
+import Model.VQ.VQParseTree;
 import org.junit.Test;
 import parsers.VQParser.VQParse;
 
@@ -21,6 +21,7 @@ public class VQParserTests {
         map.put("x", 5.);
         map.put("y", 10.);
 
+        VQParseTree tree = VQParse.parseVQ(input, map);
         //double gradient = VQParse.parseVQ(input, map);
 
         //assertEquals(0.5, gradient, 0.1);

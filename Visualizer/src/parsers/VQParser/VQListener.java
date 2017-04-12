@@ -41,7 +41,8 @@ public class VQListener extends vqBaseListener {
     @Override
     public void exitEveryRule(ParserRuleContext ctx) {
         super.exitEveryRule(ctx);
-        currentNode = currentNode.getParent();
+        if(currentNode != null)
+            currentNode = currentNode.getParent();
     }
 
     @Override
