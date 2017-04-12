@@ -39,9 +39,15 @@ public class VQListener extends vqBaseListener {
     }
 
     @Override
+    public void exitQuery(vqParser.QueryContext ctx) {
+        super.exitQuery(ctx);
+        parseTree.setRoot(currentNode);
+    }
+
+    @Override
     public void exitEveryRule(ParserRuleContext ctx) {
         super.exitEveryRule(ctx);
-        if(currentNode != null)
+        if(currentNode != null && currentNode.getParent() != null)
             currentNode = currentNode.getParent();
     }
 
@@ -145,8 +151,10 @@ public class VQListener extends vqBaseListener {
     }
 
     private void addNewChild(VQNode node) {
-        currentNode.addChild(node);
-        node.setParent(currentNode);
+        if(currentNode != null) {
+            currentNode.addChild(node);
+            node.setParent(currentNode);
+        }
         currentNode = node;
     }
 
