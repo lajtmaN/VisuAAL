@@ -26,22 +26,4 @@ public class VQNode {
     public void setParent(VQNode parent) {
         this.parent = parent;
     }
-
-    public VQNodeList getChildrenRecursively() {
-        VQNodeList res = new VQNodeList();
-
-        if(children.size() == 1) {
-            res.addAll(children.get(0).getChildrenRecursively());
-            res.add(this);
-        }
-        else if(children.size() == 2) {
-            res.addAll(children.get(0).getChildrenRecursively());
-            res.add(this);
-            res.addAll(children.get(1).getChildrenRecursively());
-        }
-        else
-            res.add(this);
-
-        return res;
-    }
 }

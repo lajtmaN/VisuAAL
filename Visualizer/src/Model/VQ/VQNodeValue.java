@@ -3,10 +3,10 @@ package Model.VQ;
 /**
  * Created by batto on 10-Apr-17.
  */
-public class VQNodeFLOAT extends VQNode {
+public class VQNodeValue extends VQNode {
     private double value;
 
-    public VQNodeFLOAT(double value) {
+    public VQNodeValue(double value) {
         this.value = value;
     }
 

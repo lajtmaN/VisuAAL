@@ -8,14 +8,14 @@ import java.util.ArrayList;
 public class VQNodePar extends VQNode {
     private VQNodeList subNodes = new VQNodeList();
 
-    @Override
+    /*@Override
     public VQNodeList getChildrenRecursively() {
         subNodes = super.getChildrenRecursively();
         subNodes.remove(this);
         VQNodeList node = new VQNodeList();
         node.add(this);
         return node;
-    }
+    }*/
 
     public VQNodeList getNodeList() {
         return subNodes;

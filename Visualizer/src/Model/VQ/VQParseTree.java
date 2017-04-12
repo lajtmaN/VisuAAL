@@ -73,4 +73,8 @@ public class VQParseTree {
     public String getSecondColor() {
         return secondColor;
     }
+
+    public List<VQNode> getChildren() {
+        return children;
+    }
 }

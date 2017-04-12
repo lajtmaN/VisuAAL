@@ -3,14 +3,14 @@ package Model.VQ;
 /**
  * Created by batto on 10-Apr-17.
  */
-public class VQNodeID extends VQNode {
-    private String identifier;
+public class VQNodeId extends VQNode {
+    private String id;
 
-    public VQNodeID(String identifier) {
-        this.identifier = identifier;
+    public VQNodeId(String id) {
+        this.id = id;
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public String getId() {
+        return id;
     }
 }

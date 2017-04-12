@@ -1,11 +1,10 @@
 package parsers.VQParser;
 
-import Model.VQ.VQParseTree;
+import Model.VQ.*;
+import Model.VQ.Operators.*;
+import org.antlr.v4.runtime.ParserRuleContext;
 import parsers.VQParser.Generated.vqBaseListener;
 import parsers.VQParser.Generated.vqParser;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,10 +12,8 @@ import java.util.Map;
  */
 public class VQListener extends vqBaseListener {
     private Map<String, Double> variables;
-    private List<Double> values = new ArrayList<>();
-    private List<String> errors = new ArrayList<>();
     private VQParseTree parseTree = new VQParseTree();
-
+    private VQNode currentNode;
 
     public VQListener(Map<String, Double> variables) {
         this.variables = variables;
@@ -41,114 +38,115 @@ public class VQListener extends vqBaseListener {
                 secondGradient.NEG() != null);
     }
 
-    //Operators
     @Override
-    public void exitUnOp(vqParser.UnOpContext ctx) {
-        super.exitUnOp(ctx);
-        int lastIndex = values.size() - 1;
-        double v = values.remove(lastIndex);
-        if(ctx.op.equals("-"))
-            values.add(-v);
-        else if(ctx.op.equals("!")) {
-            if(v != 0)
-                values.add(0.);
-            else
-                values.add(1.);
-        }
+    public void exitEveryRule(ParserRuleContext ctx) {
+        super.exitEveryRule(ctx);
+        currentNode = currentNode.getParent();
     }
 
     @Override
-    public void exitBinOp(vqParser.BinOpContext ctx) {
-        super.exitBinOp(ctx);
-        doBinaryOperation(ctx.op.getText());
+    public void enterPar(vqParser.ParContext ctx) {
+        super.enterPar(ctx);
+        addNewChild(new VQNodePar());
+    }
+
+    //Unary
+    @Override
+    public void enterUnOp(vqParser.UnOpContext ctx) {
+        super.enterUnOp(ctx);
+        if(ctx.op.equals("-"))
+            addNewChild(new VqNodeUnaryMinus());
+        else if(ctx.op.equals("!")) {
+            addNewChild(new VqNodeUnaryNot());
+        }
+    }
+
+    //Binary
+    @Override
+    public void enterBinOp(vqParser.BinOpContext ctx) {
+        super.enterBinOp(ctx);
+        String operator = ctx.op.getText();
+        VQNode node = null;
+
+        switch (operator) {
+            case "+":
+                node = new VQNodePlus();
+                break;
+            case "-":
+                node = new VQNodeMinus();
+                break;
+            case "*":
+                node = new VQNodeMult();
+                break;
+            case "/":
+                node = new VQNodeDiv();
+                break;
+            case "<":
+                node = new VQNodeLessThan();
+                break;
+            case "<=":
+                node = new VQNodeLessThanEq();
+                break;
+            case "==":
+                node = new VQNodeEqual();
+                break;
+            case "!=":
+                node = new VQNodeNotEqual();
+                break;
+            case ">=":
+                node = new VQNodeGreaterThan();
+                break;
+            case ">":
+                node = new VQNodeGreaterThanEq();
+                break;
+            case "&&":
+                node = new VQNodeAnd();
+                break;
+            case "||":
+                node = new VQNodeOr();
+                break;
+        }
+
+        addNewChild(node);
     }
 
     //Atoms
     @Override
-    public void exitId(vqParser.IdContext ctx) {
-        super.exitId(ctx);
-        if(variables.containsKey(ctx.ID().getText()))
-            values.add(variables.get(ctx.ID().getText()));
-        else
-            errors.add("The variable " + ctx.ID().getText() + " does not exist");
-    }
-
-    @Override
-    public void exitNat(vqParser.NatContext ctx) {
-        super.exitNat(ctx);
-        values.add(Double.valueOf(ctx.NAT().getText()));
-    }
-
-    @Override
-    public void exitFloat(vqParser.FloatContext ctx) {
-        super.exitFloat(ctx);
-        values.add(Double.valueOf(ctx.FLOAT().getText()));
-    }
-
-    @Override
-    public void exitBool(vqParser.BoolContext ctx) {
-        super.exitBool(ctx);
-        if(ctx.BOOL().getText().equals("true"))
-            values.add(1.);
-        else
-            values.add(0.);
-    }
-
-    private void doBinaryOperation(String operator) {
-        int lastIndex = values.size() - 1;
-        double v1 = values.remove(lastIndex), v0 = values.remove(lastIndex-1), result = 0;
-
-        switch (operator) {
-            case "+":
-                result = v0 + v1;
-                break;
-            case "-":
-                result = v0 - v1;
-                break;
-            case "*":
-                result = v0 * v1;
-                break;
-            case "/":
-                if(v1 != 0)
-                    result = v0 / v1;
-                else
-                    errors.add("Division by 0 error");
-                break;
-            case "<":
-                result = v0 < v1 ? 1 : 0;
-                break;
-            case "<=":
-                result = v0 <= v1 ? 1 : 0;
-                break;
-            case "==":
-                result = v0 == v1 ? 1 : 0;
-                break;
-            case "!=":
-                result = v0 != v1 ? 1 : 0;
-                break;
-            case ">=":
-                result = v0 >= v1 ? 1 : 0;
-                break;
-            case ">":
-                result = v0 > v1 ? 1 : 0;
-                break;
-            case "&&":
-                result = v0 != 0 && v1 != 0 ? 1 : 0;
-                break;
-            case "||":
-                result = v0 != 0 || v1 != 0 ? 1 : 0;
-                break;
+    public void enterId(vqParser.IdContext ctx) {
+        super.enterId(ctx);
+        String id = ctx.ID().getText();
+        if(variables.containsKey(id)) {
+            VQNodeValue node = new VQNodeValue(variables.get(id));
+            addNewChild(node);
         }
-
-        values.add(result);
     }
 
-    public double getResultValue() {
-        if(values.size() != 1)
-            errors.add("Wrong number of final results: " + values.size());
-        if(values.size() == 1)
-            return values.get(0);
-        else return 0;
+    @Override
+    public void enterNat(vqParser.NatContext ctx) {
+        super.enterNat(ctx);
+        addNewChild(new VQNodeValue(Double.valueOf(ctx.NAT().getText())));
+    }
+
+    @Override
+    public void enterFloat(vqParser.FloatContext ctx) {
+        super.enterFloat(ctx);
+        addNewChild(new VQNodeValue(Double.valueOf(ctx.FLOAT().getText())));
+    }
+
+    @Override
+    public void enterBool(vqParser.BoolContext ctx) {
+        super.enterBool(ctx);
+        String b = ctx.BOOL().getText();
+        if(b.equals("true"))
+            addNewChild(new VQNodeValue(1.));
+        else
+            addNewChild(new VQNodeValue(0.));
+    }
+
+    private void addNewChild(VQNode node) {
+        currentNode.addChild(node);
+        node.setParent(currentNode);
+        currentNode = node;
     }
 
     public VQParseTree getParseTree() {

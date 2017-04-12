@@ -13,8 +13,6 @@ import java.util.Map;
  * Created by batto on 10-Apr-17.
  */
 public class VQParse {
-    double firstGradient, secondGradient, resultValue;
-
     public static VQParseTree parseVQ(String input, Map<String, Double> variables) throws Exception {
         vqParser parser = setupParser(input);
 
