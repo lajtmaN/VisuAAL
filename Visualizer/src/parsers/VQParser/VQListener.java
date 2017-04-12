@@ -1,18 +1,25 @@
 package parsers.VQParser;
 
-import Model.VQ.*;
+import Model.VQ.VQParseTree;
 import parsers.VQParser.Generated.vqBaseListener;
 import parsers.VQParser.Generated.vqParser;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by batto on 10-Apr-17.
  */
 public class VQListener extends vqBaseListener {
-    private VQExpression vqExpression = new VQExpression();
-    private VQNode currentNode = new VQNode();
+    private Map<String, Double> variables;
+    private List<Double> values = new ArrayList<>();
+    private List<String> errors = new ArrayList<>();
+    private VQParseTree parseTree = new VQParseTree();
 
-    public VQExpression getVQExpression() {
-        return vqExpression;
+
+    public VQListener(Map<String, Double> variables) {
+        this.variables = variables;
     }
 
     @Override
@@ -22,66 +29,130 @@ public class VQListener extends vqBaseListener {
         vqParser.OneGradientContext firstGradient = ctx.oneGradient(0),
                                     secondGradient = ctx.oneGradient(1);
 
-        vqExpression.setFirstColor(firstGradient.ID().getText());
-        vqExpression.setSecondColor(secondGradient.ID().getText());
+        //Set gradient colors
+        parseTree.setFirstColor(firstGradient.ID().getText());
+        parseTree.setSecondColor(secondGradient.ID().getText());
 
         if(firstGradient.NAT() != null)
-            vqExpression.setFirstGradient(Double.parseDouble(firstGradient.NAT().getText()),
+            parseTree.setFirstGradient(Double.parseDouble(firstGradient.NAT().getText()),
                 firstGradient.NEG() != null);
         if(secondGradient.NAT() != null)
-            vqExpression.setSecondGradient(Double.parseDouble(secondGradient.NAT().getText()),
+            parseTree.setSecondGradient(Double.parseDouble(secondGradient.NAT().getText()),
                 secondGradient.NEG() != null);
     }
 
+    //Operators
     @Override
-    public void exitQuery(vqParser.QueryContext ctx) {
-        super.exitQuery(ctx);
-        vqExpression.saveExpression(currentNode);
-    }
-
-    @Override
-    public void enterExpression(vqParser.ExpressionContext ctx) {
-        super.enterExpression(ctx);
-        VQNode vqNode = null;
-
-        if(ctx.ID() != null)
-            vqNode = new VQNodeID(ctx.ID().getText());
-        else if(ctx.NAT() != null)
-            vqNode = new VQNodeNAT(Integer.valueOf(ctx.NAT().getText()));
-        else if(ctx.FLOAT() != null)
-            vqNode = new VQNodeFLOAT(Double.valueOf(ctx.FLOAT().getText()));
-        else if(ctx.BOOL() != null)
-            vqNode = new VQNodeBOOL(ctx.BOOL().getText());
-        else if(ctx.unaryOp() != null)
-            vqNode = new VQNodeUnaryOperator(ctx.unaryOp().getText());
-        else if(ctx.rel() != null)
-            vqNode = new VQNodeOperator(ctx.rel().getText());
-        else if(ctx.binBoolOp() != null)
-            vqNode = new VQNodeOperator(ctx.binBoolOp().getText());
-        else if(ctx.binIntOp() != null)
-            vqNode = new VQNodeOperator(ctx.binIntOp().getText());
-
-        if(vqNode != null) {
-            vqNode.setParent(currentNode);
-            currentNode.addChild(vqNode);
-            currentNode = vqNode;
+    public void exitUnOp(vqParser.UnOpContext ctx) {
+        super.exitUnOp(ctx);
+        int lastIndex = values.size() - 1;
+        double v = values.remove(lastIndex);
+        if(ctx.op.equals("-"))
+            values.add(-v);
+        else if(ctx.op.equals("!")) {
+            if(v != 0)
+                values.add(0.);
+            else
+                values.add(1.);
         }
     }
 
     @Override
-    public void exitExpression(vqParser.ExpressionContext ctx) {
-        super.exitExpression(ctx);
-        currentNode = currentNode.getParent();
+    public void exitBinOp(vqParser.BinOpContext ctx) {
+        super.exitBinOp(ctx);
+        doBinaryOperation(ctx.op.getText());
+    }
+
+    //Atoms
+    @Override
+    public void exitId(vqParser.IdContext ctx) {
+        super.exitId(ctx);
+        if(variables.containsKey(ctx.ID().getText()))
+            values.add(variables.get(ctx.ID().getText()));
+        else
+            errors.add("The variable " + ctx.ID().getText() + " does not exist");
     }
 
     @Override
-    public void enterParExpr(vqParser.ParExprContext ctx) {
-        super.enterParExpr(ctx);
+    public void exitNat(vqParser.NatContext ctx) {
+        super.exitNat(ctx);
+        values.add(Double.valueOf(ctx.NAT().getText()));
+    }
 
-        VQNodePar vqNodePar = new VQNodePar();
-        vqNodePar.setParent(currentNode);
-        currentNode.addChild(vqNodePar);
-        currentNode = vqNodePar;
+    @Override
+    public void exitFloat(vqParser.FloatContext ctx) {
+        super.exitFloat(ctx);
+        values.add(Double.valueOf(ctx.FLOAT().getText()));
+    }
+
+    @Override
+    public void exitBool(vqParser.BoolContext ctx) {
+        super.exitBool(ctx);
+        if(ctx.BOOL().getText().equals("true"))
+            values.add(1.);
+        else
+            values.add(0.);
+    }
+
+    private void doBinaryOperation(String operator) {
+        int lastIndex = values.size() - 1;
+        double v1 = values.remove(lastIndex), v0 = values.remove(lastIndex-1), result = 0;
+
+        switch (operator) {
+            case "+":
+                result = v0 + v1;
+                break;
+            case "-":
+                result = v0 - v1;
+                break;
+            case "*":
+                result = v0 * v1;
+                break;
+            case "/":
+                if(v1 != 0)
+                    result = v0 / v1;
+                else
+                    errors.add("Division by 0 error");
+                break;
+            case "<":
+                result = v0 < v1 ? 1 : 0;
+                break;
+            case "<=":
+                result = v0 <= v1 ? 1 : 0;
+                break;
+            case "==":
+                result = v0 == v1 ? 1 : 0;
+                break;
+            case "!=":
+                result = v0 != v1 ? 1 : 0;
+                break;
+            case ">=":
+                result = v0 >= v1 ? 1 : 0;
+                break;
+            case ">":
+                result = v0 > v1 ? 1 : 0;
+                break;
+            case "&&":
+                result = v0 != 0 && v1 != 0 ? 1 : 0;
+                break;
+            case "||":
+                result = v0 != 0 || v1 != 0 ? 1 : 0;
+                break;
+        }
+
+        values.add(result);
+    }
+
+    public double getResultValue() {
+        if(values.size() != 1)
+            errors.add("Wrong number of final results: " + values.size());
+        if(values.size() == 1)
+            return values.get(0);
+        else return 0;
+    }
+
+    public VQParseTree getParseTree() {
+        return parseTree;
     }
 }
 
