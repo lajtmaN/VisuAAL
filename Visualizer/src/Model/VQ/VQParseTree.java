@@ -18,8 +18,7 @@ public class VQParseTree {
         if(secondGradient <= firstGradient)
             throw new Exception("The maximum gradient must be greater than the minimum gradient");
 
-        //TODO: Call recursive func to get result
-        double gradientValue = gradientValue(firstGradient, secondGradient, 0);
+        double gradientValue = gradientValue(firstGradient, secondGradient, root.calculateNodeValue(variables));
         if (gradientValue >= 1.0)
             return 1.0;
         else if (gradientValue <= 0.0)

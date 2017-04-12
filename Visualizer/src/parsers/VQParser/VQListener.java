@@ -61,9 +61,9 @@ public class VQListener extends vqBaseListener {
     @Override
     public void enterUnOp(vqParser.UnOpContext ctx) {
         super.enterUnOp(ctx);
-        if(ctx.op.equals("-"))
+        if(ctx.op.getText().equals("-"))
             addNewChild(new VqNodeUnaryMinus());
-        else if(ctx.op.equals("!")) {
+        else if(ctx.op.getText().equals("!")) {
             addNewChild(new VqNodeUnaryNot());
         }
     }
@@ -123,7 +123,7 @@ public class VQListener extends vqBaseListener {
         super.enterId(ctx);
         String id = ctx.ID().getText();
         if(variables.containsKey(id)) {
-            VQNodeValue node = new VQNodeValue(variables.get(id));
+            VQNodeId node = new VQNodeId(id);
             addNewChild(node);
         }
     }

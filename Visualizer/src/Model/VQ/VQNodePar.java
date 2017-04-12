@@ -1,23 +1,13 @@
 package Model.VQ;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by batto on 10-Apr-17.
  */
 public class VQNodePar extends VQNode {
-    private VQNodeList subNodes = new VQNodeList();
-
-    /*@Override
-    public VQNodeList getChildrenRecursively() {
-        subNodes = super.getChildrenRecursively();
-        subNodes.remove(this);
-        VQNodeList node = new VQNodeList();
-        node.add(this);
-        return node;
-    }*/
-
-    public VQNodeList getNodeList() {
-        return subNodes;
+    @Override
+    protected double calculateNodeValue(Map<String, Double> variables) throws Exception {
+        return children.get(0).calculateNodeValue(variables);
     }
 }

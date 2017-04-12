@@ -1,19 +1,14 @@
 package Model.VQ;
 
-import com.lowagie.text.pdf.ArabicLigaturizer;
-
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by batto on 10-Apr-17.
  */
-public class VQNode {
+public abstract class VQNode {
     ArrayList<VQNode> children = new ArrayList<>();
     VQNode parent;
-
-    public ArrayList<VQNode> getChildren() {
-        return children;
-    }
 
     public void addChild(VQNode child) {
         this.children.add(child);
@@ -26,4 +21,6 @@ public class VQNode {
     public void setParent(VQNode parent) {
         this.parent = parent;
     }
+
+    protected abstract double calculateNodeValue(Map<String, Double> variables) throws Exception;
 }

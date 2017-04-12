@@ -19,9 +19,6 @@ public class VQParse {
         VQListener vqListener = new VQListener(variables);
         new ParseTreeWalker().walk(vqListener, parser.query());
 
-        /*if(vq.getSecondGradient() <= vq.getFirstGradient())
-            throw new Exception("The maximum gradient must be greater than the minimum gradient");*/
-
         return vqListener.getParseTree();
     }
 
