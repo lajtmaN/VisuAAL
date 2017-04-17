@@ -21,7 +21,7 @@ public class VQParserTests {
         map.put("x", 5.);
         map.put("y", 10.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals("red", tree.getFirstColor());
@@ -40,7 +40,7 @@ public class VQParserTests {
         map.put("y", 2.);
         map.put("x", 0.5);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0.25, gradient, 0.01);
@@ -54,7 +54,7 @@ public class VQParserTests {
         map.put("y", 3.);
         map.put("x", 5.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0.125, gradient, 0.01);
@@ -69,7 +69,7 @@ public class VQParserTests {
         map.put("y", 4.);
         map.put("z", 11.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0.25, gradient, 0.01);
@@ -81,7 +81,7 @@ public class VQParserTests {
 
         HashMap<String, Double> map = new HashMap<>();
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(1, gradient, 0.01);
@@ -93,7 +93,7 @@ public class VQParserTests {
 
         HashMap<String, Double> map = new HashMap<>();
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0, gradient, 0.01);
@@ -103,7 +103,7 @@ public class VQParserTests {
     public void gradientException() throws Exception {
         String input = "[red:10, blue:-6] 3";
         HashMap<String, Double> map = new HashMap<>();
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
     }
 
@@ -115,7 +115,7 @@ public class VQParserTests {
         map.put("x", 8.);
         map.put("y", 4.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
     }
 
@@ -127,7 +127,7 @@ public class VQParserTests {
         map.put("x", 8.);
         map.put("y", 4.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals("green", tree.getFirstColor());
@@ -146,7 +146,7 @@ public class VQParserTests {
         map.put("x", 8.);
         map.put("y", 4.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(1., gradient, 0.01);
@@ -161,7 +161,7 @@ public class VQParserTests {
         map.put("y", 1.0);
         map.put("z", 0.0);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(1., gradient, 0.01);
@@ -176,7 +176,7 @@ public class VQParserTests {
         map.put("m", 25.);
         map.put("k", -10.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0.166666, gradient, 0.01);
@@ -191,7 +191,7 @@ public class VQParserTests {
         map.put("m", 25.);
         map.put("k", -10.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(1, gradient, 0.01);
@@ -203,7 +203,7 @@ public class VQParserTests {
 
         HashMap<String, Double> map = new HashMap<>();
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(1, gradient, 0.01);

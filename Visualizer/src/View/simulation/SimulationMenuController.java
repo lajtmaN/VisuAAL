@@ -5,7 +5,6 @@ import Helpers.GUIHelper;
 import Helpers.OptionsHelper;
 import Model.OutputVariable;
 import Model.Simulations;
-import Model.VQ.VQExpression;
 import View.DoubleTextField;
 import View.Options.*;
 import javafx.css.PseudoClass;
@@ -169,7 +168,6 @@ public class SimulationMenuController {
     public void addNewVQ(ActionEvent actionEvent) {
         String newVQ = txtNewVQ.getText();
         //parse and add
-        VQExpression expr = null;
         boolean success = newVQ.length() > 2;
         if (!success) {
             txtNewVQ.pseudoClassStateChanged(errorClass, true);
@@ -177,7 +175,7 @@ public class SimulationMenuController {
         } else {
             //remove red border
             txtNewVQ.pseudoClassStateChanged(errorClass, false);
-            lstDisplayOptions.getItems().add(new VQOption(currentSimulations, expr));
+            lstDisplayOptions.getItems().add(new VQOption(currentSimulations, newVQ));
             txtNewVQ.setText("");
         }
     }

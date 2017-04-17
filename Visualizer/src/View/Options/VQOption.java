@@ -1,17 +1,17 @@
 package View.Options;
 
 import Model.Simulations;
-import Model.VQ.VQExpression;
 
 /**
  * Created by lajtman on 12-04-2017.
  */
 public class VQOption extends EnableDisableSimulationOption {
 
-    private VQExpression expression;
+    private String rawVQExpression;
 
-    public VQOption(Simulations simulations, VQExpression expression) {
+    public VQOption(Simulations simulations, String rawVQ) {
         super(simulations);
+        rawVQExpression = rawVQ;
     }
 
     @Override
