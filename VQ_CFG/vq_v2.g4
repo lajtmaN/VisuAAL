@@ -11,15 +11,19 @@ oneGradient
 
 expression 
     : '(' expression ')'
-    | '-' expression
-    | '!' expression
-    | expression op=('*' | '/') expression
+    | negUn ='-' expression
+    | notUn ='!' expression
+    | expression op='*' expression
+    | expression op='/' expression
     | expression op=('+' | '-') expression
     | expression op=('<' | '<=' | '>' | '>=') expression
     | expression op=('==' | '!=') expression
-    | expression '&&' expression
-    | expression '||' expression
-    | atom=(ID | NAT | FLOAT | BOOL )
+    | expression op='&&' expression
+    | expression op='||' expression
+    | ID 
+    | NAT 
+    | FLOAT 
+    | BOOL
     ;
     
 BOOL: 'true' | 'false';
