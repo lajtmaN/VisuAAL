@@ -12,6 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
+import parsers.VQParser.VQParse;
 
 import java.util.Arrays;
 
@@ -45,6 +46,9 @@ public class SimulationMenuController {
     private void setupVQValidationParser() {
         txtNewVQ.textProperty().addListener((observable, oldValue, newValue) -> {
             validateVQ(newValue);
+        });
+        txtNewVQ.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            validateVQ(txtNewVQ.getText());
         });
         validateVQ("");
     }
@@ -103,9 +107,9 @@ public class SimulationMenuController {
                 else {
                     //Disable the shown variable
                     if (v.getIsEdgeData() && v == currentSimulations.getShownEdgeVariable()) {
-                        currentSimulations.setShownEdgeVariable(null);
+                        currentSimulations.setShownEdgeVariable((OutputVariable) null);
                     } else if (v.getIsNodeData() && v == currentSimulations.getShownNodeVariable()) {
-                        currentSimulations.setShownNodeVariable(null);
+                        currentSimulations.setShownNodeVariable((OutputVariable) null);
                     }
                 }
             });
@@ -167,9 +171,8 @@ public class SimulationMenuController {
 
     public void addNewVQ(ActionEvent actionEvent) {
         String newVQ = txtNewVQ.getText();
-        //parse and add
-        boolean success = newVQ.length() > 2;
-        if (!success) {
+
+        if (newVQ.length() == 0 || !validVQ(newVQ)) {
             txtNewVQ.pseudoClassStateChanged(errorClass, true);
             //color textfield with red border
         } else {
@@ -185,6 +188,6 @@ public class SimulationMenuController {
     }
 
     private boolean validVQ(String vqString) { //TODO replace with actual parse
-        return vqString.length() > 2;
+        return VQParse.validVQ(vqString, currentSimulations.getOutputVariables());
     }
 }
