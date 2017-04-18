@@ -30,7 +30,7 @@ public class VQParse {
     }
 
     public static VQParseTree parseVQ(String input, List<OutputVariable> outputVars, boolean throwOnError) throws Exception {
-        return parseVQ(input, outputVars.stream().map(OutputVariable::getName).collect(Collectors.toList()), throwOnError);
+        return parseVQ(input, outputVars.stream().map(OutputVariable::toString).collect(Collectors.toList()), throwOnError);
     }
 
     public static VQParseTree parseVQ(String input, Collection<String> variables) throws Exception {
