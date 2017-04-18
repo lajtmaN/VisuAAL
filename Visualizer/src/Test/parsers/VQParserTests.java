@@ -208,4 +208,18 @@ public class VQParserTests {
 
         assertEquals(1, gradient, 0.01);
     }
+
+    @Test
+    public void scopeTest() throws Exception {
+        String input = "[green:-2, gray:6] a.b + x";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("a.b", 1.);
+        map.put("x", 3.);
+
+        VQParseTree tree = VQParse.parseVQ(input, map);
+        double gradient = tree.getGradient(map);
+
+        assertEquals(0.75, gradient, 0.01);
+    }
 }

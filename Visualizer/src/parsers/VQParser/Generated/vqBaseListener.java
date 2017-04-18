@@ -87,6 +87,18 @@ public class vqBaseListener implements vqListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIdDot(vqParser.IdDotContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIdDot(vqParser.IdDotContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterId(vqParser.IdContext ctx) { }
 	/**
 	 * {@inheritDoc}

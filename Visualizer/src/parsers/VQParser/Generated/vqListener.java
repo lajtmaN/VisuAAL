@@ -73,6 +73,18 @@ public interface vqListener extends ParseTreeListener {
 	 */
 	void exitBool(vqParser.BoolContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code idDot}
+	 * labeled alternative in {@link vqParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterIdDot(vqParser.IdDotContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code idDot}
+	 * labeled alternative in {@link vqParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitIdDot(vqParser.IdDotContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code id}
 	 * labeled alternative in {@link vqParser#expression}.
 	 * @param ctx the parse tree

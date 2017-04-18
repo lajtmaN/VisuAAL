@@ -129,6 +129,17 @@ public class VQListener extends vqBaseListener {
     }
 
     @Override
+    public void enterIdDot(vqParser.IdDotContext ctx) {
+        super.enterIdDot(ctx);
+        String id = ctx.ID(0).getText() + "." + ctx.ID(1).getText();
+
+        if(variables.containsKey(id)) {
+            VQNodeId node = new VQNodeId(id);
+            addNewChild(node);
+        }
+    }
+
+    @Override
     public void enterNat(vqParser.NatContext ctx) {
         super.enterNat(ctx);
         addNewChild(new VQNodeValue(Double.valueOf(ctx.NAT().getText())));
