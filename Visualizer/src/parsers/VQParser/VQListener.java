@@ -136,6 +136,20 @@ public class VQListener extends vqBaseListener {
     }
 
     @Override
+    public void enterIdDot(vqParser.IdDotContext ctx) {
+        super.enterIdDot(ctx);
+        String id = ctx.ID(0).getText() + "." + ctx.ID(1).getText();
+        parseTree.addUsedVariable(id);
+
+        if(variables.contains(id)) {
+            VQNodeId node = new VQNodeId(id);
+            addNewChild(node);
+        } else {
+            //REPORT ERROR? We tried to parse a variable that does not exist
+        }
+    }
+
+    @Override
     public void enterNat(vqParser.NatContext ctx) {
         super.enterNat(ctx);
         addNewChild(new VQNodeValue(Double.valueOf(ctx.NAT().getText())));

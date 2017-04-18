@@ -18,7 +18,7 @@ public class ShowHideDataOption extends EnableDisableSimulationOption {
 
     @Override
     public String getDescription() {
-        return variable.getName();
+        return variable.toString();
     }
 
     @Override

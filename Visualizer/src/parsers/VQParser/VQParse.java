@@ -83,7 +83,7 @@ public class VQParse {
         VQType foundType = VQType.Unknown;
         for (String varInVQ : vq.getUsedVariables()) {
             OutputVariable usedVar = allVars.stream()
-                    .filter(o -> o.getName().equals(varInVQ))
+                    .filter(o -> o.toString().equals(varInVQ))
                     .findFirst()
                     .orElseThrow(() -> new Exception("Could not find variable" + varInVQ));
 

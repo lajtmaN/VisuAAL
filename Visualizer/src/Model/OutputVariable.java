@@ -151,4 +151,9 @@ public class OutputVariable implements Externalizable{
         setIsSelected(in.readBoolean());
         setVariableArraySize(in.readInt());
     }
+
+    @Override
+    public String toString() {
+        return getScope() == null ? getName() : getScope() + "." + getName();
+    }
 }
