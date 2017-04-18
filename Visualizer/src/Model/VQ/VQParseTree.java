@@ -1,6 +1,7 @@
 package Model.VQ;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ public class VQParseTree {
     private String firstColor,
                    secondColor;
     private VQNode root;
+    private Collection<String> usedVariables = new ArrayList<>();
 
     public double getGradient(Map<String, Double> variables) throws Exception {
         if(secondGradient <= firstGradient)
@@ -79,5 +81,13 @@ public class VQParseTree {
 
     public void setRoot(VQNode root) {
         this.root = root;
+    }
+
+    public Collection<String> getUsedVariables() {
+        return usedVariables;
+    }
+
+    public void addUsedVariable(String var) {
+        usedVariables.add(var);
     }
 }

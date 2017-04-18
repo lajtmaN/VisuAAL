@@ -1,5 +1,6 @@
 package Helpers;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -19,6 +20,7 @@ public class FileHelperTests {
         assertEquals(".xml", extension);
     }
 
+    @Ignore
     @Test(timeout=1000)
     public void testGetUppaalDTDFile() throws IOException {
         URL url = new URL("http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd");

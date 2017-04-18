@@ -5,17 +5,20 @@ import Model.VQ.Operators.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 import parsers.VQParser.Generated.vqBaseListener;
 import parsers.VQParser.Generated.vqParser;
+
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by batto on 10-Apr-17.
  */
 public class VQListener extends vqBaseListener {
-    private Map<String, Double> variables;
+    private Collection<String> variables;
     private VQParseTree parseTree = new VQParseTree();
     private VQNode currentNode;
 
-    public VQListener(Map<String, Double> variables) {
+    public VQListener(Collection<String> variables) {
         this.variables = variables;
     }
 
@@ -122,9 +125,13 @@ public class VQListener extends vqBaseListener {
     public void enterId(vqParser.IdContext ctx) {
         super.enterId(ctx);
         String id = ctx.ID().getText();
-        if(variables.containsKey(id)) {
+        parseTree.addUsedVariable(id);
+
+        if(variables.contains(id)) {
             VQNodeId node = new VQNodeId(id);
             addNewChild(node);
+        } else {
+            //REPORT ERROR? We tried to parse a variable that does not exist
         }
     }
 
@@ -132,10 +139,13 @@ public class VQListener extends vqBaseListener {
     public void enterIdDot(vqParser.IdDotContext ctx) {
         super.enterIdDot(ctx);
         String id = ctx.ID(0).getText() + "." + ctx.ID(1).getText();
+        parseTree.addUsedVariable(id);
 
-        if(variables.containsKey(id)) {
+        if(variables.contains(id)) {
             VQNodeId node = new VQNodeId(id);
             addNewChild(node);
+        } else {
+            //REPORT ERROR? We tried to parse a variable that does not exist
         }
     }
 

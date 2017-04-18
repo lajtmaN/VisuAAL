@@ -1,10 +1,15 @@
 package parsers;
 
+import Helpers.Pair;
+import Model.OutputVariable;
 import Model.VQ.VQParseTree;
 import org.junit.Test;
 import parsers.VQParser.VQParse;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -21,7 +26,7 @@ public class VQParserTests {
         map.put("x", 5.);
         map.put("y", 10.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals("red", tree.getFirstColor());
@@ -40,7 +45,7 @@ public class VQParserTests {
         map.put("y", 2.);
         map.put("x", 0.5);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0.25, gradient, 0.01);
@@ -54,7 +59,7 @@ public class VQParserTests {
         map.put("y", 3.);
         map.put("x", 5.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0.125, gradient, 0.01);
@@ -69,7 +74,7 @@ public class VQParserTests {
         map.put("y", 4.);
         map.put("z", 11.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0.25, gradient, 0.01);
@@ -81,7 +86,7 @@ public class VQParserTests {
 
         HashMap<String, Double> map = new HashMap<>();
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(1, gradient, 0.01);
@@ -93,7 +98,7 @@ public class VQParserTests {
 
         HashMap<String, Double> map = new HashMap<>();
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0, gradient, 0.01);
@@ -103,7 +108,7 @@ public class VQParserTests {
     public void gradientException() throws Exception {
         String input = "[red:10, blue:-6] 3";
         HashMap<String, Double> map = new HashMap<>();
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
     }
 
@@ -115,7 +120,7 @@ public class VQParserTests {
         map.put("x", 8.);
         map.put("y", 4.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
     }
 
@@ -127,7 +132,7 @@ public class VQParserTests {
         map.put("x", 8.);
         map.put("y", 4.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals("green", tree.getFirstColor());
@@ -146,7 +151,7 @@ public class VQParserTests {
         map.put("x", 8.);
         map.put("y", 4.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(1., gradient, 0.01);
@@ -161,7 +166,7 @@ public class VQParserTests {
         map.put("y", 1.0);
         map.put("z", 0.0);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(1., gradient, 0.01);
@@ -176,7 +181,7 @@ public class VQParserTests {
         map.put("m", 25.);
         map.put("k", -10.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0.666, gradient, 0.01);
@@ -191,7 +196,7 @@ public class VQParserTests {
         map.put("m", 25.);
         map.put("k", -10.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(1, gradient, 0.01);
@@ -203,10 +208,115 @@ public class VQParserTests {
 
         HashMap<String, Double> map = new HashMap<>();
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(1, gradient, 0.01);
+    }
+
+    @Test(expected = Exception.class)
+    public void throwOnErrorActive() throws Exception {
+        List<String> vars = new ArrayList<>();
+        vars.add("test");
+        VQParse.parseVQ("[g,a", vars, true);
+    }
+
+    @Test
+    public void willNotThrowExceptionOnError() throws Exception {
+        List<String> vars = new ArrayList<>();
+        vars.add("test");
+        VQParse.parseVQ("[g,a", vars, false);
+    }
+
+    @Test
+    public void testGetTheFirstUsedVariable() throws Exception {
+        String vq = "[green, gray] bla > "; //Intentionally left undone
+
+        Collection<String> allVars = new ArrayList<>();
+        allVars.add("kuk");
+        allVars.add("bla");
+        allVars.add("blob");
+
+        VQParseTree tree = VQParse.parseVQ(vq, allVars, false);
+        String firstVar = tree.getUsedVariables().stream().findFirst().get();
+
+        assertEquals("bla", firstVar);
+    }
+
+    @Test
+    public void testCalculateTypeOfVQWithOnlyOneVariable() throws Exception {
+        String vq = "[green, gray] kuk";
+        List<OutputVariable> vars = new ArrayList<>();
+        OutputVariable var1 = new OutputVariable("kuk");
+        var1.setEdgeData(true);
+        vars.add(var1);
+
+        OutputVariable var2 = new OutputVariable("bla");
+        var2.setNodeData(true);
+        vars.add(var2);
+
+        Pair<VQParseTree, VQParse.VQType> parsed = VQParse.parse(vq, vars);
+        assertNotNull(parsed);
+        assertEquals(VQParse.VQType.Edge, parsed.getSecond());
+
+        assertTrue(VQParse.validVQ(parsed));
+    }
+
+    @Test
+    public void testCalculateTypeOfVQWithTwoDifferentTypes() throws Exception {
+        String vq = "[green, gray] kuk < bla";
+        List<OutputVariable> vars = new ArrayList<>();
+        OutputVariable var1 = new OutputVariable("kuk");
+        var1.setEdgeData(true);
+        vars.add(var1);
+
+        OutputVariable var2 = new OutputVariable("bla");
+        var2.setNodeData(true);
+        vars.add(var2);
+
+        assertFalse(VQParse.validVQ(vq, vars));
+    }
+
+    @Test
+    public void testCalculateTypeOfVQWithSameTypes() throws Exception {
+        String vq = "[green, gray] kuk < bla";
+        List<OutputVariable> vars = new ArrayList<>();
+        OutputVariable var1 = new OutputVariable("kuk");
+        var1.setEdgeData(true);
+        vars.add(var1);
+
+        OutputVariable var2 = new OutputVariable("bla");
+        var2.setEdgeData(true);
+        vars.add(var2);
+
+        assertTrue(VQParse.validVQ(vq, vars));
+    }
+
+    @Test
+    public void testCalculateTypeOfVQWithSameTypesAndScope() throws Exception {
+        String vq = "[green, gray] kuk < b.bla";
+        List<OutputVariable> vars = new ArrayList<>();
+        OutputVariable var1 = new OutputVariable("kuk");
+        var1.setEdgeData(true);
+        vars.add(var1);
+
+        OutputVariable var2 = new OutputVariable("bla", "b");
+        var2.setEdgeData(true);
+        vars.add(var2);
+        assertEquals("b.bla", var2.toString());
+
+        assertTrue(VQParse.validVQ(vq, vars));
+    }
+
+    @Test
+    public void testCanParseUnfinishedVQ() throws Exception {
+        String vq = "[green, gray] kuk < b";
+        List<OutputVariable> vars = new ArrayList<>();
+        OutputVariable var1 = new OutputVariable("kuk");
+        var1.setEdgeData(true);
+        vars.add(var1);
+
+        assertFalse(VQParse.validVQ(vq, vars));
     }
 
     @Test
@@ -217,7 +327,7 @@ public class VQParserTests {
         map.put("a.b", 1.);
         map.put("x", 3.);
 
-        VQParseTree tree = VQParse.parseVQ(input, map);
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
         double gradient = tree.getGradient(map);
 
         assertEquals(0.75, gradient, 0.01);
