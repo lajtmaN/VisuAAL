@@ -125,11 +125,13 @@ public class VQListener extends vqBaseListener {
     public void enterId(vqParser.IdContext ctx) {
         super.enterId(ctx);
         String id = ctx.ID().getText();
+        parseTree.addUsedVariable(id);
+
         if(variables.contains(id)) {
-            if (parseTree.getFirstVariable() == null)
-                parseTree.setFirstVariable(id);
             VQNodeId node = new VQNodeId(id);
             addNewChild(node);
+        } else {
+            //REPORT ERROR? We tried to parse a variable that does not exist
         }
     }
 

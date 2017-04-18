@@ -1,5 +1,7 @@
 package parsers;
 
+import Helpers.Pair;
+import Model.OutputVariable;
 import Model.VQ.VQParseTree;
 import org.junit.Test;
 import parsers.VQParser.VQParse;
@@ -236,8 +238,68 @@ public class VQParserTests {
         allVars.add("blob");
 
         VQParseTree tree = VQParse.parseVQ(vq, allVars, false);
-        String firstVar = tree.getFirstVariable();
+        String firstVar = tree.getUsedVariables().stream().findFirst().get();
 
         assertEquals("bla", firstVar);
+    }
+
+    @Test
+    public void testCalculateTypeOfVQWithOnlyOneVariable() throws Exception {
+        String vq = "[green, gray] kuk";
+        List<OutputVariable> vars = new ArrayList<>();
+        OutputVariable var1 = new OutputVariable("kuk");
+        var1.setEdgeData(true);
+        vars.add(var1);
+
+        OutputVariable var2 = new OutputVariable("bla");
+        var2.setNodeData(true);
+        vars.add(var2);
+
+        Pair<VQParseTree, VQParse.VQType> parsed = VQParse.parse(vq, vars);
+        assertNotNull(parsed);
+        assertEquals(VQParse.VQType.Edge, parsed.getSecond());
+
+        assertTrue(VQParse.validVQ(parsed));
+    }
+
+    @Test
+    public void testCalculateTypeOfVQWithTwoDifferentTypes() throws Exception {
+        String vq = "[green, gray] kuk < bla";
+        List<OutputVariable> vars = new ArrayList<>();
+        OutputVariable var1 = new OutputVariable("kuk");
+        var1.setEdgeData(true);
+        vars.add(var1);
+
+        OutputVariable var2 = new OutputVariable("bla");
+        var2.setNodeData(true);
+        vars.add(var2);
+
+        assertFalse(VQParse.validVQ(vq, vars));
+    }
+
+    @Test
+    public void testCalculateTypeOfVQWithSameTypes() throws Exception {
+        String vq = "[green, gray] kuk < bla";
+        List<OutputVariable> vars = new ArrayList<>();
+        OutputVariable var1 = new OutputVariable("kuk");
+        var1.setEdgeData(true);
+        vars.add(var1);
+
+        OutputVariable var2 = new OutputVariable("bla");
+        var2.setEdgeData(true);
+        vars.add(var2);
+
+        assertTrue(VQParse.validVQ(vq, vars));
+    }
+
+    @Test
+    public void testCanParseUnfinishedVQ() throws Exception {
+        String vq = "[green, gray] kuk < b";
+        List<OutputVariable> vars = new ArrayList<>();
+        OutputVariable var1 = new OutputVariable("kuk");
+        var1.setEdgeData(true);
+        vars.add(var1);
+
+        assertFalse(VQParse.validVQ(vq, vars));
     }
 }

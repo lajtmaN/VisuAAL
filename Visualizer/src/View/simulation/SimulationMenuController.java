@@ -172,12 +172,9 @@ public class SimulationMenuController {
     public void addNewVQ(ActionEvent actionEvent) {
         String newVQ = txtNewVQ.getText();
 
-        if (newVQ.length() == 0 || !validVQ(newVQ)) {
-            txtNewVQ.pseudoClassStateChanged(errorClass, true);
-            //color textfield with red border
-        } else {
-            //remove red border
-            txtNewVQ.pseudoClassStateChanged(errorClass, false);
+        if (newVQ.length() > 0 && !txtNewVQ.getPseudoClassStates().contains(errorClass)) {
+//            //remove red border
+  //          txtNewVQ.pseudoClassStateChanged(errorClass, false);
             lstDisplayOptions.getItems().add(new VQOption(currentSimulations, newVQ));
             txtNewVQ.setText("");
         }
