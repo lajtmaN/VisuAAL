@@ -27,15 +27,4 @@ public abstract class EnableDisableSimulationOption extends SimulationOption  {
     }
 
     public abstract void disableAction();
-
-    @Override
-    public String getDescription() {
-        if (onProperty().get())
-            return getEnabledDescription();
-        else
-            return getDisabledDescription();
-    }
-
-    public abstract String getEnabledDescription();
-    public abstract String getDisabledDescription();
 }

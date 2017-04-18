@@ -27,8 +27,13 @@ public class XmlHandler {
         //Find and prepare document
         filepath = _filepath;
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-        //TODO: Ku være det sku fixes?
+        //TODO: This disables all validation of the xml file. If dtd file cannot be reached, everything fails.
         documentFactory.setValidating(false);
+        documentFactory.setNamespaceAware(true);
+        documentFactory.setFeature("http://xml.org/sax/features/namespaces", false);
+        documentFactory.setFeature("http://xml.org/sax/features/validation", false);
+        documentFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+        documentFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
         DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
         document = documentBuilder.parse(filepath);
         document.getDocumentElement().normalize();
