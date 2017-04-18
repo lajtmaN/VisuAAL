@@ -20,9 +20,9 @@ public class vqParser extends Parser {
 		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, 
 		T__17=18, T__18=19, BOOL=20, NEG=21, ID=22, NAT=23, FLOAT=24, WS=25;
 	public static final int
-		RULE_query = 0, RULE_gradient = 1, RULE_oneGradient = 2, RULE_expression = 3;
+		RULE_query = 0, RULE_gradient = 1, RULE_oneGradient = 2, RULE_exp = 3;
 	public static final String[] ruleNames = {
-		"query", "gradient", "oneGradient", "expression"
+		"query", "gradient", "oneGradient", "exp"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
@@ -88,8 +88,8 @@ public class vqParser extends Parser {
 		public GradientContext gradient() {
 			return getRuleContext(GradientContext.class,0);
 		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public ExpContext exp() {
+			return getRuleContext(ExpContext.class,0);
 		}
 		public TerminalNode EOF() { return getToken(vqParser.EOF, 0); }
 		public QueryContext(ParserRuleContext parent, int invokingState) {
@@ -115,7 +115,7 @@ public class vqParser extends Parser {
 			setState(8);
 			gradient();
 			setState(9);
-			expression(0);
+			exp(0);
 			setState(10);
 			match(EOF);
 			}
@@ -248,22 +248,22 @@ public class vqParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ExpressionContext extends ParserRuleContext {
-		public ExpressionContext(ParserRuleContext parent, int invokingState) {
+	public static class ExpContext extends ParserRuleContext {
+		public ExpContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_expression; }
+		@Override public int getRuleIndex() { return RULE_exp; }
 	 
-		public ExpressionContext() { }
-		public void copyFrom(ExpressionContext ctx) {
+		public ExpContext() { }
+		public void copyFrom(ExpContext ctx) {
 			super.copyFrom(ctx);
 		}
 	}
-	public static class ParContext extends ExpressionContext {
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+	public static class ParContext extends ExpContext {
+		public ExpContext exp() {
+			return getRuleContext(ExpContext.class,0);
 		}
-		public ParContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public ParContext(ExpContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof vqListener ) ((vqListener)listener).enterPar(this);
@@ -273,9 +273,9 @@ public class vqParser extends Parser {
 			if ( listener instanceof vqListener ) ((vqListener)listener).exitPar(this);
 		}
 	}
-	public static class NatContext extends ExpressionContext {
+	public static class NatContext extends ExpContext {
 		public TerminalNode NAT() { return getToken(vqParser.NAT, 0); }
-		public NatContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public NatContext(ExpContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof vqListener ) ((vqListener)listener).enterNat(this);
@@ -285,9 +285,9 @@ public class vqParser extends Parser {
 			if ( listener instanceof vqListener ) ((vqListener)listener).exitNat(this);
 		}
 	}
-	public static class BoolContext extends ExpressionContext {
+	public static class BoolContext extends ExpContext {
 		public TerminalNode BOOL() { return getToken(vqParser.BOOL, 0); }
-		public BoolContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public BoolContext(ExpContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof vqListener ) ((vqListener)listener).enterBool(this);
@@ -297,12 +297,12 @@ public class vqParser extends Parser {
 			if ( listener instanceof vqListener ) ((vqListener)listener).exitBool(this);
 		}
 	}
-	public static class IdDotContext extends ExpressionContext {
+	public static class IdDotContext extends ExpContext {
 		public List<TerminalNode> ID() { return getTokens(vqParser.ID); }
 		public TerminalNode ID(int i) {
 			return getToken(vqParser.ID, i);
 		}
-		public IdDotContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public IdDotContext(ExpContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof vqListener ) ((vqListener)listener).enterIdDot(this);
@@ -312,9 +312,9 @@ public class vqParser extends Parser {
 			if ( listener instanceof vqListener ) ((vqListener)listener).exitIdDot(this);
 		}
 	}
-	public static class IdContext extends ExpressionContext {
+	public static class IdContext extends ExpContext {
 		public TerminalNode ID() { return getToken(vqParser.ID, 0); }
-		public IdContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public IdContext(ExpContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof vqListener ) ((vqListener)listener).enterId(this);
@@ -324,12 +324,12 @@ public class vqParser extends Parser {
 			if ( listener instanceof vqListener ) ((vqListener)listener).exitId(this);
 		}
 	}
-	public static class UnOpContext extends ExpressionContext {
+	public static class UnOpContext extends ExpContext {
 		public Token op;
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public ExpContext exp() {
+			return getRuleContext(ExpContext.class,0);
 		}
-		public UnOpContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public UnOpContext(ExpContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof vqListener ) ((vqListener)listener).enterUnOp(this);
@@ -339,9 +339,9 @@ public class vqParser extends Parser {
 			if ( listener instanceof vqListener ) ((vqListener)listener).exitUnOp(this);
 		}
 	}
-	public static class FloatContext extends ExpressionContext {
+	public static class FloatContext extends ExpContext {
 		public TerminalNode FLOAT() { return getToken(vqParser.FLOAT, 0); }
-		public FloatContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public FloatContext(ExpContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof vqListener ) ((vqListener)listener).enterFloat(this);
@@ -351,15 +351,15 @@ public class vqParser extends Parser {
 			if ( listener instanceof vqListener ) ((vqListener)listener).exitFloat(this);
 		}
 	}
-	public static class BinOpContext extends ExpressionContext {
+	public static class BinOpContext extends ExpContext {
 		public Token op;
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
+		public List<ExpContext> exp() {
+			return getRuleContexts(ExpContext.class);
 		}
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
+		public ExpContext exp(int i) {
+			return getRuleContext(ExpContext.class,i);
 		}
-		public BinOpContext(ExpressionContext ctx) { copyFrom(ctx); }
+		public BinOpContext(ExpContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof vqListener ) ((vqListener)listener).enterBinOp(this);
@@ -370,17 +370,17 @@ public class vqParser extends Parser {
 		}
 	}
 
-	public final ExpressionContext expression() throws RecognitionException {
-		return expression(0);
+	public final ExpContext exp() throws RecognitionException {
+		return exp(0);
 	}
 
-	private ExpressionContext expression(int _p) throws RecognitionException {
+	private ExpContext exp(int _p) throws RecognitionException {
 		ParserRuleContext _parentctx = _ctx;
 		int _parentState = getState();
-		ExpressionContext _localctx = new ExpressionContext(_ctx, _parentState);
-		ExpressionContext _prevctx = _localctx;
+		ExpContext _localctx = new ExpContext(_ctx, _parentState);
+		ExpContext _prevctx = _localctx;
 		int _startState = 6;
-		enterRecursionRule(_localctx, 6, RULE_expression, _p);
+		enterRecursionRule(_localctx, 6, RULE_exp, _p);
 		int _la;
 		try {
 			int _alt;
@@ -398,7 +398,7 @@ public class vqParser extends Parser {
 				setState(28);
 				match(T__4);
 				setState(29);
-				expression(0);
+				exp(0);
 				setState(30);
 				match(T__5);
 				}
@@ -411,7 +411,7 @@ public class vqParser extends Parser {
 				setState(32);
 				((UnOpContext)_localctx).op = match(NEG);
 				setState(33);
-				expression(13);
+				exp(13);
 				}
 				break;
 			case 3:
@@ -422,7 +422,7 @@ public class vqParser extends Parser {
 				setState(34);
 				((UnOpContext)_localctx).op = match(T__6);
 				setState(35);
-				expression(12);
+				exp(12);
 				}
 				break;
 			case 4:
@@ -489,8 +489,8 @@ public class vqParser extends Parser {
 					switch ( getInterpreter().adaptivePredict(_input,3,_ctx) ) {
 					case 1:
 						{
-						_localctx = new BinOpContext(new ExpressionContext(_parentctx, _parentState));
-						pushNewRecursionContext(_localctx, _startState, RULE_expression);
+						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
+						pushNewRecursionContext(_localctx, _startState, RULE_exp);
 						setState(45);
 						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
 						setState(46);
@@ -505,13 +505,13 @@ public class vqParser extends Parser {
 							consume();
 						}
 						setState(47);
-						expression(12);
+						exp(12);
 						}
 						break;
 					case 2:
 						{
-						_localctx = new BinOpContext(new ExpressionContext(_parentctx, _parentState));
-						pushNewRecursionContext(_localctx, _startState, RULE_expression);
+						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
+						pushNewRecursionContext(_localctx, _startState, RULE_exp);
 						setState(48);
 						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
 						setState(49);
@@ -526,13 +526,13 @@ public class vqParser extends Parser {
 							consume();
 						}
 						setState(50);
-						expression(11);
+						exp(11);
 						}
 						break;
 					case 3:
 						{
-						_localctx = new BinOpContext(new ExpressionContext(_parentctx, _parentState));
-						pushNewRecursionContext(_localctx, _startState, RULE_expression);
+						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
+						pushNewRecursionContext(_localctx, _startState, RULE_exp);
 						setState(51);
 						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
 						setState(52);
@@ -547,13 +547,13 @@ public class vqParser extends Parser {
 							consume();
 						}
 						setState(53);
-						expression(10);
+						exp(10);
 						}
 						break;
 					case 4:
 						{
-						_localctx = new BinOpContext(new ExpressionContext(_parentctx, _parentState));
-						pushNewRecursionContext(_localctx, _startState, RULE_expression);
+						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
+						pushNewRecursionContext(_localctx, _startState, RULE_exp);
 						setState(54);
 						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
 						setState(55);
@@ -568,31 +568,31 @@ public class vqParser extends Parser {
 							consume();
 						}
 						setState(56);
-						expression(9);
+						exp(9);
 						}
 						break;
 					case 5:
 						{
-						_localctx = new BinOpContext(new ExpressionContext(_parentctx, _parentState));
-						pushNewRecursionContext(_localctx, _startState, RULE_expression);
+						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
+						pushNewRecursionContext(_localctx, _startState, RULE_exp);
 						setState(57);
 						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
 						setState(58);
 						((BinOpContext)_localctx).op = match(T__16);
 						setState(59);
-						expression(8);
+						exp(8);
 						}
 						break;
 					case 6:
 						{
-						_localctx = new BinOpContext(new ExpressionContext(_parentctx, _parentState));
-						pushNewRecursionContext(_localctx, _startState, RULE_expression);
+						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
+						pushNewRecursionContext(_localctx, _startState, RULE_exp);
 						setState(60);
 						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
 						setState(61);
 						((BinOpContext)_localctx).op = match(T__17);
 						setState(62);
-						expression(7);
+						exp(7);
 						}
 						break;
 					}
@@ -618,11 +618,11 @@ public class vqParser extends Parser {
 	public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
 		switch (ruleIndex) {
 		case 3:
-			return expression_sempred((ExpressionContext)_localctx, predIndex);
+			return exp_sempred((ExpContext)_localctx, predIndex);
 		}
 		return true;
 	}
-	private boolean expression_sempred(ExpressionContext _localctx, int predIndex) {
+	private boolean exp_sempred(ExpContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 0:
 			return precpred(_ctx, 11);

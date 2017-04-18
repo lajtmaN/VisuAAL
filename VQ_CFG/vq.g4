@@ -1,6 +1,6 @@
 grammar vq;
 query
-      : gradient expression EOF;
+      : gradient exp EOF;
 
 gradient
       : '[' oneGradient ',' oneGradient ']';
@@ -9,21 +9,21 @@ oneGradient
       : ID ':' NEG? NAT
       | ID;
 
-expression 
-      : '(' expression ')'                                    #par
-      | op ='-' expression                                    #unOp
-      | op ='!' expression                                    #unOp
-      | expression op=('*' | '/') expression                  #binOp
-      | expression op=('+' | '-') expression                  #binOp
-      | expression op=('<' | '<=' | '>' | '>=') expression    #binOp
-      | expression op=('==' | '!=') expression                #binOp
-      | expression op='&&' expression                         #binOp
-      | expression op='||' expression                         #binOp
-      | ID                                                    #id
-      | ID '.' ID                                             #idDot
-      | NAT                                                   #nat
-      | FLOAT                                                 #float
-      | BOOL                                                  #bool
+exp 
+      : '(' exp ')'                                    #par
+      | op ='-' exp                                    #unOp
+      | op ='!' exp                                    #unOp
+      | exp op=('*' | '/') exp                         #binOp
+      | exp op=('+' | '-') exp                         #binOp
+      | exp op=('<' | '<=' | '>' | '>=') exp           #binOp
+      | exp op=('==' | '!=') exp                       #binOp
+      | exp op='&&' exp                                #binOp
+      | exp op='||' exp                                #binOp
+      | ID                                             #id
+      | ID '.' ID                                      #idDot
+      | NAT                                            #nat
+      | FLOAT                                          #float
+      | BOOL                                           #bool
       ;
 
 BOOL  : 'true' | 'false';
