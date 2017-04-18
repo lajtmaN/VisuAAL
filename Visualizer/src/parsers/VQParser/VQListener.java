@@ -126,6 +126,8 @@ public class VQListener extends vqBaseListener {
         super.enterId(ctx);
         String id = ctx.ID().getText();
         if(variables.contains(id)) {
+            if (parseTree.getFirstVariable() == null)
+                parseTree.setFirstVariable(id);
             VQNodeId node = new VQNodeId(id);
             addNewChild(node);
         }

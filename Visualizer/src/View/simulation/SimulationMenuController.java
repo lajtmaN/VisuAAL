@@ -187,7 +187,7 @@ public class SimulationMenuController {
         txtNewVQ.pseudoClassStateChanged(errorClass, vqString.length() > 0 && !validVQ(vqString));
     }
 
-    private boolean validVQ(String vqString) { //TODO replace with actual parse
+    private boolean validVQ(String vqString) {
         return VQParse.validVQ(vqString, currentSimulations.getOutputVariables());
     }
 }

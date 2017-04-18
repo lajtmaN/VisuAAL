@@ -4,7 +4,10 @@ import Model.VQ.VQParseTree;
 import org.junit.Test;
 import parsers.VQParser.VQParse;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -207,5 +210,34 @@ public class VQParserTests {
         double gradient = tree.getGradient(map);
 
         assertEquals(1, gradient, 0.01);
+    }
+
+    @Test(expected = Exception.class)
+    public void throwOnErrorActive() throws Exception {
+        List<String> vars = new ArrayList<>();
+        vars.add("test");
+        VQParse.parseVQ("[g,a", vars, true);
+    }
+
+    @Test
+    public void willNotThrowExceptionOnError() throws Exception {
+        List<String> vars = new ArrayList<>();
+        vars.add("test");
+        VQParse.parseVQ("[g,a", vars, false);
+    }
+
+    @Test
+    public void testGetTheFirstUsedVariable() throws Exception {
+        String vq = "[green, gray] bla > "; //Intentionally left undone
+
+        Collection<String> allVars = new ArrayList<>();
+        allVars.add("kuk");
+        allVars.add("bla");
+        allVars.add("blob");
+
+        VQParseTree tree = VQParse.parseVQ(vq, allVars, false);
+        String firstVar = tree.getFirstVariable();
+
+        assertEquals("bla", firstVar);
     }
 }

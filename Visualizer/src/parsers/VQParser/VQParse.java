@@ -25,12 +25,20 @@ public class VQParse {
     }
 
     public static VQParseTree parseVQ(String input, List<OutputVariable> outputVars) throws Exception {
-        return parseVQ(input, outputVars.stream().map(OutputVariable::getName).collect(Collectors.toList()));
+        return parseVQ(input, outputVars, true);
+    }
+
+    public static VQParseTree parseVQ(String input, List<OutputVariable> outputVars, boolean throwOnError) throws Exception {
+        return parseVQ(input, outputVars.stream().map(OutputVariable::getName).collect(Collectors.toList()), throwOnError);
     }
 
     public static VQParseTree parseVQ(String input, Collection<String> variables) throws Exception {
+        return parseVQ(input, variables, true);
+    }
+
+    public static VQParseTree parseVQ(String input, Collection<String> variables, boolean throwOnError) throws Exception {
         vqParser parser = setupParser(input);
-        final boolean[] anyErrors = {false};
+        final boolean[] anyErrors = {false}; //Yes... this is ugly. But it works :-)
 
         parser.removeErrorListeners(); //This override prevents the parser from writing to std.err
         parser.addErrorListener(new ConsoleErrorListener() {
@@ -43,7 +51,7 @@ public class VQParse {
         VQListener vqListener = new VQListener(variables);
         new ParseTreeWalker().walk(vqListener, parser.query());
 
-        if (anyErrors[0])
+        if (throwOnError && anyErrors[0])
             throw new Exception();
 
         return vqListener.getParseTree();
@@ -53,7 +61,7 @@ public class VQParse {
 
     public static Pair<VQParseTree, VQType> parse(String vq, List<OutputVariable> outputVariables) {
         try {
-            VQParseTree parsedVQ = parseVQ(vq, outputVariables.stream().map(OutputVariable::getName).collect(Collectors.toList()));
+            VQParseTree parsedVQ = parseVQ(vq, outputVariables, true);
             VQType type = getVQType(vq, outputVariables);
             return new Pair<>(parsedVQ, type);
         } catch (Exception e) {

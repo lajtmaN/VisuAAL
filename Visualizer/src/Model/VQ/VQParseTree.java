@@ -13,6 +13,7 @@ public class VQParseTree {
     private String firstColor,
                    secondColor;
     private VQNode root;
+    private String firstVariable;
 
     public double getGradient(Map<String, Double> variables) throws Exception {
         if(secondGradient <= firstGradient)
@@ -79,5 +80,13 @@ public class VQParseTree {
 
     public void setRoot(VQNode root) {
         this.root = root;
+    }
+
+    public String getFirstVariable() {
+        return firstVariable;
+    }
+
+    public void setFirstVariable(String var) {
+        firstVariable = var;
     }
 }
