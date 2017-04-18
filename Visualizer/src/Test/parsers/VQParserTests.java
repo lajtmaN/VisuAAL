@@ -179,7 +179,7 @@ public class VQParserTests {
         VQParseTree tree = VQParse.parseVQ(input, map);
         double gradient = tree.getGradient(map);
 
-        assertEquals(0.166666, gradient, 0.01);
+        assertEquals(0.666, gradient, 0.01);
     }
 
     @Test

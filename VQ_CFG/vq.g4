@@ -1,23 +1,19 @@
 grammar vq;
 query
-      : gradient expression EOF
-      ;
+      : gradient expression EOF;
 
 gradient
-      : '[' oneGradient ',' oneGradient ']'
-      ;
+      : '[' oneGradient ',' oneGradient ']';
 
 oneGradient 
       : ID ':' NEG? NAT
-      | ID
-      ;
+      | ID;
 
 expression 
       : '(' expression ')'                                    #par
       | op ='-' expression                                    #unOp
       | op ='!' expression                                    #unOp
-      | expression op='*' expression                          #binOp
-      | expression op='/' expression                          #binOp
+      | expression op=('*' | '/') expression                  #binOp
       | expression op=('+' | '-') expression                  #binOp
       | expression op=('<' | '<=' | '>' | '>=') expression    #binOp
       | expression op=('==' | '!=') expression                #binOp
