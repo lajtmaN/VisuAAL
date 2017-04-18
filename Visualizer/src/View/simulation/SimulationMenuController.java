@@ -173,8 +173,6 @@ public class SimulationMenuController {
         String newVQ = txtNewVQ.getText();
 
         if (newVQ.length() > 0 && !txtNewVQ.getPseudoClassStates().contains(errorClass)) {
-//            //remove red border
-  //          txtNewVQ.pseudoClassStateChanged(errorClass, false);
             lstDisplayOptions.getItems().add(new VQOption(currentSimulations, newVQ));
             txtNewVQ.setText("");
         }

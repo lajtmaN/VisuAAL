@@ -18,9 +18,9 @@
            <content>
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="260.0">
                    <children>
-                       <ListView fx:id="lstDisplayOptions" layoutY="43.0" prefHeight="138.0" prefWidth="260.0" />
-                  <TextArea fx:id="txtNewVQ" prefHeight="42.0" prefWidth="177.0" />
-                  <Button layoutX="177.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="83.0" text="Add new VQ" onAction="#addNewVQ"/>
+                       <ListView fx:id="lstDisplayOptions" layoutY="81.0" prefHeight="100.0" prefWidth="260.0" />
+                  <TextArea fx:id="txtNewVQ" prefHeight="80.0" prefWidth="177.0" wrapText="true"/>
+                  <Button layoutX="177.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="83.0" text="Add new VQ" onAction="#addNewVQ"/>
                    </children>
                </AnchorPane>
            </content>
