@@ -472,7 +472,8 @@ public class ParseXmlAndCTests {
         assertNotNull(model.getProcesses());
         assertEquals("Wrong number of templates",3, model.getProcesses().size());
         assertTrue(model.getProcesses().stream().anyMatch(
-                p-> p.getProcessName()==null &&
+                p-> !p.isInstantiatedProcess() &&
+                    p.getProcessName()==null &&
                     p.getTemplateName().equals("Template1")
         ));
 
