@@ -7,7 +7,6 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.Element;
 import org.graphstream.graph.implementations.MultiGraph;
-import scala.xml.Elem;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,7 +86,8 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
      */
     public void updateNodeGradient(int nodeId, double gradientValue) {
         Element e = getGraph().getNode(nodeId);
-        markGradientElement(e, gradientValue);
+        if (e != null)
+            markGradientElement(e, gradientValue);
     }
 
     /**
@@ -97,7 +97,8 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
      */
     public void updateEdgeGradient(String edgeIdentifier, double gradientValue) {
         Element e = getGraph().getEdge(edgeIdentifier);
-        markGradientElement(e, gradientValue);
+        if (e != null)
+            markGradientElement(e, gradientValue);
     }
 
     private void markGradientElement(Element e, double gradientValue) { e.setAttribute("ui.color", gradientValue); }
@@ -163,10 +164,26 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
 
     private void initializeGraph() {
         _graphInstance.setStrict(false);
-        _graphInstance.addAttribute("ui.stylesheet", styleSheet);
+        setDefaultColors();
         _graphInstance.setAutoCreate(true);
         _graphInstance.addAttribute("ui.quality");
         _graphInstance.addAttribute("ui.antialias");
+    }
+
+    public void setDefaultColors() {
+        changeColors(null, null, null, null);
+    }
+
+    public void changeColors(String nodeFromColor, String nodeToColor,
+                             String edgeFromColor, String edgeToColor) {
+
+        String stylesheet = String.format(styleSheet,
+                nodeFromColor == null ? "black" : nodeFromColor,
+                nodeToColor == null ? "red" : nodeToColor,
+                edgeFromColor == null ? "white" : edgeFromColor,
+                edgeToColor == null ? "red" : edgeToColor);
+
+        _graphInstance.setAttribute("ui.stylesheet", stylesheet);
     }
 
     protected String styleSheet =
@@ -176,13 +193,13 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
                     "}" +
             "node {" +
                     "   fill-mode: dyn-plain;" +
-                    "   fill-color: black, red;" +
+                    "   fill-color: %s, %s;" +
                     "   text-alignment: under;" +
                     "   text-background-mode: rounded-box;" +
                     "}" +
             "edge {" +
                     "fill-mode: dyn-plain;" +
-                    "fill-color: white, red;" +
+                    "fill-color: %s, %s;" +
                     "}";
 
     @Override

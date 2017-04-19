@@ -5,7 +5,6 @@ import Helpers.GUIHelper;
 import Model.VQ.VQParseTree;
 import View.simulation.VariableUpdateObserver;
 import View.simulation.VariablesUpdateObservable;
-import javafx.beans.*;
 import javafx.scene.control.Alert;
 import org.graphstream.graph.Graph;
 import parsers.RegexHelper;
@@ -142,7 +141,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             }
             else if (validNodeSimPoint(sp)) {
                 SimulationNodePoint snp = (SimulationNodePoint) sp;
-                double gradient =handleUpdateForSimulationPoint(sp, String.valueOf(snp.getNodeId()),
+                double gradient = handleUpdateForSimulationPoint(sp, String.valueOf(snp.getNodeId()),
                         simulationPointValue, parseTreeNode);
                 getTopology().updateNodeGradient(snp.getNodeId(), gradient);
             }
@@ -152,11 +151,11 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         }
     }
 
-    private double handleUpdateForSimulationPoint(SimulationPoint sp, String simulationPointidentifier,
-                                                  double simulationPointValue, VQParseTree vqParseTree) throws Exception {
+    private double handleUpdateForSimulationPoint(SimulationPoint sp, String simulationPointIdentifier,
+                                                    double simulationPointValue, VQParseTree vqParseTree) throws Exception {
 
-        graphValueMapper.updateNodeVariable(simulationPointidentifier, sp.getScopedIdentifier(), simulationPointValue);
-        return vqParseTree.getGradient(graphValueMapper.getNodeOrEdgeVariableMap(simulationPointidentifier));
+        graphValueMapper.updateNodeVariable(simulationPointIdentifier, sp.getScopedIdentifier(), simulationPointValue);
+        return vqParseTree.getGradient(graphValueMapper.getNodeOrEdgeVariableMap(simulationPointIdentifier));
     }
 
     private double getMaxForSimPoint(SimulationPoint sp) {
@@ -247,11 +246,13 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
 
     public void setShownEdgeVariable(VQParseTree parsedVQ) {
         parseTreeEdge = parsedVQ;
+        updateColorsOnTopology();
         resetToCurrentTime();
     }
 
     public void setShownNodeVariable(VQParseTree parsedVQ) {
         parseTreeNode = parsedVQ;
+        updateColorsOnTopology();
         resetToCurrentTime();
     }
 
@@ -270,6 +271,15 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         getTopology().unmarkAllNodes();
         currentSimulationIndex = 0;
         markGraphAtTime(0, getCurrentTime());
+    }
+
+    private void updateColorsOnTopology() {
+        String nodeFrom = parseTreeNode != null ? parseTreeNode.getFirstColor() : null;
+        String nodeTo = parseTreeNode != null ? parseTreeNode.getSecondColor() : null;
+        String edgeFrom = parseTreeEdge != null ? parseTreeEdge.getFirstColor() : null;
+        String edgeTo = parseTreeEdge != null ? parseTreeEdge.getSecondColor() : null;
+
+        getTopology().changeColors(nodeFrom, nodeTo, edgeFrom, edgeTo);
     }
 
     public OutputVariable getShownEdgeVariable() {
