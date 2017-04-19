@@ -457,6 +457,32 @@ public class ParseXmlAndCTests {
         assertTrue(actualQuery.endsWith(expectedSimulationQueryParts.get(4)));
     }
 
+    @Test
+    public void generateQueryTwoTemplatesNonOverlappingParametersMixedInstantiation() {
+        List<String> expectedSimulationQueryParts = new ArrayList<>();
+        expectedSimulationQueryParts.add("simulate 5 [<=123] {");
+        expectedSimulationQueryParts.add("Template1(0).OUTPUT_TEST");
+        expectedSimulationQueryParts.add("t1.OUTPUT_TEST");
+        expectedSimulationQueryParts.add("t2.OUTPUT_TEST");
+        expectedSimulationQueryParts.add("}");
+
+        UPPAALModel model = new UPPAALModel(new File("test_resources/MultipleTemplatesMultipleParameterTypesMixedSystemInstantiated.xml").getPath());
+        model.load();
+        assertNotNull(model);
+        assertNotNull(model.getProcesses());
+        assertEquals("Wrong number of templates",3, model.getProcesses().size());
+        assertTrue(model.getProcesses().stream().anyMatch(
+                p-> p.getProcessName()==null &&
+                    p.getTemplateName().equals("Template1")
+        ));
+
+        String actualQuery = QueryGenerator.generateSimulationQuery(123, 5, model.getOutputVars(), model.getProcesses());
+        assertTrue(actualQuery.startsWith(expectedSimulationQueryParts.get(0)));
+        for(String part : expectedSimulationQueryParts) {
+            assertTrue(actualQuery.contains(part));
+        }
+        assertTrue(actualQuery.endsWith(expectedSimulationQueryParts.get(4)));
+    }
 
 
     private void assertEdge(int expectedSource, int expectedDest, UPPAALEdge e) {
@@ -474,5 +500,4 @@ public class ParseXmlAndCTests {
     private <T> void assertGlobalCVar(String expectedName, T expectedVal, CVar actual) {
         assertCVar(null, expectedName, expectedVal, actual);
     }
-
 }

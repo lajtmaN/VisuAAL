@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int CONFIG_TEST = 3;
+typedef int [CONFIG_TEST-2,CONFIG_TEST-1] id_tt;
+typedef int [0,0] id_t;
+	</declaration>
+	<template>
+		<name x="5" y="5">Template1</name>
+		<parameter>id_t id</parameter>
+		<declaration>// Place local declarations here.
+		int OUTPUT_TEST=0;</declaration>
+		<location id="id0" x="0" y="0">
+		</location>
+		<init ref="id0"/>
+	</template>
+	<template>
+		<name>Template0</name>
+		<parameter>id_tt id</parameter>
+		<declaration>// Place local declarations here.
+		int OUTPUT_TEST=0;</declaration>
+		<location id="id1" x="0" y="0">
+		</location>
+		<init ref="id1"/>
+	</template>
+	<system>// Place template instantiations here.
+// List one or more processes to be composed into a system:
+t1 = Template0(1);
+t2 = Template0(2);
+system Template1, t1, t2;
+    </system>
+	<queries>
+	</queries>
+</nta>
