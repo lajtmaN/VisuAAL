@@ -37,63 +37,99 @@ public interface vqListener extends ParseTreeListener {
 	 */
 	void exitOneGradient(vqParser.OneGradientContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link vqParser#expression}.
+	 * Enter a parse tree produced by the {@code par}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpression(vqParser.ExpressionContext ctx);
+	void enterPar(vqParser.ParContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link vqParser#expression}.
+	 * Exit a parse tree produced by the {@code par}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpression(vqParser.ExpressionContext ctx);
+	void exitPar(vqParser.ParContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link vqParser#parExpr}.
+	 * Enter a parse tree produced by the {@code nat}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void enterParExpr(vqParser.ParExprContext ctx);
+	void enterNat(vqParser.NatContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link vqParser#parExpr}.
+	 * Exit a parse tree produced by the {@code nat}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void exitParExpr(vqParser.ParExprContext ctx);
+	void exitNat(vqParser.NatContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link vqParser#unaryOp}.
+	 * Enter a parse tree produced by the {@code bool}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void enterUnaryOp(vqParser.UnaryOpContext ctx);
+	void enterBool(vqParser.BoolContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link vqParser#unaryOp}.
+	 * Exit a parse tree produced by the {@code bool}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void exitUnaryOp(vqParser.UnaryOpContext ctx);
+	void exitBool(vqParser.BoolContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link vqParser#rel}.
+	 * Enter a parse tree produced by the {@code idDot}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void enterRel(vqParser.RelContext ctx);
+	void enterIdDot(vqParser.IdDotContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link vqParser#rel}.
+	 * Exit a parse tree produced by the {@code idDot}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void exitRel(vqParser.RelContext ctx);
+	void exitIdDot(vqParser.IdDotContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link vqParser#binIntOp}.
+	 * Enter a parse tree produced by the {@code id}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void enterBinIntOp(vqParser.BinIntOpContext ctx);
+	void enterId(vqParser.IdContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link vqParser#binIntOp}.
+	 * Exit a parse tree produced by the {@code id}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void exitBinIntOp(vqParser.BinIntOpContext ctx);
+	void exitId(vqParser.IdContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link vqParser#binBoolOp}.
+	 * Enter a parse tree produced by the {@code unOp}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void enterBinBoolOp(vqParser.BinBoolOpContext ctx);
+	void enterUnOp(vqParser.UnOpContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link vqParser#binBoolOp}.
+	 * Exit a parse tree produced by the {@code unOp}
+	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void exitBinBoolOp(vqParser.BinBoolOpContext ctx);
+	void exitUnOp(vqParser.UnOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code float}
+	 * labeled alternative in {@link vqParser#exp}.
+	 * @param ctx the parse tree
+	 */
+	void enterFloat(vqParser.FloatContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code float}
+	 * labeled alternative in {@link vqParser#exp}.
+	 * @param ctx the parse tree
+	 */
+	void exitFloat(vqParser.FloatContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code binOp}
+	 * labeled alternative in {@link vqParser#exp}.
+	 * @param ctx the parse tree
+	 */
+	void enterBinOp(vqParser.BinOpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code binOp}
+	 * labeled alternative in {@link vqParser#exp}.
+	 * @param ctx the parse tree
+	 */
+	void exitBinOp(vqParser.BinOpContext ctx);
 }

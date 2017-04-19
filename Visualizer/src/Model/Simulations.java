@@ -2,6 +2,7 @@ package Model;
 
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
+import Model.VQ.VQParseTree;
 import View.simulation.VariableUpdateObserver;
 import View.simulation.VariablesUpdateObservable;
 import javafx.beans.*;
@@ -205,6 +206,15 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         return result;
     }
 
+
+    public void setShownEdgeVariable(VQParseTree parsedVQ) {
+        //TODO: SW-214
+    }
+
+    public void setShownNodeVariable(VQParseTree parsedVQ) {
+        //TODO: SW-214
+    }
+
     public void setShownEdgeVariable(OutputVariable shownEdgeVariable) {
         this.shownEdgeVariable = shownEdgeVariable;
         resetToCurrentTime();
@@ -278,4 +288,5 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
     public void removeListener(VariableUpdateObserver observer) {
         observers.remove(observer);
     }
+
 }

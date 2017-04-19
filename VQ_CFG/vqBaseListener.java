@@ -51,73 +51,97 @@ public class vqBaseListener implements vqListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpression(vqParser.ExpressionContext ctx) { }
+	@Override public void enterPar(vqParser.ParContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpression(vqParser.ExpressionContext ctx) { }
+	@Override public void exitPar(vqParser.ParContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParExpr(vqParser.ParExprContext ctx) { }
+	@Override public void enterNat(vqParser.NatContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParExpr(vqParser.ParExprContext ctx) { }
+	@Override public void exitNat(vqParser.NatContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterUnaryOp(vqParser.UnaryOpContext ctx) { }
+	@Override public void enterBool(vqParser.BoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitUnaryOp(vqParser.UnaryOpContext ctx) { }
+	@Override public void exitBool(vqParser.BoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRel(vqParser.RelContext ctx) { }
+	@Override public void enterIdDot(vqParser.IdDotContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRel(vqParser.RelContext ctx) { }
+	@Override public void exitIdDot(vqParser.IdDotContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBinIntOp(vqParser.BinIntOpContext ctx) { }
+	@Override public void enterId(vqParser.IdContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBinIntOp(vqParser.BinIntOpContext ctx) { }
+	@Override public void exitId(vqParser.IdContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBinBoolOp(vqParser.BinBoolOpContext ctx) { }
+	@Override public void enterUnOp(vqParser.UnOpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBinBoolOp(vqParser.BinBoolOpContext ctx) { }
+	@Override public void exitUnOp(vqParser.UnOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFloat(vqParser.FloatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFloat(vqParser.FloatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBinOp(vqParser.BinOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBinOp(vqParser.BinOpContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

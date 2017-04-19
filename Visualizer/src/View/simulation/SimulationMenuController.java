@@ -7,9 +7,12 @@ import Model.OutputVariable;
 import Model.Simulations;
 import View.DoubleTextField;
 import View.Options.*;
+import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import parsers.VQParser.VQParse;
 
 import java.util.Arrays;
 
@@ -17,11 +20,13 @@ import java.util.Arrays;
  * Created by lajtman on 08-03-2017.
  */
 public class SimulationMenuController {
+    final PseudoClass errorClass = PseudoClass.getPseudoClass("error");
 
     @FXML public DoubleTextField minEdgeValueText;
     @FXML public DoubleTextField maxEdgeValueText;
     @FXML public DoubleTextField minNodeValueText;
     @FXML public DoubleTextField maxNodeValueText;
+    @FXML private TextArea txtNewVQ;
     @FXML private ListView<EnableDisableSimulationOption> lstSimulationOptions;
     @FXML private ListView<EnableDisableSimulationOption> lstDisplayOptions;
     @FXML private ListView<SimulationOption> lstExportOptions;
@@ -35,6 +40,17 @@ public class SimulationMenuController {
         initializeDisplayOptions();
         initializeSimulationOptions();
         setHeight();
+        setupVQValidationParser();
+    }
+
+    private void setupVQValidationParser() {
+        txtNewVQ.textProperty().addListener((observable, oldValue, newValue) -> {
+            validateVQ(newValue);
+        });
+        txtNewVQ.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            validateVQ(txtNewVQ.getText());
+        });
+        validateVQ("");
     }
 
     private void addOptionsToListViews() {
@@ -91,9 +107,9 @@ public class SimulationMenuController {
                 else {
                     //Disable the shown variable
                     if (v.getIsEdgeData() && v == currentSimulations.getShownEdgeVariable()) {
-                        currentSimulations.setShownEdgeVariable(null);
+                        currentSimulations.setShownEdgeVariable((OutputVariable) null);
                     } else if (v.getIsNodeData() && v == currentSimulations.getShownNodeVariable()) {
-                        currentSimulations.setShownNodeVariable(null);
+                        currentSimulations.setShownNodeVariable((OutputVariable) null);
                     }
                 }
             });
@@ -118,14 +134,13 @@ public class SimulationMenuController {
                             edso.onProperty().setValue(false);
                         }
                     }
-                    //currentSimulations.setShownSimulation(((ShowHideSimulationOption)o).getSimulationId());
                 }
             });
         }
     }
 
     private void setHeight() {
-        Arrays.asList(lstDisplayOptions, lstExportOptions).forEach(list -> setHeight(list));
+        Arrays.asList(lstDisplayOptions, lstExportOptions, lstSimulationOptions).forEach(list -> setHeight(list));
     }
 
     private void setHeight(ListView list) {
@@ -152,5 +167,22 @@ public class SimulationMenuController {
         }
         else
             GUIHelper.showError("All fields must have a value");
+    }
+
+    public void addNewVQ(ActionEvent actionEvent) {
+        String newVQ = txtNewVQ.getText();
+
+        if (newVQ.length() > 0 && !txtNewVQ.getPseudoClassStates().contains(errorClass)) {
+            lstDisplayOptions.getItems().add(new VQOption(currentSimulations, newVQ));
+            txtNewVQ.setText("");
+        }
+    }
+
+    private void validateVQ(String vqString) {
+        txtNewVQ.pseudoClassStateChanged(errorClass, vqString.length() > 0 && !validVQ(vqString));
+    }
+
+    private boolean validVQ(String vqString) {
+        return VQParse.validVQ(vqString, currentSimulations.getOutputVariables());
     }
 }

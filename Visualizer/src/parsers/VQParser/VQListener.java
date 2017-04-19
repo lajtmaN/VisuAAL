@@ -1,18 +1,25 @@
 package parsers.VQParser;
 
 import Model.VQ.*;
+import Model.VQ.Operators.*;
+import org.antlr.v4.runtime.ParserRuleContext;
 import parsers.VQParser.Generated.vqBaseListener;
 import parsers.VQParser.Generated.vqParser;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by batto on 10-Apr-17.
  */
 public class VQListener extends vqBaseListener {
-    private VQExpression vqExpression = new VQExpression();
-    private VQNode currentNode = new VQNode();
+    private Collection<String> variables;
+    private VQParseTree parseTree = new VQParseTree();
+    private VQNode currentNode;
 
-    public VQExpression getVQExpression() {
-        return vqExpression;
+    public VQListener(Collection<String> variables) {
+        this.variables = variables;
     }
 
     @Override
@@ -22,66 +29,158 @@ public class VQListener extends vqBaseListener {
         vqParser.OneGradientContext firstGradient = ctx.oneGradient(0),
                                     secondGradient = ctx.oneGradient(1);
 
-        vqExpression.setFirstColor(firstGradient.ID().getText());
-        vqExpression.setSecondColor(secondGradient.ID().getText());
+        //Set gradient colors
+        parseTree.setFirstColor(firstGradient.ID().getText());
+        parseTree.setSecondColor(secondGradient.ID().getText());
 
         if(firstGradient.NAT() != null)
-            vqExpression.setFirstGradient(Double.parseDouble(firstGradient.NAT().getText()),
+            parseTree.setFirstGradient(Double.parseDouble(firstGradient.NAT().getText()),
                 firstGradient.NEG() != null);
         if(secondGradient.NAT() != null)
-            vqExpression.setSecondGradient(Double.parseDouble(secondGradient.NAT().getText()),
+            parseTree.setSecondGradient(Double.parseDouble(secondGradient.NAT().getText()),
                 secondGradient.NEG() != null);
     }
 
     @Override
     public void exitQuery(vqParser.QueryContext ctx) {
         super.exitQuery(ctx);
-        vqExpression.saveExpression(currentNode);
+        parseTree.setRoot(currentNode);
     }
 
     @Override
-    public void enterExpression(vqParser.ExpressionContext ctx) {
-        super.enterExpression(ctx);
-        VQNode vqNode = null;
+    public void exitEveryRule(ParserRuleContext ctx) {
+        super.exitEveryRule(ctx);
+        if(currentNode != null && currentNode.getParent() != null)
+            currentNode = currentNode.getParent();
+    }
 
-        if(ctx.ID() != null)
-            vqNode = new VQNodeID(ctx.ID().getText());
-        else if(ctx.NAT() != null)
-            vqNode = new VQNodeNAT(Integer.valueOf(ctx.NAT().getText()));
-        else if(ctx.FLOAT() != null)
-            vqNode = new VQNodeFLOAT(Double.valueOf(ctx.FLOAT().getText()));
-        else if(ctx.BOOL() != null)
-            vqNode = new VQNodeBOOL(ctx.BOOL().getText());
-        else if(ctx.unaryOp() != null)
-            vqNode = new VQNodeUnaryOperator(ctx.unaryOp().getText());
-        else if(ctx.rel() != null)
-            vqNode = new VQNodeOperator(ctx.rel().getText());
-        else if(ctx.binBoolOp() != null)
-            vqNode = new VQNodeOperator(ctx.binBoolOp().getText());
-        else if(ctx.binIntOp() != null)
-            vqNode = new VQNodeOperator(ctx.binIntOp().getText());
+    @Override
+    public void enterPar(vqParser.ParContext ctx) {
+        super.enterPar(ctx);
+        addNewChild(new VQNodePar());
+    }
 
-        if(vqNode != null) {
-            vqNode.setParent(currentNode);
-            currentNode.addChild(vqNode);
-            currentNode = vqNode;
+    //Unary
+    @Override
+    public void enterUnOp(vqParser.UnOpContext ctx) {
+        super.enterUnOp(ctx);
+        if(ctx.op.getText().equals("-"))
+            addNewChild(new VqNodeUnaryMinus());
+        else if(ctx.op.getText().equals("!")) {
+            addNewChild(new VqNodeUnaryNot());
+        }
+    }
+
+    //Binary
+    @Override
+    public void enterBinOp(vqParser.BinOpContext ctx) {
+        super.enterBinOp(ctx);
+        String operator = ctx.op.getText();
+        VQNode node = null;
+
+        switch (operator) {
+            case "+":
+                node = new VQNodePlus();
+                break;
+            case "-":
+                node = new VQNodeMinus();
+                break;
+            case "*":
+                node = new VQNodeMult();
+                break;
+            case "/":
+                node = new VQNodeDiv();
+                break;
+            case "<":
+                node = new VQNodeLessThan();
+                break;
+            case "<=":
+                node = new VQNodeLessThanEq();
+                break;
+            case "==":
+                node = new VQNodeEqual();
+                break;
+            case "!=":
+                node = new VQNodeNotEqual();
+                break;
+            case ">=":
+                node = new VQNodeGreaterThan();
+                break;
+            case ">":
+                node = new VQNodeGreaterThanEq();
+                break;
+            case "&&":
+                node = new VQNodeAnd();
+                break;
+            case "||":
+                node = new VQNodeOr();
+                break;
+        }
+
+        addNewChild(node);
+    }
+
+    //Atoms
+    @Override
+    public void enterId(vqParser.IdContext ctx) {
+        super.enterId(ctx);
+        String id = ctx.ID().getText();
+        parseTree.addUsedVariable(id);
+
+        if(variables.contains(id)) {
+            VQNodeId node = new VQNodeId(id);
+            addNewChild(node);
+        } else {
+            //REPORT ERROR? We tried to parse a variable that does not exist
         }
     }
 
     @Override
-    public void exitExpression(vqParser.ExpressionContext ctx) {
-        super.exitExpression(ctx);
-        currentNode = currentNode.getParent();
+    public void enterIdDot(vqParser.IdDotContext ctx) {
+        super.enterIdDot(ctx);
+        String id = ctx.ID(0).getText() + "." + ctx.ID(1).getText();
+        parseTree.addUsedVariable(id);
+
+        if(variables.contains(id)) {
+            VQNodeId node = new VQNodeId(id);
+            addNewChild(node);
+        } else {
+            //REPORT ERROR? We tried to parse a variable that does not exist
+        }
     }
 
     @Override
-    public void enterParExpr(vqParser.ParExprContext ctx) {
-        super.enterParExpr(ctx);
+    public void enterNat(vqParser.NatContext ctx) {
+        super.enterNat(ctx);
+        addNewChild(new VQNodeValue(Double.valueOf(ctx.NAT().getText())));
+    }
 
-        VQNodePar vqNodePar = new VQNodePar();
-        vqNodePar.setParent(currentNode);
-        currentNode.addChild(vqNodePar);
-        currentNode = vqNodePar;
+    @Override
+    public void enterFloat(vqParser.FloatContext ctx) {
+        super.enterFloat(ctx);
+        addNewChild(new VQNodeValue(Double.valueOf(ctx.FLOAT().getText())));
+    }
+
+    @Override
+    public void enterBool(vqParser.BoolContext ctx) {
+        super.enterBool(ctx);
+        String b = ctx.BOOL().getText();
+        if(b.equals("true"))
+            addNewChild(new VQNodeValue(1.));
+        else
+            addNewChild(new VQNodeValue(0.));
+    }
+
+    private void addNewChild(VQNode node) {
+        if(currentNode != null) {
+            currentNode.addChild(node);
+            node.setParent(currentNode);
+        }
+        currentNode = node;
+    }
+
+    public VQParseTree getParseTree() {
+        return parseTree;
     }
 }
 
