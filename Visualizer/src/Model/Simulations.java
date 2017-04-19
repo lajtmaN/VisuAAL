@@ -19,6 +19,8 @@ import java.util.*;
 public class Simulations implements Serializable, VariablesUpdateObservable {
     private UPPAALModel model;
     private final List<Simulation> simulations;
+    private GraphValueMapper graphValueMapper = new GraphValueMapper();
+    private VQParseTree parseTreeNode, parseTreeEdge;
 
     private Simulation shownSimulation;
     private ArrayList<VariableUpdateObserver> observers = new ArrayList<>();
@@ -77,9 +79,20 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         currentTime = newTime;
     }
 
-    private boolean validSimPoint(SimulationPoint sp) {
-        return shownEdgeVariable != null && shownEdgeVariable.getName().equals(sp.getTrimmedIdentifier())
-                || shownNodeVariable != null && shownNodeVariable.getName().equals(sp.getTrimmedIdentifier());
+    private boolean validNodeSimPoint(SimulationPoint sp) {
+        if(parseTreeNode == null)
+            return false;
+        boolean isNode = sp.getType().equals(SimulationPoint.SimulationPointType.NodePoint),
+                containsIdentifier = parseTreeNode.getUsedVariables().contains(sp.getScopedIdentifier());
+        return isNode && containsIdentifier;
+    }
+
+    private boolean validEdgeSimPoint(SimulationPoint sp) {
+        if(parseTreeEdge == null)
+            return false;
+        boolean isEdge = sp.getType().equals(SimulationPoint.SimulationPointType.EdgePoint),
+                containsIdentifier = parseTreeEdge.getUsedVariables().contains(sp.getScopedIdentifier());
+        return isEdge && containsIdentifier;
     }
 
     void markGraphForward(double newTimeValue, double oldTime) {
@@ -87,11 +100,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         //Make sure that more elements at same end time all are included
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() > newTimeValue)) {
             if (sp.getClock() >= oldTime) {
-                if(validSimPoint(sp)) {
-                    double min = getMinForSimPoint(sp),
-                            max = getMaxForSimPoint(sp);
-                    getTopology().updateVariableGradient(sp, sp.getValue(), min, max);
-                }
+                handleUpdateForSimulationPoint(sp, sp.getValue());
                 updateAllObservers(sp, sp.getValue());
             }
             if (currentSimulationIndex + 1 >= shownSimulation.getSimulationPoints().size())
@@ -106,11 +115,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         SimulationPoint sp;
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() < newTimeValue)) {
             if (sp.getClock() <= oldTime) {
-                if (validSimPoint(sp)) {
-                    double min = getMinForSimPoint(sp),
-                            max = getMaxForSimPoint(sp);
-                    getTopology().updateVariableGradient(sp, sp.getPreviousValue(), min, max);
-                }
+                handleUpdateForSimulationPoint(sp, sp.getPreviousValue());
                 updateAllObservers(sp, sp.getPreviousValue());
             }
             if (currentSimulationIndex - 1 < 0)
@@ -119,6 +124,39 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
                 currentSimulationIndex--;
             else break;
         }
+    }
+
+    /**
+     * Update for either forward or backward
+     * @param sp
+     * @param simulationPointValue own value or previous value (forward / backwards)
+     */
+    private void handleUpdateForSimulationPoint(SimulationPoint sp, double simulationPointValue) {
+        try {
+            if (validEdgeSimPoint(sp)) {
+                SimulationEdgePoint sep = (SimulationEdgePoint) sp;
+
+                double gradient = handleUpdateForSimulationPoint(sp, sep.getEdgeIdentifier(),
+                        simulationPointValue, parseTreeEdge);
+                getTopology().updateEdgeGradient(sep.getEdgeIdentifier(), gradient);
+            }
+            else if (validNodeSimPoint(sp)) {
+                SimulationNodePoint snp = (SimulationNodePoint) sp;
+                double gradient =handleUpdateForSimulationPoint(sp, String.valueOf(snp.getNodeId()),
+                        simulationPointValue, parseTreeNode);
+                getTopology().updateNodeGradient(snp.getNodeId(), gradient);
+            }
+        }
+         catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    private double handleUpdateForSimulationPoint(SimulationPoint sp, String simulationPointidentifier,
+                                                  double simulationPointValue, VQParseTree vqParseTree) throws Exception {
+
+        graphValueMapper.updateNodeVariable(simulationPointidentifier, sp.getScopedIdentifier(), simulationPointValue);
+        return vqParseTree.getGradient(graphValueMapper.getNodeOrEdgeVariableMap(simulationPointidentifier));
     }
 
     private double getMaxForSimPoint(SimulationPoint sp) {
@@ -208,11 +246,13 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
 
 
     public void setShownEdgeVariable(VQParseTree parsedVQ) {
-        //TODO: SW-214
+        parseTreeEdge = parsedVQ;
+        resetToCurrentTime();
     }
 
     public void setShownNodeVariable(VQParseTree parsedVQ) {
-        //TODO: SW-214
+        parseTreeNode = parsedVQ;
+        resetToCurrentTime();
     }
 
     public void setShownEdgeVariable(OutputVariable shownEdgeVariable) {

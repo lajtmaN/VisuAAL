@@ -16,7 +16,7 @@
    <panes>
        <TitledPane text="Display">
            <content>
-               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="260.0">
+               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="250.0" prefWidth="260.0">
                    <children>
                        <ListView fx:id="lstDisplayOptions" layoutY="81.0" prefHeight="100.0" prefWidth="260.0" />
                   <TextArea fx:id="txtNewVQ" prefHeight="80.0" prefWidth="177.0" wrapText="true"/>
@@ -27,7 +27,7 @@
        </TitledPane>
        <TitledPane text="Simulations">
            <content>
-               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="260.0">
+               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="250.0" prefWidth="260.0">
                    <children>
                        <ListView fx:id="lstSimulationOptions" prefHeight="200.0" prefWidth="260.0" />
                    </children>
@@ -36,7 +36,7 @@
        </TitledPane>
        <TitledPane text="Export">
            <content>
-               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="260.0">
+               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="250.0" prefWidth="260.0">
                    <children>
                        <ListView fx:id="lstExportOptions" prefHeight="200.0" prefWidth="260.0" />
                    </children>

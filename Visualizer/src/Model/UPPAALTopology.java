@@ -7,6 +7,7 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.Element;
 import org.graphstream.graph.implementations.MultiGraph;
+import scala.xml.Elem;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,29 +80,24 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         return g.removeEdge(e);
     }
 
-    public void updateVariableGradient(SimulationPoint s, double value, double min, double max) {
-        Element e = null;
-        if(s.getType().equals(SimulationPoint.SimulationPointType.NodePoint))
-            e = getGraph().getNode(((SimulationNodePoint)s).getNodeId());
-        else if(s.getType().equals(SimulationPoint.SimulationPointType.EdgePoint))
-            e = getGraph().getEdge(((SimulationEdgePoint)s).getEdgeIdentifier());
-
-        if (e != null) {
-            double gradientValue = gradientValue(min, max, value);
-            if (gradientValue >= 1.0)
-                markGradientElement(e, 1.0);
-            else if (gradientValue <= 0.0)
-                markGradientElement(e, 0.0);
-            else
-                markGradientElement(e, gradientValue);
-        }
+    /**
+     * Updates the gradient for the node
+     * @param nodeId
+     * @param gradientValue between 0 and 1
+     */
+    public void updateNodeGradient(int nodeId, double gradientValue) {
+        Element e = getGraph().getNode(nodeId);
+        markGradientElement(e, gradientValue);
     }
 
-    double gradientValue(double min, double max, double value) {
-        double diff = max - min;
-        if(diff > 0)
-            return value / diff;
-        return 0;
+    /**
+     * Updates the gradient for the edge
+     * @param edgeIdentifier
+     * @param gradientValue between 0 and 1
+     */
+    public void updateEdgeGradient(String edgeIdentifier, double gradientValue) {
+        Element e = getGraph().getEdge(edgeIdentifier);
+        markGradientElement(e, gradientValue);
     }
 
     private void markGradientElement(Element e, double gradientValue) { e.setAttribute("ui.color", gradientValue); }

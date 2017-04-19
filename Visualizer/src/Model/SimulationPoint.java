@@ -56,6 +56,13 @@ public class SimulationPoint extends DataPoint implements Serializable {
         return s;
     }
 
+    public String getScopedIdentifier() {
+        String s = getIdentifier();
+        s = s.replaceAll("\\(\\d+\\)", "");
+        s = s.replaceAll("\\[\\d+\\]", "");
+        return s;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
