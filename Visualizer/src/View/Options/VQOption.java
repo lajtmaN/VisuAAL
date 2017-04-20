@@ -43,4 +43,8 @@ public class VQOption extends EnableDisableSimulationOption {
     public String getDescription() {
         return rawVQExpression; //TODO: Maybe only show what comes after the []
     }
+
+    public VQParse.VQType getType() {
+        return type;
+    }
 }

@@ -6,6 +6,7 @@ import Model.VQ.VQParseTree;
 import View.simulation.VariableUpdateObserver;
 import View.simulation.VariablesUpdateObservable;
 import javafx.scene.control.Alert;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import parsers.RegexHelper;
 
@@ -247,30 +248,65 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
     public void setShownEdgeVariable(VQParseTree parsedVQ) {
         parseTreeEdge = parsedVQ;
         updateColorsOnTopology();
-        resetToCurrentTime();
+        resetEdgesToCurrentTime();
+        markGraphAtTime(0, getCurrentTime());
     }
 
     public void setShownNodeVariable(VQParseTree parsedVQ) {
         parseTreeNode = parsedVQ;
         updateColorsOnTopology();
-        resetToCurrentTime();
-    }
-
-    public void setShownEdgeVariable(OutputVariable shownEdgeVariable) {
-        this.shownEdgeVariable = shownEdgeVariable;
-        resetToCurrentTime();
-    }
-
-    public void setShownNodeVariable(OutputVariable shownNodeVariable) {
-        this.shownNodeVariable = shownNodeVariable;
-        resetToCurrentTime();
+        resetNodesToCurrentTime();
+        markGraphAtTime(0, getCurrentTime());
     }
 
     public void resetToCurrentTime() {
-        getTopology().unmarkAllEdges();
-        getTopology().unmarkAllNodes();
-        currentSimulationIndex = 0;
+        resetNodesToCurrentTime();
+        resetEdgesToCurrentTime();
         markGraphAtTime(0, getCurrentTime());
+    }
+
+    private void resetNodesToCurrentTime() {
+        getTopology().unmarkAllNodes();
+        markNodesAt0();
+        currentSimulationIndex = 0;
+    }
+
+    private void resetEdgesToCurrentTime() {
+        getTopology().unmarkAllEdges();
+        markEdgesAt0();
+        currentSimulationIndex = 0;
+    }
+
+    private void markEdgesAt0() {
+        if(parseTreeEdge == null)
+            return;
+
+        Collection<String> edgeVars = parseTreeEdge.getUsedVariables();
+
+        for(Edge id : getTopology().getGraph().getEdgeSet()) {
+            for(String s : edgeVars) {
+                SimulationEdgePoint sp = new SimulationEdgePoint(s, 0,
+                        id.getSourceNode().getId(), id.getTargetNode().getId(), 0, 0);
+                handleUpdateForSimulationPoint(sp, sp.getValue());
+                updateAllObservers(sp, sp.getValue());
+            }
+        }
+    }
+
+    private void markNodesAt0() {
+        if(parseTreeNode == null)
+            return;
+
+        int nrNodes = getTopology().getNumberOfNodes();
+        Collection<String> nodeVars = parseTreeNode.getUsedVariables();
+
+        for(int i = 0 ; i < nrNodes ; i++) {
+            for(String s : nodeVars) {
+                SimulationNodePoint sp = new SimulationNodePoint(s, 0, i, 0, 0);
+                handleUpdateForSimulationPoint(sp, sp.getValue());
+                updateAllObservers(sp, sp.getValue());
+            }
+        }
     }
 
     private void updateColorsOnTopology() {

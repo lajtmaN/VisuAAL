@@ -67,43 +67,6 @@ public class SimulationMenuController {
     private void initializeDisplayOptions() {
         //TODO Description is not updated when the onProperty changes.
         lstDisplayOptions.setCellFactory(OptionsHelper.optionListCell());
-
-        for(EnableDisableSimulationOption s : lstDisplayOptions.getItems()) {
-            s.onProperty().addListener((observable, oldValue, newValue) ->
-            {
-                if(!(s instanceof ShowHideDataOption) || oldValue.equals(newValue))
-                    return;
-
-                ShowHideDataOption option = (ShowHideDataOption) s;
-                OutputVariable v = option.getOutputVariable();
-                if(newValue) {
-                    //unmark other of same type
-                    for (EnableDisableSimulationOption eds : this.lstDisplayOptions.getItems().filtered(
-                            m -> (m instanceof ShowHideDataOption) && m != s)) {
-                        OutputVariable ov = ((ShowHideDataOption) eds).getOutputVariable();
-                        if (ov.getIsNodeData() && v.getIsNodeData())
-                            eds.onProperty().set(false);
-                        else if (ov.getIsEdgeData() && v.getIsEdgeData())
-                            eds.onProperty().set(false);
-                    }
-
-                    //Set the current node or data output variable
-                    if (v.getIsEdgeData()) {
-                        currentSimulations.setShownEdgeVariable(v);
-                    } else if(v.getIsNodeData()) {
-                        currentSimulations.setShownNodeVariable(v);
-                    }
-                }
-                else {
-                    //Disable the shown variable
-                    if (v.getIsEdgeData() && v == currentSimulations.getShownEdgeVariable()) {
-                        currentSimulations.setShownEdgeVariable((OutputVariable) null);
-                    } else if (v.getIsNodeData() && v == currentSimulations.getShownNodeVariable()) {
-                        currentSimulations.setShownNodeVariable((OutputVariable) null);
-                    }
-                }
-            });
-        }
     }
 
     private void initializeSimulationOptions() {
@@ -126,8 +89,22 @@ public class SimulationMenuController {
         String newVQ = txtNewVQ.getText();
 
         if (newVQ.length() > 0 && !txtNewVQ.getPseudoClassStates().contains(errorClass)) {
-            lstDisplayOptions.getItems().add(new VQOption(currentSimulations, newVQ));
+            VQOption option = new VQOption(currentSimulations, newVQ);
+            lstDisplayOptions.getItems().add(option);
             txtNewVQ.setText("");
+
+            option.onProperty().addListener((observable, oldValue, newValue) -> {
+                if(newValue) {
+                    for (EnableDisableSimulationOption eds : this.lstDisplayOptions.getItems()) {
+                        VQOption vqOption = null;
+                        if(eds instanceof VQOption)
+                            vqOption = (VQOption)eds;
+                        if(vqOption != option && vqOption.getType() == option.getType()) {
+                            eds.onProperty().set(false);
+                        }
+                    }
+                }
+            });
         }
     }
 

@@ -290,6 +290,7 @@ public class MainWindowController implements Initializable {
         out.exceptionally(th -> {
             simulationProgress.setVisible(false);
             Platform.runLater(() -> GUIHelper.showError("Simulations failed: " + System.lineSeparator()+ th.getMessage()));
+            th.printStackTrace();
             return null;
         });
         out.thenAccept(simulation -> {
