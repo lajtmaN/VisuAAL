@@ -135,6 +135,18 @@ public class vqBaseListener implements vqListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCondOp(vqParser.CondOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCondOp(vqParser.CondOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBinOp(vqParser.BinOpContext ctx) { }
 	/**
 	 * {@inheritDoc}

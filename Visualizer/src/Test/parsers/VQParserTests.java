@@ -332,4 +332,60 @@ public class VQParserTests {
 
         assertEquals(0.75, gradient, 0.01);
     }
+
+    @Test
+    public void condOpTest() throws Exception {
+        String input = "[green:0, gray:4] x > 0 ? y : 0";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 1.);
+        map.put("y", 3.);
+
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
+        double gradient = tree.getGradient(map);
+
+        assertEquals(0.75, gradient, 0.01);
+    }
+
+    @Test
+    public void condOpTest2() throws Exception {
+        String input = "[green:0, gray:4] x == 0 ? y : 1";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 1.);
+        map.put("y", 3.);
+
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
+        double gradient = tree.getGradient(map);
+
+        assertEquals(0.25, gradient, 0.01);
+    }
+
+    @Test
+    public void noColorsTest() throws Exception {
+        String input = "x - 3.66";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 4.);
+
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
+        double gradient = tree.getGradient(map);
+
+        assertEquals(0.33, gradient, 0.01);
+        assertEquals(null, tree.getFirstColor());
+        assertEquals(null, tree.getSecondColor());
+    }
+
+    @Test
+    public void doubleCompareTest() throws Exception {
+        String input = "x > 0";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 0.);
+
+        VQParseTree tree = VQParse.parseVQ(input, map.keySet());
+        double gradient = tree.getGradient(map);
+
+        assertEquals(0., gradient, 0.01);
+    }
 }

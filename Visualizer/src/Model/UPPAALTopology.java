@@ -79,29 +79,26 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         return g.removeEdge(e);
     }
 
-    public void updateVariableGradient(SimulationPoint s, double value, double min, double max) {
-        Element e = null;
-        if(s.getType().equals(SimulationPoint.SimulationPointType.NodePoint))
-            e = getGraph().getNode(((SimulationNodePoint)s).getNodeId());
-        else if(s.getType().equals(SimulationPoint.SimulationPointType.EdgePoint))
-            e = getGraph().getEdge(((SimulationEdgePoint)s).getEdgeIdentifier());
-
-        if (e != null) {
-            double gradientValue = gradientValue(min, max, value);
-            if (gradientValue >= 1.0)
-                markGradientElement(e, 1.0);
-            else if (gradientValue <= 0.0)
-                markGradientElement(e, 0.0);
-            else
-                markGradientElement(e, gradientValue);
-        }
+    /**
+     * Updates the gradient for the node
+     * @param nodeId
+     * @param gradientValue between 0 and 1
+     */
+    public void updateNodeGradient(int nodeId, double gradientValue) {
+        Element e = getGraph().getNode(nodeId);
+        if (e != null)
+            markGradientElement(e, gradientValue);
     }
 
-    double gradientValue(double min, double max, double value) {
-        double diff = max - min;
-        if(diff > 0)
-            return value / diff;
-        return 0;
+    /**
+     * Updates the gradient for the edge
+     * @param edgeIdentifier
+     * @param gradientValue between 0 and 1
+     */
+    public void updateEdgeGradient(String edgeIdentifier, double gradientValue) {
+        Element e = getGraph().getEdge(edgeIdentifier);
+        if (e != null)
+            markGradientElement(e, gradientValue);
     }
 
     private void markGradientElement(Element e, double gradientValue) { e.setAttribute("ui.color", gradientValue); }
@@ -167,10 +164,26 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
 
     private void initializeGraph() {
         _graphInstance.setStrict(false);
-        _graphInstance.addAttribute("ui.stylesheet", styleSheet);
+        setDefaultColors();
         _graphInstance.setAutoCreate(true);
         _graphInstance.addAttribute("ui.quality");
         _graphInstance.addAttribute("ui.antialias");
+    }
+
+    public void setDefaultColors() {
+        changeColors(null, null, null, null);
+    }
+
+    public void changeColors(String nodeFromColor, String nodeToColor,
+                             String edgeFromColor, String edgeToColor) {
+
+        String stylesheet = String.format(styleSheet,
+                nodeFromColor == null ? "black" : nodeFromColor,
+                nodeToColor == null ? "red" : nodeToColor,
+                edgeFromColor == null ? "white" : edgeFromColor,
+                edgeToColor == null ? "red" : edgeToColor);
+
+        _graphInstance.setAttribute("ui.stylesheet", stylesheet);
     }
 
     protected String styleSheet =
@@ -180,13 +193,13 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
                     "}" +
             "node {" +
                     "   fill-mode: dyn-plain;" +
-                    "   fill-color: black, red;" +
+                    "   fill-color: %s, %s;" +
                     "   text-alignment: under;" +
                     "   text-background-mode: rounded-box;" +
                     "}" +
             "edge {" +
                     "fill-mode: dyn-plain;" +
-                    "fill-color: white, red;" +
+                    "fill-color: %s, %s;" +
                     "}";
 
     @Override

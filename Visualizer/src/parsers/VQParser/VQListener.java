@@ -103,10 +103,10 @@ public class VQListener extends vqBaseListener {
             case "!=":
                 node = new VQNodeNotEqual();
                 break;
-            case ">=":
+            case ">":
                 node = new VQNodeGreaterThan();
                 break;
-            case ">":
+            case ">=":
                 node = new VQNodeGreaterThanEq();
                 break;
             case "&&":
@@ -118,6 +118,16 @@ public class VQListener extends vqBaseListener {
         }
 
         addNewChild(node);
+    }
+
+    //Ternary
+
+
+    @Override
+    public void enterCondOp(vqParser.CondOpContext ctx) {
+        super.enterCondOp(ctx);
+        VQNodeConditional vqNodeConditional = new VQNodeConditional();
+        addNewChild(vqNodeConditional);
     }
 
     //Atoms

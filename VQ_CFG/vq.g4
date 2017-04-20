@@ -1,6 +1,6 @@
 grammar vq;
 query
-      : gradient exp EOF;
+      : gradient? exp EOF;
 
 gradient
       : '[' oneGradient ',' oneGradient ']';
@@ -19,6 +19,7 @@ exp
       | exp op=('==' | '!=') exp                       #binOp
       | exp op='&&' exp                                #binOp
       | exp op='||' exp                                #binOp
+      | exp '?' exp ':' exp                            #condOp
       | ID                                             #id
       | ID '.' ID                                      #idDot
       | NAT                                            #nat

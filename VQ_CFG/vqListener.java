@@ -121,6 +121,18 @@ public interface vqListener extends ParseTreeListener {
 	 */
 	void exitFloat(vqParser.FloatContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code condOp}
+	 * labeled alternative in {@link vqParser#exp}.
+	 * @param ctx the parse tree
+	 */
+	void enterCondOp(vqParser.CondOpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code condOp}
+	 * labeled alternative in {@link vqParser#exp}.
+	 * @param ctx the parse tree
+	 */
+	void exitCondOp(vqParser.CondOpContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code binOp}
 	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree
