@@ -268,4 +268,81 @@ public class SimulateParserTests {
         assertEquals(1,output.getSimulationForVariable("P.s1", 0).size());
         containsData("P.s1", 6150.92, 1.0, 0, output);
     }
+
+    @Test
+    public void testLMACRemoveCorrectData() {
+        String uppaalOutput = "Options for the verification:\n" +
+                "  Generating no trace\n" +
+                "  Search order is breadth first\n" +
+                "  Using conservative space optimisation\n" +
+                "  Seed is 1492685741\n" +
+                "  State space representation uses minimal constraint systems\n" +
+                "\u001B[2K\n" +
+                "Verifying formula 1 at line 1\n" +
+                "\u001B[2K -- Formula is satisfied.\n" +
+                "OUTPUT_slot_no[0]:\n" +
+                "[0]: (0,0) (0,0) (12,0)\n" +
+                "[1]: (0,0) (0,0) (12,0)\n" +
+                "[2]: (0,0) (0,0) (12,0)\n" +
+                "OUTPUT_slot_no[1]:\n" +
+                "[0]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "[1]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "[2]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "OUTPUT_slot_no[2]:\n" +
+                "[0]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "[1]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "[2]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "OUTPUT_slot_no[3]:\n" +
+                "[0]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "[1]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "[2]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "OUTPUT_slot_no[4]:\n" +
+                "[0]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "[1]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "[2]: (0,0) (0,0) (0,-1) (12,-1)\n" +
+                "node[1].OUTPUT_collision:\n" +
+                "[0]: (0,-1) (0,-1) (12,-1)\n" +
+                "[1]: (0,-1) (0,-1) (12,-1)\n" +
+                "[2]: (0,-1) (0,-1) (12,-1)\n" +
+                "node[2].OUTPUT_collision:\n" +
+                "[0]: (0,-1) (0,-1) (12,-1)\n" +
+                "[1]: (0,-1) (0,-1) (12,-1)\n" +
+                "[2]: (0,-1) (0,-1) (12,-1)\n" +
+                "node[3].OUTPUT_collision:\n" +
+                "[0]: (0,-1) (0,-1) (12,-1)\n" +
+                "[1]: (0,-1) (0,-1) (12,-1)\n" +
+                "[2]: (0,-1) (0,-1) (12,-1)\n" +
+                "node[4].OUTPUT_collision:\n" +
+                "[0]: (0,-1) (0,-1) (12,-1)\n" +
+                "[1]: (0,-1) (0,-1) (12,-1)\n" +
+                "[2]: (0,-1) (0,-1) (12,-1)\n" +
+                "node[1].OUTPUT_mode:\n" +
+                "[0]: (0,0) (0,0) (2,0) (2,0) (2,2) (2,2) (12,2)\n" +
+                "[1]: (0,0) (0,0) (2,0) (2,0) (2,2) (12,2)\n" +
+                "[2]: (0,0) (0,0) (2,0) (2,0) (2,2) (2,2) (12,2)\n" +
+                "node[2].OUTPUT_mode:\n" +
+                "[0]: (0,0) (0,0) (12,0)\n" +
+                "[1]: (0,0) (0,0) (12,0)\n" +
+                "[2]: (0,0) (0,0) (12,0)\n" +
+                "node[3].OUTPUT_mode:\n" +
+                "[0]: (0,0) (0,0) (12,0)\n" +
+                "[1]: (0,0) (0,0) (12,0)\n" +
+                "[2]: (0,0) (0,0) (12,0)\n" +
+                "node[4].OUTPUT_mode:\n" +
+                "[0]: (0,0) (0,0) (12,0)\n" +
+                "[1]: (0,0) (0,0) (12,0)\n" +
+                "[2]: (0,0) (0,0) (12,0)\n" +
+                "gateway[0].OUTPUT_collision:\n" +
+                "[0]: (0,-1) (0,-1) (12,-1)\n" +
+                "[1]: (0,-1) (0,-1) (12,-1)\n" +
+                "[2]: (0,-1) (0,-1) (12,-1)\n" +
+                "gateway[0].OUTPUT_mode:\n" +
+                "[0]: (0,3) (0,3) (12,3)\n" +
+                "[1]: (0,3) (0,3) (12,3)\n" +
+                "[2]: (0,3) (0,3) (12,3)";
+
+
+        SimulateOutput out = SimulateParser.parse(Arrays.asList(uppaalOutput.split("\\n")), 3);
+        assertEquals(out.getNumVariables(), 15);
+    }
 }

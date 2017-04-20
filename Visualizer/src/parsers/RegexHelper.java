@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  * Created by batto on 08-Feb-17.
  */
 public class RegexHelper {
-    private static final String DataPointRegex = "\\((\\d+(?:\\.\\d+)?),(\\d+(?:\\.\\d+)?)\\)";
+    private static final String DataPointRegex = "\\((\\d+(?:\\.\\d+)?),(-?\\d+(?:\\.\\d+)?)\\)";
     private static final String SystemProcessesRegex = "^system\\s+(\\w+(?:\\s*,\\s*\\w+)*);";
     private static final String ParameterRegex = "(\\w+)\\((\\w+)?\\)";
     private static final String intPattern = "^-?\\d+$",
