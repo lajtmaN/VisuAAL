@@ -100,7 +100,7 @@ public class VQParse {
                 foundType = VQType.Edge;
             }
             else {
-                throw new Exception("Cannot used global variables");
+                throw new Exception("Cannot use global variables");
             }
         }
         return foundType;

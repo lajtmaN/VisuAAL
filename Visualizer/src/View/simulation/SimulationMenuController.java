@@ -10,6 +10,7 @@ import View.Options.*;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import parsers.VQParser.VQParse;
@@ -22,10 +23,6 @@ import java.util.Arrays;
 public class SimulationMenuController {
     final PseudoClass errorClass = PseudoClass.getPseudoClass("error");
 
-    @FXML public DoubleTextField minEdgeValueText;
-    @FXML public DoubleTextField maxEdgeValueText;
-    @FXML public DoubleTextField minNodeValueText;
-    @FXML public DoubleTextField maxNodeValueText;
     @FXML private TextArea txtNewVQ;
     @FXML private ListView<EnableDisableSimulationOption> lstSimulationOptions;
     @FXML private ListView<EnableDisableSimulationOption> lstDisplayOptions;
@@ -39,7 +36,6 @@ public class SimulationMenuController {
         initializeExportOptions();
         initializeDisplayOptions();
         initializeSimulationOptions();
-        setHeight();
         setupVQValidationParser();
     }
 
@@ -56,11 +52,6 @@ public class SimulationMenuController {
     private void addOptionsToListViews() {
         lstExportOptions.getItems().add(new ExportTopologyOption(currentSimulations));
 
-        currentSimulations.getOutputVariables().forEach(outputVariable -> {
-            if (outputVariable.getIsSelected()) //Only add all the variables that was enabled when running query
-                lstDisplayOptions.getItems().add(new ShowHideDataOption(currentSimulations, outputVariable));
-        });
-
         for (int i = 0; i < currentSimulations.getNumberOfSimulations(); i++) {
             lstSimulationOptions.getItems().add(new ShowHideSimulationOption(currentSimulations, i));
         }
@@ -74,7 +65,6 @@ public class SimulationMenuController {
     }
 
     private void initializeDisplayOptions() {
-        initializeMinMaxFields();
         //TODO Description is not updated when the onProperty changes.
         lstDisplayOptions.setCellFactory(OptionsHelper.optionListCell());
 
@@ -116,13 +106,6 @@ public class SimulationMenuController {
         }
     }
 
-    private void initializeMinMaxFields() {
-        minEdgeValueText.setText(String.valueOf(currentSimulations.getMinEdgeValue()));
-        maxEdgeValueText.setText(String.valueOf(currentSimulations.getMaxEdgeValue()));
-        minNodeValueText.setText(String.valueOf(currentSimulations.getMinNodeValue()));
-        maxNodeValueText.setText(String.valueOf(currentSimulations.getMaxNodeValue()));
-    }
-
     private void initializeSimulationOptions() {
         lstSimulationOptions.setCellFactory(OptionsHelper.optionListCell());
 
@@ -137,36 +120,6 @@ public class SimulationMenuController {
                 }
             });
         }
-    }
-
-    private void setHeight() {
-        Arrays.asList(lstDisplayOptions, lstExportOptions, lstSimulationOptions).forEach(list -> setHeight(list));
-    }
-
-    private void setHeight(ListView list) {
-        list.setPrefHeight(list.getItems().size() * 24 + 2);
-    }
-
-    public void saveMinMaxValues(ActionEvent actionEvent) {
-        if(!minEdgeValueText.getText().equals("") && !maxEdgeValueText.getText().equals("") &&
-                !minNodeValueText.getText().equals("") && !maxNodeValueText.getText().equals("")) {
-            double minEdge = Double.valueOf(minEdgeValueText.getText()),
-                   maxEdge = Double.valueOf(maxEdgeValueText.getText()),
-                   minNode = Double.valueOf(minNodeValueText.getText()),
-                   maxNode = Double.valueOf(maxNodeValueText.getText());
-
-            if(maxEdge > minEdge && maxNode > minNode) {
-                currentSimulations.setMinEdgeValue(minEdge);
-                currentSimulations.setMaxEdgeValue(maxEdge);
-                currentSimulations.setMinNodeValue(minNode);
-                currentSimulations.setMaxNodeValue(maxNode);
-                currentSimulations.resetToCurrentTime();
-            }
-            else
-                GUIHelper.showError("Maximum fields must be larger than the corresponding minimum field");
-        }
-        else
-            GUIHelper.showError("All fields must have a value");
     }
 
     public void addNewVQ(ActionEvent actionEvent) {
