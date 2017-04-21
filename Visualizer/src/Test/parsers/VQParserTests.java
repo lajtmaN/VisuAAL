@@ -6,10 +6,7 @@ import Model.VQ.VQParseTree;
 import org.junit.Test;
 import parsers.VQParser.VQParse;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -255,11 +252,11 @@ public class VQParserTests {
         var2.setNodeData(true);
         vars.add(var2);
 
-        Pair<VQParseTree, VQParse.VQType> parsed = VQParse.parse(vq, vars);
+        VQParseTree parsed = VQParse.parse(vq, vars);
         assertNotNull(parsed);
-        assertEquals(VQParse.VQType.Edge, parsed.getSecond());
+        assertEquals(VQParseTree.VQType.Edge, parsed.getType());
 
-        assertTrue(VQParse.validVQ(parsed));
+        assertTrue(VQParseTree.validVQ(parsed));
     }
 
     @Test
@@ -274,7 +271,7 @@ public class VQParserTests {
         var2.setNodeData(true);
         vars.add(var2);
 
-        assertFalse(VQParse.validVQ(vq, vars));
+        assertFalse(VQParseTree.validVQ(vq, vars));
     }
 
     @Test
@@ -289,7 +286,7 @@ public class VQParserTests {
         var2.setEdgeData(true);
         vars.add(var2);
 
-        assertTrue(VQParse.validVQ(vq, vars));
+        assertTrue(VQParseTree.validVQ(vq, vars));
     }
 
     @Test
@@ -305,7 +302,7 @@ public class VQParserTests {
         vars.add(var2);
         assertEquals("b.bla", var2.toString());
 
-        assertTrue(VQParse.validVQ(vq, vars));
+        assertTrue(VQParseTree.validVQ(vq, vars));
     }
 
     @Test
@@ -316,7 +313,7 @@ public class VQParserTests {
         var1.setEdgeData(true);
         vars.add(var1);
 
-        assertFalse(VQParse.validVQ(vq, vars));
+        assertFalse(VQParseTree.validVQ(vq, vars));
     }
 
     @Test
@@ -387,5 +384,28 @@ public class VQParserTests {
         double gradient = tree.getGradient(map);
 
         assertEquals(0., gradient, 0.01);
+    }
+
+    @Test
+    public void canParseMultipleOutputParametersInTernaryOperator() throws Exception {
+        String race_name = "OUTPUT_has_race";
+        String data_name = "OUTPUT_current_data";
+
+        String vq = "[blue, green] Node." + race_name + " ? Node." + data_name + " : -1";
+        List<OutputVariable> vars = new ArrayList<>();
+        vars.add(new OutputVariable(race_name, "Node"));
+        vars.add(new OutputVariable(data_name, "Node"));
+
+        VQParseTree tree = VQParse.parseVQ(vq, vars);
+
+        Map<String, Double> map = new HashMap<>();
+        map.put(vars.get(0).toString(), 0.65);
+        map.put(vars.get(1).toString(), 0.11);
+        double gradientWhenNotZero = tree.getGradient(map);
+        assertEquals(0.11, gradientWhenNotZero, 0.01);
+
+        map.put(vars.get(0).toString(), 0.);
+        double gradientWhenZero = tree.getGradient(map);
+        assertEquals(0, gradientWhenZero, 0.01);
     }
 }

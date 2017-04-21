@@ -12,14 +12,14 @@ public class VQOption extends EnableDisableSimulationOption {
 
     private String rawVQExpression;
     private VQParseTree parsedVQ;
-    private VQParse.VQType type;
+    private VQParseTree.VQType type;
 
     public VQOption(Simulations simulations, String rawVQ) {
         super(simulations);
         rawVQExpression = rawVQ;
-        Pair<VQParseTree, VQParse.VQType> parsed = VQParse.parse(rawVQ, simulations.getOutputVariables());
-        parsedVQ = parsed.getFirst();
-        type = parsed.getSecond();
+        VQParseTree parsed = VQParse.parse(rawVQ, simulations.getOutputVariables());
+        parsedVQ = parsed;
+        type = parsed.getType();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class VQOption extends EnableDisableSimulationOption {
         return rawVQExpression; //TODO: Maybe only show what comes after the []
     }
 
-    public VQParse.VQType getType() {
+    public VQParseTree.VQType getType() {
         return type;
     }
 }

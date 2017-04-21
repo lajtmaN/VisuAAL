@@ -8,9 +8,9 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import parsers.VQParser.Generated.vqLexer;
 import parsers.VQParser.Generated.vqParser;
 
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -37,72 +37,35 @@ public class VQParse {
         return parseVQ(input, variables, true);
     }
 
-    public static VQParseTree parseVQ(String input, Collection<String> variables, boolean throwOnError) throws Exception {
+    public static VQParseTree parseVQ(String input, Collection<String> variables, boolean throwOnError) throws ParseException {
         vqParser parser = setupParser(input);
-        final boolean[] anyErrors = {false}; //Yes... this is ugly. But it works :-)
+        final String[] parseError = {null};//Yes... this is ugly. But it works :-)
 
         parser.removeErrorListeners(); //This override prevents the parser from writing to std.err
         parser.addErrorListener(new ConsoleErrorListener() {
             @Override
             public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
-                anyErrors[0] = true;
+                parseError[0] = "line " + line + ":" + charPositionInLine + " " + msg;
             }
         });
 
         VQListener vqListener = new VQListener(variables);
         new ParseTreeWalker().walk(vqListener, parser.query());
 
-        if (throwOnError && anyErrors[0])
-            throw new Exception();
+        if (throwOnError && parseError[0] != null)
+            throw new ParseException(parseError[0], 0);
 
         return vqListener.getParseTree();
     }
 
-    public enum VQType { Edge, Node, Unknown}
-
-    public static Pair<VQParseTree, VQType> parse(String vq, List<OutputVariable> outputVariables) {
+    public static VQParseTree parse(String vq, List<OutputVariable> outputVariables) {
         try {
             VQParseTree parsedVQ = parseVQ(vq, outputVariables, true);
-            VQType type = getVQType(parsedVQ, outputVariables);
-            return new Pair<>(parsedVQ, type);
+            parsedVQ.calculateVQType(outputVariables);
+            return parsedVQ;
         } catch (Exception e) {
             return null;
         }
     }
 
-    public static boolean validVQ(String vq, List<OutputVariable> allVars) {
-        Pair<VQParseTree, VQType> parsed = parse(vq, allVars);
-        return validVQ(parsed);
-    }
-
-    public static boolean validVQ(Pair<VQParseTree, VQType> parsedVQ) {
-        return parsedVQ != null && parsedVQ.getSecond() != VQType.Unknown;
-    }
-
-    public static VQType getVQType(VQParseTree vq, List<OutputVariable> allVars) throws Exception {
-        VQType foundType = VQType.Unknown;
-        for (String varInVQ : vq.getUsedVariables()) {
-            OutputVariable usedVar = allVars.stream()
-                    .filter(o -> o.toString().equals(varInVQ))
-                    .findFirst()
-                    .orElseThrow(() -> new Exception("Could not find variable" + varInVQ));
-
-            if (usedVar.getIsNodeData()) {
-                if (foundType == VQType.Edge)
-                    throw new Exception("Mixed both Edge and Node types");
-
-                foundType = VQType.Node;
-            }
-            else if (usedVar.getIsEdgeData()) {
-                if (foundType == VQType.Node)
-                    throw new Exception("Mixed both Edge and Node types");
-
-                foundType = VQType.Edge;
-            }
-            else {
-                throw new Exception("Cannot use global variables");
-            }
-        }
-        return foundType;
-    }
 }

@@ -1,21 +1,15 @@
 package View.simulation;
 
 
-import Helpers.GUIHelper;
 import Helpers.OptionsHelper;
-import Model.OutputVariable;
 import Model.Simulations;
-import View.DoubleTextField;
+import Model.VQ.VQParseTree;
 import View.Options.*;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
-import parsers.VQParser.VQParse;
-
-import java.util.Arrays;
 
 /**
  * Created by lajtman on 08-03-2017.
@@ -113,6 +107,6 @@ public class SimulationMenuController {
     }
 
     private boolean validVQ(String vqString) {
-        return VQParse.validVQ(vqString, currentSimulations.getOutputVariables());
+        return VQParseTree.validVQ(vqString, currentSimulations.getOutputVariables());
     }
 }
