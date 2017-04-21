@@ -1,13 +1,9 @@
 package Model.VQ;
 
-import Helpers.Pair;
 import Model.OutputVariable;
 import parsers.VQParser.VQParse;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by battow on 12-Apr-17.
@@ -18,6 +14,7 @@ public class VQParseTree {
     private VQNode root;
     private VQType type = null;
     private Collection<String> usedVariables = new ArrayList<>();
+    private String parseError = "";
 
     public enum VQType { Edge, Node, Unknown}
 
@@ -96,43 +93,50 @@ public class VQParseTree {
         usedVariables.add(var);
     }
 
+    public String getParseError() {
+        return parseError;
+    }
+
+    public void addToParseError(String parseError) {
+        if(!this.parseError.isEmpty())
+            this.parseError += System.lineSeparator();
+        this.parseError += parseError;
+    }
+
     public VQType getType() {
         return type;
     }
 
-    public void calculateVQType(List<OutputVariable> allVars) throws Exception {
+    public void calculateVQType(List<OutputVariable> allVars) {
         VQType foundType = VQType.Unknown;
-        for (String varInVQ : getUsedVariables()) {
-            OutputVariable usedVar = allVars.stream()
-                    .filter(o -> o.toString().equals(varInVQ))
-                    .findFirst()
-                    .orElseThrow(() -> new Exception("Could not find variable" + varInVQ));
+        try {
+            for (String varInVQ : getUsedVariables()) {
+                Optional<OutputVariable> usedVar = allVars.stream()
+                        .filter(o -> o.toString().equals(varInVQ))
+                        .findFirst();
+                if(usedVar.isPresent()){
+                    if (usedVar.get().getIsNodeData()) {
+                        if (foundType == VQType.Edge)
+                            throw new Exception("Mixed both Edge and Node types");
 
-            if (usedVar.getIsNodeData()) {
-                if (foundType == VQType.Edge)
-                    throw new Exception("Mixed both Edge and Node types");
+                        foundType = VQType.Node;
+                    } else if (usedVar.get().getIsEdgeData()) {
+                        if (foundType == VQType.Node)
+                            throw new Exception("Mixed both Edge and Node types");
 
-                foundType = VQType.Node;
+                        foundType = VQType.Edge;
+                    } else {
+                        throw new Exception("Cannot use global variables");
+                    }
+                }
             }
-            else if (usedVar.getIsEdgeData()) {
-                if (foundType == VQType.Node)
-                    throw new Exception("Mixed both Edge and Node types");
-
-                foundType = VQType.Edge;
-            }
-            else {
-                throw new Exception("Cannot use global variables");
-            }
+        } catch (Exception e) {
+            addToParseError(e.getMessage());
         }
         type = foundType;
     }
 
-    public static boolean validVQ(String vq, List<OutputVariable> allVars) {
-        VQParseTree parsed = VQParse.parse(vq, allVars);
-        return validVQ(parsed);
-    }
-
-    public static boolean validVQ(VQParseTree parsedVQ) {
-        return parsedVQ != null && parsedVQ.getType() != VQType.Unknown;
+    public boolean isValid() {
+        return type != null && type != VQType.Unknown && parseError.isEmpty();
     }
 }

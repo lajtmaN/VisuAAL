@@ -1,6 +1,5 @@
 package View.Options;
 
-import Helpers.Pair;
 import Model.Simulations;
 import Model.VQ.VQParseTree;
 import parsers.VQParser.VQParse;
