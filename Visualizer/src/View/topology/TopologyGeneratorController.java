@@ -1,14 +1,11 @@
 package View.topology;
 
-import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 import Model.topology.generator.CellNode;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
 import View.IntegerTextField;
-import View.MainWindowController;
 import View.ToggleSwitch;
-import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

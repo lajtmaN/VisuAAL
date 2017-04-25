@@ -1,6 +1,5 @@
 package Model.topology;
 
-import com.google.maps.model.LatLng;
 import com.lynden.gmapsfx.javascript.object.LatLong;
 import com.lynden.gmapsfx.javascript.object.LatLongBounds;
 

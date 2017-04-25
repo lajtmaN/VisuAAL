@@ -10,6 +10,9 @@ import java.util.Properties;
  * Created by lajtman on 13-03-2017.
  */
 public class Settings {
+    private static final double CassiopeiaLatitude = 57.0123561D;
+    private static final double CassiopeiaLongitude = 9.9913622D;
+
     public static final String settingsFileName = "settings.properties";
 
     private static Settings _instance;
@@ -57,6 +60,13 @@ public class Settings {
     private String get(String key) {
         return properties.getProperty(key);
     }
+    private String getOrElse(String key, String valueIfNotPresent) {
+        String original = get(key);
+        if (original == null) {
+            set(key, valueIfNotPresent);
+        }
+        return valueIfNotPresent;
+    }
 
     public String getVerifytaLocation() {
         return get("verifytaLocation");
@@ -74,11 +84,19 @@ public class Settings {
         set("recentModel", recentLoadedModel);
     }
 
-    public String getGoogleAPIKey() {
-        return get("googleApiKey");
+    public Double getDefaultMapLocationLatitude() {
+        return Double.parseDouble(getOrElse("defaultMapLocationLatitude", String.valueOf(CassiopeiaLatitude)));
     }
 
-    public void setGoogleAPIKey(String key) {
-        set("googleApiKey", key);
+    public void setDefaultMapLocationLatitude(double lat) {
+        set("defaultMapLocationLatitude", String.valueOf(lat));
+    }
+
+    public Double getDefaultMapLocationLongitude() {
+        return Double.parseDouble(getOrElse("getDefaultMapLocationLongitude", String.valueOf(CassiopeiaLongitude)));
+    }
+
+    public void setDefaultMCassiopeiaLongitude(double lng) {
+        set("getDefaultMapLocationLongitude", String.valueOf(lng));
     }
 }
