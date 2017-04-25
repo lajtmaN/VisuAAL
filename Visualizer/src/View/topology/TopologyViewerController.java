@@ -105,7 +105,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
         });
 
         if (isMapShown()) {
-            Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateGridSizeInMeters(getMapBounds());
+            Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateSizeInMeters(getMapBounds());
             SwingUtilities.invokeLater(() -> {
                 swingView.getCamera().setGraphViewport(0, 0, widthAndHeight.getFirst(), widthAndHeight.getSecond());
                 swingView.getCamera().setViewCenter(widthAndHeight.getFirst() / 2, widthAndHeight.getSecond() / 2, 0);

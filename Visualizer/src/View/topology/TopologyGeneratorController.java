@@ -1,5 +1,8 @@
 package View.topology;
 
+import Helpers.ExtensionFilters;
+import Helpers.FileHelper;
+import Helpers.GUIHelper;
 import Model.UPPAALTopology;
 import Model.topology.generator.CellNode;
 import Model.topology.generator.TopologyGenerator;
@@ -17,6 +20,10 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
+import parsers.GPSLog.GPSLogParser;
+import parsers.GPSLog.SeedNodes;
+
+import java.io.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -191,5 +198,17 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         //and then only update the edges in the affected cells?
         lastGeneratedTopology = topologyGenerator.generateUppaalTopology(cellNodes, null);
         showGraph(lastGeneratedTopology.getGraph(true));
+    }
+
+    public void loadGPSLog(ActionEvent actionEvent) {
+        File gpsLogFile = FileHelper.chooseFileToLoad("Select the GPS Log file", null, ExtensionFilters.GPSLogExtensionFilter);
+        try {
+            SeedNodes nodes = GPSLogParser.parse(gpsLogFile);
+            topologyViewerController.setMapBounds(nodes.getBounds());
+            showGraph(nodes.asGraph());
+        }
+        catch (Exception e) {
+            GUIHelper.showError("Could not load the GPS Log file." + System.lineSeparator() + e.getMessage());
+        }
     }
 }

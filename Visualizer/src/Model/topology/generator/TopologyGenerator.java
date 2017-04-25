@@ -7,14 +7,9 @@ import Helpers.Pair;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 import Model.topology.LatLngBounds;
-import com.lynden.gmapsfx.javascript.object.LatLong;
-import com.lynden.gmapsfx.javascript.object.LatLongBounds;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by lajtman on 17-03-2017.
@@ -81,7 +76,7 @@ public class TopologyGenerator {
 
     public UPPAALTopology generateUppaalTopology(LatLngBounds bounds, String backgroundImagePath) {
         if (bounds != null) {
-            Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateGridSizeInMeters(bounds);
+            Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateSizeInMeters(bounds);
             setCellWidthInMeters(widthAndHeight.getFirst() / getOptions().getCellX());
             setCellHeightInMeters(widthAndHeight.getSecond() / getOptions().getCellY());
 

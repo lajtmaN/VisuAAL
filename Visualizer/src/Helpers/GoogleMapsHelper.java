@@ -21,7 +21,7 @@ public class GoogleMapsHelper {
         return first.distanceFrom(sec);
     }
 
-    public static Pair<Double, Double> calculateGridSizeInMeters(LatLngBounds bounds) {
+    public static Pair<Double, Double> calculateSizeInMeters(LatLngBounds bounds) {
         LatLng sw = bounds.getSouthWest();
         LatLng ne = bounds.getNorthEast();
         LatLng nw = new LatLng(ne.lat, sw.lng);

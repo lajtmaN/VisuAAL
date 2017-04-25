@@ -1,7 +1,12 @@
 package parsers.GPSLog;
 
+import Helpers.GoogleMapsHelper;
+import Helpers.Pair;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.MultiGraph;
 
 import java.util.*;
 import java.util.function.Function;
@@ -12,12 +17,23 @@ import java.util.stream.Collectors;
  */
 public class SeedNodes {
     private Map<Integer, SeedNode> nodes = new HashMap<>();
+    private LatLngBounds bounds;
 
     public SeedNodes() {}
 
     public void add(SeedNode node) {
-        if (node != null)
-            nodes.put(node.nodeId, node);
+        if (node == null)
+            return;
+
+        if (nodes.containsKey(node.nodeId))
+            throw new IllegalArgumentException("Cannot add multiple nodes with same id. Tried to add new node with id: " + node.nodeId);
+
+        nodes.put(node.nodeId, node);
+        invalidateBounds();
+    }
+
+    private void invalidateBounds() {
+        bounds = null;
     }
 
     public void addRange(Collection<SeedNode> nodeCollection) {
@@ -28,8 +44,13 @@ public class SeedNodes {
         return nodes.get(nodeId);
     }
 
-    public LatLngBounds getBounds() {
-        return new LatLngBounds(southWestBounds(), northEastBounds());
+    public LatLngBounds getBounds() throws Exception {
+        if (nodes.isEmpty())
+            throw new Exception("Please add nodes before calculating the bounds");
+
+        if (bounds == null)
+            bounds = new LatLngBounds(southWestBounds(), northEastBounds());
+        return bounds;
     }
 
     private LatLng southWestBounds() {
@@ -53,5 +74,51 @@ public class SeedNodes {
 
     private Double maxValueFromList(Function<SeedNode, Double> mapper) {
         return Collections.max(nodes.values().stream().map(mapper).collect(Collectors.toList()));
+    }
+
+    public Graph asGraph() throws Exception {
+        Graph graph = new MultiGraph("SeedNodes");
+        addNodesToGraph(graph);
+        addEdgesBetweenNeighborsToGraph(graph);
+        setLocationOnNodesOnGraph(graph);
+
+        return graph;
+    }
+
+    private void addNodesToGraph(Graph graph) {
+        nodes.values().forEach(n -> graph.addNode(String.valueOf(n.nodeId)));
+    }
+
+    private void addEdgesBetweenNeighborsToGraph(Graph graph) {
+        nodes.values().forEach(origin ->
+                origin.neighbors.forEach(neighbor ->
+                        graph.addEdge(origin.nodeId + "-" + neighbor,
+                                origin.nodeId, neighbor, true)));
+    }
+
+    private void setLocationOnNodesOnGraph(Graph graph) throws Exception {
+        for (SeedNode n : nodes.values()) {
+            Pair<Double, Double> xy = getLocationRelativeToBounds(n);
+            Node graphNode = graph.getNode(String.valueOf(n.nodeId));
+            graphNode.setAttribute("xy", xy.getFirst(), xy.getSecond());
+        }
+    }
+
+    private Pair<Double, Double> getLocationRelativeToBounds(SeedNode node) throws Exception {
+        //Lat is y
+        //Lng is x
+        LatLng northEast = getBounds().getNorthEast();
+
+        LatLng leftForNode = new LatLng(northEast.lat, node.location.lng);
+        double x = GoogleMapsHelper.distanceBetween(node.location, leftForNode);
+
+        LatLng aboveNode = new LatLng(node.location.lat, northEast.lng);
+        double y = GoogleMapsHelper.distanceBetween(node.location, aboveNode);
+
+        return new Pair<>(x,y);
+    }
+
+    private double getYLocationRelativeToBounds(SeedNode node) {
+        return 0;
     }
 }

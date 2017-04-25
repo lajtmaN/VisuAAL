@@ -9,6 +9,7 @@ import parsers.GPSLog.SeedNode;
 import parsers.GPSLog.SeedNodes;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -58,6 +59,15 @@ public class GPSLogParserTest {
         new GPSLogLineParser(line).parse();
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void throwOnMultipleDefinedNode() {
+        List<String> lines = Arrays.asList(
+                "0; 1.11; 2.22; 1",
+                "0; 3.33; 4.44; 1"
+        );
+        GPSLogParser.parseGPSLogLines(lines);
+    }
+
     @Test
     public void parseCommentReturnsNull() {
         String line = "// this is a comment";
@@ -77,7 +87,7 @@ public class GPSLogParserTest {
     }
 
     @Test
-    public void calculateBoundsInSeedNodes() {
+    public void calculateBoundsInSeedNodes() throws Exception {
         SeedNodes nodes = new SeedNodes();
         nodes.add(new SeedNode(0, new LatLng(1.13, 5.121), null));
         nodes.add(new SeedNode(1, new LatLng(5.54, 3.154), null));
