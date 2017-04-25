@@ -172,7 +172,7 @@ public class SimulationResultController implements Initializable, VariableUpdate
             updateGridVars(sp.getIdentifier(), String.valueOf(value));
         }
         if(sp instanceof SimulationNodePoint) {
-            nodeVarGridPane.updateVariable(((SimulationNodePoint) sp).getNodeId(), sp.getTrimmedIdentifier(), value);
+            nodeVarGridPane.updateVariable(((SimulationNodePoint) sp).getNodeId(), sp.getScopedIdentifier(), value);
         }
     }
 }

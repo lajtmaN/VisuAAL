@@ -180,7 +180,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         String stylesheet = String.format(styleSheet,
                 nodeFromColor == null ? "black" : nodeFromColor,
                 nodeToColor == null ? "red" : nodeToColor,
-                edgeFromColor == null ? "white" : edgeFromColor,
+                edgeFromColor == null ? "black" : edgeFromColor,
                 edgeToColor == null ? "red" : edgeToColor);
 
         _graphInstance.setAttribute("ui.stylesheet", stylesheet);
