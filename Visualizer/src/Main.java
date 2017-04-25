@@ -12,7 +12,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         //Get matrix for connected graph square topology. Input nr of nodes
-        //String s = Helpers.ConnectedGraphGenerator.optimizedMatrix(196);
+        //String s = Helpers.ConnectedGraphGenerator.matrix_exp6(500);
 
         if (Settings.Instance().getGoogleAPIKey() == null) {
             String key = JOptionPane.showInputDialog("Please specify your Google Developer API Key");
