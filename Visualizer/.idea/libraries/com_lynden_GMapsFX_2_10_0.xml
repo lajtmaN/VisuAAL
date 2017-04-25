@@ -3,6 +3,7 @@
     <properties maven-id="com.lynden:GMapsFX:2.10.0" />
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/com/lynden/GMapsFX/2.10.0/GMapsFX-2.10.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/lynden/GMapsFX/2.10.0/GMapsFX-2.10.0.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

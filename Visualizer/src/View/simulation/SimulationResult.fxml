@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import View.simulation.SimulationDataContainer?>
-<?import javafx.embed.swing.SwingNode?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-<BorderPane fx:id="rootPane"  xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.simulation.SimulationResultController">
+<?import javafx.scene.control.TextField?>
+<?import com.sun.javafx.scene.control.skin.DoubleField?>
+<?import View.DoubleTextField?>
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.simulation.SimulationResultController">
    <top>
       <HBox fx:id="sliderBox" BorderPane.alignment="TOP_CENTER">
          <children>
@@ -23,12 +27,18 @@
    <center>
       <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-             <fx:include source="../topology/TopologyViewer.fxml" fx:id="topologyViewer"/>
+             <fx:include fx:id="topologyViewer" source="../topology/TopologyViewer.fxml" />
          </children>
       </StackPane>
    </center>
+
    <bottom>
-      <Button mnemonicParsing="false" onAction="#btnAnimateInRealTimeClicked" text="Animate in real-time" BorderPane.alignment="CENTER" />
+       <HBox alignment="CENTER">
+           <DoubleTextField fx:id="rate" maxWidth="50" promptText="Speed"/>
+          <Button fx:id="play" defaultButton="true" mnemonicParsing="false" onAction="#btnAnimateInRealTimeClicked"
+                  text="Play" BorderPane.alignment="CENTER" prefWidth="50"/>
+           <Button mnemonicParsing="false" onAction="#btnStop" text="Stop" BorderPane.alignment="CENTER" prefWidth="50" />
+       </HBox>
    </bottom>
     <right>
         <GridPane>
@@ -43,6 +53,16 @@
                 <Insets bottom="10.0" left="10.0" />
             </padding>
         </SimulationDataContainer>
+         <columnConstraints>
+            <ColumnConstraints />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+         </rowConstraints>
         </GridPane>
     </right>
+   <left>
+   </left>
 </BorderPane>

@@ -4,7 +4,9 @@ import Model.SimulationEdgePoint;
 import Model.SimulationNodePoint;
 import Model.SimulationPoint;
 import Model.Simulations;
+import View.DoubleTextField;
 import View.topology.TopologyViewerController;
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -14,8 +16,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -31,8 +35,10 @@ import java.util.ResourceBundle;
  */
 public class SimulationResultController implements Initializable, VariableUpdateObserver {
     @FXML private HBox sliderBox;
+    @FXML private DoubleTextField rate;
     @FXML private BorderPane rootPane;
     @FXML private GridPane globalVarGridPane;
+    @FXML private Button play;
     @FXML private SimulationDataContainer nodeVarGridPane;
     @FXML private Slider timeSlider;
     @FXML private Label lblCurrentTime;
@@ -40,12 +46,20 @@ public class SimulationResultController implements Initializable, VariableUpdate
     @FXML private TopologyViewerController topologyViewerController;
 
     private Simulations currentSimulations;
+    private Timeline timeline;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         bindSizes();
+        timeline = new Timeline();
+        timeline.setAutoReverse(false);
+        timeSlider.setValue(0);
+        timeline.setOnFinished(e -> play.setText("Play"));
+
         timeSlider.valueProperty().addListener(((observable, oldValue, newValue) -> {
             handleCurrentTimeChanged(newValue, oldValue);
+            if (timeline.getStatus() != Animation.Status.RUNNING)
+                timeline.jumpTo(Duration.millis((double)newValue));
         }));
     }
 
@@ -89,11 +103,36 @@ public class SimulationResultController implements Initializable, VariableUpdate
     }
 
     public void btnAnimateInRealTimeClicked(ActionEvent actionEvent) {
-        Timeline timeline = new Timeline();
-        timeline.setAutoReverse(false);
-        timeSlider.setValue(0);
-        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(maxTime()), new KeyValue(timeSlider.valueProperty(), maxTime())));
-        timeline.play();
+        if(timeline.getKeyFrames().isEmpty()){
+            timeline.getKeyFrames().add(new KeyFrame((Duration.millis(maxTime() - timeSlider.getValue())), new KeyValue(timeSlider.valueProperty(), maxTime())));
+        }
+
+        if(!rate.getText().isEmpty())
+            timeline.setRate(Double.parseDouble(rate.getText()));
+
+        if(play.getText().equals("Play")) {
+            if((maxTime() - timeSlider.getValue()) <= 0.1)
+            {
+                timeSlider.setValue(0.0);
+                timeline.play();
+                play.setText("Pause");
+            }
+            else {
+                timeline.play();
+                play.setText("Pause");
+            }
+        }
+        else {
+            timeline.pause();
+            play.setText("Play");
+        }
+    }
+
+    public void btnStop(ActionEvent actionEvent) {
+        timeline.stop();
+        timeSlider.setValue(0.0);
+        if(play.getText().equals("Pause"))
+            play.setText("Play");
     }
 
     private int maxTime() {
