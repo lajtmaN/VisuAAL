@@ -2,10 +2,10 @@ package View.topology;
 
 import Helpers.GoogleMapsHelper;
 import Helpers.Pair;
+import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
 import View.simulation.MouseClickListener;
 import View.simulation.SimulationDataContainer;
-import com.google.maps.model.LatLng;
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
 import com.lynden.gmapsfx.MapReadyListener;
@@ -66,8 +66,8 @@ public class TopologyViewerController implements Initializable, MapComponentInit
     public void mapInitialized() {
         MapOptions options = new MapOptions();
 
-        LatLng googleLocation = GoogleMapsHelper.getCurrentLocation();
-        options.center(new LatLong(googleLocation.lat, googleLocation.lng))
+        LatLng location = GoogleMapsHelper.getDefaultLocation();
+        options.center(new LatLong(location.lat, location.lng))
                 .mapType(MapTypeIdEnum.TERRAIN)
                 .overviewMapControl(false)
                 .panControl(true)
