@@ -2,6 +2,7 @@ package parsers.VQParser;
 
 import Model.VQ.*;
 import Model.VQ.Operators.*;
+import View.IntegerTextField;
 import org.antlr.v4.runtime.ParserRuleContext;
 import parsers.VQParser.Generated.vqBaseListener;
 import parsers.VQParser.Generated.vqParser;
@@ -52,6 +53,21 @@ public class VQListener extends vqBaseListener {
             parseTree.setSecondGradient(Double.parseDouble(secondGradient.NAT().getText()),
                 secondGradient.NEG() != null);
         ensureAndLogError(parseTree.getFirstGradient() < parseTree.getSecondGradient(), "First gradient value must be less than second gradient value");
+    }
+
+    @Override
+    public void enterColors(vqParser.ColorsContext ctx) {
+        super.enterColors(ctx);
+
+        VQColors colors = new VQColors();
+        for(vqParser.ColorContext color : ctx.color()) {
+            if(color != null) {
+                int value = Integer.parseInt(color.NAT().getText());
+                if(color.NEG() != null)
+                    value = -value;
+                colors.addColor(color.ID().getText(), value);
+            }
+        }
     }
 
     @Override

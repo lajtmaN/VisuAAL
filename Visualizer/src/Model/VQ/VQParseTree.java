@@ -15,6 +15,7 @@ public class VQParseTree {
     private VQType type = null;
     private Collection<String> usedVariables = new ArrayList<>();
     private String parseError = "";
+    private VQColors vqColors;
 
     public enum VQType { Edge, Node, Unknown}
 
@@ -91,6 +92,14 @@ public class VQParseTree {
 
     public void addUsedVariable(String var) {
         usedVariables.add(var);
+    }
+
+    public VQColors getVqColors() {
+        return vqColors;
+    }
+
+    public void setVqColors(VQColors vqColors) {
+        this.vqColors = vqColors;
     }
 
     public String getParseError() {
