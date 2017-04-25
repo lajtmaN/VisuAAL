@@ -1,9 +1,13 @@
 package parsers;
 
+import Model.topology.LatLng;
+import Model.topology.LatLngBounds;
 import org.junit.Test;
 import parsers.GPSLog.GPSLogLineParser;
 import parsers.GPSLog.GPSLogParser;
 import parsers.GPSLog.SeedNode;
+import parsers.GPSLog.SeedNodes;
+
 import java.io.*;
 import java.util.List;
 
@@ -73,23 +77,39 @@ public class GPSLogParserTest {
     }
 
     @Test
+    public void calculateBoundsInSeedNodes() {
+        SeedNodes nodes = new SeedNodes();
+        nodes.add(new SeedNode(0, new LatLng(1.13, 5.121), null));
+        nodes.add(new SeedNode(1, new LatLng(5.54, 3.154), null));
+        nodes.add(new SeedNode(2, new LatLng(2.52, 4.56), null));
+        nodes.add(new SeedNode(3, new LatLng(3.934, 2.12), null));
+
+        LatLngBounds actual = nodes.getBounds();
+        assertEquals("South", 1.13, actual.getSouthWest().lat, GPS_PRECISION);
+        assertEquals("West", 2.12, actual.getSouthWest().lng, GPS_PRECISION);
+
+        assertEquals("North", 5.54, actual.getNorthEast().lat, GPS_PRECISION);
+        assertEquals("East", 5.121, actual.getNorthEast().lng, GPS_PRECISION);
+    }
+
+    @Test
     public void canParseMultipleRows() throws IOException {
         File exampleLogFile = new File("test_resources/gpslog.txt");
-        List<SeedNode> loadedNodes = GPSLogParser.parse(exampleLogFile);
+        SeedNodes loadedNodes = GPSLogParser.parse(exampleLogFile);
 
-        SeedNode node0 = loadedNodes.get(0);
+        SeedNode node0 = loadedNodes.getNode(0);
         assertEquals(0, node0.nodeId);
         assertEquals(57.0109391, node0.location.lat, GPS_PRECISION);
         assertEquals(9.9945777, node0.location.lng, GPS_PRECISION);
         assertContainsNeighbors(node0, 1);
 
-        SeedNode node1 = loadedNodes.get(1);
+        SeedNode node1 = loadedNodes.getNode(1);
         assertEquals(1, node1.nodeId);
         assertEquals(57.0112724, node1.location.lat, GPS_PRECISION);
         assertEquals(9.9959301, node1.location.lng, GPS_PRECISION);
         assertContainsNeighbors(node1, 0, 2);
 
-        SeedNode node2 = loadedNodes.get(2);
+        SeedNode node2 = loadedNodes.getNode(2);
         assertEquals(2, node2.nodeId);
         assertEquals(57.0122048, node2.location.lat, GPS_PRECISION);
         assertEquals(9.9920329, node2.location.lng, GPS_PRECISION);
