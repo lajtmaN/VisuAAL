@@ -74,7 +74,7 @@ public class GPSLogParserTest {
 
     @Test
     public void canParseMultipleRows() throws IOException {
-        File exampleLogFile = new File("test_resources/gpslog.log");
+        File exampleLogFile = new File("test_resources/gpslog.txt");
         List<SeedNode> loadedNodes = GPSLogParser.parse(exampleLogFile);
 
         SeedNode node0 = loadedNodes.get(0);
