@@ -133,7 +133,7 @@ public class TopologyTests {
             sum+=topologyGenerator.generateUppaalTopology().size();
         }
 
-        int DELTA=240;//Expected 24007
+        int DELTA=280;//Expected 2400
         assertIntDelta(3*8*numRuns, sum, DELTA);
     }
 
