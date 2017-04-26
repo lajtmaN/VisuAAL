@@ -1,12 +1,14 @@
 package Model.VQ;
 
-import java.util.HashMap;
+import Helpers.Pair;
+
+import java.util.ArrayList;
 
 /**
  * Created by batto on 25-Apr-17.
  */
 public class VQColors {
-    private HashMap<Integer, String> colors = new HashMap<>();
+    private ArrayList<Pair<Integer, String>> colors = new ArrayList<>();
     private String defaultColor;
 
     public String getDefaultColor() {
@@ -18,12 +20,15 @@ public class VQColors {
     }
 
     public void addColor(String color, int value) {
-        colors.put(value, color);
+        colors.add(new Pair<>(value, color));
     }
 
-    public String getColorForValue(int value) {
-        if(colors.containsKey(value))
-            return colors.get(value);
-        return defaultColor;
+    public String getColorForValue(double value) {
+        for(Pair<Integer, String> p : colors) {
+            if(value == p.getFirst())
+                return p.getSecond();
+        }
+
+        return getDefaultColor();
     }
 }
