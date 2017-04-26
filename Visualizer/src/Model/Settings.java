@@ -93,10 +93,10 @@ public class Settings {
     }
 
     public Double getDefaultMapLocationLongitude() {
-        return Double.parseDouble(getOrElse("getDefaultMapLocationLongitude", String.valueOf(CassiopeiaLongitude)));
+        return Double.parseDouble(getOrElse("defaultMapLocationLongitude", String.valueOf(CassiopeiaLongitude)));
     }
 
     public void setDefaultMCassiopeiaLongitude(double lng) {
-        set("getDefaultMapLocationLongitude", String.valueOf(lng));
+        set("defaultMapLocationLongitude", String.valueOf(lng));
     }
 }

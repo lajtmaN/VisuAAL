@@ -4,6 +4,8 @@ import Model.Settings;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
 import com.lynden.gmapsfx.javascript.object.LatLong;
+import com.lynden.gmapsfx.javascript.object.Marker;
+import com.lynden.gmapsfx.javascript.object.MarkerOptions;
 
 /**
  * Created by lajtman on 23-03-2017.
@@ -29,5 +31,18 @@ public class GoogleMapsHelper {
         double widthOnAllCells = GoogleMapsHelper.distanceBetween(nw, ne);
         double heightOnAllCells = GoogleMapsHelper.distanceBetween(nw, sw);
         return new Pair<Double, Double>(widthOnAllCells, heightOnAllCells);
+    }
+
+    public static LatLong convertToLatLong(LatLng location) {
+        return new LatLong(location.lat, location.lng);
+    }
+
+    public static Marker createMarker(LatLng location, String description) {
+        MarkerOptions options = new MarkerOptions();
+        options.position(convertToLatLong(location));
+        options.title(description);
+        options.label(description);
+
+        return new Marker(options);
     }
 }

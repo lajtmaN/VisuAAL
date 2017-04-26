@@ -9,13 +9,14 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Created by lajtman on 25-04-2017.
  */
-public class SeedNodes {
+public class SeedNodes implements Iterable<SeedNode> {
     private Map<Integer, SeedNode> nodes = new HashMap<>();
     private LatLngBounds bounds;
 
@@ -118,7 +119,18 @@ public class SeedNodes {
         return new Pair<>(x,y);
     }
 
-    private double getYLocationRelativeToBounds(SeedNode node) {
-        return 0;
+    @Override
+    public void forEach(Consumer<? super SeedNode> action) {
+        nodes.values().forEach(action);
+    }
+
+    @Override
+    public Spliterator<SeedNode> spliterator() {
+        return nodes.values().spliterator();
+    }
+
+    @Override
+    public Iterator<SeedNode> iterator() {
+        return nodes.values().iterator();
     }
 }

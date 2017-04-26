@@ -24,6 +24,7 @@ import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+import parsers.GPSLog.SeedNodes;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -193,5 +194,11 @@ public class TopologyViewerController implements Initializable, MapComponentInit
 
     public Graph getCurrentlyShownGraph() {
         return currentlyShownGraph;
+    }
+
+    public void setSeedNodes(SeedNodes nodes) throws Exception {
+        setMapBounds(nodes.getBounds());
+        nodes.forEach(n -> map.addMarker(GoogleMapsHelper.createMarker(n.location, String.valueOf(n.nodeId))));
+        //showGraph(nodes.asGraph(), false, null, null); //We will not detect when nodes are moved because listener is null
     }
 }

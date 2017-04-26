@@ -204,8 +204,9 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         File gpsLogFile = FileHelper.chooseFileToLoad("Select the GPS Log file", null, ExtensionFilters.GPSLogExtensionFilter);
         try {
             SeedNodes nodes = GPSLogParser.parse(gpsLogFile);
-            topologyViewerController.setMapBounds(nodes.getBounds());
-            showGraph(nodes.asGraph());
+            topologyViewerController.setSeedNodes(nodes);
+            chkFreezeMap.switchOnProperty().set(true);
+            chkShowGridSettings.switchOnProperty().set(false);
         }
         catch (Exception e) {
             GUIHelper.showError("Could not load the GPS Log file." + System.lineSeparator() + e.getMessage());
