@@ -87,6 +87,17 @@ public class GPSLogParserTest {
     }
 
     @Test
+    public void canParseLocationWithNegativeValues() {
+        String line = "0; 47.6097; -122.3331; 1";
+        SeedNode actual = new GPSLogLineParser(line).parse();
+        assertEquals(0, actual.nodeId);
+        assertEquals(47.6097, actual.location.lat, GPS_PRECISION);
+        assertEquals(-122.3331,  actual.location.lng, GPS_PRECISION);
+        assertEquals(1, actual.neighbors.size());
+        assertEquals(1,(int) actual.neighbors.get(0)); //The int cast is just to tell compiler not to use object equals
+    }
+
+    @Test
     public void calculateBoundsInSeedNodes() throws Exception {
         SeedNodes nodes = new SeedNodes();
         nodes.add(new SeedNode(0, new LatLng(1.13, 5.121), null));
