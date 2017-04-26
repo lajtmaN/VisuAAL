@@ -34,15 +34,15 @@ public class SimulationDataContainer extends GridPane {
             if(var.getIsSelected() && var.getIsNodeData()) {
                 Label zero = new Label("0");
                 zero.setPadding(new Insets(0, 0, 0, 5));
-                this.addRow(j++, new Label(var.getName()), zero);
-                labels.put(var.getName(), zero);
+                this.addRow(j++, new Label(var.toString()), zero);
+                labels.put(var.toString(), zero);
             }
         }
 
         for (int i = 0; i < simulations.getTopology().getNumberOfNodes(); i++) {
             for (OutputVariable var : simulations.getOutputVariables()) {
                 if(var.getIsSelected() && var.getIsNodeData()) {
-                    addVariable(i, var.getName());
+                    addVariable(i, var.toString());
                 }
             }
         }

@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
  * Created by batto on 13-Feb-17.
  */
 public class ConnectedGraphGenerator {
-    public static void matrix(int size) {
+    public static String matrix(int size) {
         String s = "int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {";
         for(int i= 0 ; i < size; i++) {
             s += "\n{";
@@ -33,7 +33,7 @@ public class ConnectedGraphGenerator {
             }
         }
         s+= "\n};";
-        System.out.println(s);
+        return s;
     }
 
     public static boolean square(int my_id, int other_id, int NR_NODES_SQR_ROOT) {
@@ -113,6 +113,39 @@ public class ConnectedGraphGenerator {
                 s += ",";
             }
             index = 0;
+        }
+        s+= "\n};";
+        return s;
+    }
+
+    public static String matrix_exp6(int size) {
+        String s = "int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {";
+        for(int i= 0 ; i < size; i++) {
+            s += "\n{";
+            for(int j = 0; j < size; j++) {
+                if(j < i) {
+                    int k = j+size;
+                    if(k <= i + 5) {
+                        s += "1";
+                    } else
+                        s += "0";
+                }
+                else if(j > i) {
+                    if(j <= i + 5) {
+                        s += "1";
+                    } else
+                        s += "0";
+                } else
+                    s += "0";
+
+                if(j < size-1)
+                    s += ",";
+            }
+
+            s += "}";
+            if(i < size-1) {
+                s += ",";
+            }
         }
         s+= "\n};";
         return s;

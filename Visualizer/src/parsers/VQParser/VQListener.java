@@ -2,13 +2,12 @@ package parsers.VQParser;
 
 import Model.VQ.*;
 import Model.VQ.Operators.*;
+import View.IntegerTextField;
 import org.antlr.v4.runtime.ParserRuleContext;
 import parsers.VQParser.Generated.vqBaseListener;
 import parsers.VQParser.Generated.vqParser;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by batto on 10-Apr-17.
@@ -22,6 +21,16 @@ public class VQListener extends vqBaseListener {
         this.variables = variables;
     }
 
+    private void addError(String error) {
+        parseTree.addToParseError(error);
+    }
+
+    private boolean ensureAndLogError(boolean expr, String error) {
+        if (!expr)
+            addError(error);
+        return expr;
+    }
+
     @Override
     public void enterGradient(vqParser.GradientContext ctx) {
         super.exitGradient(ctx);
@@ -30,6 +39,10 @@ public class VQListener extends vqBaseListener {
                                     secondGradient = ctx.oneGradient(1);
 
         //Set gradient colors
+        if(!ensureAndLogError(firstGradient != null && firstGradient.ID() != null, "Could not parse first gradient color"))
+            return;
+        if(!ensureAndLogError(secondGradient != null && secondGradient.ID() != null, "Could not parse second gradient color"))
+            return;
         parseTree.setFirstColor(firstGradient.ID().getText());
         parseTree.setSecondColor(secondGradient.ID().getText());
 
@@ -39,6 +52,22 @@ public class VQListener extends vqBaseListener {
         if(secondGradient.NAT() != null)
             parseTree.setSecondGradient(Double.parseDouble(secondGradient.NAT().getText()),
                 secondGradient.NEG() != null);
+        ensureAndLogError(parseTree.getFirstGradient() < parseTree.getSecondGradient(), "First gradient value must be less than second gradient value");
+    }
+
+    @Override
+    public void enterColors(vqParser.ColorsContext ctx) {
+        super.enterColors(ctx);
+
+        VQColors colors = new VQColors();
+        for(vqParser.ColorContext color : ctx.color()) {
+            if(color != null) {
+                int value = Integer.parseInt(color.NAT().getText());
+                if(color.NEG() != null)
+                    value = -value;
+                colors.addColor(color.ID().getText(), value);
+            }
+        }
     }
 
     @Override
@@ -141,21 +170,23 @@ public class VQListener extends vqBaseListener {
             VQNodeId node = new VQNodeId(id);
             addNewChild(node);
         } else {
-            //REPORT ERROR? We tried to parse a variable that does not exist
+            ensureAndLogError(false, "Variable \""+ id +"\" does not exist");
         }
     }
 
     @Override
     public void enterIdDot(vqParser.IdDotContext ctx) {
         super.enterIdDot(ctx);
-        String id = ctx.ID(0).getText() + "." + ctx.ID(1).getText();
-        parseTree.addUsedVariable(id);
+        String scope = ctx.ID(0).getText();
+        String id = ctx.ID(1).getText();
+        String scopedVar = scope+"."+id;
+        parseTree.addUsedVariable(scopedVar);
 
-        if(variables.contains(id)) {
-            VQNodeId node = new VQNodeId(id);
+        if(variables.contains(scopedVar)) {
+            VQNodeId node = new VQNodeId(scopedVar);
             addNewChild(node);
         } else {
-            //REPORT ERROR? We tried to parse a variable that does not exist
+            ensureAndLogError(false, "Variable \""+ id +"\" does not exist in scope \"" + scope+"\"");
         }
     }
 

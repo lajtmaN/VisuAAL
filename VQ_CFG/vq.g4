@@ -1,6 +1,6 @@
 grammar vq;
 query
-      : gradient? exp EOF;
+      : (gradient | colors)? exp EOF;
 
 gradient
       : '[' oneGradient ',' oneGradient ']';
@@ -8,6 +8,12 @@ gradient
 oneGradient 
       : ID ':' NEG? NAT
       | ID;
+
+colors
+      : '[' color+ ID ':' '*' ']';
+
+color
+      : ID ':' NEG? NAT ',';
 
 exp 
       : '(' exp ')'                                    #par
