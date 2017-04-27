@@ -10,7 +10,7 @@ clock x;
 void Bar() {
 	int CONFIG_parse = 0;
 }	
-
+int CONFIG_connected[2][2];
 
 </declaration>
 	<template>

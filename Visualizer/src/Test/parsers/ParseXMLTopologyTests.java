@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 public class ParseXMLTopologyTests {
 
     @Test
-    public void parse3by3Topology() {
+    public void parse3by3Topology() throws Exception {
         String uppaalFileName = "test_resources/topologytest.xml";
         UPPAALTopology expected = generateTopology(3);
         UPPAALTopology actual = UPPAALParser.getUPPAALTopology(uppaalFileName);
@@ -24,7 +24,7 @@ public class ParseXMLTopologyTests {
     }
 
     @Test
-    public void generateSquareTopology() throws InterruptedException {
+    public void generateSquareTopology() throws Exception {
         String uppaalFileName = "test_resources/topologytest.xml";
         UPPAALTopology expected = UPPAALParser.getUPPAALTopology(uppaalFileName);
         UPPAALTopology actual = ConnectedGraphGenerator.generateSquareTopology(3);

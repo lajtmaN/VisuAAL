@@ -125,11 +125,11 @@ public class CHandler {
         return variable;
     }
 
-    public static UPPAALTopology getTopology(String decls){
+    public static UPPAALTopology getTopology(String decls) throws Exception {
         ArrayList<CVar> vars = VariableParser.getInstantiations(decls);
         Optional<CVar> topologyVar = vars.stream().filter(p -> p.getName().equals("CONFIG_connected")).findFirst();
         if(!topologyVar.isPresent()){
-            return null;
+            throw new Exception("Could not find any topology in the model. The topology should be named CONFIG_connected[CONFIG_nr_nodes][CONFIG_nr_nodes]");
         }
         String definitionString = topologyVar.get().getValue();
         if(definitionString != null) {

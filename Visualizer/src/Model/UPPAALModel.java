@@ -42,7 +42,7 @@ public class UPPAALModel implements Externalizable, Cloneable {
         modelPath = path;
     }
 
-    public void load() {
+    public void load() throws Exception {
         allConfigVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALConfigConstants(modelPath));
         nonConstConfigVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALDynamicUpdateCandidates(modelPath));
         topology = UPPAALParser.getUPPAALTopology(modelPath);

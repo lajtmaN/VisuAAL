@@ -224,12 +224,16 @@ public class MainWindowController implements Initializable {
         }
         Settings.Instance().setRecentLoadedModel(selectedFile.getPath());
 
-        uppaalModel = new UPPAALModel(tempFile.getPath());
-        uppaalModel.load();
-        constantsTable.setItems(uppaalModel.getAllConfigVars());
-        tableOutputVars.setItems(uppaalModel.getOutputVars());
-        dynamicTable.setItems(uppaalModel.getTemplateUpdates());
-        initializeWithLoadedModel();
+        try {
+            uppaalModel = new UPPAALModel(tempFile.getPath());
+            uppaalModel.load();
+            constantsTable.setItems(uppaalModel.getAllConfigVars());
+            tableOutputVars.setItems(uppaalModel.getOutputVars());
+            dynamicTable.setItems(uppaalModel.getTemplateUpdates());
+            initializeWithLoadedModel();
+        } catch (Exception e) {
+            GUIHelper.showError("Could not load model." + System.lineSeparator() + "Error Message: " + e.getMessage());
+        }
     }
 
     private String generateQuery() {

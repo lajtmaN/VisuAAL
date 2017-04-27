@@ -57,14 +57,9 @@ public class UPPAALParser {
     }
 
 
-    public static UPPAALTopology getUPPAALTopology(String uppaalFilename){
-        try{
-            XmlHandler handler = new XmlHandler(uppaalFilename);
-            return CHandler.getTopology(handler.getGlobalDeclarations());
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return null;
+    public static UPPAALTopology getUPPAALTopology(String uppaalFilename) throws Exception {
+        XmlHandler handler = new XmlHandler(uppaalFilename);
+        return CHandler.getTopology(handler.getGlobalDeclarations());
     }
 
     public static File generateQueryFile(String query) throws IOException {

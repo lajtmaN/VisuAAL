@@ -141,7 +141,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void parseModel_ChangeAndSaveAsNewFile() throws IOException, TransformerException, SAXException, ParserConfigurationException {
+    public void parseModel_ChangeAndSaveAsNewFile() throws Exception {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         UPPAALModel uppaalModel = new UPPAALModel(f.getPath());
         uppaalModel.load();
@@ -180,7 +180,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void parseModelTimeUnitConstants() throws IOException {
+    public void parseModelTimeUnitConstants() throws Exception {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/eksempel.xml"));
 
         UPPAALModel model = new UPPAALModel(f.getPath());
@@ -190,7 +190,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void getProcessesFromModel() throws IOException {
+    public void getProcessesFromModel() throws Exception {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/MultipleTemplatesMultipleParameterTypesSystemInstantiated.xml"));
 
         UPPAALModel model = new UPPAALModel(f.getPath());
@@ -259,7 +259,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void setTopologyForUPPAALTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
+    public void setTopologyForUPPAALTest() throws Exception {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         UPPAALTopology top = new UPPAALTopology();
         top.setNumberOfNodes(4);
@@ -285,7 +285,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void getTopologySizeMultipleCommentedTopologies() throws IOException, TransformerException, ParserConfigurationException, SAXException {
+    public void getTopologySizeMultipleCommentedTopologies() throws Exception {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/declarationMultipleTopoDecls.xml"));
 
         XmlHandler xmlHandler = new XmlHandler(f.getPath());
@@ -296,7 +296,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void setRandomTopologyForUPPAALTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
+    public void setRandomTopologyForUPPAALTest() throws Exception {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         UPPAALTopology top = ConnectedGraphGenerator.generateRandomTopology(36);
 
@@ -314,7 +314,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void setTopologyForUPPAALMoreCasesTest() throws IOException, ParserConfigurationException, SAXException, TransformerException {
+    public void setTopologyForUPPAALMoreCasesTest() throws Exception {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
         UPPAALTopology top = new UPPAALTopology();
         top.setNumberOfNodes(4);
@@ -344,7 +344,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void parseTemplatesFromModelsWithTwoTypesOfNodes() throws IOException, SAXException, ParserConfigurationException {
+    public void parseTemplatesFromModelsWithTwoTypesOfNodes() throws Exception {
         UPPAALModel model = new UPPAALModel(new File("test_resources/MultipleTemplatesMultipleParameterTypes.xml").getPath());
         model.load();
         assertNotNull(model);
@@ -361,7 +361,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void generateQueryTwoTemplates() {
+    public void generateQueryTwoTemplates() throws Exception {
         List<String> expectedSimulationQueryParts = new ArrayList<>();
         expectedSimulationQueryParts.add("simulate 5 [<=123] {");
         expectedSimulationQueryParts.add("Template1(0).OUTPUT_TEST");
@@ -384,7 +384,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void parseTemplatesFromModelsWithTwoTypesOfNodesSystemInstantiated() throws IOException, SAXException, ParserConfigurationException {
+    public void parseTemplatesFromModelsWithTwoTypesOfNodesSystemInstantiated() throws Exception {
         UPPAALModel model = new UPPAALModel(new File("test_resources/MultipleTemplatesMultipleParameterTypesSystemInstantiated.xml").getPath());
         model.load();
         assertNotNull(model);
@@ -401,7 +401,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void parseProcessesInstantiatedButNotUsed() throws IOException, SAXException, ParserConfigurationException {
+    public void parseProcessesInstantiatedButNotUsed() throws Exception {
         UPPAALModel model = new UPPAALModel(new File("test_resources/ProcessesInstantiatedButNotUsed.xml").getPath());
         model.load();
         assertNotNull(model);
@@ -435,7 +435,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void generateQueryTwoTemplatesNonOverlappingParameters() {
+    public void generateQueryTwoTemplatesNonOverlappingParameters() throws Exception {
         List<String> expectedSimulationQueryParts = new ArrayList<>();
         expectedSimulationQueryParts.add("simulate 5 [<=123] {");
         expectedSimulationQueryParts.add("t0.OUTPUT_TEST");
@@ -458,7 +458,7 @@ public class ParseXmlAndCTests {
     }
 
     @Test
-    public void generateQueryTwoTemplatesNonOverlappingParametersMixedInstantiation() {
+    public void generateQueryTwoTemplatesNonOverlappingParametersMixedInstantiation() throws Exception {
         List<String> expectedSimulationQueryParts = new ArrayList<>();
         expectedSimulationQueryParts.add("simulate 5 [<=123] {");
         expectedSimulationQueryParts.add("Template1(0).OUTPUT_TEST");
