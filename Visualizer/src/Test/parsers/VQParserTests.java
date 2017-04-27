@@ -404,4 +404,46 @@ public class VQParserTests {
         double gradientWhenZero = tree.getGradient(map);
         assertEquals(0, gradientWhenZero, 0.01);
     }
+
+    @Test
+    public void parseColors() {
+        String vq = "[blue:0, red:1, purple:5, yellow:*] x * y";
+
+        List<OutputVariable> vars = new ArrayList<>();
+        vars.add(new OutputVariable("x"));
+        vars.add(new OutputVariable("y"));
+
+        VQParseTree tree = VQParse.parse(vq, vars);
+
+        assertEquals("blue", tree.getVqColors().getColorForValue(0));
+        assertEquals("red", tree.getVqColors().getColorForValue(1));
+        assertEquals("purple", tree.getVqColors().getColorForValue(5));
+        assertEquals("yellow", tree.getVqColors().getColorForValue(3));
+        assertEquals("yellow", tree.getVqColors().getColorForValue(7));
+        assertEquals("yellow", tree.getVqColors().getColorForValue(-1));
+
+        assertEquals(null, tree.getSecondColor());
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

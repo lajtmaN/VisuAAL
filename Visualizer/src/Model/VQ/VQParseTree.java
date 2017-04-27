@@ -19,6 +19,12 @@ public class VQParseTree {
 
     public enum VQType { Edge, Node, Unknown}
 
+    /**
+     * Gets a gradient between 0 and 1 for the value calculated for the VQ
+     * @param variables
+     * @return
+     * @throws Exception
+     */
     public double getGradient(Map<String, Double> variables) throws Exception {
         if(secondGradient <= firstGradient)
             throw new Exception("The maximum gradient must be greater than the minimum gradient");
@@ -32,7 +38,17 @@ public class VQParseTree {
         return gradientValue;
     }
 
-    double gradientValue(double min, double max, double value) {
+    /**
+     * Gets the exact value of the expression without gradient conversion
+     * @param variables
+     * @return expression value
+     * @throws Exception
+     */
+    public double getExpressionValue(Map<String, Double> variables) throws Exception {
+        return root.calculateNodeValue(variables);
+    }
+
+    private double gradientValue(double min, double max, double value) {
         double diff = max - min;
         if (diff > 0)
             return (value - min) / diff;

@@ -59,6 +59,11 @@ public class VQListener extends vqBaseListener {
     public void enterColors(vqParser.ColorsContext ctx) {
         super.enterColors(ctx);
 
+
+        if(!ensureAndLogError(ctx.ID() != null, "Missing default color")
+                || !ensureAndLogError(ctx.color() != null, "Missing colors"))
+            return;
+
         VQColors colors = new VQColors();
         for(vqParser.ColorContext color : ctx.color()) {
             if(color != null) {
@@ -68,6 +73,8 @@ public class VQListener extends vqBaseListener {
                 colors.addColor(color.ID().getText(), value);
             }
         }
+        colors.setDefaultColor(ctx.ID().getText());
+        parseTree.setVqColors(colors);
     }
 
     @Override
