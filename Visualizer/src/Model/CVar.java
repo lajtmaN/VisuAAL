@@ -116,6 +116,10 @@ public class CVar implements Externalizable {
         this.isConst = new SimpleBooleanProperty(isConst);
     }
 
+    public boolean hasBuiltInType() {
+        return hasIntType() || hasBoolType() || hasDoubleType();
+    }
+
     public boolean hasIntType(){
         return type.equals("int");
     }

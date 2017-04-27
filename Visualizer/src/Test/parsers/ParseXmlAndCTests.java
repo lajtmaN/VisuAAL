@@ -224,6 +224,16 @@ public class ParseXmlAndCTests {
     }
 
     @Test
+    public void canParseDoubleOutputVariable() throws Exception {
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/eksempel.xml"));
+        ArrayList<OutputVariable> vars = UPPAALParser.getUPPAALOutputVars(f.getPath());
+
+        OutputVariable expectedVar = new OutputVariable("OUTPUT_variable");
+
+        assertTrue(vars.contains(expectedVar));
+    }
+
+    @Test
     public void calculateCorrectParameterSize() throws IOException, ParserConfigurationException, SAXException {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/MultipleTemplatesMultipleParameterTypes.xml"));
 

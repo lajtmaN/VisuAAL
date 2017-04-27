@@ -26,7 +26,7 @@ public class CHandler {
 
     private static void filterOutputVariables(List<CVar> vars) {
         vars.removeIf(var -> !var.getName().startsWith(OutputVariablePrefix));
-        vars.removeIf(var -> !var.hasIntType()); // TODO OUTPUT variables are limited to int only right now
+        vars.removeIf(var -> !var.hasBuiltInType());
         vars.removeIf(var -> var.isInFuncBody());
     }
 

@@ -6,6 +6,7 @@ bool CONFIG_TEST_BOOLEAN = true;
 double CONFIG_TEST_DOUBLE = 0.5;
 const double CONFIG_MODEL_TIME_UNIT = 20.0;
 int CONFIG_global_test = 11;
+double OUTPUT_variable = 1.5;
 clock x;
 void Bar() {
 	int CONFIG_parse = 0;
