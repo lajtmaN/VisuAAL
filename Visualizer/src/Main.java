@@ -9,7 +9,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         //Get matrix for connected graph square topology. Input nr of nodes
-        //String s = Helpers.ConnectedGraphGenerator.matrix_exp6(500);
+        //String s = Helpers.ConnectedGraphGenerator.matrix_exp6(1000);
 
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
         System.setProperty("swing.jlf.contentPaneTransparent", "true");

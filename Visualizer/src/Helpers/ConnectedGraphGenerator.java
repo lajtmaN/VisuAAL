@@ -119,35 +119,36 @@ public class ConnectedGraphGenerator {
     }
 
     public static String matrix_exp6(int size) {
-        String s = "int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {";
+        StringBuilder sb = new StringBuilder();
+        sb.append("int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {");
         for(int i= 0 ; i < size; i++) {
-            s += "\n{";
+            sb.append("\n{");
             for(int j = 0; j < size; j++) {
                 if(j < i) {
                     int k = j+size;
                     if(k <= i + 5) {
-                        s += "1";
+                        sb.append("1");
                     } else
-                        s += "0";
+                        sb.append("0");
                 }
                 else if(j > i) {
                     if(j <= i + 5) {
-                        s += "1";
+                        sb.append("1");
                     } else
-                        s += "0";
+                        sb.append("0");
                 } else
-                    s += "0";
+                    sb.append("0");
 
                 if(j < size-1)
-                    s += ",";
+                    sb.append(",");
             }
 
-            s += "}";
+            sb.append("}");
             if(i < size-1) {
-                s += ",";
+                sb.append(",");
             }
         }
-        s+= "\n};";
-        return s;
+        sb.append("\n};");
+        return sb.toString();
     }
 }
