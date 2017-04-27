@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import View.DoubleTextField?>
 <?import View.simulation.SimulationDataContainer?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -12,9 +13,6 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-<?import javafx.scene.control.TextField?>
-<?import com.sun.javafx.scene.control.skin.DoubleField?>
-<?import View.DoubleTextField?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.simulation.SimulationResultController">
    <top>
       <HBox fx:id="sliderBox" BorderPane.alignment="TOP_CENTER">
@@ -34,14 +32,13 @@
 
    <bottom>
        <HBox alignment="CENTER">
-           <DoubleTextField fx:id="rate" maxWidth="50" promptText="Speed"/>
-          <Button fx:id="play" defaultButton="true" mnemonicParsing="false" onAction="#btnAnimateInRealTimeClicked"
-                  text="Play" BorderPane.alignment="CENTER" prefWidth="50"/>
-           <Button mnemonicParsing="false" onAction="#btnStop" text="Stop" BorderPane.alignment="CENTER" prefWidth="50" />
+           <DoubleTextField fx:id="rate" maxWidth="50" promptText="Speed" />
+          <Button fx:id="play" defaultButton="true" mnemonicParsing="false" onAction="#btnAnimateInRealTimeClicked" prefWidth="50" text="Play" BorderPane.alignment="CENTER" />
+           <Button mnemonicParsing="false" onAction="#btnStop" prefWidth="50" text="Stop" BorderPane.alignment="CENTER" />
        </HBox>
    </bottom>
     <right>
-        <GridPane>
+        <GridPane maxWidth="260.0" minWidth="260.0">
         <fx:include fx:id="simulationMenu" source="SimulationMenu.fxml" GridPane.rowIndex="0" />
         <GridPane fx:id="globalVarGridPane" pickOnBounds="false" GridPane.rowIndex="1">
             <padding>
