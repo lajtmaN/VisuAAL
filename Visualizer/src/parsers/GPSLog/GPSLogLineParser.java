@@ -6,6 +6,7 @@ import parsers.RegexHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by lajtman on 25-04-2017.
@@ -67,19 +68,6 @@ public class GPSLogLineParser {
         parseGpsLongitude();
     }
 
-    private void parseNeighbors() throws IllegalArgumentException {
-        String rawText = gpsLogLineParts[3];
-        String[] neighborIds = rawText.split("\\s+");
-        List<Integer> neighbors = new ArrayList<>(neighborIds.length);
-        for (String neighbor : neighborIds) {
-            if (!RegexHelper.isValidInt(neighbor))
-                throw new IllegalArgumentException("Expected a node id as Integer in the neighbor list, but got '" + neighbor + "'");
-
-            neighbors.add(Integer.parseInt(neighbor));
-        }
-        this.neighbors = neighbors;
-    }
-
     private void parseGpsLatitude() throws IllegalArgumentException {
         String rawText = gpsLogLineParts[1];
         if (!RegexHelper.isValidDouble(rawText))
@@ -94,5 +82,18 @@ public class GPSLogLineParser {
             throw new IllegalArgumentException("Expected a node id in Integer, but got " + rawText);
 
         this.gpsLocation.lng = Double.parseDouble(rawText);
+    }
+
+    private void parseNeighbors() throws IllegalArgumentException {
+        String rawText = gpsLogLineParts[3];
+        String[] neighborIds = rawText.split("\\s+");
+        this.neighbors = Arrays.stream(neighborIds).map(this::parseNeighbor).collect(Collectors.toList());
+    }
+
+    private int parseNeighbor(String neighborId) {
+        if (!RegexHelper.isValidInt(neighborId))
+            throw new IllegalArgumentException("Expected a node id as Integer in the neighbor list, but got '" + neighborId + "'");
+
+        return Integer.parseInt(neighborId);
     }
 }
