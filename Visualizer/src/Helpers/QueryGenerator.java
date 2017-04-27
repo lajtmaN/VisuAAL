@@ -16,7 +16,6 @@ public class QueryGenerator {
         return generateQueryStart(nrSimulations, time, res);
     }
 
-
     private static String generateQueryStart(int nrSimulations, long time, String vars) {
         return "simulate " + nrSimulations + " [<=" + time + "] { " + vars + " }";
     }
@@ -53,23 +52,23 @@ public class QueryGenerator {
     }
 
     private static String generate2DQuadraticArrayQueryVariables(String name, int size) {
-        String res = "";
+        StringBuilder res = new StringBuilder();
         for (int i = 0; i < size; i++)
             for (int j = 0; j < size; j++) {
-                res += String.format("%1$s[%2$d][%3$d]", name, i, j);
-                if (i < size-1 || j < size-1) res += ", ";
+                res.append(String.format("%1$s[%2$d][%3$d]", name, i, j));
+                if (i < size-1 || j < size-1)
+                    res.append(", ");
             }
-
-        return res;
+        return res.toString();
     }
 
     private static String generate1DArrayQueryVariables(String name, int size) {
-        String res = "";
+        StringBuilder res = new StringBuilder();
         for (int i = 0; i < size; i++) {
-            res += String.format("%s[%d]", name, i);
+            res.append(String.format("%s[%d]", name, i));
             if (i < size-1)
-                res += ", ";
+                res.append(", ");
         }
-        return res;
+        return res.toString();
     }
 }
