@@ -21,7 +21,6 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     private int _numberOfNodes;
     private transient Graph _graphInstance;
     private List<CellNode> nodes;
-    private String backgroundFilePath;
 
     public UPPAALTopology(Graph graph) {
         _graphInstance = graph;
@@ -36,10 +35,9 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         _numberOfNodes = numberOfNodes;
     }
 
-    public UPPAALTopology(List<CellNode> cellNodes, String backgroundFilePath) {
+    public UPPAALTopology(List<CellNode> cellNodes) {
         this(cellNodes.size());
         nodes = cellNodes;
-        this.backgroundFilePath = backgroundFilePath;
     }
 
     public UPPAALTopology() {}
@@ -140,14 +138,6 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             updateGraph();
 
         return _graphInstance;
-    }
-
-    public String getBackgroundFilePath() {
-        return backgroundFilePath;
-    }
-
-    public Image getBackgroundImage() throws IOException {
-        return new Image(new File(backgroundFilePath).toURI().toString());
     }
 
     public boolean nodesHasSpecificLocations() {

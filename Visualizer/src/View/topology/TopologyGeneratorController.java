@@ -196,7 +196,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         //TODO generateUppaalTopology might be overkill to use here. It calculate ALL edges for ALL nodes.
         //Now we know the x,y we could figure out what grid it could affect (of course using the range as well)
         //and then only update the edges in the affected cells?
-        lastGeneratedTopology = topologyGenerator.generateUppaalTopology(cellNodes, null);
+        lastGeneratedTopology = topologyGenerator.generateUppaalTopology(cellNodes);
         showGraph(lastGeneratedTopology.getGraph(true));
     }
 

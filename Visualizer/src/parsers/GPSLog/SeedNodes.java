@@ -2,11 +2,11 @@ package parsers.GPSLog;
 
 import Helpers.GoogleMapsHelper;
 import Helpers.Pair;
+import Model.UPPAALEdge;
+import Model.UPPAALTopology;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.MultiGraph;
+import Model.topology.generator.CellNode;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -77,44 +77,43 @@ public class SeedNodes implements Iterable<SeedNode> {
         return Collections.max(nodes.values().stream().map(mapper).collect(Collectors.toList()));
     }
 
-    public Graph asGraph() throws Exception {
-        Graph graph = new MultiGraph("SeedNodes");
-        addNodesToGraph(graph);
-        addEdgesBetweenNeighborsToGraph(graph);
-        setLocationOnNodesOnGraph(graph);
+    public UPPAALTopology generateUPPAALTopologyWithBounds(LatLngBounds latLongBounds) throws Exception {
+        bounds = latLongBounds;
+        List<CellNode> cellNodes = generateCellNodes();
+        UPPAALTopology uppaalTopology = new UPPAALTopology(cellNodes);
 
-        return graph;
+        addEdgesBetweenNeighborsToUPPAALTopology(uppaalTopology);
+        invalidateBounds();
+
+        return uppaalTopology;
     }
 
-    private void addNodesToGraph(Graph graph) {
-        nodes.values().forEach(n -> graph.addNode(String.valueOf(n.nodeId)));
+    private List<CellNode> generateCellNodes() throws Exception {
+        List<CellNode> cellNodes = new ArrayList<>();
+        for(SeedNode sn : nodes.values()) {
+            Pair<Double, Double> xy = getLocationRelativeToBounds(sn);
+            cellNodes.add(new CellNode(0, xy.getFirst(), xy.getSecond()));
+        }
+
+        return cellNodes;
     }
 
-    private void addEdgesBetweenNeighborsToGraph(Graph graph) {
+    private void addEdgesBetweenNeighborsToUPPAALTopology(UPPAALTopology uppaalTopology) {
         nodes.values().forEach(origin ->
                 origin.neighbors.forEach(neighbor ->
-                        graph.addEdge(origin.nodeId + "-" + neighbor,
-                                origin.nodeId, neighbor, true)));
-    }
-
-    private void setLocationOnNodesOnGraph(Graph graph) throws Exception {
-        for (SeedNode n : nodes.values()) {
-            Pair<Double, Double> xy = getLocationRelativeToBounds(n);
-            Node graphNode = graph.getNode(String.valueOf(n.nodeId));
-            graphNode.setAttribute("xy", xy.getFirst(), xy.getSecond());
-        }
+                        uppaalTopology.add(new UPPAALEdge(String.valueOf(origin.nodeId), String.valueOf(neighbor)))));
     }
 
     private Pair<Double, Double> getLocationRelativeToBounds(SeedNode node) throws Exception {
         //Lat is y
         //Lng is x
-        LatLng northEast = getBounds().getNorthEast();
+        LatLng southWest = getBounds().getSouthWest();
 
-        LatLng leftForNode = new LatLng(northEast.lat, node.location.lng);
+        LatLng leftForNode = new LatLng(node.location.lat, southWest.lng);
         double x = GoogleMapsHelper.distanceBetween(node.location, leftForNode);
 
-        LatLng aboveNode = new LatLng(node.location.lat, northEast.lng);
-        double y = GoogleMapsHelper.distanceBetween(node.location, aboveNode);
+        LatLng belowNode = new LatLng(southWest.lat, node.location.lng);
+        double y = GoogleMapsHelper.distanceBetween(node.location, belowNode);
 
         return new Pair<>(x,y);
     }

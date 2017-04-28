@@ -35,6 +35,10 @@ public class LatLngBounds implements Externalizable {
         return ne;
     }
 
+    public LatLng getNorthWest() {
+        return new LatLng(sw.lat, ne.lng);
+    }
+
     public LatLongBounds getAsLatLongBounds() {
         return new LatLongBounds(new LatLong(sw.lat, sw.lng), new LatLong(ne.lat, ne.lng));
     }

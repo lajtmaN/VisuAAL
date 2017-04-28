@@ -7,6 +7,7 @@ import Helpers.Pair;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 import Model.topology.LatLngBounds;
+import com.lynden.gmapsfx.javascript.object.LatLongBounds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,14 +68,10 @@ public class TopologyGenerator {
     }
 
     public UPPAALTopology generateUppaalTopology() {
-        return generateUppaalTopology(null);
+        return generateUppaalTopology((LatLngBounds)null);
     }
 
     public UPPAALTopology generateUppaalTopology(LatLngBounds bounds) {
-        return generateUppaalTopology(bounds, null);
-    }
-
-    public UPPAALTopology generateUppaalTopology(LatLngBounds bounds, String backgroundImagePath) {
         if (bounds != null) {
             Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateSizeInMeters(bounds);
             setCellWidthInMeters(widthAndHeight.getFirst() / getOptions().getCellX());
@@ -86,11 +83,11 @@ public class TopologyGenerator {
         }
 
         ArrayList<CellNode> nodes = generateNodes();
-        return generateUppaalTopology(nodes, backgroundImagePath);
+        return generateUppaalTopology(nodes);
     }
 
-    public UPPAALTopology generateUppaalTopology(List<CellNode> nodes, String backgroundImagePath) {
-        UPPAALTopology result = new UPPAALTopology(nodes, backgroundImagePath);
+    public UPPAALTopology generateUppaalTopology(List<CellNode> nodes) {
+        UPPAALTopology result = new UPPAALTopology(nodes);
         for(int i = 0; i < nodes.size(); i++) {
             for(int j = 0; j < nodes.size(); j++){
                 if(i != j && nodes.get(i).isInRange(nodes.get(j))){
