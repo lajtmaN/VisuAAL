@@ -1,6 +1,7 @@
 package Model;
 
 import javafx.beans.property.*;
+import parsers.XmlHandler;
 
 import java.io.*;
 
@@ -12,6 +13,11 @@ public class TemplateUpdate implements Externalizable {
     private StringProperty variable, theValue;
 
     private SimpleObjectProperty<TemplateUpdate> propertyInstance;
+
+    public static TemplateUpdate updateTopology(int fromNodeId, int toNodeId, boolean connected, int timeWhenChanged) {
+        String update = String.format("CONFIG_connected[%d][%d]", fromNodeId, toNodeId);
+        return new TemplateUpdate(update, connected ? "1" : "0", timeWhenChanged);
+    }
 
     public TemplateUpdate(String variable, String value, int time) {
         this.variable = new SimpleStringProperty(this, "variable", variable);

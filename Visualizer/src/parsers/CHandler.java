@@ -21,7 +21,8 @@ public class CHandler {
     }
 
     private static void filterConfigVariables(List<CVar> vars) {
-        vars.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix) || var.isArrayType());
+        vars.removeIf(var -> !var.getName().startsWith(ConfigVariablePrefix)
+                          || var.isArrayType());
     }
 
     private static void filterOutputVariables(List<CVar> vars) {
