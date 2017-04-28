@@ -258,7 +258,7 @@ public class MainWindowController implements Initializable {
                     GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Timebound and number of simulations must be positive integers");
                 }
                 else if (time > 0  && nrSimulations > 0) {
-                    return QueryGenerator.generateSimulationQuery(time, nrSimulations, vars, uppaalModel.getProcesses());
+                    return QueryGenerator.generateSimulationQuery(time, nrSimulations, vars, uppaalModel.getProcesses(), uppaalModel.getTopology().getNumberOfNodes());
                 }
             } catch (Exception e) {
                 GUIHelper.showAlert(Alert.AlertType.INFORMATION, "Timebound and number of simulations must be positive integers");

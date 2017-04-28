@@ -29,14 +29,6 @@ public class QueryGeneratorTests {
     }
 
     @Test
-    public void createRelationshipQuery() {
-        String expected = "simulate 1 [<=1000] { data[0][0], data[0][1], data[1][0], data[1][1] }";
-        String actual = QueryGenerator.generate2DQuadraticArrayQuery("data", 2, 1, 1000);
-
-        assertEquals(expected, actual);
-    }
-
-    @Test
     public void testParseQuery() {
         String expected = "simulate 10 [<=3572] { OUTPUT_nr_node_relations }";
 
