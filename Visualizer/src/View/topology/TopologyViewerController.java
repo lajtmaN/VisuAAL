@@ -195,11 +195,4 @@ public class TopologyViewerController implements Initializable, MapComponentInit
     public Graph getCurrentlyShownGraph() {
         return currentlyShownGraph;
     }
-
-    public void setSeedNodes(SeedNodes nodes) throws Exception {
-        setMapBounds(nodes.getBounds());
-        LatLngBounds latLongBounds = getMapBounds();
-        //nodes.forEach(n -> map.addMarker(GoogleMapsHelper.createMarker(n.location, String.valueOf(n.nodeId))));
-        showGraph(nodes.generateUPPAALTopologyWithBounds(latLongBounds).getGraph(true), false, null, null); //We will not detect when nodes are moved because listener is null
-    }
 }
