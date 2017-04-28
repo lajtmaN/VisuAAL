@@ -8,10 +8,7 @@ import View.Options.*;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import parsers.VQParser.VQParse;
 
 /**
@@ -20,6 +17,7 @@ import parsers.VQParser.VQParse;
 public class SimulationMenuController {
     final PseudoClass errorClass = PseudoClass.getPseudoClass("error");
     public Button btnAddNewVQ;
+    public Accordion root;
 
     @FXML private TextArea txtNewVQ;
     @FXML private ListView<EnableDisableSimulationOption> lstSimulationOptions;
