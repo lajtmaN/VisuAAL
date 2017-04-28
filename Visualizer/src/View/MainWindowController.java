@@ -8,11 +8,11 @@ import Model.*;
 import View.simulation.SimulationResultController;
 import View.topology.TopologyGeneratorController;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -164,6 +164,14 @@ public class MainWindowController implements Initializable {
             if (ctrl instanceof TableView)
                 ((TableView)ctrl).getItems().clear();
         }
+    }
+
+    public double getTabHeight() {
+        return tabPane.getHeight() - tabPane.getTabMaxHeight();
+    }
+
+    public double getTabWidth() {
+        return tabPane.getWidth();
     }
 
     public void loadModel(ActionEvent actionEvent) throws IOException, InterruptedException {
@@ -349,4 +357,11 @@ public class MainWindowController implements Initializable {
         return this.uppaalModel;
     }
 
+    private boolean hasEnteredTopologyGenerator = false;
+    public void onEnterTopologyGenerator(Event event) {
+        if (!hasEnteredTopologyGenerator) {
+            topologyGeneratorController.autoResize();
+            hasEnteredTopologyGenerator = true;
+        }
+    }
 }

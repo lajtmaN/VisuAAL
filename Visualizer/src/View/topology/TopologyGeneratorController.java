@@ -1,10 +1,15 @@
 package View.topology;
 
+import Helpers.ExtensionFilters;
+import Helpers.FileHelper;
+import Helpers.GUIHelper;
 import Model.UPPAALTopology;
+import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
 import Model.topology.generator.TopologyGenerator;
 import View.DoubleTextField;
 import View.IntegerTextField;
+import View.MainWindowController;
 import View.ToggleSwitch;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,7 +22,10 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
+import parsers.GPSLog.GPSLogParser;
+import parsers.GPSLog.SeedNodes;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -97,26 +105,29 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
                 }
             }
         }
+    }
+
+    public void autoResize() {
         setCellSizes();
         gridPaneCells.autosize();
     }
 
     private void setCellSizes() {
-        double borderPaneCenterWidth = borderPane.getWidth() - accordion.getWidth(),
-               borderPaneCenterHeight = borderPane.getHeight();
+        double mainWindowWidth = MainWindowController.getInstance().getTabWidth() - accordion.getWidth();
+        double mainWindowHeight = MainWindowController.getInstance().getTabHeight();
 
-        if(borderPaneCenterHeight != 0 && borderPaneCenterWidth != 0) {
+        if(mainWindowHeight != 0 && mainWindowWidth != 0) {
             int rowsCount = topologyGenerator.getOptions().getCellY(),
                     columnCount = topologyGenerator.getOptions().getCellX();
 
-            double heightRatio = borderPaneCenterHeight / rowsCount,
-                    widthRatio = borderPaneCenterWidth / columnCount,
+            double heightRatio = mainWindowHeight / rowsCount,
+                    widthRatio = mainWindowWidth / columnCount,
                     heightAndWidth;
 
             if(heightRatio < widthRatio)
-                heightAndWidth = (borderPaneCenterHeight-20) / rowsCount;
+                heightAndWidth = (mainWindowHeight-20) / rowsCount;
             else
-                heightAndWidth = (borderPaneCenterWidth-20) / columnCount;
+                heightAndWidth = (mainWindowWidth-20) / columnCount;
 
             for(CellOptionsController c : cellOptionsList)
                  c.setSize(heightAndWidth);
@@ -168,13 +179,13 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
     public void preview(ActionEvent actionEvent) {
         Graph graph = generateTopology(true).getGraph(true);
-        showGraph(graph);
+        showGraph(graph, true);
         chkFreezeMap.switchOnProperty().set(true);
         chkShowGridSettings.switchOnProperty().set(false);
     }
 
-    private void showGraph(Graph g) {
-        topologyViewerController.showGraph(g, false, null, this);
+    private void showGraph(Graph g, boolean canDragNodes) {
+        topologyViewerController.showGraph(g, false, null, canDragNodes ? this : null);
     }
 
     @Override
@@ -189,7 +200,29 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         //TODO generateUppaalTopology might be overkill to use here. It calculate ALL edges for ALL nodes.
         //Now we know the x,y we could figure out what grid it could affect (of course using the range as well)
         //and then only update the edges in the affected cells?
-        lastGeneratedTopology = topologyGenerator.generateUppaalTopology(cellNodes, null);
-        showGraph(lastGeneratedTopology.getGraph(true));
+        lastGeneratedTopology = topologyGenerator.generateUppaalTopology(cellNodes);
+        showGraph(lastGeneratedTopology.getGraph(true), true);
+    }
+
+    public void loadGPSLog(ActionEvent actionEvent) {
+        File gpsLogFile = FileHelper.chooseFileToLoad("Select the GPS Log file", null, ExtensionFilters.GPSLogExtensionFilter);
+        if (gpsLogFile == null)
+            return;
+        try {
+            autoResize();
+
+            SeedNodes nodes = GPSLogParser.parse(gpsLogFile);
+            topologyViewerController.setMapBounds(nodes.getBounds());
+            LatLngBounds latLongBounds = topologyViewerController.getMapBounds();
+            UPPAALTopology loadedTopology = nodes.generateUPPAALTopologyWithBounds(latLongBounds);
+            loadedTopology.updateGraph();
+            showGraph(loadedTopology.getGraph(), false); //We will not detect when nodes are moved because listener is null
+            chkFreezeMap.switchOnProperty().set(true);
+            chkShowGridSettings.switchOnProperty().set(false);
+            lastGeneratedTopology = loadedTopology;
+        }
+        catch (Exception e) {
+            GUIHelper.showError("Could not load the GPS Log file." + System.lineSeparator() + e.getMessage());
+        }
     }
 }

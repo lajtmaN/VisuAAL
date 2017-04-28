@@ -11,4 +11,5 @@ public class ExtensionFilters {
     public static FileChooser.ExtensionFilter SimulationExtensionFilter = new FileChooser.ExtensionFilter("Simulation", "*.sim");
     public static FileChooser.ExtensionFilter TopologyExtensionFilter = new FileChooser.ExtensionFilter("Topology", "*.topo");
     public static FileChooser.ExtensionFilter VerifytaExtensionFilter = new FileChooser.ExtensionFilter("Verifyta executable file", "verifyta.exe");
+    public static FileChooser.ExtensionFilter GPSLogExtensionFilter = new FileChooser.ExtensionFilter("GPS Log", "*.txt");
 }
