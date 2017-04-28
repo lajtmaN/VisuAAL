@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import View.DoubleTextField?>
 <?import View.simulation.SimulationDataContainer?>
-<?import javafx.embed.swing.SwingNode?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-<BorderPane fx:id="rootPane"  xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.simulation.SimulationResultController">
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.simulation.SimulationResultController">
    <top>
       <HBox fx:id="sliderBox" BorderPane.alignment="TOP_CENTER">
          <children>
@@ -23,15 +25,20 @@
    <center>
       <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-             <fx:include source="../topology/TopologyViewer.fxml" fx:id="topologyViewer"/>
+             <fx:include fx:id="topologyViewer" source="../topology/TopologyViewer.fxml" />
          </children>
       </StackPane>
    </center>
+
    <bottom>
-      <Button mnemonicParsing="false" onAction="#btnAnimateInRealTimeClicked" text="Animate in real-time" BorderPane.alignment="CENTER" />
+       <HBox alignment="CENTER">
+           <DoubleTextField fx:id="rate" maxWidth="50" promptText="Speed" />
+          <Button fx:id="play" defaultButton="true" mnemonicParsing="false" onAction="#btnAnimateInRealTimeClicked" prefWidth="50" text="Play" BorderPane.alignment="CENTER" />
+           <Button mnemonicParsing="false" onAction="#btnStop" prefWidth="50" text="Stop" BorderPane.alignment="CENTER" />
+       </HBox>
    </bottom>
     <right>
-        <GridPane>
+        <GridPane maxWidth="260.0" minWidth="260.0">
         <fx:include fx:id="simulationMenu" source="SimulationMenu.fxml" GridPane.rowIndex="0" />
         <GridPane fx:id="globalVarGridPane" pickOnBounds="false" GridPane.rowIndex="1">
             <padding>
@@ -43,6 +50,16 @@
                 <Insets bottom="10.0" left="10.0" />
             </padding>
         </SimulationDataContainer>
+         <columnConstraints>
+            <ColumnConstraints />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+         </rowConstraints>
         </GridPane>
     </right>
+   <left>
+   </left>
 </BorderPane>

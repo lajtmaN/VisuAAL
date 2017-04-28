@@ -5,6 +5,7 @@
 const int CONFIG_TEST = 3;
 typedef int [CONFIG_TEST-2,CONFIG_TEST-1] id_tt;
 typedef int [0,0] id_t;
+int CONFIG_connected[2][2];
 	</declaration>
 	<template>
 		<name x="5" y="5">Template1</name>

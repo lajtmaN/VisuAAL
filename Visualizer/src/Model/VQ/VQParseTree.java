@@ -1,21 +1,30 @@
 package Model.VQ;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import Model.OutputVariable;
+import parsers.VQParser.VQParse;
+
+import java.util.*;
 
 /**
- * Created by batto on 12-Apr-17.
+ * Created by battow on 12-Apr-17.
  */
 public class VQParseTree {
-    private double firstGradient = 0,
-                   secondGradient = 1;
-    private String firstColor,
-                   secondColor;
+    private double firstGradient = 0, secondGradient = 1;
+    private String firstColor, secondColor;
     private VQNode root;
+    private VQType type = null;
     private Collection<String> usedVariables = new ArrayList<>();
+    private String parseError = "";
+    private VQColors vqColors;
 
+    public enum VQType { Edge, Node, Unknown}
+
+    /**
+     * Gets a gradient between 0 and 1 for the value calculated for the VQ
+     * @param variables
+     * @return
+     * @throws Exception
+     */
     public double getGradient(Map<String, Double> variables) throws Exception {
         if(secondGradient <= firstGradient)
             throw new Exception("The maximum gradient must be greater than the minimum gradient");
@@ -29,7 +38,17 @@ public class VQParseTree {
         return gradientValue;
     }
 
-    double gradientValue(double min, double max, double value) {
+    /**
+     * Gets the exact value of the expression without gradient conversion
+     * @param variables
+     * @return expression value
+     * @throws Exception
+     */
+    public double getExpressionValue(Map<String, Double> variables) throws Exception {
+        return root.calculateNodeValue(variables);
+    }
+
+    private double gradientValue(double min, double max, double value) {
         double diff = max - min;
         if (diff > 0)
             return (value - min) / diff;
@@ -89,5 +108,60 @@ public class VQParseTree {
 
     public void addUsedVariable(String var) {
         usedVariables.add(var);
+    }
+
+    public VQColors getVqColors() {
+        return vqColors;
+    }
+
+    public void setVqColors(VQColors vqColors) {
+        this.vqColors = vqColors;
+    }
+
+    public String getParseError() {
+        return parseError;
+    }
+
+    public void addToParseError(String parseError) {
+        if(!this.parseError.isEmpty())
+            this.parseError += System.lineSeparator();
+        this.parseError += parseError;
+    }
+
+    public VQType getType() {
+        return type;
+    }
+
+    public void calculateVQType(List<OutputVariable> allVars) {
+        VQType foundType = VQType.Unknown;
+        try {
+            for (String varInVQ : getUsedVariables()) {
+                Optional<OutputVariable> usedVar = allVars.stream()
+                        .filter(o -> o.toString().equals(varInVQ))
+                        .findFirst();
+                if(usedVar.isPresent()){
+                    if (usedVar.get().getIsNodeData()) {
+                        if (foundType == VQType.Edge)
+                            throw new Exception("Mixed both Edge and Node types");
+
+                        foundType = VQType.Node;
+                    } else if (usedVar.get().getIsEdgeData()) {
+                        if (foundType == VQType.Node)
+                            throw new Exception("Mixed both Edge and Node types");
+
+                        foundType = VQType.Edge;
+                    } else {
+                        throw new Exception("Cannot use global variables");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            addToParseError(e.getMessage());
+        }
+        type = foundType;
+    }
+
+    public boolean isValid() {
+        return type != null && type != VQType.Unknown && parseError.isEmpty();
     }
 }

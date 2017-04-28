@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 public class TemplateUpdatesTests {
 
     @Test
-    public void RemoveTemplateAndAddNew() throws IOException, TransformerException, ParserConfigurationException, SAXException {
+    public void RemoveTemplateAndAddNew() throws Exception {
         File f = FileHelper.copyFileIntoTempFile(new File("test_resources/topologytest.xml"));
 
         TemplateUpdate update1 = new TemplateUpdate("test", "17", 21);
