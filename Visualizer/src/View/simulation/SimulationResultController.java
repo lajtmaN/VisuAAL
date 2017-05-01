@@ -54,13 +54,17 @@ public class SimulationResultController implements Initializable, VariableUpdate
         timeline = new Timeline();
         timeline.setAutoReverse(false);
         timeSlider.setValue(0);
-        timeline.setOnFinished(e -> play.setText("Play"));
+        timeline.setOnFinished(e -> finishedTimeLine());
 
         timeSlider.valueProperty().addListener(((observable, oldValue, newValue) -> {
             handleCurrentTimeChanged(newValue, oldValue);
-            if (timeline.getStatus() != Animation.Status.RUNNING)
-                timeline.jumpTo(Duration.millis((double)newValue));
         }));
+    }
+
+    private void finishedTimeLine() {
+        play.setText("Play");
+        timeline.stop();
+        timeline.getKeyFrames().clear();
     }
 
     public void loadWithSimulation(Simulations run) {
@@ -103,27 +107,32 @@ public class SimulationResultController implements Initializable, VariableUpdate
     }
 
     public void btnAnimateInRealTimeClicked(ActionEvent actionEvent) {
-        if(timeline.getKeyFrames().isEmpty()){
-            timeline.getKeyFrames().add(new KeyFrame((Duration.millis(maxTime() - timeSlider.getValue())), new KeyValue(timeSlider.valueProperty(), maxTime())));
-        }
-
         if(!rate.getText().isEmpty())
             timeline.setRate(Double.parseDouble(rate.getText()));
+        else{
+            timeline.setRate(1.0);
+        }
 
         if(play.getText().equals("Play")) {
-            if((maxTime() - timeSlider.getValue()) <= 0.1)
-            {
+            play.setText("Pause");
+            KeyValue kv = new KeyValue(timeSlider.valueProperty(), maxTime());
+            if(timeSlider.getValue() > maxTime() - 0.01) {
                 timeSlider.setValue(0.0);
-                timeline.play();
-                play.setText("Pause");
+                timeline.getKeyFrames().add(new KeyFrame((Duration.millis(maxTime())),
+                        kv));
             }
             else {
-                timeline.play();
-                play.setText("Pause");
+                timeline.getKeyFrames().add(new KeyFrame((Duration.millis(maxTime() - timeSlider.getValue())),
+                        kv));
             }
+            timeline.play();
         }
         else {
             timeline.pause();
+            Double value = timeSlider.getValue();
+            timeline.stop();
+            timeline.getKeyFrames().clear();
+            timeSlider.setValue(value);
             play.setText("Play");
         }
     }
