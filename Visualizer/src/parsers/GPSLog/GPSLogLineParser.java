@@ -23,7 +23,7 @@ public class GPSLogLineParser {
         this.gpsLogLine = gpsLogLine;
     }
 
-    public GPSLogNode parse() throws IllegalArgumentException {
+    public GPSLogEntry parse() throws IllegalArgumentException {
         if (isComment())
             return null;
 
@@ -51,8 +51,8 @@ public class GPSLogLineParser {
         parseNeighbors();
     }
 
-    private GPSLogNode createSeedNodeObject() {
-        return new GPSLogNode(timestamp, nodeId, gpsLocation, neighbors);
+    private GPSLogEntry createSeedNodeObject() {
+        return new GPSLogEntry(timestamp, nodeId, gpsLocation, neighbors);
     }
 
     private void parseTimestamp() {

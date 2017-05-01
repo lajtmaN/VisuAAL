@@ -27,7 +27,7 @@ public class GPSLogParser {
         return nodes;
     }
 
-    public static GPSLogNode parseGPSLogLine(String gpsLogLine) {
+    public static GPSLogEntry parseGPSLogLine(String gpsLogLine) {
         return new GPSLogLineParser(gpsLogLine).parse();
     }
 }

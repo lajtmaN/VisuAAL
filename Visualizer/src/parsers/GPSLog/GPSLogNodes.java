@@ -11,25 +11,26 @@ import Model.topology.generator.CellNode;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Created by lajtman on 25-04-2017.
  */
-public class GPSLogNodes implements Iterable<GPSLogNode> {
+public class GPSLogNodes {
     private Map<Integer, GPSLogNode> nodes = new HashMap<>();
     private LatLngBounds bounds;
 
     public GPSLogNodes() {}
 
-    public void add(GPSLogNode node) {
+    public void add(GPSLogEntry node) {
         if (node == null)
             return;
 
-        if (nodes.containsKey(node.nodeId))
-            throw new IllegalArgumentException("Cannot add multiple nodes with same id. Tried to add new node with id: " + node.nodeId);
+        if (!nodes.containsKey(node.nodeId)) {
+            nodes.put(node.nodeId, new GPSLogNode());
+        }
 
-        nodes.put(node.nodeId, node);
+        nodes.get(node.nodeId).add(node);
+
         invalidateBounds();
     }
 
@@ -37,7 +38,7 @@ public class GPSLogNodes implements Iterable<GPSLogNode> {
         bounds = null;
     }
 
-    public void addRange(Collection<GPSLogNode> nodeCollection) {
+    public void addRange(Collection<GPSLogEntry> nodeCollection) {
         nodeCollection.forEach(this::add);
     }
 
@@ -69,12 +70,24 @@ public class GPSLogNodes implements Iterable<GPSLogNode> {
         return new LatLng(north, east);
     }
 
-    private Double minValueFromList(Function<GPSLogNode, Double> mapper) {
-        return Collections.min(nodes.values().stream().map(mapper).collect(Collectors.toList()));
+    private Double minValueFromList(Function<GPSLogEntry, Double> mapper) {
+        double minScore = Double.MAX_VALUE;
+        for (GPSLogNode nodeList : nodes.values()) {
+            double minInList = nodeList.min(mapper);
+            if (minScore > minInList)
+                minScore = minInList;
+        }
+        return minScore;
     }
 
-    private Double maxValueFromList(Function<GPSLogNode, Double> mapper) {
-        return Collections.max(nodes.values().stream().map(mapper).collect(Collectors.toList()));
+    private Double maxValueFromList(Function<GPSLogEntry, Double> mapper) {
+        double maxScore = Double.MIN_VALUE;
+        for (GPSLogNode nodeList : nodes.values()) {
+            double maxInList = nodeList.max(mapper);
+            if (maxScore < maxInList)
+                maxScore = maxInList;
+        }
+        return maxScore;
     }
 
     public UPPAALTopology generateUPPAALTopologyWithBounds(LatLngBounds latLongBounds) throws Exception {
@@ -90,21 +103,23 @@ public class GPSLogNodes implements Iterable<GPSLogNode> {
 
     private List<CellNode> generateCellNodes() throws Exception {
         List<CellNode> cellNodes = new ArrayList<>();
-        for(GPSLogNode sn : nodes.values()) {
-            Pair<Double, Double> xy = getLocationRelativeToBounds(sn);
-            cellNodes.add(new CellNode(0, xy.getFirst(), xy.getSecond()));
+        for (GPSLogNode nodeList : nodes.values()) {
+            for (GPSLogEntry node : nodeList) {
+                Pair<Double, Double> xy = getLocationRelativeToBounds(node);
+                cellNodes.add(new CellNode(0, xy.getFirst(), xy.getSecond()));
+            }
         }
 
         return cellNodes;
     }
 
     private void addEdgesBetweenNeighborsToUPPAALTopology(UPPAALTopology uppaalTopology) {
-        nodes.values().forEach(origin ->
-                origin.neighbors.forEach(neighbor ->
-                        uppaalTopology.add(new UPPAALEdge(String.valueOf(origin.nodeId), String.valueOf(neighbor)))));
+        forEach(source ->
+            source.neighbors.forEach(neighbor ->
+                uppaalTopology.add(new UPPAALEdge(String.valueOf(source.nodeId), String.valueOf(neighbor)))));
     }
 
-    private Pair<Double, Double> getLocationRelativeToBounds(GPSLogNode node) throws Exception {
+    private Pair<Double, Double> getLocationRelativeToBounds(GPSLogEntry node) throws Exception {
         //Lat is y
         //Lng is x
         LatLng southWest = getBounds().getSouthWest();
@@ -118,18 +133,7 @@ public class GPSLogNodes implements Iterable<GPSLogNode> {
         return new Pair<>(x,y);
     }
 
-    @Override
-    public void forEach(Consumer<? super GPSLogNode> action) {
-        nodes.values().forEach(action);
-    }
-
-    @Override
-    public Spliterator<GPSLogNode> spliterator() {
-        return nodes.values().spliterator();
-    }
-
-    @Override
-    public Iterator<GPSLogNode> iterator() {
-        return nodes.values().iterator();
+    public void forEach(Consumer<? super GPSLogEntry> action) {
+        nodes.values().forEach(nodeList -> nodeList.forEach(action));
     }
 }
