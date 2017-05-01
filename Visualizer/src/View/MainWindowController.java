@@ -284,6 +284,10 @@ public class MainWindowController implements Initializable {
         handleRandomTopologyIfActivated(true);
         reloadOutputVariables();
 
+        AlertData alert = uppaalModel.saveTemplateUpdatesToXml();
+        if(alert != null && alert.getAlertType() == Alert.AlertType.ERROR)
+            alert.showAlert();
+
         if (uppaalModel.getTopology() == null) {
             GUIHelper.showInformation("Please create a topology in Topology Creator tab first");
             return;
