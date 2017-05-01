@@ -3,6 +3,7 @@ package Helpers;
 import Model.SimulateOutput;
 import exceptions.UPPAALFailedException;
 import javafx.scene.control.TextInputControl;
+import org.junit.rules.Stopwatch;
 import parsers.RegexHelper;
 import parsers.SimulateParser;
 import parsers.UPPAALParser;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -38,6 +40,7 @@ public class UPPAALExecutor {
     private static SimulateOutput runUppaal(String modelPath, String verifytaLocation, String queryFile, int simulateCount, TextInputControl feedbackCtrl) { {
         try {
             ProcessBuilder builder = new ProcessBuilder(verifytaLocation, modelPath, queryFile);
+            long startTime = System.currentTimeMillis();
             Process p = builder.start();
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             redirect(p.getInputStream(), new PrintStream(buffer), new PrintStreamRedirector(feedbackCtrl));
@@ -52,6 +55,8 @@ public class UPPAALExecutor {
                 return null;
 
             List<String> lines = Arrays.asList(uppaalOutput.split("\n"));
+            long endTime = System.currentTimeMillis();
+            feedbackCtrl.setText( feedbackCtrl.getText()+"\nThis took: "+String.valueOf(endTime-startTime)+" ms");
             return SimulateParser.parse(lines, simulateCount);
 
         } catch (InterruptedException | IOException e) {
