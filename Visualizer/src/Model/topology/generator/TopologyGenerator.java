@@ -7,14 +7,10 @@ import Helpers.Pair;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 import Model.topology.LatLngBounds;
-import com.lynden.gmapsfx.javascript.object.LatLong;
 import com.lynden.gmapsfx.javascript.object.LatLongBounds;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by lajtman on 17-03-2017.
@@ -72,16 +68,12 @@ public class TopologyGenerator {
     }
 
     public UPPAALTopology generateUppaalTopology() {
-        return generateUppaalTopology(null);
+        return generateUppaalTopology((LatLngBounds)null);
     }
 
     public UPPAALTopology generateUppaalTopology(LatLngBounds bounds) {
-        return generateUppaalTopology(bounds, null);
-    }
-
-    public UPPAALTopology generateUppaalTopology(LatLngBounds bounds, String backgroundImagePath) {
         if (bounds != null) {
-            Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateGridSizeInMeters(bounds);
+            Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateSizeInMeters(bounds);
             setCellWidthInMeters(widthAndHeight.getFirst() / getOptions().getCellX());
             setCellHeightInMeters(widthAndHeight.getSecond() / getOptions().getCellY());
 
@@ -91,11 +83,11 @@ public class TopologyGenerator {
         }
 
         ArrayList<CellNode> nodes = generateNodes();
-        return generateUppaalTopology(nodes, backgroundImagePath);
+        return generateUppaalTopology(nodes);
     }
 
-    public UPPAALTopology generateUppaalTopology(List<CellNode> nodes, String backgroundImagePath) {
-        UPPAALTopology result = new UPPAALTopology(nodes, backgroundImagePath);
+    public UPPAALTopology generateUppaalTopology(List<CellNode> nodes) {
+        UPPAALTopology result = new UPPAALTopology(nodes);
         for(int i = 0; i < nodes.size(); i++) {
             for(int j = 0; j < nodes.size(); j++){
                 if(i != j && nodes.get(i).isInRange(nodes.get(j))){

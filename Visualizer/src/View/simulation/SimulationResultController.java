@@ -5,6 +5,7 @@ import Model.SimulationNodePoint;
 import Model.SimulationPoint;
 import Model.Simulations;
 import View.DoubleTextField;
+import View.MainWindowController;
 import View.topology.TopologyViewerController;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -54,13 +55,17 @@ public class SimulationResultController implements Initializable, VariableUpdate
         timeline = new Timeline();
         timeline.setAutoReverse(false);
         timeSlider.setValue(0);
-        timeline.setOnFinished(e -> play.setText("Play"));
+        timeline.setOnFinished(e -> finishedTimeLine());
 
         timeSlider.valueProperty().addListener(((observable, oldValue, newValue) -> {
             handleCurrentTimeChanged(newValue, oldValue);
-            if (timeline.getStatus() != Animation.Status.RUNNING)
-                timeline.jumpTo(Duration.millis((double)newValue));
         }));
+    }
+
+    private void finishedTimeLine() {
+        play.setText("Play");
+        timeline.stop();
+        timeline.getKeyFrames().clear();
     }
 
     public void loadWithSimulation(Simulations run) {
@@ -92,9 +97,18 @@ public class SimulationResultController implements Initializable, VariableUpdate
         topologyViewerController.setIsMapInteractable(false);
         topologyViewerController.setIsGraphDraggable(true);
         topologyViewerController.setShowMap(false);
+        resizeTopologyViewer();
+
         //TODO: Add background if needed
         boolean autolayout = !currentSimulations.getTopology().nodesHasSpecificLocations();
         topologyViewerController.showGraph(currentSimulations.getGraph(), autolayout, nodeVarGridPane);
+    }
+
+    private void resizeTopologyViewer() {
+        double height = MainWindowController.getInstance().getTabHeight() - timeSlider.getHeight() - play.getHeight();
+        double width = MainWindowController.getInstance().getTabWidth() - simulationMenuController.root.getWidth();
+        topologyViewerController.rootPane.setMaxSize(width, height);
+        topologyViewerController.rootPane.setMinSize(width, height);
     }
 
     private void handleCurrentTimeChanged(Number newTime, Number oldTime) {
@@ -103,27 +117,32 @@ public class SimulationResultController implements Initializable, VariableUpdate
     }
 
     public void btnAnimateInRealTimeClicked(ActionEvent actionEvent) {
-        if(timeline.getKeyFrames().isEmpty()){
-            timeline.getKeyFrames().add(new KeyFrame((Duration.millis(maxTime() - timeSlider.getValue())), new KeyValue(timeSlider.valueProperty(), maxTime())));
-        }
-
         if(!rate.getText().isEmpty())
             timeline.setRate(Double.parseDouble(rate.getText()));
+        else{
+            timeline.setRate(1.0);
+        }
 
         if(play.getText().equals("Play")) {
-            if((maxTime() - timeSlider.getValue()) <= 0.1)
-            {
+            play.setText("Pause");
+            KeyValue kv = new KeyValue(timeSlider.valueProperty(), maxTime());
+            if(timeSlider.getValue() > maxTime() - 0.01) {
                 timeSlider.setValue(0.0);
-                timeline.play();
-                play.setText("Pause");
+                timeline.getKeyFrames().add(new KeyFrame((Duration.millis(maxTime())),
+                        kv));
             }
             else {
-                timeline.play();
-                play.setText("Pause");
+                timeline.getKeyFrames().add(new KeyFrame((Duration.millis(maxTime() - timeSlider.getValue())),
+                        kv));
             }
+            timeline.play();
         }
         else {
             timeline.pause();
+            Double value = timeSlider.getValue();
+            timeline.stop();
+            timeline.getKeyFrames().clear();
+            timeSlider.setValue(value);
             play.setText("Play");
         }
     }

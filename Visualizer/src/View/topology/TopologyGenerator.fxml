@@ -3,7 +3,6 @@
 <?import View.DoubleTextField?>
 <?import View.IntegerTextField?>
 <?import View.ToggleSwitch?>
-<?import com.lynden.gmapsfx.GoogleMapView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
@@ -54,8 +53,10 @@
 
                         <Button minWidth="100" onAction="#updateGlobalOptions" text="Update Settings" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="8" />
                         <Button minWidth="100" onAction="#preview" text="Generate New Topology" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" />
+                        <Button minWidth="100" onAction="#loadGPSLog" text="Load from GPS Log" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="10" />
                         <padding><Insets bottom="10.0" /></padding>
                            <rowConstraints>
+                              <RowConstraints />
                               <RowConstraints />
                               <RowConstraints />
                               <RowConstraints />
