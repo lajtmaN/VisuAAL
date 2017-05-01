@@ -5,8 +5,8 @@ import Model.topology.LatLngBounds;
 import org.junit.Test;
 import parsers.GPSLog.GPSLogLineParser;
 import parsers.GPSLog.GPSLogParser;
-import parsers.GPSLog.SeedNode;
-import parsers.GPSLog.SeedNodes;
+import parsers.GPSLog.GPSLogNode;
+import parsers.GPSLog.GPSLogNodes;
 
 import java.io.*;
 import java.util.Arrays;
@@ -23,8 +23,9 @@ public class GPSLogParserTest {
 
     @Test
     public void parseLineWithOneNeighbor() {
-        String line = "0; 57.0109391; 9.9945777; 1";
-        SeedNode actual = new GPSLogLineParser(line).parse();
+        String line = "0; 0; 57.0109391; 9.9945777; 1";
+        GPSLogNode actual = new GPSLogLineParser(line).parse();
+        assertEquals(0, actual.timestamp);
         assertEquals(0, actual.nodeId);
         assertEquals(57.0109391, actual.location.lat, GPS_PRECISION);
         assertEquals(9.9945777,  actual.location.lng, GPS_PRECISION);
@@ -34,8 +35,9 @@ public class GPSLogParserTest {
 
     @Test
     public void parseLineWithMultipleNeighbor() {
-        String line = "9811          ; 50.16541871 ; 19.956117;1 2 3 4 54";
-        SeedNode actual = new GPSLogLineParser(line).parse();
+        String line = "0;9811          ; 50.16541871 ; 19.956117;1 2 3 4 54";
+        GPSLogNode actual = new GPSLogLineParser(line).parse();
+        assertEquals(0, actual.timestamp);
         assertEquals(9811, actual.nodeId);
         assertEquals(50.16541871, actual.location.lat, GPS_PRECISION);
         assertEquals(19.956117,  actual.location.lng, GPS_PRECISION);
@@ -49,21 +51,21 @@ public class GPSLogParserTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void cannotParseDoubleNodeId() {
-        String line = "0.1; 57.0109391; 9.9945777; 1";
+        String line = "0; 0.1; 57.0109391; 9.9945777; 1";
         new GPSLogLineParser(line).parse();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void throwOnUnfinishedLine() {
-        String line = "0; 1.2; 1";
+        String line = "3120; 0; 1.2; 1";
         new GPSLogLineParser(line).parse();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void throwOnMultipleDefinedNode() {
         List<String> lines = Arrays.asList(
-                "0; 1.11; 2.22; 1",
-                "0; 3.33; 4.44; 1"
+                "4; 0; 1.11; 2.22; 1",
+                "5; 0; 3.33; 4.44; 1"
         );
         GPSLogParser.parseGPSLogLines(lines);
     }
@@ -77,9 +79,10 @@ public class GPSLogParserTest {
 
     @Test
     public void GpsLogParserCanParseLine() {
-        String line = "0; 57.0109391; 9.9945777; 1";
-        SeedNode expected = new GPSLogLineParser(line).parse();
-        SeedNode actual = GPSLogParser.parseGPSLogLine(line);
+        String line = "5; 0; 57.0109391; 9.9945777; 1";
+        GPSLogNode expected = new GPSLogLineParser(line).parse();
+        GPSLogNode actual = GPSLogParser.parseGPSLogLine(line);
+        assertEquals("Timestamp", expected.timestamp, actual.timestamp);
         assertEquals("Node ID", expected.nodeId, actual.nodeId);
         assertEquals("GPS Lat", expected.location.lat, actual.location.lat, GPS_PRECISION);
         assertEquals("GPS Lng", expected.location.lng, actual.location.lng, GPS_PRECISION);
@@ -88,8 +91,9 @@ public class GPSLogParserTest {
 
     @Test
     public void canParseLocationWithNegativeValues() {
-        String line = "0; 47.6097; -122.3331; 1";
-        SeedNode actual = new GPSLogLineParser(line).parse();
+        String line = "9865; 0; 47.6097; -122.3331; 1";
+        GPSLogNode actual = new GPSLogLineParser(line).parse();
+        assertEquals(9865, actual.timestamp);
         assertEquals(0, actual.nodeId);
         assertEquals(47.6097, actual.location.lat, GPS_PRECISION);
         assertEquals(-122.3331,  actual.location.lng, GPS_PRECISION);
@@ -99,11 +103,11 @@ public class GPSLogParserTest {
 
     @Test
     public void calculateBoundsInSeedNodes() throws Exception {
-        SeedNodes nodes = new SeedNodes();
-        nodes.add(new SeedNode(0, new LatLng(1.13, 5.121), null));
-        nodes.add(new SeedNode(1, new LatLng(5.54, 3.154), null));
-        nodes.add(new SeedNode(2, new LatLng(2.52, 4.56), null));
-        nodes.add(new SeedNode(3, new LatLng(3.934, 2.12), null));
+        GPSLogNodes nodes = new GPSLogNodes();
+        nodes.add(new GPSLogNode(0,0, new LatLng(1.13, 5.121), null));
+        nodes.add(new GPSLogNode(0,1, new LatLng(5.54, 3.154), null));
+        nodes.add(new GPSLogNode(0,2, new LatLng(2.52, 4.56), null));
+        nodes.add(new GPSLogNode(0,3, new LatLng(3.934, 2.12), null));
 
         LatLngBounds actual = nodes.getBounds();
         assertEquals("South", 1.13, actual.getSouthWest().lat, GPS_PRECISION);
@@ -116,28 +120,31 @@ public class GPSLogParserTest {
     @Test
     public void canParseMultipleRows() throws IOException {
         File exampleLogFile = new File("test_resources/gpslog.txt");
-        SeedNodes loadedNodes = GPSLogParser.parse(exampleLogFile);
+        GPSLogNodes loadedNodes = GPSLogParser.parse(exampleLogFile);
 
-        SeedNode node0 = loadedNodes.getNode(0);
+        GPSLogNode node0 = loadedNodes.getNode(0);
+        assertEquals(0, node0.timestamp);
         assertEquals(0, node0.nodeId);
         assertEquals(57.0109391, node0.location.lat, GPS_PRECISION);
         assertEquals(9.9945777, node0.location.lng, GPS_PRECISION);
         assertContainsNeighbors(node0, 1);
 
-        SeedNode node1 = loadedNodes.getNode(1);
+        GPSLogNode node1 = loadedNodes.getNode(1);
+        assertEquals(0, node1.timestamp);
         assertEquals(1, node1.nodeId);
         assertEquals(57.0112724, node1.location.lat, GPS_PRECISION);
         assertEquals(9.9959301, node1.location.lng, GPS_PRECISION);
         assertContainsNeighbors(node1, 0, 2);
 
-        SeedNode node2 = loadedNodes.getNode(2);
+        GPSLogNode node2 = loadedNodes.getNode(2);
+        assertEquals(0, node2.timestamp);
         assertEquals(2, node2.nodeId);
         assertEquals(57.0122048, node2.location.lat, GPS_PRECISION);
         assertEquals(9.9920329, node2.location.lng, GPS_PRECISION);
         assertContainsNeighbors(node2, 1);
     }
 
-    private void assertContainsNeighbors(SeedNode node, Integer... neighbors) {
+    private void assertContainsNeighbors(GPSLogNode node, Integer... neighbors) {
         for (Integer neighbor : neighbors)
             assertTrue(node.neighbors.contains(neighbor));
     }

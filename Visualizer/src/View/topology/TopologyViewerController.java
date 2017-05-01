@@ -24,7 +24,6 @@ import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
-import parsers.GPSLog.SeedNodes;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

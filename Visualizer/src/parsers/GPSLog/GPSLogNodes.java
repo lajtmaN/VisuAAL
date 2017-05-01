@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 /**
  * Created by lajtman on 25-04-2017.
  */
-public class SeedNodes implements Iterable<SeedNode> {
-    private Map<Integer, SeedNode> nodes = new HashMap<>();
+public class GPSLogNodes implements Iterable<GPSLogNode> {
+    private Map<Integer, GPSLogNode> nodes = new HashMap<>();
     private LatLngBounds bounds;
 
-    public SeedNodes() {}
+    public GPSLogNodes() {}
 
-    public void add(SeedNode node) {
+    public void add(GPSLogNode node) {
         if (node == null)
             return;
 
@@ -37,11 +37,11 @@ public class SeedNodes implements Iterable<SeedNode> {
         bounds = null;
     }
 
-    public void addRange(Collection<SeedNode> nodeCollection) {
+    public void addRange(Collection<GPSLogNode> nodeCollection) {
         nodeCollection.forEach(this::add);
     }
 
-    public SeedNode getNode(int nodeId) {
+    public GPSLogNode getNode(int nodeId) {
         return nodes.get(nodeId);
     }
 
@@ -69,11 +69,11 @@ public class SeedNodes implements Iterable<SeedNode> {
         return new LatLng(north, east);
     }
 
-    private Double minValueFromList(Function<SeedNode, Double> mapper) {
+    private Double minValueFromList(Function<GPSLogNode, Double> mapper) {
         return Collections.min(nodes.values().stream().map(mapper).collect(Collectors.toList()));
     }
 
-    private Double maxValueFromList(Function<SeedNode, Double> mapper) {
+    private Double maxValueFromList(Function<GPSLogNode, Double> mapper) {
         return Collections.max(nodes.values().stream().map(mapper).collect(Collectors.toList()));
     }
 
@@ -90,7 +90,7 @@ public class SeedNodes implements Iterable<SeedNode> {
 
     private List<CellNode> generateCellNodes() throws Exception {
         List<CellNode> cellNodes = new ArrayList<>();
-        for(SeedNode sn : nodes.values()) {
+        for(GPSLogNode sn : nodes.values()) {
             Pair<Double, Double> xy = getLocationRelativeToBounds(sn);
             cellNodes.add(new CellNode(0, xy.getFirst(), xy.getSecond()));
         }
@@ -104,7 +104,7 @@ public class SeedNodes implements Iterable<SeedNode> {
                         uppaalTopology.add(new UPPAALEdge(String.valueOf(origin.nodeId), String.valueOf(neighbor)))));
     }
 
-    private Pair<Double, Double> getLocationRelativeToBounds(SeedNode node) throws Exception {
+    private Pair<Double, Double> getLocationRelativeToBounds(GPSLogNode node) throws Exception {
         //Lat is y
         //Lng is x
         LatLng southWest = getBounds().getSouthWest();
@@ -119,17 +119,17 @@ public class SeedNodes implements Iterable<SeedNode> {
     }
 
     @Override
-    public void forEach(Consumer<? super SeedNode> action) {
+    public void forEach(Consumer<? super GPSLogNode> action) {
         nodes.values().forEach(action);
     }
 
     @Override
-    public Spliterator<SeedNode> spliterator() {
+    public Spliterator<GPSLogNode> spliterator() {
         return nodes.values().spliterator();
     }
 
     @Override
-    public Iterator<SeedNode> iterator() {
+    public Iterator<GPSLogNode> iterator() {
         return nodes.values().iterator();
     }
 }

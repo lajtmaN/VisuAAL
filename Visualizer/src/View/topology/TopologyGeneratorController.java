@@ -23,7 +23,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
 import parsers.GPSLog.GPSLogParser;
-import parsers.GPSLog.SeedNodes;
+import parsers.GPSLog.GPSLogNodes;
 
 import java.io.File;
 import java.io.IOException;
@@ -211,7 +211,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         try {
             autoResize();
 
-            SeedNodes nodes = GPSLogParser.parse(gpsLogFile);
+            GPSLogNodes nodes = GPSLogParser.parse(gpsLogFile);
             topologyViewerController.setMapBounds(nodes.getBounds());
             LatLngBounds latLongBounds = topologyViewerController.getMapBounds();
             UPPAALTopology loadedTopology = nodes.generateUPPAALTopologyWithBounds(latLongBounds);
