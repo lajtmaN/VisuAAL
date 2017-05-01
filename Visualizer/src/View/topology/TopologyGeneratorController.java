@@ -215,11 +215,15 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
             topologyViewerController.setMapBounds(nodes.getBounds());
             LatLngBounds latLongBounds = topologyViewerController.getMapBounds();
             UPPAALTopology loadedTopology = nodes.generateUPPAALTopologyWithBounds(latLongBounds);
+
             loadedTopology.updateGraph();
             showGraph(loadedTopology.getGraph(), false); //We will not detect when nodes are moved because listener is null
             chkFreezeMap.switchOnProperty().set(true);
             chkShowGridSettings.switchOnProperty().set(false);
             lastGeneratedTopology = loadedTopology;
+
+            MainWindowController.getInstance().getUppaalModel().replaceTopologyChanges(nodes.getTopologyChanges());
+            MainWindowController.getInstance().enableDisableUseTopologyFromTopologyGenerator(true);
         }
         catch (Exception e) {
             GUIHelper.showError("Could not load the GPS Log file." + System.lineSeparator() + e.getMessage());

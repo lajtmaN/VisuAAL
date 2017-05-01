@@ -1,8 +1,10 @@
 package parsers.GPSLog;
 
+import Helpers.StringHelper;
 import Model.topology.LatLng;
 import parsers.RegexHelper;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,11 +39,12 @@ public class GPSLogLineParser {
     }
 
     private void splitLineInParts() throws IllegalArgumentException {
+        int numOfSeparators = StringHelper.countOccurrences(gpsLogLine, ';');
+        if (numOfSeparators != 4)
+            throw new IllegalArgumentException("Expected each line to contain 4 ;, but only got '" + numOfSeparators + "'");
+
         String regexWhichSplitsOnSemicolonAndRemovesWhiteSpace = "\\s*;\\s*";
         this.gpsLogLineParts = gpsLogLine.trim().split(regexWhichSplitsOnSemicolonAndRemovesWhiteSpace);
-
-        if (gpsLogLineParts.length != 5)
-            throw new IllegalArgumentException("Expected each line to contain 4 ;, but only got '" + (gpsLogLineParts.length - 1) + "'");
     }
 
     private void parseEachSectionInGpsLogLine() throws IllegalArgumentException {
@@ -94,9 +97,16 @@ public class GPSLogLineParser {
     }
 
     private void parseNeighbors() throws IllegalArgumentException {
-        String rawText = gpsLogLineParts[4];
-        String[] neighborIds = rawText.split("\\s+");
-        this.neighbors = Arrays.stream(neighborIds).map(this::parseNeighbor).collect(Collectors.toList());
+        if (gpsLogLineParts.length < 5) {
+            this.neighbors = new ArrayList<>();
+        }
+        else {
+            String rawText = gpsLogLineParts[4];
+            String[] neighborIds = rawText.split("\\s+");
+            this.neighbors = Arrays.stream(neighborIds).map(this::parseNeighbor).distinct().collect(Collectors.toList());
+            if (this.neighbors.contains(this.nodeId))
+                throw new IllegalArgumentException("Cannot add itself as a neighbor");
+        }
     }
 
     private int parseNeighbor(String neighborId) {

@@ -1,5 +1,6 @@
 package parsers;
 
+import Model.TemplateUpdate;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
 import org.junit.Test;
@@ -28,6 +29,17 @@ public class GPSLogParserTest {
         assertEquals(9.9945777,  actual.location.lng, GPS_PRECISION);
         assertEquals(1, actual.neighbors.size());
         assertEquals(1,(int) actual.neighbors.get(0)); //The int cast is just to tell compiler not to use object equals
+    }
+
+    @Test
+    public void parseLineWithNoNeighbors() {
+        String line = "0; 0; 57.0109391; 9.9945777; ";
+        GPSLogEntry actual = new GPSLogLineParser(line).parse();
+        assertEquals(0, actual.timestamp);
+        assertEquals(0, actual.nodeId);
+        assertEquals(57.0109391, actual.location.lat, GPS_PRECISION);
+        assertEquals(9.9945777,  actual.location.lng, GPS_PRECISION);
+        assertEquals(0, actual.neighbors.size());
     }
 
     @Test
@@ -136,6 +148,50 @@ public class GPSLogParserTest {
         assertEquals(57.0122048, node2.location.lat, GPS_PRECISION);
         assertEquals(9.9920329, node2.location.lng, GPS_PRECISION);
         assertContainsNeighbors(node2, 1);
+    }
+
+    @Test
+    public void generateTemplateUpdatesFromGPSLog() throws IOException {
+        File exampleLogFile = new File("test_resources/gpslog.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(exampleLogFile);
+        List<TemplateUpdate> updates = loadedNodes.getTopologyChanges();
+        assertEquals(4, updates.size());
+
+        TemplateUpdate expected1 = new TemplateUpdate("CONFIG_connected[0][1]", "1", 0);
+        TemplateUpdate expected2 = new TemplateUpdate("CONFIG_connected[1][0]", "1", 0);
+        TemplateUpdate expected3 = new TemplateUpdate("CONFIG_connected[1][2]", "1", 0);
+        TemplateUpdate expected4 = new TemplateUpdate("CONFIG_connected[2][1]", "1", 0);
+
+        assertTrue(expected1.getVariableName(), updates.contains(expected1));
+        assertTrue(expected2.getVariableName(), updates.contains(expected2));
+        assertTrue(expected3.getVariableName(), updates.contains(expected3));
+        assertTrue(expected4.getVariableName(), updates.contains(expected4));
+    }
+
+    @Test
+    public void generateTemplateUpdatesFromGPSLogWithChangingTopology() throws IOException {
+        File exampleLogFile = new File("test_resources/gpslog_with_updates.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(exampleLogFile);
+        List<TemplateUpdate> updates = loadedNodes.getTopologyChanges();
+        assertEquals(8, updates.size());
+
+        TemplateUpdate expected1 = new TemplateUpdate("CONFIG_connected[0][1]", "1", 0);
+        TemplateUpdate expected2 = new TemplateUpdate("CONFIG_connected[1][0]", "1", 0);
+        TemplateUpdate expected3 = new TemplateUpdate("CONFIG_connected[1][2]", "1", 0);
+        TemplateUpdate expected4 = new TemplateUpdate("CONFIG_connected[2][1]", "1", 0);
+        TemplateUpdate expected5 = new TemplateUpdate("CONFIG_connected[1][2]", "0", 8);
+        TemplateUpdate expected6 = new TemplateUpdate("CONFIG_connected[2][1]", "0", 8);
+        TemplateUpdate expected7 = new TemplateUpdate("CONFIG_connected[0][1]", "0", 10);
+        TemplateUpdate expected8 = new TemplateUpdate("CONFIG_connected[1][0]", "0", 10);
+
+        assertTrue(expected1.getVariableName(), updates.contains(expected1));
+        assertTrue(expected2.getVariableName(), updates.contains(expected2));
+        assertTrue(expected3.getVariableName(), updates.contains(expected3));
+        assertTrue(expected4.getVariableName(), updates.contains(expected4));
+        assertTrue(expected5.getVariableName(), updates.contains(expected5));
+        assertTrue(expected6.getVariableName(), updates.contains(expected6));
+        assertTrue(expected7.getVariableName(), updates.contains(expected7));
+        assertTrue(expected8.getVariableName(), updates.contains(expected8));
     }
 
     private void assertContainsNeighbors(GPSLogEntry node, Integer... neighbors) {

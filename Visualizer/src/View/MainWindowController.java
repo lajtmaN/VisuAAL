@@ -199,7 +199,8 @@ public class MainWindowController implements Initializable {
     }
 
     public void saveModel(ActionEvent actionEvent) throws IOException, TransformerException, SAXException, ParserConfigurationException {
-        setConstantTableSaveOnUnFocus();
+        constantsChanged = true;
+        updateModelFileWithChanges();
         File selectedFile = FileHelper.chooseFileToSave(ExtensionFilters.UPPAALModelExtensionFilter);
         if (selectedFile == null) return;
         uppaalModel.saveToPath(selectedFile.getPath());
@@ -210,7 +211,6 @@ public class MainWindowController implements Initializable {
         constantsTable.requestFocus();
         if(constantsChanged){
             UPPAALParser.updateUPPAALConfigConstants(uppaalModel.getModelPath(), uppaalModel.getAllConfigVars());
-            //TODO reload appropriate views and update. Save stuff that should not be updated (i.e. selection in outputvars)
             reloadOutputVariables();
             constantsChanged = false;
         }
@@ -280,13 +280,7 @@ public class MainWindowController implements Initializable {
     }
 
     public void runSimulationQuery(ActionEvent actionEvent) throws InterruptedException, IOException {
-        setConstantTableSaveOnUnFocus();
-        handleRandomTopologyIfActivated(true);
-        reloadOutputVariables();
-
-        AlertData alert = uppaalModel.saveTemplateUpdatesToXml();
-        if(alert != null && alert.getAlertType() == Alert.AlertType.ERROR)
-            alert.showAlert();
+        updateModelFileWithChanges();
 
         if (uppaalModel.getTopology() == null) {
             GUIHelper.showInformation("Please create a topology in Topology Creator tab first");
@@ -318,6 +312,16 @@ public class MainWindowController implements Initializable {
         });
     }
 
+    private void updateModelFileWithChanges() {
+        setConstantTableSaveOnUnFocus();
+        handleRandomTopologyIfActivated(true);
+        reloadOutputVariables();
+
+        AlertData alert = uppaalModel.saveTemplateUpdatesToXml();
+        if(alert != null && alert.getAlertType() == Alert.AlertType.ERROR)
+            alert.showAlert();
+    }
+
     private void addNewResults(String simulationName, Simulations out) {
         Parent simulationResultView = null;
         try {
@@ -338,11 +342,6 @@ public class MainWindowController implements Initializable {
         tabPane.getSelectionModel().select(tab);
     }
 
-    public void addUpdates(ActionEvent actionEvent) {
-        AlertData alert = uppaalModel.saveTemplateUpdatesToXml();
-        if(alert != null)
-            alert.showAlert();
-    }
     public ObservableList<CVar> getNonConstConfigVars(){
         return uppaalModel.getNonConstConfigVars();
     }
@@ -357,7 +356,7 @@ public class MainWindowController implements Initializable {
         dynamicTable.getSelectionModel().selectLast();
     }
 
-    protected UPPAALModel getUppaalModel() {
+    public UPPAALModel getUppaalModel() {
         return this.uppaalModel;
     }
 
@@ -367,5 +366,9 @@ public class MainWindowController implements Initializable {
             topologyGeneratorController.autoResize();
             hasEnteredTopologyGenerator = true;
         }
+    }
+
+    public void enableDisableUseTopologyFromTopologyGenerator(boolean active) {
+        chkUseRandomTopology.switchOnProperty().set(active);
     }
 }

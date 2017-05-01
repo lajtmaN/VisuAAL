@@ -57,8 +57,7 @@
                        <TableColumn fx:id="dynColumnTime" text="Model time" />
                    </columns>
                </TableView>
-                     <Button fx:id="btnAddDynamicUpdateRow" alignment="CENTER" mnemonicParsing="false" onAction="#btnAddDynamicUpdateRowClicked" text="Add new update" />
-                   <Button mnemonicParsing="false" onAction="#addUpdates" text="Add Updates" />
+                 <Button fx:id="btnAddDynamicUpdateRow" alignment="CENTER" mnemonicParsing="false" onAction="#btnAddDynamicUpdateRowClicked" text="Add new update" />
                </VBox>
            </content>
        </Tab>
@@ -113,7 +112,7 @@
                                        <Insets right="10.0" />
                                    </padding></Label>
                                <IntegerTextField fx:id="txtQuerySimulations" prefHeight="25.0" prefWidth="100.0" promptText="Simulations" GridPane.columnIndex="4" />
-                               <Label prefHeight="17.0" prefWidth="129.0" text="Random topology: " GridPane.columnIndex="5" GridPane.halignment="RIGHT">
+                               <Label prefHeight="17.0" prefWidth="149.0" text="Use generated topology: " GridPane.columnIndex="5" GridPane.halignment="RIGHT">
                                    <padding>
                                        <Insets right="10.0" />
                                    </padding></Label>

@@ -2,6 +2,7 @@ package parsers.GPSLog;
 
 import Helpers.GoogleMapsHelper;
 import Helpers.Pair;
+import Model.TemplateUpdate;
 import Model.UPPAALEdge;
 import Model.UPPAALTopology;
 import Model.topology.LatLng;
@@ -11,6 +12,7 @@ import Model.topology.generator.CellNode;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by lajtman on 25-04-2017.
@@ -26,7 +28,7 @@ public class GPSLogNodes {
             return;
 
         if (!nodes.containsKey(node.nodeId)) {
-            nodes.put(node.nodeId, new GPSLogNode());
+            nodes.put(node.nodeId, new GPSLogNode(node.nodeId));
         }
 
         nodes.get(node.nodeId).add(node);
@@ -103,18 +105,18 @@ public class GPSLogNodes {
 
     private List<CellNode> generateCellNodes() throws Exception {
         List<CellNode> cellNodes = new ArrayList<>();
-        for (GPSLogNode nodeList : nodes.values()) {
-            for (GPSLogEntry node : nodeList) {
-                Pair<Double, Double> xy = getLocationRelativeToBounds(node);
-                cellNodes.add(new CellNode(0, xy.getFirst(), xy.getSecond()));
-            }
+        List<GPSLogEntry> seedEntries = nodes.values().stream().map(nodes -> nodes.first()).collect(Collectors.toList());
+        for (GPSLogEntry node : seedEntries) {
+            Pair<Double, Double> xy = getLocationRelativeToBounds(node);
+            cellNodes.add(new CellNode(0, xy.getFirst(), xy.getSecond()));
         }
 
         return cellNodes;
     }
 
     private void addEdgesBetweenNeighborsToUPPAALTopology(UPPAALTopology uppaalTopology) {
-        forEach(source ->
+        List<GPSLogEntry> seedEntries = nodes.values().stream().map(nodes -> nodes.first()).collect(Collectors.toList());
+        seedEntries.forEach(source ->
             source.neighbors.forEach(neighbor ->
                 uppaalTopology.add(new UPPAALEdge(String.valueOf(source.nodeId), String.valueOf(neighbor)))));
     }
@@ -135,5 +137,13 @@ public class GPSLogNodes {
 
     public void forEach(Consumer<? super GPSLogEntry> action) {
         nodes.values().forEach(nodeList -> nodeList.forEach(action));
+    }
+
+    public List<TemplateUpdate> getTopologyChanges() {
+        List<TemplateUpdate> updates = new ArrayList<>();
+        for (GPSLogNode nodeList : nodes.values()) {
+            updates.addAll(nodeList.calculateTopologyChanges());
+        }
+        return updates;
     }
 }
