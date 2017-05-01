@@ -19,7 +19,8 @@ public class QueryGenerator {
         List<String> vars = outputVariables.stream().map(p -> QueryGenerator.generateSingleVariableQueryPart(p, processes))
                 .collect(Collectors.toList());
 
-        vars.add(generateConnectedTopologyAsQuery(numberOfNodesInTopology));
+        if (numberOfNodesInTopology > 0)
+            vars.add(generateConnectedTopologyAsQuery(numberOfNodesInTopology));
 
         return generateQueryStart(nrSimulations, timebound, String.join(", ", vars));
     }
