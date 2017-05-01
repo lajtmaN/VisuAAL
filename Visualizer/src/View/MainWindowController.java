@@ -8,11 +8,11 @@ import Model.*;
 import View.simulation.SimulationResultController;
 import View.topology.TopologyGeneratorController;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -166,6 +166,14 @@ public class MainWindowController implements Initializable {
         }
     }
 
+    public double getTabHeight() {
+        return tabPane.getHeight() - tabPane.getTabMaxHeight();
+    }
+
+    public double getTabWidth() {
+        return tabPane.getWidth();
+    }
+
     public void loadModel(ActionEvent actionEvent) throws IOException, InterruptedException {
         File selectedFile = FileHelper.chooseFileToLoad("Select UPPAAL model or simulation",
                 Settings.Instance().getRecentLoadedModel(), ExtensionFilters.UPPAALModelExtensionFilter,
@@ -224,12 +232,16 @@ public class MainWindowController implements Initializable {
         }
         Settings.Instance().setRecentLoadedModel(selectedFile.getPath());
 
-        uppaalModel = new UPPAALModel(tempFile.getPath());
-        uppaalModel.load();
-        constantsTable.setItems(uppaalModel.getAllConfigVars());
-        tableOutputVars.setItems(uppaalModel.getOutputVars());
-        dynamicTable.setItems(uppaalModel.getTemplateUpdates());
-        initializeWithLoadedModel();
+        try {
+            uppaalModel = new UPPAALModel(tempFile.getPath());
+            uppaalModel.load();
+            constantsTable.setItems(uppaalModel.getAllConfigVars());
+            tableOutputVars.setItems(uppaalModel.getOutputVars());
+            dynamicTable.setItems(uppaalModel.getTemplateUpdates());
+            initializeWithLoadedModel();
+        } catch (Exception e) {
+            GUIHelper.showError("Could not load model." + System.lineSeparator() + "Error Message: " + e.getMessage());
+        }
     }
 
     private String generateQuery() {
@@ -345,4 +357,11 @@ public class MainWindowController implements Initializable {
         return this.uppaalModel;
     }
 
+    private boolean hasEnteredTopologyGenerator = false;
+    public void onEnterTopologyGenerator(Event event) {
+        if (!hasEnteredTopologyGenerator) {
+            topologyGeneratorController.autoResize();
+            hasEnteredTopologyGenerator = true;
+        }
+    }
 }

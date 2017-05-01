@@ -5,6 +5,7 @@ import Model.SimulationNodePoint;
 import Model.SimulationPoint;
 import Model.Simulations;
 import View.DoubleTextField;
+import View.MainWindowController;
 import View.topology.TopologyViewerController;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -96,9 +97,18 @@ public class SimulationResultController implements Initializable, VariableUpdate
         topologyViewerController.setIsMapInteractable(false);
         topologyViewerController.setIsGraphDraggable(true);
         topologyViewerController.setShowMap(false);
+        resizeTopologyViewer();
+
         //TODO: Add background if needed
         boolean autolayout = !currentSimulations.getTopology().nodesHasSpecificLocations();
         topologyViewerController.showGraph(currentSimulations.getGraph(), autolayout, nodeVarGridPane);
+    }
+
+    private void resizeTopologyViewer() {
+        double height = MainWindowController.getInstance().getTabHeight() - timeSlider.getHeight() - play.getHeight();
+        double width = MainWindowController.getInstance().getTabWidth() - simulationMenuController.root.getWidth();
+        topologyViewerController.rootPane.setMaxSize(width, height);
+        topologyViewerController.rootPane.setMinSize(width, height);
     }
 
     private void handleCurrentTimeChanged(Number newTime, Number oldTime) {
@@ -181,7 +191,7 @@ public class SimulationResultController implements Initializable, VariableUpdate
             updateGridVars(sp.getIdentifier(), String.valueOf(value));
         }
         if(sp instanceof SimulationNodePoint) {
-            nodeVarGridPane.updateVariable(((SimulationNodePoint) sp).getNodeId(), sp.getTrimmedIdentifier(), value);
+            nodeVarGridPane.updateVariable(((SimulationNodePoint) sp).getNodeId(), sp.getScopedIdentifier(), value);
         }
     }
 }

@@ -36,7 +36,6 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         query = uppQuery;
         model = uppModel.deepClone();
         model.getTopology().updateGraph();
-        model.getTopology().unmarkAllEdges();
 
         for (Simulation s : points) {
             s.initialize(getModelTimeUnit());
@@ -100,7 +99,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         //Make sure that more elements at same end time all are included
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() > newTimeValue)) {
             if (sp.getClock() >= oldTime) {
-                handleUpdateForSimulationPoint(sp, sp.getValue());
+                handleGradientUpdateForSimulationPoint(sp, sp.getValue());
                 updateAllObservers(sp, sp.getValue());
             }
             if (currentSimulationIndex + 1 >= shownSimulation.getSimulationPoints().size())
@@ -115,7 +114,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         SimulationPoint sp;
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() < newTimeValue)) {
             if (sp.getClock() <= oldTime) {
-                handleUpdateForSimulationPoint(sp, sp.getPreviousValue());
+                handleGradientUpdateForSimulationPoint(sp, sp.getPreviousValue());
                 updateAllObservers(sp, sp.getPreviousValue());
             }
             if (currentSimulationIndex - 1 < 0)
@@ -131,20 +130,34 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
      * @param sp
      * @param simulationPointValue own value or previous value (forward / backwards)
      */
-    private void handleUpdateForSimulationPoint(SimulationPoint sp, double simulationPointValue) {
+    private void handleGradientUpdateForSimulationPoint(SimulationPoint sp, double simulationPointValue) {
         try {
             if (validEdgeSimPoint(sp)) {
                 SimulationEdgePoint sep = (SimulationEdgePoint) sp;
-
-                double gradient = handleUpdateForSimulationPoint(sp, sep.getEdgeIdentifier(),
-                        simulationPointValue, parseTreeEdge);
-                getTopology().updateEdgeGradient(sep.getEdgeIdentifier(), gradient);
+                if(parseTreeEdge.getVqColors() == null) {
+                    double gradient = handleGradientUpdateForSimulationPoint(sp, sep.getEdgeIdentifier(),
+                            simulationPointValue, parseTreeEdge);
+                    getTopology().updateEdgeGradient(sep.getEdgeIdentifier(), gradient);
+                }
+                else {
+                    double value = handleColorUpdateForSimulationPoint(sp, sep.getEdgeIdentifier(),
+                            simulationPointValue, parseTreeEdge);
+                    getTopology().setEdgeColor(sep.getEdgeIdentifier(), parseTreeEdge.getVqColors().getColorForValue(value));
+                }
             }
             else if (validNodeSimPoint(sp)) {
                 SimulationNodePoint snp = (SimulationNodePoint) sp;
-                double gradient = handleUpdateForSimulationPoint(sp, String.valueOf(snp.getNodeId()),
-                        simulationPointValue, parseTreeNode);
-                getTopology().updateNodeGradient(snp.getNodeId(), gradient);
+                if(parseTreeNode.getVqColors() == null) {
+                    double gradient = handleGradientUpdateForSimulationPoint(sp, String.valueOf(snp.getNodeId()),
+                            simulationPointValue, parseTreeNode);
+                    getTopology().updateNodeGradient(snp.getNodeId(), gradient);
+                }
+                else {
+                    double value = handleColorUpdateForSimulationPoint(sp, String.valueOf(snp.getNodeId()),
+                            simulationPointValue, parseTreeNode);
+                    getTopology().setNodeColor(String.valueOf(snp.getNodeId()),
+                            parseTreeNode.getVqColors().getColorForValue(value));
+                }
             }
         }
          catch (Exception e) {
@@ -152,11 +165,18 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         }
     }
 
-    private double handleUpdateForSimulationPoint(SimulationPoint sp, String simulationPointIdentifier,
-                                                    double simulationPointValue, VQParseTree vqParseTree) throws Exception {
+    private double handleGradientUpdateForSimulationPoint(SimulationPoint sp, String simulationPointIdentifier,
+                                                          double simulationPointValue, VQParseTree vqParseTree) throws Exception {
 
         graphValueMapper.updateNodeVariable(simulationPointIdentifier, sp.getScopedIdentifier(), simulationPointValue);
         return vqParseTree.getGradient(graphValueMapper.getNodeOrEdgeVariableMap(simulationPointIdentifier));
+    }
+
+    private double handleColorUpdateForSimulationPoint(SimulationPoint sp, String simulationPointIdentifier,
+    double simulationPointValue, VQParseTree vqParseTree) throws Exception {
+
+        graphValueMapper.updateNodeVariable(simulationPointIdentifier, sp.getScopedIdentifier(), simulationPointValue);
+        return vqParseTree.getExpressionValue(graphValueMapper.getNodeOrEdgeVariableMap(simulationPointIdentifier));
     }
 
     private double getMaxForSimPoint(SimulationPoint sp) {
@@ -210,7 +230,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             in.close();
             fileIn.close();
             sim.model.getTopology().updateGraph();
-            sim.model.getTopology().unmarkAllEdges();
+            sim.showSimulation(0);
             return sim;
         } catch(InvalidClassException i) {
             GUIHelper.showAlert(Alert.AlertType.ERROR, "The simulation that you tried to load was created by an older version of this program.");
@@ -254,7 +274,6 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
 
     public void setShownNodeVariable(VQParseTree parsedVQ) {
         parseTreeNode = parsedVQ;
-        updateColorsOnTopology();
         resetNodesToCurrentTime();
         markGraphAtTime(0, getCurrentTime());
     }
@@ -266,13 +285,12 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
     }
 
     private void resetNodesToCurrentTime() {
-        getTopology().unmarkAllNodes();
+        updateColorsOnTopology();
         markNodesAt0();
         currentSimulationIndex = 0;
     }
 
     private void resetEdgesToCurrentTime() {
-        getTopology().unmarkAllEdges();
         markEdgesAt0();
         currentSimulationIndex = 0;
     }
@@ -287,7 +305,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             for(String s : edgeVars) {
                 SimulationEdgePoint sp = new SimulationEdgePoint(s, 0,
                         id.getSourceNode().getId(), id.getTargetNode().getId(), 0, 0);
-                handleUpdateForSimulationPoint(sp, sp.getValue());
+                handleGradientUpdateForSimulationPoint(sp, sp.getValue());
                 updateAllObservers(sp, sp.getValue());
             }
         }
@@ -303,7 +321,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         for(int i = 0 ; i < nrNodes ; i++) {
             for(String s : nodeVars) {
                 SimulationNodePoint sp = new SimulationNodePoint(s, 0, i, 0, 0);
-                handleUpdateForSimulationPoint(sp, sp.getValue());
+                handleGradientUpdateForSimulationPoint(sp, sp.getValue());
                 updateAllObservers(sp, sp.getValue());
             }
         }

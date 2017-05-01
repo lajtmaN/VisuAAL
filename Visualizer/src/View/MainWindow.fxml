@@ -17,6 +17,7 @@
 <?import javafx.scene.control.Label?>
 <?import View.ToggleSwitch?>
 
+<?import View.IntegerTextField?>
 <GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainWindowController">
 
     <children>
@@ -61,7 +62,7 @@
                </VBox>
            </content>
        </Tab>
-       <Tab fx:id="topologyGeneratorTab" closable="false" text="Topology Generator">
+       <Tab fx:id="topologyGeneratorTab" closable="false" text="Topology Generator" onSelectionChanged="#onEnterTopologyGenerator">
            <fx:include fx:id="topologyGenerator" source="topology/TopologyGenerator.fxml" />
        </Tab>
       <Tab closable="false" text="Simulation Generator">
@@ -106,12 +107,12 @@
                                    <padding>
                                        <Insets right="10.0" />
                                    </padding></Label>
-                               <TextField fx:id="txtQueryTimeBound" prefHeight="25.0" prefWidth="213.0" promptText="Time bound" GridPane.columnIndex="2" />
+                               <IntegerTextField fx:id="txtQueryTimeBound" prefHeight="25.0" prefWidth="213.0" promptText="Time bound" GridPane.columnIndex="2" />
                                <Label text="Number of simulations: " GridPane.columnIndex="3" GridPane.halignment="RIGHT">
                                    <padding>
                                        <Insets right="10.0" />
                                    </padding></Label>
-                               <TextField fx:id="txtQuerySimulations" prefHeight="25.0" prefWidth="100.0" promptText="Simulations" GridPane.columnIndex="4" />
+                               <IntegerTextField fx:id="txtQuerySimulations" prefHeight="25.0" prefWidth="100.0" promptText="Simulations" GridPane.columnIndex="4" />
                                <Label prefHeight="17.0" prefWidth="129.0" text="Random topology: " GridPane.columnIndex="5" GridPane.halignment="RIGHT">
                                    <padding>
                                        <Insets right="10.0" />

@@ -12,5 +12,6 @@ exceptions
 parsers
 parsers.Declaration
 parsers.Declaration.ANTLRGenerated
+parsers.GPSLog
 parsers.VQParser
 parsers.VQParser.Generated
