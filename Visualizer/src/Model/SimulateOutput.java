@@ -79,7 +79,17 @@ public class SimulateOutput extends UPPAALOutput {
             }
         }
 
-        result.sort((o1, o2) -> o1.getClock() < o2.getClock() ? -1 : (o1.getClock() > o2.getClock() ? 1 : 0));
+        result.sort((o1, o2) -> {
+            if (o1.getClock() < o2.getClock())
+                return -1;
+            if (o1.getClock() > o2.getClock())
+                return 1;
+            if (o1.getIdentifier().equals("CONFIG_connected"))
+                return -1;
+            if (o2.getIdentifier().equals("CONFIG_connected"))
+                return 0;
+            return 0;
+        });
         return result;
     }
 
@@ -104,8 +114,13 @@ public class SimulateOutput extends UPPAALOutput {
         Optional<OutputVariable> var = outputVars.stream().filter(p -> p.getName().equals(nameWithoutArray)).findFirst();
         if (var.isPresent())
             return var.get();
-        else
-            throw new IllegalArgumentException(nameWithoutArray + " was not present in list of outputVars");
+        else if(nameWithoutArray.equals("CONFIG_connected")) {
+            OutputVariable ov = new OutputVariable("CONFIG_connected");
+            ov.setEdgeData(true);
+            return ov;
+        }
+
+        throw new IllegalArgumentException(nameWithoutArray + " was not present in list of outputVars");
     }
 
     private int getSourceDestinationFromKey(String regex, String name, int groupId) {
@@ -193,6 +208,9 @@ public class SimulateOutput extends UPPAALOutput {
                 for(DataPoint d : varData) {
                     if(previous != null) {
                         d.setPreviousValue(previous.getValue());
+                    }
+                    else if(key.startsWith("CONFIG_connected") && d.getClock() == 0) {
+                        d.setPreviousValue(1);
                     }
                     else
                         d.setPreviousValue(0);

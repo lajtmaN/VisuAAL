@@ -94,12 +94,16 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         return isEdge && containsIdentifier;
     }
 
+    private boolean isConfigConnectedSimulationPoint(SimulationPoint sp) {
+        return  sp.getType().equals(SimulationPoint.SimulationPointType.EdgePoint) && sp.getScopedIdentifier().equals("CONFIG_connected");
+    }
+
     void markGraphForward(double newTimeValue, double oldTime) {
         SimulationPoint sp;
         //Make sure that more elements at same end time all are included
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() > newTimeValue)) {
             if (sp.getClock() >= oldTime) {
-                handleGradientUpdateForSimulationPoint(sp, sp.getValue());
+                handleUpdateForSimulationPoint(sp, sp.getValue());
                 updateAllObservers(sp, sp.getValue());
             }
             if (currentSimulationIndex + 1 >= shownSimulation.getSimulationPoints().size())
@@ -114,7 +118,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         SimulationPoint sp;
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() < newTimeValue)) {
             if (sp.getClock() <= oldTime) {
-                handleGradientUpdateForSimulationPoint(sp, sp.getPreviousValue());
+                handleUpdateForSimulationPoint(sp, sp.getPreviousValue());
                 updateAllObservers(sp, sp.getPreviousValue());
             }
             if (currentSimulationIndex - 1 < 0)
@@ -130,12 +134,16 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
      * @param sp
      * @param simulationPointValue own value or previous value (forward / backwards)
      */
-    private void handleGradientUpdateForSimulationPoint(SimulationPoint sp, double simulationPointValue) {
+    private void handleUpdateForSimulationPoint(SimulationPoint sp, double simulationPointValue) {
         try {
-            if (validEdgeSimPoint(sp)) {
+            if(isConfigConnectedSimulationPoint(sp)) {
+                SimulationEdgePoint sep = (SimulationEdgePoint) sp;
+                getTopology().updateEdgeConnected(sep, simulationPointValue > 0);
+            }
+            else if (validEdgeSimPoint(sp)) {
                 SimulationEdgePoint sep = (SimulationEdgePoint) sp;
                 if(parseTreeEdge.getVqColors() == null) {
-                    double gradient = handleGradientUpdateForSimulationPoint(sp, sep.getEdgeIdentifier(),
+                    double gradient = handleUpdateForSimulationPoint(sp, sep.getEdgeIdentifier(),
                             simulationPointValue, parseTreeEdge);
                     getTopology().updateEdgeGradient(sep.getEdgeIdentifier(), gradient);
                 }
@@ -148,7 +156,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             else if (validNodeSimPoint(sp)) {
                 SimulationNodePoint snp = (SimulationNodePoint) sp;
                 if(parseTreeNode.getVqColors() == null) {
-                    double gradient = handleGradientUpdateForSimulationPoint(sp, String.valueOf(snp.getNodeId()),
+                    double gradient = handleUpdateForSimulationPoint(sp, String.valueOf(snp.getNodeId()),
                             simulationPointValue, parseTreeNode);
                     getTopology().updateNodeGradient(snp.getNodeId(), gradient);
                 }
@@ -165,8 +173,8 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         }
     }
 
-    private double handleGradientUpdateForSimulationPoint(SimulationPoint sp, String simulationPointIdentifier,
-                                                          double simulationPointValue, VQParseTree vqParseTree) throws Exception {
+    private double handleUpdateForSimulationPoint(SimulationPoint sp, String simulationPointIdentifier,
+                                                  double simulationPointValue, VQParseTree vqParseTree) throws Exception {
 
         graphValueMapper.updateNodeVariable(simulationPointIdentifier, sp.getScopedIdentifier(), simulationPointValue);
         return vqParseTree.getGradient(graphValueMapper.getNodeOrEdgeVariableMap(simulationPointIdentifier));
@@ -305,7 +313,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             for(String s : edgeVars) {
                 SimulationEdgePoint sp = new SimulationEdgePoint(s, 0,
                         id.getSourceNode().getId(), id.getTargetNode().getId(), 0, 0);
-                handleGradientUpdateForSimulationPoint(sp, sp.getValue());
+                handleUpdateForSimulationPoint(sp, sp.getValue());
                 updateAllObservers(sp, sp.getValue());
             }
         }
@@ -321,7 +329,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         for(int i = 0 ; i < nrNodes ; i++) {
             for(String s : nodeVars) {
                 SimulationNodePoint sp = new SimulationNodePoint(s, 0, i, 0, 0);
-                handleGradientUpdateForSimulationPoint(sp, sp.getValue());
+                handleUpdateForSimulationPoint(sp, sp.getValue());
                 updateAllObservers(sp, sp.getValue());
             }
         }

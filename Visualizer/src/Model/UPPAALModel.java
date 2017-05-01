@@ -50,6 +50,10 @@ public class UPPAALModel implements Externalizable, Cloneable {
         modelTimeUnit = UPPAALParser.getModelTimeUnitConstant(modelPath);
         outputVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALOutputVars(modelPath));
         templateUpdates = FXCollections.observableArrayList(UPPAALParser.getDynamicTemplateUpdates(modelPath));
+
+        templateUpdates.add(TemplateUpdate.updateTopology(1, 3, true, 1000));
+        templateUpdates.add(TemplateUpdate.updateTopology(1, 3, false, 2000));
+        templateUpdates.add(TemplateUpdate.updateTopology(1, 3, true, 3000));
     }
 
     public UPPAALTopology getTopology() {

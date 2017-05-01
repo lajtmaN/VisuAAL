@@ -57,22 +57,23 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             addNode(i);
         }
         for(UPPAALEdge s : this){
-            SimulationEdgePoint sep = new SimulationEdgePoint(0, s.getSource(), s.getDestination(), 1);
+            String edgeName = String.format("%d-%d", s.getSourceAsInt(), s.getDestinationAsInt());
+            SimulationEdgePoint sep = new SimulationEdgePoint(edgeName, 0, s.getSource(), s.getDestination(), 1, 1);
             addEdge(sep);
         }
     }
 
     private Edge addEdge(SimulationEdgePoint s){
-        Edge e = getGraph().getEdge(s.getIdentifier());
+        Edge e = getGraph().getEdge(s.getEdgeIdentifier());
         if(e != null)
             return e;
 
-        Edge newEdge = getGraph(false).addEdge(s.getIdentifier(), s.getSource(), s.getDestination(), true);
+        Edge newEdge = getGraph(false).addEdge(s.getEdgeIdentifier(), s.getSource(), s.getDestination(), true);
         return newEdge;
     }
     private Edge removeEdge(SimulationEdgePoint s) {
         Graph g = getGraph(false);
-        Edge e = g.getEdge(s.getIdentifier());
+        Edge e = g.getEdge(s.getEdgeIdentifier());
         if(e == null){
             return e;
         }
@@ -222,5 +223,12 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         result = 31 * result + _numberOfNodes;
         result = 31 * result + (nodes != null ? nodes.hashCode() : 0);
         return result;
+    }
+
+    public void updateEdgeConnected(SimulationEdgePoint sp, boolean connected) {
+        if(connected)
+            addEdge(sp);
+        else
+            removeEdge(sp);
     }
 }
