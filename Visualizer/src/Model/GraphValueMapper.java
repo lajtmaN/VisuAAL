@@ -11,10 +11,10 @@ public class GraphValueMapper implements Serializable {
     Map<String, Map<String, Double>> nodeVarValueMap = new HashMap<>();
 
     /**
-     * Updates a nodes variables value
+     * Updates a nodes variables pointValue
      * @param nodeOrEdgeIdentifier
      * @param varIdentifier includes scope if any
-     * @param value new value
+     * @param value new pointValue
      */
     public void updateNodeVariable(String nodeOrEdgeIdentifier, String varIdentifier, double value) {
         initilizeNodeOrEdgeIdentifier(nodeOrEdgeIdentifier);

@@ -1,5 +1,6 @@
 package parsers;
 
+import Model.SimulationMoveNodePoint;
 import Model.TemplateUpdate;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
@@ -192,6 +193,27 @@ public class GPSLogParserTest {
         assertTrue(expected6.getVariableName(), updates.contains(expected6));
         assertTrue(expected7.getVariableName(), updates.contains(expected7));
         assertTrue(expected8.getVariableName(), updates.contains(expected8));
+    }
+
+    @Test
+    public void generateSimulationMoveNodePoints() throws Exception {
+        File exampleLogFile = new File("test_resources/gpslog_with_updates.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(exampleLogFile);
+        List<SimulationMoveNodePoint> points = loadedNodes.generateSimulationMoveNodePoints();
+
+        assertEquals(9, points.size());
+
+        assertEquals("0", points.get(1).getIdentifier());
+        assertEquals(455.8122801035139, points.get(1).getPreviousPointValue().x, 0.001);
+        assertEquals(267.3237231461489, points.get(1).getPreviousPointValue().y, 0.001);
+
+        assertEquals("1", points.get(4).getIdentifier());
+        assertEquals(602.9260664248344, points.get(4).getPointValue().x, 0.001);
+        assertEquals(435.8841124467606, points.get(4).getPointValue().y, 0.001);
+
+        assertEquals("2", points.get(8).getIdentifier());
+        assertEquals(0, points.get(8).getPointValue().x, 0.001);
+        assertEquals(587.776382242929, points.get(8).getPointValue().y, 0.001);
     }
 
     private void assertContainsNeighbors(GPSLogEntry node, Integer... neighbors) {

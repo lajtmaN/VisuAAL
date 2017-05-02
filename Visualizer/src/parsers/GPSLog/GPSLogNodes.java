@@ -2,9 +2,7 @@ package parsers.GPSLog;
 
 import Helpers.GoogleMapsHelper;
 import Helpers.Pair;
-import Model.TemplateUpdate;
-import Model.UPPAALEdge;
-import Model.UPPAALTopology;
+import Model.*;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
@@ -107,8 +105,8 @@ public class GPSLogNodes {
         List<CellNode> cellNodes = new ArrayList<>();
         List<GPSLogEntry> seedEntries = nodes.values().stream().map(nodes -> nodes.first()).collect(Collectors.toList());
         for (GPSLogEntry node : seedEntries) {
-            Pair<Double, Double> xy = getLocationRelativeToBounds(node);
-            cellNodes.add(new CellNode(0, xy.getFirst(), xy.getSecond()));
+            Point xy = getLocationRelativeToBounds(node);
+            cellNodes.add(new CellNode(0, xy.x, xy.y));
         }
 
         return cellNodes;
@@ -121,7 +119,7 @@ public class GPSLogNodes {
                 uppaalTopology.add(new UPPAALEdge(String.valueOf(source.nodeId), String.valueOf(neighbor)))));
     }
 
-    private Pair<Double, Double> getLocationRelativeToBounds(GPSLogEntry node) throws Exception {
+    private Point getLocationRelativeToBounds(GPSLogEntry node) throws Exception {
         //Lat is y
         //Lng is x
         LatLng southWest = getBounds().getSouthWest();
@@ -132,7 +130,7 @@ public class GPSLogNodes {
         LatLng belowNode = new LatLng(southWest.lat, node.location.lng);
         double y = GoogleMapsHelper.distanceBetween(node.location, belowNode);
 
-        return new Pair<>(x,y);
+        return new Point(x,y);
     }
 
     public void forEach(Consumer<? super GPSLogEntry> action) {
@@ -145,5 +143,37 @@ public class GPSLogNodes {
             updates.addAll(nodeList.calculateTopologyChanges());
         }
         return updates;
+    }
+
+    public List<SimulationMoveNodePoint> generateSimulationMoveNodePoints() {
+        List<SimulationMoveNodePoint> points = new ArrayList<>();
+
+        for(GPSLogNode node : nodes.values()) {
+            List<SimulationMoveNodePoint> currentNodePoints = new ArrayList<>();
+            for(GPSLogEntry entry : node) {
+                try {
+                    currentNodePoints.add(generateSimulationMoveNodePoint(entry));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            setPreviousValues(currentNodePoints);
+            points.addAll(currentNodePoints);
+        }
+
+        return points;
+    }
+
+    private void setPreviousValues(List<SimulationMoveNodePoint> nodes) {
+        nodes.sort(SimulationPoint::compareTo);
+        for(int i = 0; i < nodes.size(); i++) {
+            if(i >= 1)
+                nodes.get(i).setPreviousPointValue(nodes.get(i-1).getPointValue());
+        }
+    }
+
+    private SimulationMoveNodePoint generateSimulationMoveNodePoint(GPSLogEntry n) throws Exception {
+        Point p = getLocationRelativeToBounds(n);
+        return new SimulationMoveNodePoint(String.valueOf(n.nodeId), n.timestamp, p, null);
     }
 }

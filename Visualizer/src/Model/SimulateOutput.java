@@ -78,7 +78,7 @@ public class SimulateOutput extends UPPAALOutput {
                 result.addAll(getZippedVariablePoints(variable, simId));
             }
         }
-
+        
         result.sort((o1, o2) -> {
             if (o1.getClock() < o2.getClock())
                 return -1;

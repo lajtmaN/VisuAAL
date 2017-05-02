@@ -13,7 +13,7 @@ public class Heatmap extends Simulation implements Serializable {
     }
 
     //O(n log(n) + 2n)
-    static private List<? extends SimulationPoint> generateHeatmap(List<Simulation> simulations) {
+    static private List<SimulationPoint> generateHeatmap(List<Simulation> simulations) {
         ArrayList<SimulationPoint> heatmapData = new ArrayList<>();
 
         //n = total number of simulationpoints

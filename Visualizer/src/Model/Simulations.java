@@ -132,7 +132,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
     /**
      * Update for either forward or backward
      * @param sp
-     * @param simulationPointValue own value or previous value (forward / backwards)
+     * @param simulationPointValue own pointValue or previous pointValue (forward / backwards)
      */
     private void handleUpdateForSimulationPoint(SimulationPoint sp, double simulationPointValue) {
         try {
@@ -401,4 +401,20 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         observers.remove(observer);
     }
 
+    public void addAndSortSimulationPoints(List<SimulationMoveNodePoint> simulationMoveNodePoints) {
+        for(Simulation s : this.simulations) {
+            s.simulationPoints.addAll(simulationMoveNodePoints);
+            s.simulationPoints.sort((o1, o2) -> {
+                if (o1.getClock() < o2.getClock())
+                    return -1;
+                if (o1.getClock() > o2.getClock())
+                    return 1;
+                if (o1.getIdentifier().equals("CONFIG_connected"))
+                    return -1;
+                if (o2.getIdentifier().equals("CONFIG_connected"))
+                    return 0;
+                return 0;
+            });
+        }
+    }
 }

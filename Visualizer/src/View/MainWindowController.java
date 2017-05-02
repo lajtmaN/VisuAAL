@@ -33,6 +33,7 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
@@ -303,11 +304,13 @@ public class MainWindowController implements Initializable {
             th.printStackTrace();
             return null;
         });
-        out.thenAccept(simulation -> {
+        out.thenAccept(simulations -> {
             simulationProgress.setVisible(false);
-            if (simulation != null) {
-                Platform.runLater(() -> addNewResults(simulationName, simulation));
-                simulation.save(simulationName);
+            if (simulations != null) {
+                if(topologyGeneratorController.getSimulationMoveNodePoints() != null)
+                    simulations.addAndSortSimulationPoints(topologyGeneratorController.getSimulationMoveNodePoints());
+                Platform.runLater(() -> addNewResults(simulationName, simulations));
+                simulations.save(simulationName);
             }
         });
     }

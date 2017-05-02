@@ -3,6 +3,7 @@ package View.topology;
 import Helpers.ExtensionFilters;
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
+import Model.SimulationMoveNodePoint;
 import Model.UPPAALTopology;
 import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
@@ -53,6 +54,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
     private TopologyGenerator topologyGenerator;
     private ArrayList<CellOptionsController> cellOptionsList;
+    private List<SimulationMoveNodePoint> simulationMoveNodePoints;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -216,6 +218,8 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
             LatLngBounds latLongBounds = topologyViewerController.getMapBounds();
             UPPAALTopology loadedTopology = nodes.generateUPPAALTopologyWithBounds(latLongBounds);
 
+            simulationMoveNodePoints = nodes.generateSimulationMoveNodePoints();
+
             loadedTopology.updateGraph();
             showGraph(loadedTopology.getGraph(), false); //We will not detect when nodes are moved because listener is null
             chkFreezeMap.switchOnProperty().set(true);
@@ -228,5 +232,9 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         catch (Exception e) {
             GUIHelper.showError("Could not load the GPS Log file." + System.lineSeparator() + e.getMessage());
         }
+    }
+
+    public List<SimulationMoveNodePoint> getSimulationMoveNodePoints() {
+        return simulationMoveNodePoints;
     }
 }
