@@ -55,6 +55,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
     private TopologyGenerator topologyGenerator;
     private ArrayList<CellOptionsController> cellOptionsList;
     private List<SimulationMoveNodePoint> simulationMoveNodePoints;
+    private LatLngBounds latLngBounds;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -215,8 +216,8 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
             GPSLogNodes nodes = GPSLogParser.parse(gpsLogFile);
             topologyViewerController.setMapBounds(nodes.getBounds());
-            LatLngBounds latLongBounds = topologyViewerController.getMapBounds();
-            UPPAALTopology loadedTopology = nodes.generateUPPAALTopologyWithBounds(latLongBounds);
+            this.latLngBounds = nodes.getBounds();
+            UPPAALTopology loadedTopology = nodes.generateUPPAALTopologyWithBounds(topologyViewerController.getMapBounds());
 
             simulationMoveNodePoints = nodes.generateSimulationMoveNodePoints();
 
@@ -236,5 +237,9 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
     public List<SimulationMoveNodePoint> getSimulationMoveNodePoints() {
         return simulationMoveNodePoints;
+    }
+
+    public LatLngBounds getLatLngBounds() {
+        return latLngBounds;
     }
 }

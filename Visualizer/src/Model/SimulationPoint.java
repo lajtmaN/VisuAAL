@@ -31,7 +31,7 @@ public class SimulationPoint extends DataPoint implements Serializable, Comparab
         return identifier;
     }
 
-    SimulationPointType getType() {
+    public SimulationPointType getType() {
         return type;
     }
 

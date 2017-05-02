@@ -138,10 +138,19 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         Node graphNode = getGraph(false).addNode(String.valueOf(id));
         showLabelOnNode(graphNode, String.valueOf(id));
         if (nodesHasSpecificLocations()) {
-            graphNode.addAttribute("layout.frozen");
-            graphNode.setAttribute("xyz", nodes.get(id).getX(), nodes.get(id).getY(), 0);
+            setNodeLocation(graphNode, new Point(nodes.get(id).getX(), nodes.get(id).getY()));
         }
         return graphNode;
+    }
+
+    private void setNodeLocation(Node graphNode, Point point) {
+        graphNode.addAttribute("layout.frozen");
+        graphNode.setAttribute("xyz", point.x, point.y, 0);
+    }
+
+    public void moveNode(String identifier, Point p) {
+        Node graphNode = getGraph(false).getNode(identifier);
+        setNodeLocation(graphNode, p);
     }
 
     private void showLabelOnNode(Node n, String nodeName) {
@@ -198,7 +207,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     protected String styleSheet =
             "graph {" +
                     "fill-color: rgba(0,0,0,0);" +
-                    "padding: 0,0;" +
+                    "padding: 5,5;" +
                     "}" +
             "node {" +
                     "   text-alignment: under;" +

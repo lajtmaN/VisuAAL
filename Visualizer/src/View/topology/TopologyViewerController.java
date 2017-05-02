@@ -50,6 +50,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
 
     private GoogleMap map;
     private Graph currentlyShownGraph;
+    private ViewPanel swingView;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -98,7 +99,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
         if (listener != null) mouse.addNodesMovedListener(listener);
         mouse.start();
 
-        ViewPanel swingView = v.addDefaultView(false);
+        swingView = v.addDefaultView(false);
 
         SwingUtilities.invokeLater(() -> {
             graphStreamNode.setContent(swingView);
@@ -106,13 +107,16 @@ public class TopologyViewerController implements Initializable, MapComponentInit
 
         if (isMapShown()) {
             Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateSizeInMeters(getMapBounds());
-            SwingUtilities.invokeLater(() -> {
-                swingView.getCamera().setGraphViewport(0, 0, widthAndHeight.getFirst(), widthAndHeight.getSecond());
-                swingView.getCamera().setViewCenter(widthAndHeight.getFirst() / 2, widthAndHeight.getSecond() / 2, 0);
-            });
+            setGraphViewport(widthAndHeight);
         }
     }
 
+    public void setGraphViewport(Pair<Double, Double> widthAndHeight) {
+        SwingUtilities.invokeLater(() -> {
+            swingView.getCamera().setGraphViewport(0, 0, widthAndHeight.getFirst(), widthAndHeight.getSecond());
+            swingView.getCamera().setViewCenter(widthAndHeight.getFirst() / 2, widthAndHeight.getSecond() / 2, 0);
+        });
+    }
 
     public boolean isMapShown() {
         return showMap.get();

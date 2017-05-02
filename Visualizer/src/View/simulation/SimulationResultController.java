@@ -1,5 +1,6 @@
 package View.simulation;
 
+import Helpers.GoogleMapsHelper;
 import Model.SimulationEdgePoint;
 import Model.SimulationNodePoint;
 import Model.SimulationPoint;
@@ -98,6 +99,7 @@ public class SimulationResultController implements Initializable, VariableUpdate
         //TODO: Add background if needed
         boolean autolayout = !currentSimulations.getTopology().nodesHasSpecificLocations();
         topologyViewerController.showGraph(currentSimulations.getGraph(), autolayout, nodeVarGridPane);
+        topologyViewerController.setGraphViewport(GoogleMapsHelper.calculateSizeInMeters(currentSimulations.getLatLngBounds()));
     }
 
     private void resizeTopologyViewer() {
@@ -178,7 +180,7 @@ public class SimulationResultController implements Initializable, VariableUpdate
 
     @Override
     public void update(SimulationPoint sp, double value) {
-        if(!(sp instanceof SimulationNodePoint) && !(sp instanceof SimulationEdgePoint)) {
+        if(sp.getType() == SimulationPoint.SimulationPointType.Variable) {
             updateGridVars(sp.getIdentifier(), String.valueOf(value));
         }
         if(sp instanceof SimulationNodePoint) {
