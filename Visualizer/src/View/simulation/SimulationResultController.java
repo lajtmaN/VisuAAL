@@ -99,7 +99,8 @@ public class SimulationResultController implements Initializable, VariableUpdate
         //TODO: Add background if needed
         boolean autolayout = !currentSimulations.getTopology().nodesHasSpecificLocations();
         topologyViewerController.showGraph(currentSimulations.getGraph(), autolayout, nodeVarGridPane);
-        topologyViewerController.setGraphViewport(GoogleMapsHelper.calculateSizeInMeters(currentSimulations.getLatLngBounds()));
+        if(currentSimulations.getLatLngBounds() != null)
+            topologyViewerController.setGraphViewport(GoogleMapsHelper.calculateSizeInMeters(currentSimulations.getLatLngBounds()));
     }
 
     private void resizeTopologyViewer() {

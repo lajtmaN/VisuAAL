@@ -1,5 +1,6 @@
 package View.topology;
 
+import Helpers.GUIHelper;
 import Helpers.GoogleMapsHelper;
 import Helpers.Pair;
 import Model.topology.LatLng;
@@ -77,6 +78,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
                 .streetViewControl(false)
                 .zoomControl(false)
                 .zoom(13);
+
         map = mapView.createMap(options);
 
         mapView.prefWidthProperty().bind(rootPane.widthProperty());
