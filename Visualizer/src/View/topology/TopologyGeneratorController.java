@@ -172,6 +172,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
     private void generateRandomTopology() {
         /*File backgroundImageFile = new File("simulations/background.png");
          *topologyViewerController.getMapSnapshot(backgroundImageFile); */
+        MainWindowController.getInstance().enableDisableUseTopologyFromTopologyGenerator(true);
         lastGeneratedTopology = topologyGenerator.generateUppaalTopology(topologyViewerController.getMapBounds());
     }
     public UPPAALTopology generateTopology(boolean generateNew) {
