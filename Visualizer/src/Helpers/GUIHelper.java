@@ -36,7 +36,7 @@ public class GUIHelper {
     public static String getVerifytaLocationFromUser() {
         String verifytaLocation = Settings.Instance().getVerifytaLocation();
 
-        if (verifytaLocation != null && verifytaLocation.endsWith("verifyta.exe")) {
+        if (verifytaLocation != null && verifytaLocation.substring(0,verifytaLocation.length()-4).endsWith("verifyta")) {
             if (new File(verifytaLocation).exists())
                 return verifytaLocation;
         }
