@@ -24,7 +24,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
     private VQParseTree parseTreeNode, parseTreeEdge;
 
     private Simulation shownSimulation;
-    private ArrayList<VariableUpdateObserver> observers = new ArrayList<>();
+    transient private ArrayList<VariableUpdateObserver> observers = new ArrayList<>();
 
     private OutputVariable shownEdgeVariable, shownNodeVariable;
     private String query;
@@ -250,12 +250,13 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             in.close();
             fileIn.close();
             sim.model.getTopology().updateGraph();
+            sim.observers = new ArrayList<>();
             sim.showSimulation(0);
             return sim;
         } catch(InvalidClassException i) {
             GUIHelper.showAlert(Alert.AlertType.ERROR, "The simulation that you tried to load was created by an older version of this program.");
         } catch (Exception ignored) {
-
+            ignored.printStackTrace();
         }
         return null;
     }

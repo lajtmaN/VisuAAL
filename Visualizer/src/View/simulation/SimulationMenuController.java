@@ -56,7 +56,10 @@ public class SimulationMenuController {
     private void initializeExportOptions() {
         lstExportOptions.setCellFactory(param -> new SimulationOptionCell());
         lstExportOptions.setOnMouseClicked(p -> {
-            lstExportOptions.getSelectionModel().getSelectedItem().startAction();
+            SimulationOption selected = lstExportOptions.getSelectionModel().getSelectedItem();
+            if(selected !=  null){
+                selected.startAction();
+            }
         });
     }
 
