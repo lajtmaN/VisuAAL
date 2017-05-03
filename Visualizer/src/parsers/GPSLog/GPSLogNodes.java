@@ -169,6 +169,8 @@ public class GPSLogNodes {
         for(int i = 0; i < nodes.size(); i++) {
             if(i >= 1)
                 nodes.get(i).setPreviousPointValue(nodes.get(i-1).getPointValue());
+            else
+                nodes.get(i).setPreviousPointValue(nodes.get(i).getPointValue());
         }
     }
 
