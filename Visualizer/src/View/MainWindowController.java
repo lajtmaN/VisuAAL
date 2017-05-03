@@ -375,4 +375,5 @@ public class MainWindowController implements Initializable {
     public void enableDisableUseTopologyFromTopologyGenerator(boolean active) {
         chkUseRandomTopology.switchOnProperty().set(active);
     }
+
 }

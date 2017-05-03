@@ -72,10 +72,14 @@ public class SimulationResultController implements Initializable, VariableUpdate
         simulationMenuController.loadWithSimulation(currentSimulations);
         nodeVarGridPane.initialize(currentSimulations);
 
+        if(topologyViewerController.isInitializedProperty().getValue()) {
+            initializeGraphStreamViewer();
+        }
         topologyViewerController.isInitializedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue)
                 initializeGraphStreamViewer();
         });
+
         currentSimulations.addListener(this);
     }
 
@@ -104,8 +108,8 @@ public class SimulationResultController implements Initializable, VariableUpdate
     }
 
     private void resizeTopologyViewer() {
-        double height = MainWindowController.getInstance().getTabHeight() - timeSlider.getHeight() - play.getHeight();
-        double width = MainWindowController.getInstance().getTabWidth() - simulationMenuController.root.getWidth();
+        double height = MainWindowController.getInstance().getTabHeight() - timeSlider.getPrefHeight() - play.getPrefHeight();
+        double width = MainWindowController.getInstance().getTabWidth() - simulationMenuController.root.getPrefWidth();
         topologyViewerController.rootPane.setMaxSize(width, height);
         topologyViewerController.rootPane.setMinSize(width, height);
     }

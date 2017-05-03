@@ -173,6 +173,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         /*File backgroundImageFile = new File("simulations/background.png");
          *topologyViewerController.getMapSnapshot(backgroundImageFile); */
         MainWindowController.getInstance().enableDisableUseTopologyFromTopologyGenerator(true);
+        simulationMoveNodePoints = null;
         lastGeneratedTopology = topologyGenerator.generateUppaalTopology(topologyViewerController.getMapBounds());
     }
     public UPPAALTopology generateTopology(boolean generateNew) {
@@ -182,6 +183,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
     }
 
     public void preview(ActionEvent actionEvent) {
+        autoResize();
         Graph graph = generateTopology(true).getGraph(true);
         showGraph(graph, true);
         chkFreezeMap.switchOnProperty().set(true);

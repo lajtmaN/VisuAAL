@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 <?import javafx.scene.layout.GridPane?>
-<Accordion fx:id="root" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.simulation.SimulationMenuController">
+<Accordion fx:id="root" prefWidth="260" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.simulation.SimulationMenuController">
    <panes>
        <TitledPane text="Display">
            <content>
