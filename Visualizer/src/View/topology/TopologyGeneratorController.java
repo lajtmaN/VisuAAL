@@ -3,6 +3,7 @@ package View.topology;
 import Helpers.ExtensionFilters;
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
+import Model.SimulationMoveNodePoint;
 import Model.UPPAALTopology;
 import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
@@ -23,7 +24,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
 import parsers.GPSLog.GPSLogParser;
-import parsers.GPSLog.SeedNodes;
+import parsers.GPSLog.GPSLogNodes;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +54,8 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
     private TopologyGenerator topologyGenerator;
     private ArrayList<CellOptionsController> cellOptionsList;
+    private List<SimulationMoveNodePoint> simulationMoveNodePoints;
+    private LatLngBounds latLngBounds;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -169,6 +172,8 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
     private void generateRandomTopology() {
         /*File backgroundImageFile = new File("simulations/background.png");
          *topologyViewerController.getMapSnapshot(backgroundImageFile); */
+        MainWindowController.getInstance().enableDisableUseTopologyFromTopologyGenerator(true);
+        simulationMoveNodePoints = null;
         lastGeneratedTopology = topologyGenerator.generateUppaalTopology(topologyViewerController.getMapBounds());
     }
     public UPPAALTopology generateTopology(boolean generateNew) {
@@ -178,6 +183,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
     }
 
     public void preview(ActionEvent actionEvent) {
+        autoResize();
         Graph graph = generateTopology(true).getGraph(true);
         showGraph(graph, true);
         chkFreezeMap.switchOnProperty().set(true);
@@ -211,18 +217,32 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         try {
             autoResize();
 
-            SeedNodes nodes = GPSLogParser.parse(gpsLogFile);
+            GPSLogNodes nodes = GPSLogParser.parse(gpsLogFile);
             topologyViewerController.setMapBounds(nodes.getBounds());
-            LatLngBounds latLongBounds = topologyViewerController.getMapBounds();
-            UPPAALTopology loadedTopology = nodes.generateUPPAALTopologyWithBounds(latLongBounds);
+            this.latLngBounds = nodes.getBounds();
+            UPPAALTopology loadedTopology = nodes.generateUPPAALTopologyWithBounds(topologyViewerController.getMapBounds());
+
+            simulationMoveNodePoints = nodes.generateSimulationMoveNodePoints();
+
             loadedTopology.updateGraph();
             showGraph(loadedTopology.getGraph(), false); //We will not detect when nodes are moved because listener is null
             chkFreezeMap.switchOnProperty().set(true);
             chkShowGridSettings.switchOnProperty().set(false);
             lastGeneratedTopology = loadedTopology;
+
+            MainWindowController.getInstance().getUppaalModel().replaceTopologyChanges(nodes.getTopologyChanges());
+            MainWindowController.getInstance().enableDisableUseTopologyFromTopologyGenerator(true);
         }
         catch (Exception e) {
             GUIHelper.showError("Could not load the GPS Log file." + System.lineSeparator() + e.getMessage());
         }
+    }
+
+    public List<SimulationMoveNodePoint> getSimulationMoveNodePoints() {
+        return simulationMoveNodePoints;
+    }
+
+    public LatLngBounds getLatLngBounds() {
+        return latLngBounds;
     }
 }

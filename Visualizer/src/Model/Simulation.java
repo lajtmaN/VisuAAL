@@ -9,9 +9,9 @@ import java.util.List;
 public class Simulation implements Serializable {
     private int currentSimulationIndex = 0;
 
-    protected final List<? extends SimulationPoint> simulationPoints;
+    protected List<SimulationPoint> simulationPoints;
 
-    public Simulation(List<? extends SimulationPoint> points) {
+    public Simulation(List<SimulationPoint> points) {
         this.simulationPoints = points;
     }
 

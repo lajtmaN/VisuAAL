@@ -1,5 +1,6 @@
 package parsers.GPSLog;
 
+import Helpers.StringHelper;
 import Model.topology.LatLng;
 import parsers.RegexHelper;
 
@@ -15,6 +16,7 @@ public class GPSLogLineParser {
     private String gpsLogLine;
     private String[] gpsLogLineParts;
 
+    private int timestamp;
     private int nodeId;
     private LatLng gpsLocation;
     private List<Integer> neighbors;
@@ -23,7 +25,7 @@ public class GPSLogLineParser {
         this.gpsLogLine = gpsLogLine;
     }
 
-    public SeedNode parse() throws IllegalArgumentException {
+    public GPSLogEntry parse() throws IllegalArgumentException {
         if (isComment())
             return null;
 
@@ -37,25 +39,35 @@ public class GPSLogLineParser {
     }
 
     private void splitLineInParts() throws IllegalArgumentException {
+        int numOfSeparators = StringHelper.countOccurrences(gpsLogLine, ';');
+        if (numOfSeparators != 4)
+            throw new IllegalArgumentException("Expected each line to contain 4 ;, but only got '" + numOfSeparators + "'");
+
         String regexWhichSplitsOnSemicolonAndRemovesWhiteSpace = "\\s*;\\s*";
         this.gpsLogLineParts = gpsLogLine.trim().split(regexWhichSplitsOnSemicolonAndRemovesWhiteSpace);
-
-        if (gpsLogLineParts.length != 4)
-            throw new IllegalArgumentException("Expected each line to contain 3 ;, but only got '" + (gpsLogLineParts.length - 1) + "'");
     }
 
     private void parseEachSectionInGpsLogLine() throws IllegalArgumentException {
+        parseTimestamp();
         parseNodeId();
         parseGpsLocation();
         parseNeighbors();
     }
 
-    private SeedNode createSeedNodeObject() {
-        return new SeedNode(nodeId, gpsLocation, neighbors);
+    private GPSLogEntry createSeedNodeObject() {
+        return new GPSLogEntry(timestamp, nodeId, gpsLocation, neighbors);
+    }
+
+    private void parseTimestamp() {
+        String rawText = gpsLogLineParts[0];
+        if (!RegexHelper.isValidInt(rawText))
+            throw new IllegalArgumentException("Expected a timestamp in Integer, but got '" + rawText + "'");
+
+        this.timestamp = Integer.parseInt(rawText);
     }
 
     private void parseNodeId() throws IllegalArgumentException {
-        String rawText = gpsLogLineParts[0];
+        String rawText = gpsLogLineParts[1];
         if (!RegexHelper.isValidInt(rawText))
             throw new IllegalArgumentException("Expected a node id in Integer, but got '" + rawText + "'");
 
@@ -69,7 +81,7 @@ public class GPSLogLineParser {
     }
 
     private void parseGpsLatitude() throws IllegalArgumentException {
-        String rawText = gpsLogLineParts[1];
+        String rawText = gpsLogLineParts[2];
         if (!RegexHelper.isValidDouble(rawText))
             throw new IllegalArgumentException("Expected a GPS Latitude in Double, but got '" + rawText + "'");
 
@@ -77,7 +89,7 @@ public class GPSLogLineParser {
     }
 
     private void parseGpsLongitude() throws IllegalArgumentException {
-        String rawText = gpsLogLineParts[2];
+        String rawText = gpsLogLineParts[3];
         if (!RegexHelper.isValidDouble(rawText))
             throw new IllegalArgumentException("Expected a node id in Integer, but got " + rawText);
 
@@ -85,9 +97,16 @@ public class GPSLogLineParser {
     }
 
     private void parseNeighbors() throws IllegalArgumentException {
-        String rawText = gpsLogLineParts[3];
-        String[] neighborIds = rawText.split("\\s+");
-        this.neighbors = Arrays.stream(neighborIds).map(this::parseNeighbor).collect(Collectors.toList());
+        if (gpsLogLineParts.length < 5) {
+            this.neighbors = new ArrayList<>();
+        }
+        else {
+            String rawText = gpsLogLineParts[4];
+            String[] neighborIds = rawText.split("\\s+");
+            this.neighbors = Arrays.stream(neighborIds).map(this::parseNeighbor).distinct().collect(Collectors.toList());
+            if (this.neighbors.contains(this.nodeId))
+                throw new IllegalArgumentException("Cannot add itself as a neighbor");
+        }
     }
 
     private int parseNeighbor(String neighborId) {

@@ -57,22 +57,23 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             addNode(i);
         }
         for(UPPAALEdge s : this){
-            SimulationEdgePoint sep = new SimulationEdgePoint(0, s.getSource(), s.getDestination(), 1);
+            String edgeName = String.format("%d-%d", s.getSourceAsInt(), s.getDestinationAsInt());
+            SimulationEdgePoint sep = new SimulationEdgePoint(edgeName, 0, s.getSource(), s.getDestination(), 1, 1);
             addEdge(sep);
         }
     }
 
     private Edge addEdge(SimulationEdgePoint s){
-        Edge e = getGraph().getEdge(s.getIdentifier());
+        Edge e = getGraph().getEdge(s.getEdgeIdentifier());
         if(e != null)
             return e;
 
-        Edge newEdge = getGraph(false).addEdge(s.getIdentifier(), s.getSource(), s.getDestination(), true);
+        Edge newEdge = getGraph(false).addEdge(s.getEdgeIdentifier(), s.getSource(), s.getDestination(), true);
         return newEdge;
     }
     private Edge removeEdge(SimulationEdgePoint s) {
         Graph g = getGraph(false);
-        Edge e = g.getEdge(s.getIdentifier());
+        Edge e = g.getEdge(s.getEdgeIdentifier());
         if(e == null){
             return e;
         }
@@ -137,10 +138,19 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         Node graphNode = getGraph(false).addNode(String.valueOf(id));
         showLabelOnNode(graphNode, String.valueOf(id));
         if (nodesHasSpecificLocations()) {
-            graphNode.addAttribute("layout.frozen");
-            graphNode.setAttribute("xyz", nodes.get(id).getX(), nodes.get(id).getY(), 0);
+            setNodeLocation(graphNode, new Point(nodes.get(id).getX(), nodes.get(id).getY()));
         }
         return graphNode;
+    }
+
+    private void setNodeLocation(Node graphNode, Point point) {
+        graphNode.addAttribute("layout.frozen");
+        graphNode.setAttribute("xyz", point.x, point.y, 0);
+    }
+
+    public void moveNode(String identifier, Point p) {
+        Node graphNode = getGraph(false).getNode(identifier);
+        setNodeLocation(graphNode, p);
     }
 
     private void showLabelOnNode(Node n, String nodeName) {
@@ -197,7 +207,7 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
     protected String styleSheet =
             "graph {" +
                     "fill-color: rgba(0,0,0,0);" +
-                    "padding: 0,0;" +
+                    "padding: 5,5;" +
                     "}" +
             "node {" +
                     "   text-alignment: under;" +
@@ -222,5 +232,12 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
         result = 31 * result + _numberOfNodes;
         result = 31 * result + (nodes != null ? nodes.hashCode() : 0);
         return result;
+    }
+
+    public void updateEdgeConnected(SimulationEdgePoint sp, boolean connected) {
+        if(connected)
+            addEdge(sp);
+        else
+            removeEdge(sp);
     }
 }

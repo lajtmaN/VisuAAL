@@ -1,5 +1,6 @@
 package View.simulation;
 
+import Helpers.GoogleMapsHelper;
 import Model.SimulationEdgePoint;
 import Model.SimulationNodePoint;
 import Model.SimulationPoint;
@@ -75,10 +76,14 @@ public class SimulationResultController implements Initializable, VariableUpdate
         simulationMenuController.loadWithSimulation(currentSimulations);
         nodeVarGridPane.initialize(currentSimulations);
 
+        if(topologyViewerController.isInitializedProperty().getValue()) {
+            initializeGraphStreamViewer();
+        }
         topologyViewerController.isInitializedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue)
                 initializeGraphStreamViewer();
         });
+
         currentSimulations.addListener(this);
     }
 
@@ -102,11 +107,13 @@ public class SimulationResultController implements Initializable, VariableUpdate
         //TODO: Add background if needed
         boolean autolayout = !currentSimulations.getTopology().nodesHasSpecificLocations();
         topologyViewerController.showGraph(currentSimulations.getGraph(), autolayout, nodeVarGridPane);
+        if(currentSimulations.getLatLngBounds() != null)
+            topologyViewerController.setGraphViewport(GoogleMapsHelper.calculateSizeInMeters(currentSimulations.getLatLngBounds()));
     }
 
     private void resizeTopologyViewer() {
-        double height = MainWindowController.getInstance().getTabHeight() - timeSlider.getHeight() - play.getHeight();
-        double width = MainWindowController.getInstance().getTabWidth() - simulationMenuController.root.getWidth();
+        double height = MainWindowController.getInstance().getTabHeight() - timeSlider.getPrefHeight() - play.getPrefHeight();
+        double width = MainWindowController.getInstance().getTabWidth() - simulationMenuController.root.getPrefWidth();
         topologyViewerController.rootPane.setMaxSize(width, height);
         topologyViewerController.rootPane.setMinSize(width, height);
     }
@@ -187,7 +194,7 @@ public class SimulationResultController implements Initializable, VariableUpdate
 
     @Override
     public void update(SimulationPoint sp, double value) {
-        if(!(sp instanceof SimulationNodePoint) && !(sp instanceof SimulationEdgePoint)) {
+        if(sp.getType() == SimulationPoint.SimulationPointType.Variable) {
             updateGridVars(sp.getIdentifier(), String.valueOf(value));
         }
         if(sp instanceof SimulationNodePoint) {

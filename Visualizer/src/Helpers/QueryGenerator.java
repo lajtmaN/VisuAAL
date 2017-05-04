@@ -11,20 +11,22 @@ import java.util.stream.Stream;
  * Created by batto on 08-Feb-17.
  */
 public class QueryGenerator {
-    public static String generate2DQuadraticArrayQuery(String name, int size, int nrSimulations, long time) {
-        String res = generate2DQuadraticArrayQueryVariables(name, size);
-        return generateQueryStart(nrSimulations, time, res);
+    public static String generateSimulationQuery(int timebound, int nrSimulations, List<OutputVariable> outputVariables, List<UPPAALProcess> processes) {
+        return generateSimulationQuery(timebound, nrSimulations, outputVariables, processes, 0);
+    }
+
+    public static String generateSimulationQuery(int timebound, int nrSimulations, List<OutputVariable> outputVariables, List<UPPAALProcess> processes, int numberOfNodesInTopology) {
+        List<String> vars = outputVariables.stream().map(p -> QueryGenerator.generateSingleVariableQueryPart(p, processes))
+                .collect(Collectors.toList());
+
+        if (numberOfNodesInTopology > 0)
+            vars.add(generateConnectedTopologyAsQuery(numberOfNodesInTopology));
+
+        return generateQueryStart(nrSimulations, timebound, String.join(", ", vars));
     }
 
     private static String generateQueryStart(int nrSimulations, long time, String vars) {
         return "simulate " + nrSimulations + " [<=" + time + "] { " + vars + " }";
-    }
-
-    public static String generateSimulationQuery(int timebound, int nrSimulations, List<OutputVariable> outputVariables, List<UPPAALProcess> processes) {
-        List<String> vars = outputVariables.stream().map(p -> QueryGenerator.generateSingleVariableQueryPart(p, processes))
-                .collect(Collectors.toList());
-
-        return generateQueryStart(nrSimulations, timebound, String.join(", ", vars));
     }
 
     private static String generateSingleVariableQueryPart(OutputVariable var, List<UPPAALProcess> processes) {
@@ -70,5 +72,9 @@ public class QueryGenerator {
                 res.append(", ");
         }
         return res.toString();
+    }
+
+    private static String generateConnectedTopologyAsQuery(int numberOfNodesInTopology) {
+        return generate2DQuadraticArrayQueryVariables("CONFIG_connected", numberOfNodesInTopology);
     }
 }

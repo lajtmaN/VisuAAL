@@ -131,6 +131,11 @@ public class UPPAALModel implements Externalizable, Cloneable {
         return templateUpdates;
     }
 
+    public void replaceTopologyChanges(List<TemplateUpdate> updates) {
+        templateUpdates.removeIf(upd -> upd.getVariableName().startsWith("CONFIG_connected["));
+        templateUpdates.addAll(updates);
+    }
+
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(topology);

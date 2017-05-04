@@ -5,15 +5,14 @@ import java.io.Serializable;
 /**
  * Created by lajtman on 23-02-2017.
  */
-public class SimulationPoint extends DataPoint implements Serializable {
+public class SimulationPoint extends DataPoint implements Serializable, Comparable<SimulationPoint> {
     public enum SimulationPointType {
-        EdgePoint, NodePoint, Variable
+        EdgePoint, NodePoint, Variable, MoveNodePoint;
     }
-
     private SimulationPointType type;
+
     private String identifier;
     private boolean variableShown = true; //Should match output_variable shown property default
-
     SimulationPoint(String identifier, double time, double value, SimulationPointType pType, double previousValue) {
         super(time, value, previousValue);
         type = pType;
@@ -32,7 +31,7 @@ public class SimulationPoint extends DataPoint implements Serializable {
         return identifier;
     }
 
-    SimulationPointType getType() {
+    public SimulationPointType getType() {
         return type;
     }
 
@@ -81,5 +80,10 @@ public class SimulationPoint extends DataPoint implements Serializable {
         int result = super.hashCode();
         result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int compareTo(SimulationPoint o) {
+        return Double.compare(this.getClock(), o.getClock());
     }
 }

@@ -1,9 +1,11 @@
 package View.topology;
 
+import Helpers.GUIHelper;
 import Helpers.GoogleMapsHelper;
 import Helpers.Pair;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
+import View.MainWindowController;
 import View.simulation.MouseClickListener;
 import View.simulation.SimulationDataContainer;
 import com.lynden.gmapsfx.GoogleMapView;
@@ -21,26 +23,26 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
-import parsers.GPSLog.SeedNodes;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.ResourceBundle;
 
 /**
  * Created by lajtman on 27-03-2017.
  */
 public class TopologyViewerController implements Initializable, MapComponentInitializedListener, MapReadyListener {
-    @FXML private GoogleMapView mapView;
     @FXML private SwingNode graphStreamNode;
     @FXML private ImageView backgroundView;
-    public GridPane rootPane;
+    public StackPane rootPane;
 
     private BooleanProperty showMap = new SimpleBooleanProperty(true);
     private BooleanProperty showGraph = new SimpleBooleanProperty(true);
@@ -49,15 +51,27 @@ public class TopologyViewerController implements Initializable, MapComponentInit
     private BooleanProperty showBackgroundImage = new SimpleBooleanProperty(false);
     private BooleanProperty graphDraggable = new SimpleBooleanProperty(false);
 
+    private GoogleMapView mapView;
     private GoogleMap map;
     private Graph currentlyShownGraph;
+    private ViewPanel swingView;
+
+    static private boolean isTopologyGenerator = true;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        mapView.addMapInializedListener(this);
-        mapView.addMapReadyListener(this);
-        mapView.visibleProperty().bind(showMap);
-        mapView.mouseTransparentProperty().bind(mapInteractable.not());
+        if(isTopologyGenerator) {
+            mapView = new GoogleMapView();
+            rootPane.getChildren().add(mapView);
+            mapView.toBack();
+            mapView.addMapInializedListener(this);
+            mapView.addMapReadyListener(this);
+            mapView.visibleProperty().bind(showMap);
+            mapView.mouseTransparentProperty().bind(mapInteractable.not());
+            isTopologyGenerator = false;
+        }
+
+        initialized.set(true);
         backgroundView.visibleProperty().bind(showBackgroundImage);
         graphStreamNode.mouseTransparentProperty().bind(graphDraggable.not());
         graphStreamNode.visibleProperty().bind(showGraph);
@@ -77,16 +91,17 @@ public class TopologyViewerController implements Initializable, MapComponentInit
                 .streetViewControl(false)
                 .zoomControl(false)
                 .zoom(13);
+
         map = mapView.createMap(options);
 
         mapView.prefWidthProperty().bind(rootPane.widthProperty());
         mapView.prefHeightProperty().bind(rootPane.heightProperty());
-        initialized.set(true);
     }
 
     public void showGraph(Graph g, boolean autoLayout, SimulationDataContainer nodeVarGridPane) {
         this.showGraph(g, autoLayout, nodeVarGridPane, null);
     }
+
     public void showGraph(Graph g, boolean autoLayout, SimulationDataContainer nodeVarGridPane, NodeMovedEventListener listener) {
         currentlyShownGraph = g;
 
@@ -99,21 +114,25 @@ public class TopologyViewerController implements Initializable, MapComponentInit
         if (listener != null) mouse.addNodesMovedListener(listener);
         mouse.start();
 
-        ViewPanel swingView = v.addDefaultView(false);
+
+        swingView = v.addDefaultView(false);
 
         SwingUtilities.invokeLater(() -> {
             graphStreamNode.setContent(swingView);
         });
 
-        if (isMapShown()) {
+        if (map != null) {
             Pair<Double, Double> widthAndHeight = GoogleMapsHelper.calculateSizeInMeters(getMapBounds());
-            SwingUtilities.invokeLater(() -> {
-                swingView.getCamera().setGraphViewport(0, 0, widthAndHeight.getFirst(), widthAndHeight.getSecond());
-                swingView.getCamera().setViewCenter(widthAndHeight.getFirst() / 2, widthAndHeight.getSecond() / 2, 0);
-            });
+            setGraphViewport(widthAndHeight);
         }
     }
 
+    public void setGraphViewport(Pair<Double, Double> widthAndHeight) {
+        SwingUtilities.invokeLater(() -> {
+            swingView.getCamera().setGraphViewport(0, 0, widthAndHeight.getFirst(), widthAndHeight.getSecond());
+            swingView.getCamera().setViewCenter(widthAndHeight.getFirst() / 2, widthAndHeight.getSecond() / 2, 0);
+        });
+    }
 
     public boolean isMapShown() {
         return showMap.get();

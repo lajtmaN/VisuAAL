@@ -2,11 +2,9 @@
 
 <?import javafx.scene.layout.*?>
 
-<?import com.lynden.gmapsfx.GoogleMapView?>
 <?import javafx.embed.swing.SwingNode?>
 <?import javafx.scene.image.ImageView?>
-<GridPane fx:id="rootPane" alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="View.topology.TopologyViewerController">
-    <ImageView fx:id="backgroundView" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-    <GoogleMapView fx:id="mapView" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-    <SwingNode fx:id="graphStreamNode" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-</GridPane>
+<StackPane fx:id="rootPane" alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="View.topology.TopologyViewerController">
+    <ImageView fx:id="backgroundView"/>
+    <SwingNode fx:id="graphStreamNode"/>
+</StackPane>

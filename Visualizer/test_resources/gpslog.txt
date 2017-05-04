@@ -1,4 +1,4 @@
-//nodeid; gpsLat; gpsLng; neighbor1 neighbor2 neighbor3...
-0; 57.0109391; 9.9945777; 1
-1; 57.0112724; 9.9959301; 0 2
-2; 57.0122048; 9.9920329; 1
+//timestamp; nodeid; gpsLat; gpsLng; neighbor1 neighbor2 neighbor3...
+0; 0; 57.0109391; 9.9945777; 1
+0; 1; 57.0112724; 9.9959301; 0 2
+0; 2; 57.0122048; 9.9920329; 1

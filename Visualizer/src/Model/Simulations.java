@@ -3,6 +3,7 @@ package Model;
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Model.VQ.VQParseTree;
+import Model.topology.LatLngBounds;
 import View.simulation.VariableUpdateObserver;
 import View.simulation.VariablesUpdateObservable;
 import javafx.scene.control.Alert;
@@ -31,6 +32,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
 
     private double minEdgeValue = 0, maxEdgeValue = 1, minNodeValue = 0, maxNodeValue = 1;
     private int currentSimulationIndex = 0;
+    private LatLngBounds latLngBounds;
 
     public Simulations(UPPAALModel uppModel, String uppQuery, List<Simulation> points) {
         query = uppQuery;
@@ -94,12 +96,20 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         return isEdge && containsIdentifier;
     }
 
+    private boolean isConfigConnectedSimulationPoint(SimulationPoint sp) {
+        return  sp.getType().equals(SimulationPoint.SimulationPointType.EdgePoint) && sp.getScopedIdentifier().equals("CONFIG_connected");
+    }
+
+    private boolean validMoveNodePoint(SimulationPoint sp) {
+        return sp instanceof SimulationMoveNodePoint;
+    }
+
     void markGraphForward(double newTimeValue, double oldTime) {
         SimulationPoint sp;
         //Make sure that more elements at same end time all are included
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() > newTimeValue)) {
             if (sp.getClock() >= oldTime) {
-                handleGradientUpdateForSimulationPoint(sp, sp.getValue());
+                handleUpdateForSimulationPoint(sp, true);
                 updateAllObservers(sp, sp.getValue());
             }
             if (currentSimulationIndex + 1 >= shownSimulation.getSimulationPoints().size())
@@ -114,7 +124,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         SimulationPoint sp;
         while (!((sp = shownSimulation.getSimulationPoints().get(currentSimulationIndex)).getClock() < newTimeValue)) {
             if (sp.getClock() <= oldTime) {
-                handleGradientUpdateForSimulationPoint(sp, sp.getPreviousValue());
+                handleUpdateForSimulationPoint(sp, false);
                 updateAllObservers(sp, sp.getPreviousValue());
             }
             if (currentSimulationIndex - 1 < 0)
@@ -125,17 +135,29 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         }
     }
 
+    private double handleUpdateForSimulationPoint(SimulationPoint sp, String simulationPointIdentifier,
+                                                  double simulationPointValue, VQParseTree vqParseTree) throws Exception {
+
+        graphValueMapper.updateNodeVariable(simulationPointIdentifier, sp.getScopedIdentifier(), simulationPointValue);
+        return vqParseTree.getGradient(graphValueMapper.getNodeOrEdgeVariableMap(simulationPointIdentifier));
+    }
+
     /**
      * Update for either forward or backward
      * @param sp
-     * @param simulationPointValue own value or previous value (forward / backwards)
+     * @param useCurrentValue use the current value or the previous value
      */
-    private void handleGradientUpdateForSimulationPoint(SimulationPoint sp, double simulationPointValue) {
+    private void handleUpdateForSimulationPoint(SimulationPoint sp, boolean useCurrentValue) {
+        double simulationPointValue = useCurrentValue ? sp.getValue() : sp.getPreviousValue();
         try {
-            if (validEdgeSimPoint(sp)) {
+            if(isConfigConnectedSimulationPoint(sp)) {
+                SimulationEdgePoint sep = (SimulationEdgePoint) sp;
+                getTopology().updateEdgeConnected(sep, simulationPointValue > 0);
+            }
+            else if (validEdgeSimPoint(sp)) {
                 SimulationEdgePoint sep = (SimulationEdgePoint) sp;
                 if(parseTreeEdge.getVqColors() == null) {
-                    double gradient = handleGradientUpdateForSimulationPoint(sp, sep.getEdgeIdentifier(),
+                    double gradient = handleUpdateForSimulationPoint(sp, sep.getEdgeIdentifier(),
                             simulationPointValue, parseTreeEdge);
                     getTopology().updateEdgeGradient(sep.getEdgeIdentifier(), gradient);
                 }
@@ -148,7 +170,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             else if (validNodeSimPoint(sp)) {
                 SimulationNodePoint snp = (SimulationNodePoint) sp;
                 if(parseTreeNode.getVqColors() == null) {
-                    double gradient = handleGradientUpdateForSimulationPoint(sp, String.valueOf(snp.getNodeId()),
+                    double gradient = handleUpdateForSimulationPoint(sp, String.valueOf(snp.getNodeId()),
                             simulationPointValue, parseTreeNode);
                     getTopology().updateNodeGradient(snp.getNodeId(), gradient);
                 }
@@ -159,17 +181,15 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
                             parseTreeNode.getVqColors().getColorForValue(value));
                 }
             }
+            else if(validMoveNodePoint(sp)) {
+                SimulationMoveNodePoint smnp = (SimulationMoveNodePoint) sp;
+                Point p = useCurrentValue ? smnp.getPointValue() : smnp.getPreviousPointValue();
+                getTopology().moveNode(smnp.getIdentifier(), p);
+            }
         }
-         catch (Exception e) {
+        catch (Exception e) {
             System.err.println(e.getMessage());
         }
-    }
-
-    private double handleGradientUpdateForSimulationPoint(SimulationPoint sp, String simulationPointIdentifier,
-                                                          double simulationPointValue, VQParseTree vqParseTree) throws Exception {
-
-        graphValueMapper.updateNodeVariable(simulationPointIdentifier, sp.getScopedIdentifier(), simulationPointValue);
-        return vqParseTree.getGradient(graphValueMapper.getNodeOrEdgeVariableMap(simulationPointIdentifier));
     }
 
     private double handleColorUpdateForSimulationPoint(SimulationPoint sp, String simulationPointIdentifier,
@@ -306,7 +326,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             for(String s : edgeVars) {
                 SimulationEdgePoint sp = new SimulationEdgePoint(s, 0,
                         id.getSourceNode().getId(), id.getTargetNode().getId(), 0, 0);
-                handleGradientUpdateForSimulationPoint(sp, sp.getValue());
+                handleUpdateForSimulationPoint(sp, true);
                 updateAllObservers(sp, sp.getValue());
             }
         }
@@ -322,9 +342,19 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         for(int i = 0 ; i < nrNodes ; i++) {
             for(String s : nodeVars) {
                 SimulationNodePoint sp = new SimulationNodePoint(s, 0, i, 0, 0);
-                handleGradientUpdateForSimulationPoint(sp, sp.getValue());
+                handleUpdateForSimulationPoint(sp, true);
                 updateAllObservers(sp, sp.getValue());
             }
+        }
+    }
+
+    private void markNodeLocationAt0() {
+        for(SimulationPoint sp : shownSimulation.simulationPoints) {
+            if(sp.getClock() > 0)
+                return;
+            if(sp.getType() != SimulationPoint.SimulationPointType.MoveNodePoint)
+                continue;
+            handleUpdateForSimulationPoint(sp, true);
         }
     }
 
@@ -394,4 +424,26 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         observers.remove(observer);
     }
 
+    public void addAndSortSimulationPoints(List<SimulationMoveNodePoint> simulationMoveNodePoints, LatLngBounds latLngBounds) {
+        this.latLngBounds = latLngBounds;
+        for(Simulation s : this.simulations) {
+            s.simulationPoints.addAll(simulationMoveNodePoints);
+            s.simulationPoints.sort((o1, o2) -> {
+                if (o1.getClock() < o2.getClock())
+                    return -1;
+                if (o1.getClock() > o2.getClock())
+                    return 1;
+                if (o1.getIdentifier().equals("CONFIG_connected"))
+                    return -1;
+                if (o2.getIdentifier().equals("CONFIG_connected"))
+                    return 0;
+                return 0;
+            });
+        }
+        markNodeLocationAt0();
+    }
+
+    public LatLngBounds getLatLngBounds() {
+        return latLngBounds;
+    }
 }
