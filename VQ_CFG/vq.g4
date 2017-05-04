@@ -17,15 +17,15 @@ color
 
 exp 
       : '(' exp ')'                                    #par
-      | op ='-' exp                                    #unOp
-      | op ='!' exp                                    #unOp
+      | <assoc=right> op ='-' exp                                    #unOp
+      | <assoc=right> op ='!' exp                                    #unOp
       | exp op=('*' | '/') exp                         #binOp
       | exp op=('+' | '-') exp                         #binOp
       | exp op=('<' | '<=' | '>' | '>=') exp           #binOp
       | exp op=('==' | '!=') exp                       #binOp
       | exp op='&&' exp                                #binOp
       | exp op='||' exp                                #binOp
-      | exp '?' exp ':' exp                            #condOp
+      | <assoc=right> exp '?' exp ':' exp              #condOp
       | ID                                             #id
       | ID '.' ID                                      #idDot
       | NAT                                            #nat

@@ -772,7 +772,7 @@ public class vqParser extends Parser {
 						setState(92);
 						match(T__3);
 						setState(93);
-						exp(7);
+						exp(6);
 						}
 						break;
 					}
@@ -847,7 +847,7 @@ public class vqParser extends Parser {
 		"\2\2\2GF\3\2\2\2Hc\3\2\2\2IJ\f\16\2\2JK\t\2\2\2Kb\5\f\7\17LM\f\r\2\2M"+
 		"N\t\3\2\2Nb\5\f\7\16OP\f\f\2\2PQ\t\4\2\2Qb\5\f\7\rRS\f\13\2\2ST\t\5\2"+
 		"\2Tb\5\f\7\fUV\f\n\2\2VW\7\23\2\2Wb\5\f\7\13XY\f\t\2\2YZ\7\24\2\2Zb\5"+
-		"\f\7\n[\\\f\b\2\2\\]\7\25\2\2]^\5\f\7\2^_\7\6\2\2_`\5\f\7\t`b\3\2\2\2"+
+		"\f\7\n[\\\f\b\2\2\\]\7\25\2\2]^\5\f\7\2^_\7\6\2\2_`\5\f\7\b`b\3\2\2\2"+
 		"aI\3\2\2\2aL\3\2\2\2aO\3\2\2\2aR\3\2\2\2aU\3\2\2\2aX\3\2\2\2a[\3\2\2\2"+
 		"be\3\2\2\2ca\3\2\2\2cd\3\2\2\2d\r\3\2\2\2ec\3\2\2\2\n\20\36\"(\62Gac";
 	public static final ATN _ATN =

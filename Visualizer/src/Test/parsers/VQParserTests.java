@@ -424,6 +424,24 @@ public class VQParserTests {
 
         assertEquals(null, tree.getSecondColor());
     }
+
+    @Test
+    public void parseConditionalOp() throws Exception {
+        String vq = "[blue:1,red:2,green:3,black:*]\n" +
+                "Node.OUTPUT_first_sink_race > 0 && Node.OUTPUT_second_sink_race > 0 ? 3\n" +
+                ": Node.OUTPUT_first_sink_race > 0 ? 1\n" +
+                ": Node.OUTPUT_second_sink_race > 0 ? 2\n" +
+                ": 0";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("Node.OUTPUT_first_sink_race", 1.0);
+        map.put("Node.OUTPUT_second_sink_race", 1.0);
+
+        VQParseTree tree = VQParse.syntaxCheck(vq, map.keySet());
+        double value = tree.getExpressionValue(map);
+
+        assertEquals(3, value, 0.01);
+    }
 }
 
 

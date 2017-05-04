@@ -17,6 +17,6 @@ public class VQNodeId extends VQNode {
     protected double calculateNodeValue(Map<String, Double> variables) throws Exception {
         if(variables.containsKey(identifier))
             return variables.get(identifier);
-        throw new Exception("The identifier: " + identifier + " does not exist");
+        throw new Exception("The identifier: " + identifier + " does not exist. It might be discovered later.");
     }
 }
