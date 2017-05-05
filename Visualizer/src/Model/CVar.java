@@ -117,7 +117,11 @@ public class CVar implements Externalizable {
     }
 
     public boolean hasBuiltInType() {
-        return hasIntType() || hasBoolType() || hasDoubleType();
+        return hasIntType() || hasBoolType() || hasDoubleType() || hasClockType();
+    }
+
+    private boolean hasClockType() {
+        return type.equals("clock");
     }
 
     public boolean hasIntType(){
