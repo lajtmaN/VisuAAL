@@ -17,8 +17,8 @@ color
 
 exp 
       : '(' exp ')'                                    #par
-      | <assoc=right> op ='-' exp                                    #unOp
-      | <assoc=right> op ='!' exp                                    #unOp
+      | <assoc=right> op ='-' exp                      #unOp
+      | <assoc=right> op ='!' exp                      #unOp
       | exp op=('*' | '/') exp                         #binOp
       | exp op=('+' | '-') exp                         #binOp
       | exp op=('<' | '<=' | '>' | '>=') exp           #binOp
