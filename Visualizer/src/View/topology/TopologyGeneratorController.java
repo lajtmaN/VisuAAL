@@ -252,14 +252,26 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
     }
 
     public void saveTopology(ActionEvent actionEvent) {
-        lastGeneratedTopology.save(FileHelper.chooseFileToSave(ExtensionFilters.TopologySerializationFilter).getPath());
+        if (lastGeneratedTopology == null) {
+            GUIHelper.showInformation("No topology has been generated yet");
+            return;
+        }
+        File saveFile = FileHelper.chooseFileToSave(ExtensionFilters.TopologySerializationFilter);
+        if (saveFile == null)
+            return;
+
+        lastGeneratedTopology.save(saveFile.getPath());
+        GUIHelper.showInformation("Successfully saved");
     }
 
     public void loadTopology(ActionEvent actionEvent) {
         autoResize();
 
-        UPPAALTopology topo = UPPAALTopology.load(FileHelper.chooseFileToLoad("Choose Topology File", Settings.Instance().getRecentLoadedModel(), ExtensionFilters.TopologySerializationFilter));
-        lastGeneratedTopology = topo;
+        File fileToLoad = FileHelper.chooseFileToLoad("Choose Topology File", Settings.Instance().getRecentLoadedModel(), ExtensionFilters.TopologySerializationFilter);
+        if (fileToLoad == null)
+            return;
+
+        lastGeneratedTopology = UPPAALTopology.load(fileToLoad);
 
         chkShowMap.switchOnProperty().set(true);
 
