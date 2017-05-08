@@ -214,4 +214,7 @@ public class TopologyViewerController implements Initializable, MapComponentInit
     public Graph getCurrentlyShownGraph() {
         return currentlyShownGraph;
     }
+    public void panTo(LatLngBounds destination){
+        map.panToBounds(destination.getAsLatLongBounds());
+    }
 }

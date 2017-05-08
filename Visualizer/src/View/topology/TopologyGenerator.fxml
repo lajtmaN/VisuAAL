@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+
 <BorderPane fx:id="borderPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.topology.TopologyGeneratorController">
    <right>
       <Accordion fx:id="accordion">
@@ -54,6 +55,9 @@
                         <Button minWidth="100" onAction="#updateGlobalOptions" text="Update Settings" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="8" />
                         <Button minWidth="100" onAction="#preview" text="Generate New Topology" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" />
                         <Button minWidth="100" onAction="#loadGPSLog" text="Load from GPS Log" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="10" />
+                        <Button minWidth="100" onAction="#saveTopology" text="Save Static Topology" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="11"/>
+                        <Button minWidth="100" onAction="#loadTopology" text="Load Static Topology" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="12"/>
+
                         <padding><Insets bottom="10.0" /></padding>
                            <rowConstraints>
                               <RowConstraints />
@@ -111,14 +115,14 @@
    <center>
        <GridPane alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity">
            <columnConstraints>
-               <ColumnConstraints hgrow="NEVER" fillWidth="false"/>
+               <ColumnConstraints fillWidth="false" hgrow="NEVER" />
            </columnConstraints>
            <rowConstraints>
-               <RowConstraints vgrow="NEVER" fillHeight="false"/>
+               <RowConstraints fillHeight="false" vgrow="NEVER" />
            </rowConstraints>
            <children>
-               <fx:include source="TopologyViewer.fxml" fx:id="topologyViewer" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-               <GridPane alignment="CENTER" fx:id="gridPaneCells" pickOnBounds="false" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+               <fx:include fx:id="topologyViewer" source="TopologyViewer.fxml" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+               <GridPane fx:id="gridPaneCells" alignment="CENTER" pickOnBounds="false" GridPane.columnIndex="0" GridPane.rowIndex="0" />
            </children>
        </GridPane>
    </center>

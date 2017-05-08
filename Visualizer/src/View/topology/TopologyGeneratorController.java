@@ -3,6 +3,8 @@ package View.topology;
 import Helpers.ExtensionFilters;
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
+import Helpers.OptionsHelper;
+import Model.Settings;
 import Model.SimulationMoveNodePoint;
 import Model.UPPAALTopology;
 import Model.topology.LatLngBounds;
@@ -22,6 +24,7 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import org.graphstream.graph.Graph;
 import parsers.GPSLog.GPSLogParser;
 import parsers.GPSLog.GPSLogNodes;
@@ -175,6 +178,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         MainWindowController.getInstance().enableDisableUseTopologyFromTopologyGenerator(true);
         simulationMoveNodePoints = null;
         lastGeneratedTopology = topologyGenerator.generateUppaalTopology(topologyViewerController.getMapBounds());
+        lastGeneratedTopology.setBounds(topologyViewerController.getMapBounds());
     }
     public UPPAALTopology generateTopology(boolean generateNew) {
         if (lastGeneratedTopology == null || generateNew)
@@ -244,5 +248,39 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
     public LatLngBounds getLatLngBounds() {
         return latLngBounds;
+    }
+
+    public void saveTopology(ActionEvent actionEvent) {
+        lastGeneratedTopology.save(FileHelper.chooseFileToSave(ExtensionFilters.TopologySerializationFilter).getPath());
+    }
+
+    public void loadTopology(ActionEvent actionEvent) {
+        autoResize();
+
+        UPPAALTopology topo = UPPAALTopology.load(FileHelper.chooseFileToLoad("Choose Topology File", Settings.Instance().getRecentLoadedModel(), ExtensionFilters.TopologySerializationFilter));
+        lastGeneratedTopology = topo;
+
+        chkShowMap.switchOnProperty().set(true);
+
+        //Map will "snap" to bounds. Thus, bounds must be slightly (10%) smaller than what they really are.
+        this.latLngBounds = lastGeneratedTopology.getBounds();
+        LatLngBounds bounds = lastGeneratedTopology.getBounds();
+        double width   = bounds.getNorthEast().lat - bounds.getSouthWest().lat,
+                height = bounds.getNorthEast().lng - bounds.getSouthWest().lng;
+        double ratio = 0.1;
+        bounds.getNorthEast().lat -= ratio*width;
+        bounds.getNorthEast().lng -= ratio*height;
+        bounds.getSouthWest().lat += ratio*width;
+        bounds.getSouthWest().lng += ratio*height;
+        topologyViewerController.setMapBounds(bounds);
+
+        lastGeneratedTopology.updateGraph();
+        showGraph(lastGeneratedTopology.getGraph(), false);
+
+        topologyViewerController.panTo(lastGeneratedTopology.getBounds());
+        chkFreezeMap.switchOnProperty().set(true);
+        chkShowGridSettings.switchOnProperty().set(false);
+
+        MainWindowController.getInstance().enableDisableUseTopologyFromTopologyGenerator(true);
     }
 }

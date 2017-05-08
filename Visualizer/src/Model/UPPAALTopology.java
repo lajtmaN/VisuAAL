@@ -1,6 +1,11 @@
 package Model;
 
+import Helpers.FileHelper;
+import Helpers.GUIHelper;
+import Model.topology.LatLng;
+import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
+import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -8,11 +13,10 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.Element;
 import org.graphstream.graph.implementations.MultiGraph;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by rasmu on 09/02/2017.
@@ -20,6 +24,7 @@ import java.util.List;
 public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializable {
     private int _numberOfNodes;
     private transient Graph _graphInstance;
+    private LatLngBounds bounds;
     private List<CellNode> nodes;
     private String gradientNodeFrom = "black", gradientNodeTo = "red",
                    gradientEdgeFrom = "black", gradientEdgeTo = "red";
@@ -239,5 +244,50 @@ public class UPPAALTopology extends ArrayList<UPPAALEdge> implements Serializabl
             addEdge(sp);
         else
             removeEdge(sp);
+    }
+
+    public void save(String fileName){
+        try {
+            File file = new File(fileName);
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+            FileOutputStream fileOut = new FileOutputStream(file,false);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(this);
+            out.close();
+            fileOut.close();
+        }catch(IOException i) {
+            i.printStackTrace();
+        }
+    }
+
+    public static UPPAALTopology load(String fileName) {
+        return load(new File(fileName));
+    }
+
+    public static UPPAALTopology load(File file){
+        if (!Objects.equals(FileHelper.getExtension(file.getName()), ".topology"))
+            throw new IllegalArgumentException("Only files with named *.topology can be loaded");
+        try {
+            FileInputStream fileIn = new FileInputStream(file);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            UPPAALTopology topo = (UPPAALTopology) in.readObject();
+            in.close();
+            fileIn.close();
+            return topo;
+        } catch(InvalidClassException i) {
+            GUIHelper.showAlert(Alert.AlertType.ERROR, "The topology that you tried to load was created by an older version of this program.");
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
+        }
+        return null;
+    }
+
+    public LatLngBounds getBounds() {
+        return bounds;
+    }
+
+    public void setBounds(LatLngBounds bounds) {
+        this.bounds = bounds;
     }
 }
