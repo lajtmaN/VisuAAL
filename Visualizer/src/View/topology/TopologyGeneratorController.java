@@ -211,6 +211,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         //Now we know the x,y we could figure out what grid it could affect (of course using the range as well)
         //and then only update the edges in the affected cells?
         lastGeneratedTopology = topologyGenerator.generateUppaalTopology(cellNodes);
+        lastGeneratedTopology.setBounds(topologyViewerController.getMapBounds());
         showGraph(lastGeneratedTopology.getGraph(true), true);
     }
 
@@ -275,7 +276,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         topologyViewerController.setMapBounds(bounds);
 
         lastGeneratedTopology.updateGraph();
-        showGraph(lastGeneratedTopology.getGraph(), false);
+        showGraph(lastGeneratedTopology.getGraph(), true);
 
         topologyViewerController.panTo(lastGeneratedTopology.getBounds());
         chkFreezeMap.switchOnProperty().set(true);
