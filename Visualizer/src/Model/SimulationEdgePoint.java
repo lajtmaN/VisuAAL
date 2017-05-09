@@ -20,6 +20,10 @@ public class SimulationEdgePoint extends SimulationPoint implements Serializable
         this(source + "-" + destination, time, source, destination, value, 0);
     }
 
+    public SimulationEdgePoint(SimulationEdgePoint sp) {
+        this(sp.getIdentifier(), sp.getClock(), sp.getSource(), sp.getDestination(), sp.getValue(), sp.getPreviousValue());
+    }
+
     public String getEdgeIdentifier() {
         return _source + "-" + _destination;
     }

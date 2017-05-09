@@ -1,5 +1,6 @@
 package Model;
 
+
 import java.io.Serializable;
 
 /**
@@ -21,6 +22,10 @@ public class SimulationPoint extends DataPoint implements Serializable, Comparab
 
     public SimulationPoint(String identifier, double time, double value, double previousValue) {
         this(identifier, time, value, SimulationPointType.Variable, previousValue);
+    }
+
+    public SimulationPoint(SimulationPoint sp) {
+        this(sp.getIdentifier(), sp.getClock(), sp.getValue(), sp.getType(), sp.getPreviousValue());
     }
 
     public SimulationPoint(String identifier, double time, double value) {

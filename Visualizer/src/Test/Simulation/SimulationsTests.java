@@ -37,7 +37,9 @@ public class SimulationsTests {
         points.add(new SimulationEdgePoint(0.2, "0", "1", 1.0));
         points.add(new SimulationEdgePoint(0.2, "1", "0", 1.0));
         Simulation oneSim = new Simulation(points);
-        Simulations sim = new Simulations(model, query, Arrays.asList(oneSim));
+        ArrayList<Simulation> simulations = new ArrayList<>();
+        simulations.add(oneSim);
+        Simulations sim = new Simulations(model, query, simulations);
 
         sim.save(filePath);
         Simulations sim2 = Simulations.load(filePath);
@@ -64,7 +66,9 @@ public class SimulationsTests {
         points.add(new SimulationEdgePoint(0.2, "0", "1", 1.0));
         points.add(new SimulationEdgePoint(0.2, "1", "0", 1.0));
         Simulation oneSim = new Simulation(points);
-        Simulations sim = new Simulations(model, query, Arrays.asList(oneSim));
+        ArrayList<Simulation> simulations = new ArrayList<>();
+        simulations.add(oneSim);
+        Simulations sim = new Simulations(model, query, simulations);
 
         //Persist to file
         sim.save(simulationFileName);

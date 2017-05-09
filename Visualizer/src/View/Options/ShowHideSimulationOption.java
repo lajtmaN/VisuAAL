@@ -18,7 +18,7 @@ public class ShowHideSimulationOption extends EnableDisableSimulationOption {
 
     @Override
     public String getDescription() {
-        return "Simulation " + (simulationId + 1);
+        return simulationId == 0 ? "Average Of Simulations" : "Simulation " + simulationId;
     }
 
     @Override

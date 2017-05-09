@@ -17,6 +17,10 @@ public class SimulationNodePoint extends SimulationPoint implements Serializable
         this(variableName, time, nodeId, value, 0);
     }
 
+    public SimulationNodePoint(SimulationNodePoint sp) {
+        this(sp.getIdentifier(), sp.getClock(), sp.getNodeId(), sp.getValue(), sp.getPreviousValue());
+    }
+
     public int getNodeId() {
         return nodeId;
     }

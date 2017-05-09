@@ -1,7 +1,10 @@
 package Model;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -12,24 +15,29 @@ public class Heatmap extends Simulation implements Serializable {
         super(generateHeatmap(simulations));
     }
 
-    //O(n log(n) + 2n)
     static private List<SimulationPoint> generateHeatmap(List<Simulation> simulations) {
         ArrayList<SimulationPoint> heatmapData = new ArrayList<>();
 
-        //n = total number of simulationpoints
-        //O(n)
+        HashMap<String, List<SimulationPoint>> variables = new HashMap<>();
+
         for(Simulation s : simulations) {
             for(SimulationPoint point : s.getSimulationPoints()) {
-                heatmapData.add(point);
+                if(point.getType() != SimulationPoint.SimulationPointType.MoveNodePoint) {
+                    if (!variables.containsKey(point.getIdentifier()))
+                        variables.put(point.getIdentifier(), new ArrayList<>());
+                    variables.get(point.getIdentifier()).add(point);
+                }
             }
         }
 
-        //O(n log(n))()
-        heatmapData.sort(Heatmap::compareDatapointsInTime);
+        for(List<SimulationPoint> points : variables.values()) {
+            points.sort(Heatmap::compareDatapointsInTime);
+            ArrayList<SimulationPoint> variableHeatmapData = avgHeatmapDatapoints(points, simulations.size());
+            setPreviousValues(variableHeatmapData);
+            heatmapData.addAll(variableHeatmapData);
+        }
 
-        //O(n)
-        heatmapData = sumHeatmapDatapoints(heatmapData);
-        setPreviousValues(heatmapData);
+        heatmapData.sort(Heatmap::compareDatapointsInTime);
         return heatmapData;
     }
 
@@ -41,13 +49,20 @@ public class Heatmap extends Simulation implements Serializable {
         }
     }
 
-    private static ArrayList<SimulationPoint> sumHeatmapDatapoints(List<SimulationPoint> heatmapData) {
+    private static ArrayList<SimulationPoint> avgHeatmapDatapoints(List<SimulationPoint> heatmapData, int nrSimulations) {
         ArrayList<SimulationPoint> result = new ArrayList<>();
+        if(nrSimulations <= 0) throw new IllegalArgumentException("There are no simulations to create a heatmap from");
+        double valueMultiplier = 1 / (double) nrSimulations;
 
-        for(SimulationPoint point : heatmapData) {
+        for(SimulationPoint sp : heatmapData) {
             SimulationPoint current = null;
+            SimulationPoint point = createNewSimulationPoint(sp);
+            point.setValue(point.getValue()*valueMultiplier); //Account for Average
+            point.setPreviousValue(point.getPreviousValue()*valueMultiplier);
+
             if(result.size() > 0)
                 current = result.get(result.size() - 1);
+
             if(result.size() == 0)
                 result.add(point);
             else if(result.get(result.size() - 1).getClock() < point.getClock()) {
@@ -60,6 +75,15 @@ public class Heatmap extends Simulation implements Serializable {
         }
 
         return result;
+    }
+
+    private static SimulationPoint createNewSimulationPoint(SimulationPoint sp) {
+        switch (sp.getType()) {
+            case EdgePoint: return new SimulationEdgePoint((SimulationEdgePoint) sp);
+            case NodePoint: return new SimulationNodePoint((SimulationNodePoint) sp);
+            case Variable: return new SimulationPoint(sp);
+            default: throw new IllegalArgumentException("Heat maps can only edge, node and variable types");
+        }
     }
 
     public SimulationPoint getDatapoint(int index) {

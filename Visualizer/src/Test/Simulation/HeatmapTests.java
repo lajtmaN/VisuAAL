@@ -41,14 +41,14 @@ public class HeatmapTests {
 
         Heatmap heatmap = new Heatmap(simulations);
 
-        equalsData(0, 2, 0, heatmap.getDatapoint(0));
-        equalsData(1, 1, 2, heatmap.getDatapoint(1));
-        equalsData(2, 1, 1, heatmap.getDatapoint(2));
-        equalsData(3, 0, 1, heatmap.getDatapoint(3));
-        equalsData(4, 2, 0, heatmap.getDatapoint(4));
-        equalsData(5, 1, 2, heatmap.getDatapoint(5));
-        equalsData(6, 2, 1, heatmap.getDatapoint(6));
-        equalsData(7, 0, 2, heatmap.getDatapoint(7));
+        equalsData(0, 1, 0, heatmap.getDatapoint(0));
+        equalsData(1, 0.5, 1, heatmap.getDatapoint(1));
+        equalsData(2, 0.5, 0.5, heatmap.getDatapoint(2));
+        equalsData(3, 0, 0.5, heatmap.getDatapoint(3));
+        equalsData(4, 1, 0, heatmap.getDatapoint(4));
+        equalsData(5, 0.5, 1, heatmap.getDatapoint(5));
+        equalsData(6, 1, 0.5, heatmap.getDatapoint(6));
+        equalsData(7, 0, 1, heatmap.getDatapoint(7));
     }
 
     @Test
@@ -86,15 +86,15 @@ public class HeatmapTests {
 
         Heatmap heatmap = new Heatmap(simulations);
 
-        equalsData(0, 14, 0, heatmap.getDatapoint(0));
-        equalsData(1, 14, 14, heatmap.getDatapoint(1));
-        equalsData(2, 11, 14, heatmap.getDatapoint(2));
-        equalsData(5, -3, 11, heatmap.getDatapoint(3));
-        equalsData(6, 28, -3, heatmap.getDatapoint(4));
+        equalsData(0, 14/3.0, 0/3.0, heatmap.getDatapoint(0));
+        equalsData(1, 14/3.0, 14/3.0, heatmap.getDatapoint(1));
+        equalsData(2, 11/3.0, 14/3.0, heatmap.getDatapoint(2));
+        equalsData(5, -3/3.0, 11/3.0, heatmap.getDatapoint(3));
+        equalsData(6, 28/3.0, -3/3.0, heatmap.getDatapoint(4));
     }
 
 
-    private void equalsData(int expectedTime, int expectedValue, int expectedPreviousValue, SimulationPoint point) {
+    private void equalsData(int expectedTime, double expectedValue, double expectedPreviousValue, SimulationPoint point) {
         assertEquals(expectedTime, point.getClock(), 0.1);
         assertEquals(expectedValue, point.getValue(), 0.1);
         assertEquals(expectedPreviousValue, point.getPreviousValue(), 0.1);

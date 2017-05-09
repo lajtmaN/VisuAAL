@@ -43,6 +43,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             s.initialize(getModelTimeUnit());
         }
         simulations = points;
+        simulations.add(0, new Heatmap(simulations));
 
         showSimulation(0);
     }
