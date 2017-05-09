@@ -55,4 +55,41 @@ public class TemplateUpdatesTests {
         assertEquals(update1, updates.get(0));
         assertEquals(update2, updates.get(1));
     }
+
+    @Test
+    public void addNewTemplateUpdates() throws Exception {
+        File f = FileHelper.copyFileIntoTempFile(new File("test_resources/eksempel.xml"));
+
+        TemplateUpdate update1 = new TemplateUpdate("test", "17", 21);
+        TemplateUpdate update2 = new TemplateUpdate("test2", "21", 37);
+
+        String uppaalPath = f.getPath();
+        UPPAALModel uppaalModel = new UPPAALModel(uppaalPath);
+        uppaalModel.load();
+        uppaalModel.getTemplateUpdates().add(update1);
+
+        XmlHandler handler = new XmlHandler(uppaalPath);
+
+        assertEquals(1, handler.getTemplateCount());
+
+        handler.addTemplateUpdatesToModel(uppaalModel.getTemplateUpdates());
+
+        assertEquals(2, handler.getTemplateCount());
+        assertEquals(true, handler.existVisualizerTemplate());
+
+        uppaalModel.getTemplateUpdates().add(update2);
+
+        handler.addTemplateUpdatesToModel(uppaalModel.getTemplateUpdates());
+
+        assertEquals(2, handler.getTemplateCount()); //should not add new, but rather overwrite
+
+
+        /* Now try to load again */
+        ArrayList<TemplateUpdate> updates = handler.getVisualizerUpdates();
+
+        assertEquals(2, updates.size());
+
+        assertEquals(update1, updates.get(0));
+        assertEquals(update2, updates.get(1));
+    }
 }
