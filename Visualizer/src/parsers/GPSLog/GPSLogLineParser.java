@@ -104,8 +104,7 @@ public class GPSLogLineParser {
             String rawText = gpsLogLineParts[4];
             String[] neighborIds = rawText.split("\\s+");
             this.neighbors = Arrays.stream(neighborIds).map(this::parseNeighbor).distinct().collect(Collectors.toList());
-            if (this.neighbors.contains(this.nodeId))
-                throw new IllegalArgumentException("Cannot add itself as a neighbor");
+            this.neighbors.removeIf(n -> n == this.nodeId);
         }
     }
 

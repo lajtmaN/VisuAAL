@@ -59,6 +59,16 @@ public class GPSLogParserTest {
         assertEquals(54,(int) actual.neighbors.get(4));
     }
 
+    @Test
+    public void ignoreItselfInNeighborList() {
+        String line = "0; 0; 57.0; 9.9; 0 0 1 1 2";
+        GPSLogEntry actual = new GPSLogLineParser(line).parse();
+        assertEquals(0, actual.nodeId);
+        assertEquals(2, actual.neighbors.size());
+        assertEquals(1,(int) actual.neighbors.get(0));
+        assertEquals(2,(int) actual.neighbors.get(1));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void cannotParseDoubleNodeId() {
         String line = "0; 0.1; 57.0109391; 9.9945777; 1";
