@@ -82,14 +82,14 @@ public class TemplateUpdatesTests {
         handler.addTemplateUpdatesToModel(uppaalModel.getTemplateUpdates());
 
         assertEquals(2, handler.getTemplateCount()); //should not add new, but rather overwrite
+        uppaalModel.saveToPath(uppaalPath);
 
-
+        File f2 = FileHelper.copyFileIntoTempFile(new File(uppaalPath));
         /* Now try to load again */
-        ArrayList<TemplateUpdate> updates = handler.getVisualizerUpdates();
+        UPPAALModel modelAfter = new UPPAALModel(f2.getPath());
+        modelAfter.load();
+        XmlHandler handlerAfter = new XmlHandler(f2.getPath());
 
-        assertEquals(2, updates.size());
-
-        assertEquals(update1, updates.get(0));
-        assertEquals(update2, updates.get(1));
+        assertEquals(2, modelAfter.getProcesses().size());
     }
 }

@@ -148,19 +148,26 @@ public class XmlHandler {
 
         addUpdatesToNode(document.getDocumentElement(), templateUpdates);
 
-        addSystemDecl();
+        addDynUpdateSystemDecl();
 
         writeXML();
     }
 
-    private void addSystemDecl() {
+    private void addDynUpdateSystemDecl() {
         Node systemDecls = document.getElementsByTagName("system").item(0).getFirstChild();
         String sysDeclsValue = systemDecls.getNodeValue();
-
+        StringBuilder stringBuilder = new StringBuilder();
         if(!sysDeclsValue.contains(dynamicTemplateUpdaterName)) {
-            String newSysDeclsValue = sysDeclsValue.substring(0, sysDeclsValue.length()-1) + ", "
-                    + dynamicTemplateUpdaterName + ";";
-            systemDecls.setNodeValue(newSysDeclsValue);
+            String[] systemLines = sysDeclsValue.split("\\n");
+            for(String line : systemLines) {
+                if(line.startsWith("system ")&&line.contains(";")){
+                    stringBuilder.append(line.replace(";", ", " + dynamicTemplateUpdaterName + ";"));
+                }
+                else {
+                    stringBuilder.append(line+"\n");
+                }
+            }
+            systemDecls.setNodeValue(stringBuilder.toString());
         }
     }
 
