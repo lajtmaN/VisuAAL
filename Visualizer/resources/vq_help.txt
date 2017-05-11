@@ -1,0 +1,57 @@
+How to write VQ expressions:
+* VQ expressions consist of two parts: a color specification and an expression.
+* Conceptually, you write an expression, and the valuation of this expression is then used to lookup a color, depending on your color specification.
+* A color specification can be either a gradient with an upper and lower bound (and color for each) OR a color list, consisting of values and the matching colors.
+* For a gradient, valuations result in a mixed color between the two specified colors, where values outside of the bounds are rounded to either the upper or lower bound.
+* For a color list, there must be a wildcard, which any non-specified values will choose.
+* When a VQ is entered, the text entry box will have a red outline while the VQ is invalid, and blue while it is valid.
+* The compile errors can be obtained by hovering over the text field.
+
+There are some limitations for VQs:
+* You MUST use at least one output variable from your model, since the expression will otherwise be constant. If you absolutely NEED a constant expression, take any output variable, and multiply it by 0 and use this in your VQ.
+* In a single VQ, you can only use either node output variables OR edge output variables, because it must be decidable which element in the graph to color.
+* Note that ALL variables are treated as real numbers, where booleans are treated with the semantics known from C.
+
+The semantics for VQs is as naturally would be expected, and the syntax for VQs, presented in ANTLR4 format is as follows:
+
+grammar vq;
+query
+      : (gradient | colors)? exp EOF;
+
+gradient
+      : '[' oneGradient ',' oneGradient ']';
+
+oneGradient 
+      : ID ':' NEG? NAT
+      | ID;
+
+colors
+      : '[' color+ ID ':' '*' ']';
+
+color
+      : ID ':' NEG? NAT ',';
+
+exp 
+      : '(' exp ')'                                    #par
+      | <assoc=right> op ='-' exp                      #unOp
+      | <assoc=right> op ='!' exp                      #unOp
+      | exp op=('*' | '/') exp                         #binOp
+      | exp op=('+' | '-') exp                         #binOp
+      | exp op=('<' | '<=' | '>' | '>=') exp           #binOp
+      | exp op=('==' | '!=') exp                       #binOp
+      | exp op='&&' exp                                #binOp
+      | exp op='||' exp                                #binOp
+      | <assoc=right> exp '?' exp ':' exp              #condOp
+      | ID                                             #id
+      | ID '.' ID                                      #idDot
+      | NAT                                            #nat
+      | FLOAT                                          #float
+      | BOOL                                           #bool
+      ;
+
+BOOL  : 'true' | 'false';
+NEG   : '-';
+ID    : [a-zA-Z_]([a-zA-Z0-9_])*;
+NAT   : [0-9]+;
+FLOAT : [0-9]+('.'[0-9]+)?;
+WS    : [ \n\t\r]+ -> channel(HIDDEN);

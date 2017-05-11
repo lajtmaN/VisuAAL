@@ -3,6 +3,9 @@ package Helpers;
 import Model.Settings;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 
 import java.io.File;
 
@@ -31,6 +34,24 @@ public class GUIHelper {
         alert.setTitle(promptTitle);
         alert.showAndWait();
         return alert.getResult() == ButtonType.YES;
+    }
+
+    public static void showExtendedInformation(String title, String resume, String largeDescription) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(title);
+        alert.setContentText(resume);
+        TextArea largeDescriptionField = new TextArea(largeDescription);
+        largeDescriptionField.setEditable(false);
+        largeDescriptionField.setWrapText(true);
+        largeDescriptionField.setMaxWidth(Double.MAX_VALUE);
+        largeDescriptionField.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(largeDescriptionField, Priority.ALWAYS);
+        GridPane.setHgrow(largeDescriptionField, Priority.ALWAYS);
+
+        alert.getDialogPane().setExpandableContent(largeDescriptionField);
+
+        alert.showAndWait();
     }
 
     public static String getVerifytaLocationFromUser() {

@@ -1,19 +1,17 @@
 package View.simulation;
 
+import Helpers.GUIHelper;
 import Helpers.GoogleMapsHelper;
-import Model.SimulationEdgePoint;
 import Model.SimulationNodePoint;
 import Model.SimulationPoint;
 import Model.Simulations;
 import View.DoubleTextField;
 import View.MainWindowController;
 import View.topology.TopologyViewerController;
-import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -21,15 +19,14 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 import java.net.URL;
-import java.util.Observable;
-import java.util.Observer;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.ResourceBundle;
 
 /**

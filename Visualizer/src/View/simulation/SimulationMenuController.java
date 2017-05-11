@@ -1,7 +1,9 @@
 package View.simulation;
 
 
+import Helpers.GUIHelper;
 import Helpers.OptionsHelper;
+import Model.OutputVariable;
 import Model.Simulations;
 import Model.VQ.VQParseTree;
 import View.Options.*;
@@ -10,6 +12,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import parsers.VQParser.VQParse;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by lajtman on 08-03-2017.
@@ -118,5 +126,55 @@ public class SimulationMenuController {
             txtNewVQ.setTooltip(new Tooltip(parsedTree.getParseError()));
         else
             txtNewVQ.setTooltip(null);
+    }
+
+    public void showVQHelp(ActionEvent actionEvent) {
+        try {
+            String vqHelpDescription = getDetailedVQHelp();
+
+            String vqShortHelp = getShortVQHelp();
+
+            GUIHelper.showExtendedInformation("VQ Help", vqShortHelp, vqHelpDescription);
+        } catch (IOException e) {
+            GUIHelper.showError("Could not retrieve VQ Help");
+            e.printStackTrace();
+        }
+    }
+
+    private String getShortVQHelp() throws IOException {
+        return overviewOfAvailableVariables()
+                + System.lineSeparator()
+                + examplesOnVQ();
+    }
+
+    private String overviewOfAvailableVariables() {
+        List<OutputVariable> usedOutputVars = currentSimulations.getOutputVariables().stream().filter(OutputVariable::getIsSelected).collect(Collectors.toList());
+        List<OutputVariable> edgeVariables = usedOutputVars.stream().filter(OutputVariable::getIsEdgeData).collect(Collectors.toList());
+        List<OutputVariable> nodeVariables = usedOutputVars.stream().filter(OutputVariable::getIsNodeData).collect(Collectors.toList());
+
+        StringBuilder helpTextBuilder = new StringBuilder();
+        helpTextBuilder.append("The following variables can be used in our VQ:").append(System.lineSeparator());
+
+        helpTextBuilder.append("Edge variables:").append(System.lineSeparator());
+        for (OutputVariable edgeVar : edgeVariables) {
+            helpTextBuilder.append("\t").append(edgeVar.toString()).append(System.lineSeparator());
+        }
+
+        helpTextBuilder.append("Node variables:").append(System.lineSeparator());
+        for (OutputVariable nodeVar : nodeVariables) {
+            helpTextBuilder.append("\t").append(nodeVar.toString()).append(System.lineSeparator());
+        }
+
+        return helpTextBuilder.toString();
+    }
+
+    private String examplesOnVQ() throws IOException {
+        File pathToShortVQHelp = new File("resources/vq_help_short.txt");
+        return String.join(System.lineSeparator(), Files.readAllLines(pathToShortVQHelp.toPath()));
+    }
+
+    private String getDetailedVQHelp() throws IOException {
+        File pathToVQHelp = new File("resources/vq_help.txt");
+        return String.join(System.lineSeparator(), Files.readAllLines(pathToVQHelp.toPath()));
     }
 }

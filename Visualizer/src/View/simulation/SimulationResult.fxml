@@ -33,7 +33,7 @@
    <bottom>
        <HBox alignment="CENTER">
            <DoubleTextField fx:id="rate" maxWidth="50" promptText="Speed" />
-          <Button fx:id="play" defaultButton="true" mnemonicParsing="false" onAction="#btnAnimateInRealTimeClicked" prefWidth="50" prefHeight="25" text="Play" BorderPane.alignment="CENTER" />
+          <Button fx:id="play" defaultButton="true" mnemonicParsing="false" onAction="#btnAnimateInRealTimeClicked" prefHeight="25" prefWidth="50" text="Play" BorderPane.alignment="CENTER" />
            <Button mnemonicParsing="false" onAction="#btnStop" prefWidth="50" text="Stop" BorderPane.alignment="CENTER" />
        </HBox>
    </bottom>
