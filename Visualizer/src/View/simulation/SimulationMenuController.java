@@ -11,6 +11,8 @@ import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import parsers.VQParser.VQParse;
 
 import java.io.File;
@@ -26,6 +28,8 @@ public class SimulationMenuController {
     final PseudoClass errorClass = PseudoClass.getPseudoClass("error");
     public Button btnAddNewVQ;
     public Accordion root;
+    @FXML public TitledPane simulationPane;
+    @FXML public TitledPane vqPane;
 
     @FXML private TextArea txtNewVQ;
     @FXML private ListView<EnableDisableSimulationOption> lstSimulationOptions;
@@ -33,6 +37,7 @@ public class SimulationMenuController {
     @FXML private ListView<SimulationOption> lstExportOptions;
 
     private Simulations currentSimulations;
+    private static double tabHeight = 25;
 
     public void loadWithSimulation(Simulations currentSimulations) {
         this.currentSimulations = currentSimulations;
@@ -74,6 +79,13 @@ public class SimulationMenuController {
     private void initializeDisplayOptions() {
         //TODO Description is not updated when the onProperty changes.
         lstDisplayOptions.setCellFactory(OptionsHelper.optionListCell());
+
+        vqPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            lstDisplayOptions.setPrefHeight(root.getHeight()
+                    - root.getPanes().size() * tabHeight
+                    - txtNewVQ.getHeight()
+                    - btnAddNewVQ.getHeight());
+        });
     }
 
     private void initializeSimulationOptions() {
@@ -90,6 +102,10 @@ public class SimulationMenuController {
                 }
             });
         }
+        simulationPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+                lstSimulationOptions.setPrefHeight(root.getHeight()
+                        - root.getPanes().size() * tabHeight);
+        });
     }
 
     public void addNewVQ(ActionEvent actionEvent) {
