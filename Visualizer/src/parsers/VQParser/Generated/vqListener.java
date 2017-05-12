@@ -69,18 +69,6 @@ public interface vqListener extends ParseTreeListener {
 	 */
 	void exitPar(vqParser.ParContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code nat}
-	 * labeled alternative in {@link vqParser#exp}.
-	 * @param ctx the parse tree
-	 */
-	void enterNat(vqParser.NatContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code nat}
-	 * labeled alternative in {@link vqParser#exp}.
-	 * @param ctx the parse tree
-	 */
-	void exitNat(vqParser.NatContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code bool}
 	 * labeled alternative in {@link vqParser#exp}.
 	 * @param ctx the parse tree

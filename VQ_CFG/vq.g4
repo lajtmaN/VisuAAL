@@ -6,14 +6,14 @@ gradient
       : '[' oneGradient ',' oneGradient ']';
 
 oneGradient 
-      : ID ':' NEG? NAT
+      : ID ':' NEG? FLOAT
       | ID;
 
 colors
       : '[' color+ ID ':' '*' ']';
 
 color
-      : ID ':' NEG? NAT ',';
+      : ID ':' NEG? FLOAT ',';
 
 exp 
       : '(' exp ')'                                    #par
@@ -28,7 +28,6 @@ exp
       | <assoc=right> exp '?' exp ':' exp              #condOp
       | ID                                             #id
       | ID '.' ID                                      #idDot
-      | NAT                                            #nat
       | FLOAT                                          #float
       | BOOL                                           #bool
       ;
@@ -36,6 +35,5 @@ exp
 BOOL  : 'true' | 'false';
 NEG   : '-';
 ID    : [a-zA-Z_]([a-zA-Z0-9_])*;
-NAT   : [0-9]+;
 FLOAT : [0-9]+('.'[0-9]+)?;
 WS    : [ \n\t\r]+ -> channel(HIDDEN);
