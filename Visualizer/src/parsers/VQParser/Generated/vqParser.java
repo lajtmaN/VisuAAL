@@ -18,8 +18,7 @@ public class vqParser extends Parser {
 	public static final int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
 		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, 
-		T__17=18, T__18=19, T__19=20, BOOL=21, NEG=22, ID=23, NAT=24, FLOAT=25, 
-		WS=26;
+		T__17=18, T__18=19, T__19=20, BOOL=21, NEG=22, ID=23, FLOAT=24, WS=25;
 	public static final int
 		RULE_query = 0, RULE_gradient = 1, RULE_oneGradient = 2, RULE_colors = 3, 
 		RULE_color = 4, RULE_exp = 5;
@@ -35,7 +34,7 @@ public class vqParser extends Parser {
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
 		null, null, null, null, null, null, null, null, null, "BOOL", "NEG", "ID", 
-		"NAT", "FLOAT", "WS"
+		"FLOAT", "WS"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -202,7 +201,7 @@ public class vqParser extends Parser {
 
 	public static class OneGradientContext extends ParserRuleContext {
 		public TerminalNode ID() { return getToken(vqParser.ID, 0); }
-		public TerminalNode NAT() { return getToken(vqParser.NAT, 0); }
+		public TerminalNode FLOAT() { return getToken(vqParser.FLOAT, 0); }
 		public TerminalNode NEG() { return getToken(vqParser.NEG, 0); }
 		public OneGradientContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -244,7 +243,7 @@ public class vqParser extends Parser {
 				}
 
 				setState(30);
-				match(NAT);
+				match(FLOAT);
 				}
 				break;
 			case 2:
@@ -341,7 +340,7 @@ public class vqParser extends Parser {
 
 	public static class ColorContext extends ParserRuleContext {
 		public TerminalNode ID() { return getToken(vqParser.ID, 0); }
-		public TerminalNode NAT() { return getToken(vqParser.NAT, 0); }
+		public TerminalNode FLOAT() { return getToken(vqParser.FLOAT, 0); }
 		public TerminalNode NEG() { return getToken(vqParser.NEG, 0); }
 		public ColorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -379,7 +378,7 @@ public class vqParser extends Parser {
 			}
 
 			setState(50);
-			match(NAT);
+			match(FLOAT);
 			setState(51);
 			match(T__1);
 			}
@@ -418,18 +417,6 @@ public class vqParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof vqListener ) ((vqListener)listener).exitPar(this);
-		}
-	}
-	public static class NatContext extends ExpContext {
-		public TerminalNode NAT() { return getToken(vqParser.NAT, 0); }
-		public NatContext(ExpContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof vqListener ) ((vqListener)listener).enterNat(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof vqListener ) ((vqListener)listener).exitNat(this);
 		}
 	}
 	public static class BoolContext extends ExpContext {
@@ -550,7 +537,7 @@ public class vqParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(69);
+			setState(68);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,5,_ctx) ) {
 			case 1:
@@ -575,7 +562,7 @@ public class vqParser extends Parser {
 				setState(58);
 				((UnOpContext)_localctx).op = match(NEG);
 				setState(59);
-				exp(14);
+				exp(13);
 				}
 				break;
 			case 3:
@@ -586,7 +573,7 @@ public class vqParser extends Parser {
 				setState(60);
 				((UnOpContext)_localctx).op = match(T__7);
 				setState(61);
-				exp(13);
+				exp(12);
 				}
 				break;
 			case 4:
@@ -613,34 +600,25 @@ public class vqParser extends Parser {
 				break;
 			case 6:
 				{
-				_localctx = new NatContext(_localctx);
+				_localctx = new FloatContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(66);
-				match(NAT);
+				match(FLOAT);
 				}
 				break;
 			case 7:
 				{
-				_localctx = new FloatContext(_localctx);
-				_ctx = _localctx;
-				_prevctx = _localctx;
-				setState(67);
-				match(FLOAT);
-				}
-				break;
-			case 8:
-				{
 				_localctx = new BoolContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(68);
+				setState(67);
 				match(BOOL);
 				}
 				break;
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(97);
+			setState(96);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
 			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
@@ -648,16 +626,16 @@ public class vqParser extends Parser {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(95);
+					setState(94);
 					_errHandler.sync(this);
 					switch ( getInterpreter().adaptivePredict(_input,6,_ctx) ) {
 					case 1:
 						{
 						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_exp);
+						setState(70);
+						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
 						setState(71);
-						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
-						setState(72);
 						((BinOpContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !(_la==T__4 || _la==T__8) ) {
@@ -668,17 +646,17 @@ public class vqParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
-						setState(73);
-						exp(13);
+						setState(72);
+						exp(12);
 						}
 						break;
 					case 2:
 						{
 						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_exp);
+						setState(73);
+						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
 						setState(74);
-						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
-						setState(75);
 						((BinOpContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !(_la==T__9 || _la==NEG) ) {
@@ -689,17 +667,17 @@ public class vqParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
-						setState(76);
-						exp(12);
+						setState(75);
+						exp(11);
 						}
 						break;
 					case 3:
 						{
 						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_exp);
+						setState(76);
+						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
 						setState(77);
-						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
-						setState(78);
 						((BinOpContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__10) | (1L << T__11) | (1L << T__12) | (1L << T__13))) != 0)) ) {
@@ -710,17 +688,17 @@ public class vqParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
-						setState(79);
-						exp(11);
+						setState(78);
+						exp(10);
 						}
 						break;
 					case 4:
 						{
 						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_exp);
+						setState(79);
+						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
 						setState(80);
-						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
-						setState(81);
 						((BinOpContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !(_la==T__14 || _la==T__15) ) {
@@ -731,54 +709,54 @@ public class vqParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
-						setState(82);
-						exp(10);
+						setState(81);
+						exp(9);
 						}
 						break;
 					case 5:
 						{
 						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_exp);
+						setState(82);
+						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
 						setState(83);
-						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
-						setState(84);
 						((BinOpContext)_localctx).op = match(T__16);
-						setState(85);
-						exp(9);
+						setState(84);
+						exp(8);
 						}
 						break;
 					case 6:
 						{
 						_localctx = new BinOpContext(new ExpContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_exp);
+						setState(85);
+						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
 						setState(86);
-						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
-						setState(87);
 						((BinOpContext)_localctx).op = match(T__17);
-						setState(88);
-						exp(8);
+						setState(87);
+						exp(7);
 						}
 						break;
 					case 7:
 						{
 						_localctx = new CondOpContext(new ExpContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_exp);
+						setState(88);
+						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
 						setState(89);
-						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
-						setState(90);
 						match(T__18);
-						setState(91);
+						setState(90);
 						exp(0);
-						setState(92);
+						setState(91);
 						match(T__3);
-						setState(93);
-						exp(6);
+						setState(92);
+						exp(5);
 						}
 						break;
 					}
 					} 
 				}
-				setState(99);
+				setState(98);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
 			}
@@ -805,51 +783,51 @@ public class vqParser extends Parser {
 	private boolean exp_sempred(ExpContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 0:
-			return precpred(_ctx, 12);
-		case 1:
 			return precpred(_ctx, 11);
-		case 2:
+		case 1:
 			return precpred(_ctx, 10);
-		case 3:
+		case 2:
 			return precpred(_ctx, 9);
-		case 4:
+		case 3:
 			return precpred(_ctx, 8);
-		case 5:
+		case 4:
 			return precpred(_ctx, 7);
-		case 6:
+		case 5:
 			return precpred(_ctx, 6);
+		case 6:
+			return precpred(_ctx, 5);
 		}
 		return true;
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\34g\4\2\t\2\4\3\t"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\33f\4\2\t\2\4\3\t"+
 		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\3\2\3\2\5\2\21\n\2\3\2\3\2\3\2\3\3"+
 		"\3\3\3\3\3\3\3\3\3\3\3\4\3\4\3\4\5\4\37\n\4\3\4\3\4\5\4#\n\4\3\5\3\5\6"+
 		"\5\'\n\5\r\5\16\5(\3\5\3\5\3\5\3\5\3\5\3\6\3\6\3\6\5\6\63\n\6\3\6\3\6"+
-		"\3\6\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\5"+
-		"\7H\n\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3"+
-		"\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\7\7b\n\7\f\7\16\7e\13\7\3\7\2\3\f\b"+
-		"\2\4\6\b\n\f\2\6\4\2\7\7\13\13\4\2\f\f\30\30\3\2\r\20\3\2\21\22t\2\20"+
-		"\3\2\2\2\4\25\3\2\2\2\6\"\3\2\2\2\b$\3\2\2\2\n/\3\2\2\2\fG\3\2\2\2\16"+
-		"\21\5\4\3\2\17\21\5\b\5\2\20\16\3\2\2\2\20\17\3\2\2\2\20\21\3\2\2\2\21"+
-		"\22\3\2\2\2\22\23\5\f\7\2\23\24\7\2\2\3\24\3\3\2\2\2\25\26\7\3\2\2\26"+
-		"\27\5\6\4\2\27\30\7\4\2\2\30\31\5\6\4\2\31\32\7\5\2\2\32\5\3\2\2\2\33"+
-		"\34\7\31\2\2\34\36\7\6\2\2\35\37\7\30\2\2\36\35\3\2\2\2\36\37\3\2\2\2"+
-		"\37 \3\2\2\2 #\7\32\2\2!#\7\31\2\2\"\33\3\2\2\2\"!\3\2\2\2#\7\3\2\2\2"+
-		"$&\7\3\2\2%\'\5\n\6\2&%\3\2\2\2\'(\3\2\2\2(&\3\2\2\2()\3\2\2\2)*\3\2\2"+
-		"\2*+\7\31\2\2+,\7\6\2\2,-\7\7\2\2-.\7\5\2\2.\t\3\2\2\2/\60\7\31\2\2\60"+
-		"\62\7\6\2\2\61\63\7\30\2\2\62\61\3\2\2\2\62\63\3\2\2\2\63\64\3\2\2\2\64"+
-		"\65\7\32\2\2\65\66\7\4\2\2\66\13\3\2\2\2\678\b\7\1\289\7\b\2\29:\5\f\7"+
-		"\2:;\7\t\2\2;H\3\2\2\2<=\7\30\2\2=H\5\f\7\20>?\7\n\2\2?H\5\f\7\17@H\7"+
-		"\31\2\2AB\7\31\2\2BC\7\26\2\2CH\7\31\2\2DH\7\32\2\2EH\7\33\2\2FH\7\27"+
-		"\2\2G\67\3\2\2\2G<\3\2\2\2G>\3\2\2\2G@\3\2\2\2GA\3\2\2\2GD\3\2\2\2GE\3"+
-		"\2\2\2GF\3\2\2\2Hc\3\2\2\2IJ\f\16\2\2JK\t\2\2\2Kb\5\f\7\17LM\f\r\2\2M"+
-		"N\t\3\2\2Nb\5\f\7\16OP\f\f\2\2PQ\t\4\2\2Qb\5\f\7\rRS\f\13\2\2ST\t\5\2"+
-		"\2Tb\5\f\7\fUV\f\n\2\2VW\7\23\2\2Wb\5\f\7\13XY\f\t\2\2YZ\7\24\2\2Zb\5"+
-		"\f\7\n[\\\f\b\2\2\\]\7\25\2\2]^\5\f\7\2^_\7\6\2\2_`\5\f\7\b`b\3\2\2\2"+
-		"aI\3\2\2\2aL\3\2\2\2aO\3\2\2\2aR\3\2\2\2aU\3\2\2\2aX\3\2\2\2a[\3\2\2\2"+
-		"be\3\2\2\2ca\3\2\2\2cd\3\2\2\2d\r\3\2\2\2ec\3\2\2\2\n\20\36\"(\62Gac";
+		"\3\6\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\5\7G"+
+		"\n\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3"+
+		"\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\7\7a\n\7\f\7\16\7d\13\7\3\7\2\3\f\b\2\4"+
+		"\6\b\n\f\2\6\4\2\7\7\13\13\4\2\f\f\30\30\3\2\r\20\3\2\21\22r\2\20\3\2"+
+		"\2\2\4\25\3\2\2\2\6\"\3\2\2\2\b$\3\2\2\2\n/\3\2\2\2\fF\3\2\2\2\16\21\5"+
+		"\4\3\2\17\21\5\b\5\2\20\16\3\2\2\2\20\17\3\2\2\2\20\21\3\2\2\2\21\22\3"+
+		"\2\2\2\22\23\5\f\7\2\23\24\7\2\2\3\24\3\3\2\2\2\25\26\7\3\2\2\26\27\5"+
+		"\6\4\2\27\30\7\4\2\2\30\31\5\6\4\2\31\32\7\5\2\2\32\5\3\2\2\2\33\34\7"+
+		"\31\2\2\34\36\7\6\2\2\35\37\7\30\2\2\36\35\3\2\2\2\36\37\3\2\2\2\37 \3"+
+		"\2\2\2 #\7\32\2\2!#\7\31\2\2\"\33\3\2\2\2\"!\3\2\2\2#\7\3\2\2\2$&\7\3"+
+		"\2\2%\'\5\n\6\2&%\3\2\2\2\'(\3\2\2\2(&\3\2\2\2()\3\2\2\2)*\3\2\2\2*+\7"+
+		"\31\2\2+,\7\6\2\2,-\7\7\2\2-.\7\5\2\2.\t\3\2\2\2/\60\7\31\2\2\60\62\7"+
+		"\6\2\2\61\63\7\30\2\2\62\61\3\2\2\2\62\63\3\2\2\2\63\64\3\2\2\2\64\65"+
+		"\7\32\2\2\65\66\7\4\2\2\66\13\3\2\2\2\678\b\7\1\289\7\b\2\29:\5\f\7\2"+
+		":;\7\t\2\2;G\3\2\2\2<=\7\30\2\2=G\5\f\7\17>?\7\n\2\2?G\5\f\7\16@G\7\31"+
+		"\2\2AB\7\31\2\2BC\7\26\2\2CG\7\31\2\2DG\7\32\2\2EG\7\27\2\2F\67\3\2\2"+
+		"\2F<\3\2\2\2F>\3\2\2\2F@\3\2\2\2FA\3\2\2\2FD\3\2\2\2FE\3\2\2\2Gb\3\2\2"+
+		"\2HI\f\r\2\2IJ\t\2\2\2Ja\5\f\7\16KL\f\f\2\2LM\t\3\2\2Ma\5\f\7\rNO\f\13"+
+		"\2\2OP\t\4\2\2Pa\5\f\7\fQR\f\n\2\2RS\t\5\2\2Sa\5\f\7\13TU\f\t\2\2UV\7"+
+		"\23\2\2Va\5\f\7\nWX\f\b\2\2XY\7\24\2\2Ya\5\f\7\tZ[\f\7\2\2[\\\7\25\2\2"+
+		"\\]\5\f\7\2]^\7\6\2\2^_\5\f\7\7_a\3\2\2\2`H\3\2\2\2`K\3\2\2\2`N\3\2\2"+
+		"\2`Q\3\2\2\2`T\3\2\2\2`W\3\2\2\2`Z\3\2\2\2ad\3\2\2\2b`\3\2\2\2bc\3\2\2"+
+		"\2c\r\3\2\2\2db\3\2\2\2\n\20\36\"(\62F`b";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
