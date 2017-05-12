@@ -11,6 +11,8 @@ import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import parsers.VQParser.VQParse;
@@ -86,6 +88,8 @@ public class SimulationMenuController {
                     - txtNewVQ.getHeight()
                     - btnAddNewVQ.getHeight());
         });
+        Tooltip tooltip = new Tooltip("On Enter: Copy value to new VQ field\nOn Delete: Delete selected VQ");
+        lstDisplayOptions.setTooltip(tooltip);
     }
 
     private void initializeSimulationOptions() {
@@ -192,5 +196,14 @@ public class SimulationMenuController {
     private String getDetailedVQHelp() throws IOException {
         File pathToVQHelp = new File("resources/vq_help.txt");
         return String.join(System.lineSeparator(), Files.readAllLines(pathToVQHelp.toPath()));
+    }
+
+    public void editVQ(KeyEvent keyEvent) {
+        if(keyEvent.getCode().equals(KeyCode.ENTER)) {
+            txtNewVQ.setText(lstDisplayOptions.getFocusModel().getFocusedItem().getDescription());
+        }
+        else if(keyEvent.getCode().equals(KeyCode.DELETE)) {
+            lstDisplayOptions.getItems().remove(lstDisplayOptions.getFocusModel().getFocusedItem());
+        }
     }
 }

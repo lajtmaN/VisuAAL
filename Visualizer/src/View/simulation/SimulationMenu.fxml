@@ -24,7 +24,7 @@
                           <Button mnemonicParsing="false" onAction="#showVQHelp" prefHeight="30.0" text="VQ Help" ButtonBar.buttonData="HELP" GridPane.rowIndex="0" />
                      </buttons>
                   </ButtonBar>
-                        <ListView fx:id="lstDisplayOptions" layoutY="81.0" prefHeight="5000.0" prefWidth="260.0" GridPane.rowIndex="2" />
+                        <ListView fx:id="lstDisplayOptions" onKeyPressed="#editVQ" layoutY="81.0" prefHeight="5000.0" prefWidth="260.0" GridPane.rowIndex="2" />
                   <columnConstraints>
                      <ColumnConstraints />
                   </columnConstraints>
