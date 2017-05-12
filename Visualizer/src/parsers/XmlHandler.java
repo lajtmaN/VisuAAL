@@ -7,6 +7,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -135,6 +136,10 @@ public class XmlHandler {
     private void writeXML() throws TransformerException {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
         DOMSource source = new DOMSource(document);
         StreamResult result = new StreamResult(new File(filepath));
         transformer.transform(source, result);
@@ -172,6 +177,9 @@ public class XmlHandler {
     }
 
     private void addUpdatesToNode(Node parent, List<TemplateUpdate> templateUpdates) {
+        /*TODO: This method has too many memory leaks, and will crash the program if we
+          Load a GPS log with millions of template updates. A better solution could
+          maybe just to write all the XML by ourself, using a stringbuilder instead? */
         Node template = document.createElement("template");
 
         Node name = document.createElement("name");

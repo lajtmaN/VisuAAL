@@ -1,6 +1,8 @@
 package View.simulation;
 
 
+import Helpers.ExtensionFilters;
+import Helpers.FileHelper;
 import Helpers.GUIHelper;
 import Helpers.OptionsHelper;
 import Model.OutputVariable;
@@ -15,6 +17,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import parsers.VQParser.VQParse;
 
 import java.io.File;
@@ -30,6 +33,7 @@ public class SimulationMenuController {
     final PseudoClass errorClass = PseudoClass.getPseudoClass("error");
     public Button btnAddNewVQ;
     public Accordion root;
+    @FXML public ButtonBar btnBarExportImportVQ;
     @FXML public TitledPane simulationPane;
     @FXML public TitledPane vqPane;
 
@@ -86,7 +90,8 @@ public class SimulationMenuController {
             lstDisplayOptions.setPrefHeight(root.getHeight()
                     - root.getPanes().size() * tabHeight
                     - txtNewVQ.getHeight()
-                    - btnAddNewVQ.getHeight());
+                    - btnAddNewVQ.getHeight()
+                    - btnBarExportImportVQ.getHeight());
         });
         Tooltip tooltip = new Tooltip("On Enter: Copy value to new VQ field\nOn Delete: Delete selected VQ");
         lstDisplayOptions.setTooltip(tooltip);
@@ -204,6 +209,52 @@ public class SimulationMenuController {
         }
         else if(keyEvent.getCode().equals(KeyCode.DELETE)) {
             lstDisplayOptions.getItems().remove(lstDisplayOptions.getFocusModel().getFocusedItem());
+        }
+    }
+
+    public void exportAllVq(ActionEvent actionEvent) {
+        File fileToSave = FileHelper.chooseFileToSave(ExtensionFilters.VQFilter);
+        if (fileToSave == null)
+            return;
+
+        try {
+            List<String> allVqs = lstDisplayOptions.getItems().stream().map(vq -> vq.getDescription().replaceAll("\n", " ")).collect(Collectors.toList());
+            FileHelper.writeContentToFile(fileToSave, String.join(System.lineSeparator(), allVqs));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void importVqsFromFile(ActionEvent actionEvent) {
+        File fileToLoad = FileHelper.chooseFileToLoad("Select VQ file", null, ExtensionFilters.VQFilter);
+        if (fileToLoad == null)
+            return;
+
+        try {
+            int successfullyAdded = 0;
+            int unsuccessfullyParsed = 0;
+            List<String> rawVQs = Files.readAllLines(fileToLoad.toPath());
+            for (String rawVQ : rawVQs) {
+                VQParseTree parsedTree = VQParse.parse(rawVQ, currentSimulations.getOutputVariables());
+                boolean hasError = rawVQ.length() > 0 && !parsedTree.isValid();
+                if (!hasError) {
+                    successfullyAdded++;
+                    lstDisplayOptions.getItems().add(new VQOption(currentSimulations, rawVQ));
+                } else {
+                    unsuccessfullyParsed++;
+                }
+            }
+            String message = String.format("Added %d new VQs", successfullyAdded);
+            if (unsuccessfullyParsed > 0)
+                message += System.lineSeparator() + String.format("Could not add %d VQs because of syntax errors", unsuccessfullyParsed);
+
+            if (unsuccessfullyParsed > 0)
+                GUIHelper.showError(message);
+            else
+                GUIHelper.showInformation(message);
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
