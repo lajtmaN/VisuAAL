@@ -30,7 +30,7 @@
         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
     </rowConstraints>
     <children>
-        <Button fx:id="loadModelButton" mnemonicParsing="false" onAction="#loadModel" prefWidth="200" text="Load Model" GridPane.halignment="LEFT" />
+        <Button fx:id="loadModelButton" mnemonicParsing="false" onAction="#loadModel" prefWidth="200" text="Load Model or Simulation" GridPane.halignment="LEFT" />
         <Button fx:id="saveModelButton" mnemonicParsing="false" onAction="#saveModel" prefWidth="200" text="Save Model" visible="false" GridPane.columnIndex="1" GridPane.halignment="LEFT" />
     </children>
 </GridPane>
