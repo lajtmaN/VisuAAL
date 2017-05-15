@@ -3,25 +3,25 @@ package Helpers;
 import Model.SimulateOutput;
 import exceptions.UPPAALFailedException;
 import javafx.scene.control.TextInputControl;
-import org.junit.rules.Stopwatch;
 import parsers.RegexHelper;
 import parsers.SimulateParser;
 import parsers.UPPAALParser;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Timer;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by rasmu on 07/02/2017.
  */
 public class UPPAALExecutor {
-    
+    private static boolean cancelled = false;
+    private static Collection<CompletableFuture<SimulateOutput>> futures = new ArrayList<>();
+    private static Collection<Process> verifytaProcesses = new ArrayList<>();
+
     public static CompletableFuture<SimulateOutput> startUppaalQuery(String modelPath, String query, TextInputControl feedbackCtrl) throws IOException {
+        setCancelled(false);
         String verifytaLocation = GUIHelper.getVerifytaLocationFromUser();
         if (verifytaLocation == null)
             return null;
@@ -34,7 +34,29 @@ public class UPPAALExecutor {
 
         File queryFile = UPPAALParser.generateQueryFile(query);
 
-        return CompletableFuture.supplyAsync(() -> runUppaal(modelPath, verifytaLocation, queryFile.getPath(), simulateCount, feedbackCtrl));
+        CompletableFuture<SimulateOutput> simulateOutputCompletableFuture = CompletableFuture.supplyAsync(() -> runUppaal(modelPath, verifytaLocation, queryFile.getPath(), simulateCount, feedbackCtrl));
+        futures.add(simulateOutputCompletableFuture);
+        simulateOutputCompletableFuture.thenApply(p -> futures.remove(simulateOutputCompletableFuture));
+        return simulateOutputCompletableFuture;
+    }
+
+    public static void cancelProcesses() {
+        setCancelled(true);
+        for(CompletableFuture<SimulateOutput> future : futures){
+            future.cancel(true);
+        }
+        for(Process p : verifytaProcesses) {
+            p.destroy();
+        }
+        verifytaProcesses.clear();
+    }
+
+    private static void setCancelled(boolean cancelled) {
+        UPPAALExecutor.cancelled = cancelled;
+    }
+
+    private static boolean isCancelled() {
+        return cancelled;
     }
 
     private static SimulateOutput runUppaal(String modelPath, String verifytaLocation, String queryFile, int simulateCount, TextInputControl feedbackCtrl) { {
@@ -42,10 +64,14 @@ public class UPPAALExecutor {
             ProcessBuilder builder = new ProcessBuilder(verifytaLocation, modelPath, queryFile);
             long startTime = System.currentTimeMillis();
             Process p = builder.start();
+            verifytaProcesses.add(p);
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             redirect(p.getInputStream(), new PrintStream(buffer), new PrintStreamRedirector(feedbackCtrl));
 
             p.waitFor();
+
+            if(isCancelled())
+                return null;
 
             if (p.exitValue() > 0)
                 throw new UPPAALFailedException();
@@ -54,9 +80,10 @@ public class UPPAALExecutor {
             if (uppaalOutput.length() == 0)
                 return null;
 
+            verifytaProcesses.remove(p);
             List<String> lines = Arrays.asList(uppaalOutput.split("\n"));
             long endTime = System.currentTimeMillis();
-            feedbackCtrl.setText( feedbackCtrl.getText()+"\nThis took: "+String.valueOf(endTime-startTime)+" ms");
+            feedbackCtrl.setText( feedbackCtrl.getText()+"This took: "+String.valueOf(endTime-startTime)+" ms");
             return SimulateParser.parse(lines, simulateCount);
 
         } catch (InterruptedException | IOException e) {
@@ -67,7 +94,7 @@ public class UPPAALExecutor {
     private static void redirect(final InputStream src, final PrintStream... dest) {
          new Thread(() -> {
             Scanner sc = new Scanner(src);
-            while (sc.hasNextLine()) {
+            while (sc.hasNextLine() && !isCancelled()) {
                 String line = sc.nextLine();
                 for (PrintStream p : dest)
                     p.println(line);

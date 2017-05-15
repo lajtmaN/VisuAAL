@@ -14,11 +14,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
-<?import View.ToggleSwitch?>
 
+<?import View.ToggleSwitch?>
+<?import javafx.scene.control.Label?>
 <?import View.IntegerTextField?>
-<GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainWindowController">
+<GridPane fx:id="rootElement" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainWindowController">
 
     <children>
 <GridPane fx:id="horizontalGrid" prefHeight="48.0">
@@ -61,7 +61,7 @@
                </VBox>
            </content>
        </Tab>
-       <Tab fx:id="topologyGeneratorTab" closable="false" text="Topology Generator" onSelectionChanged="#onEnterTopologyGenerator">
+       <Tab fx:id="topologyGeneratorTab" closable="false" onSelectionChanged="#onEnterTopologyGenerator" text="Topology Generator">
            <fx:include fx:id="topologyGenerator" source="topology/TopologyGenerator.fxml" />
        </Tab>
       <Tab closable="false" text="Simulation Generator">
@@ -123,6 +123,7 @@
                    <HBox alignment="CENTER" spacing="30.0" style="-fx-border-width: 1 0 0 0; -fx-border-color: black" GridPane.halignment="CENTER" GridPane.rowIndex="2">
                        <TextField fx:id="txtSimulationName" alignment="CENTER" maxWidth="200.0" promptText="Simulation Name" />
                        <Button mnemonicParsing="false" onAction="#runSimulationQuery" prefWidth="200.0" text="Run Simulation Query in UPPAAL" />
+                        <Button mnemonicParsing="false" onAction="#cancelSimulations" text="Cancel All Simulations" />
                         <padding>
                            <Insets top="10.0" />
                         </padding>
