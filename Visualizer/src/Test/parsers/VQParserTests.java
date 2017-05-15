@@ -442,6 +442,32 @@ public class VQParserTests {
 
         assertEquals(3, value, 0.01);
     }
+
+    @Test
+    public void conditionalShortCircuit() throws Exception {
+        String vq = "x > 0 ? 1 : 0 / 0 \n";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 1.0);
+
+        VQParseTree tree = VQParse.syntaxCheck(vq, map.keySet());
+        double value = tree.getExpressionValue(map);
+
+        assertEquals(1, value, 0.01);
+    }
+
+    @Test(expected = ArithmeticException.class)
+    public void conditionalNoShortCircuit() throws Exception {
+        String vq = "x > 0 ? 1 : 0 / 0 \n";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 0.0);
+
+        VQParseTree tree = VQParse.syntaxCheck(vq, map.keySet());
+        double value = tree.getExpressionValue(map);
+
+        assertEquals(1, value, 0.01);
+    }
 }
 
 

@@ -1,9 +1,12 @@
 # Visualizing Behavior of Distributed Network Protocols using UPPAAL Simulations
 
-If you load an UPPAAL model for a distributed network protocol into this application you can get usefull insight of what is actually going on in the protocol. 
-The parameters that make sense to configure should be prefixed with CONFIG_
-The variables that makes sense to observe during simulations shold be prefixed with OUTPUT_
+If you load a UPPAAL model for a distributed network protocol into this application, you can get useful insight of what going on in the protocol over time. 
+* The topology should be a 2D array named `CONFIG_connected`
+* The parameters that make sense to configure should be prefixed with `CONFIG_`
+* The variables that makes sense to observe during simulations should be prefixed with `OUTPUT_`
 
-This tool is still very much work in process, developed as part of a master thesis on Aalborg University.
+This tool is work in progress, developed as part of a master thesis on [Aalborg University](http://www.aau.dk/).
+
+We use the following libraries in our application: [ANTLR4](http://www.antlr.org/), [GraphStream](http://graphstream-project.org/), [JUnit](http://junit.org), [GmapsFX](http://rterp.github.io/GMapsFX/). The licenses of the libraries is found in the License directory and must be adhered to in addition to our own.
 
 des103f17
