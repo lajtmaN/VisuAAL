@@ -6,4 +6,6 @@ The variables that makes sense to observe during simulations should be prefixed 
 
 This tool is work in process, developed as part of a master thesis on Aalborg University.
 
+We use the following libraries in our application: [ANTLR4](http://www.antlr.org/), [GraphStream](http://graphstream-project.org/), [JUnit](http://junit.org), [GmapsFX](http://rterp.github.io/GMapsFX/). The licenses of the libraries is found in the License directory and must be adhered to in addition to our own.
+
 des103f17
