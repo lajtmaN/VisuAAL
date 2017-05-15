@@ -1,9 +1,9 @@
 # Visualizing Behavior of Distributed Network Protocols using UPPAAL Simulations
 
 If you load a UPPAAL model for a distributed network protocol into this application, you can get useful insight of what going on in the protocol over time. 
-The topology should be a 2D array named `CONFIG_connected`
-The parameters that make sense to configure should be prefixed with `CONFIG_`
-The variables that makes sense to observe during simulations should be prefixed with `OUTPUT_`
+* The topology should be a 2D array named `CONFIG_connected`
+* The parameters that make sense to configure should be prefixed with `CONFIG_`
+* The variables that makes sense to observe during simulations should be prefixed with `OUTPUT_`
 
 This tool is work in progress, developed as part of a master thesis on [Aalborg University](http://www.aau.dk/).
 
