@@ -2,6 +2,7 @@ package Helpers;
 
 import Model.SimulateOutput;
 import exceptions.UPPAALFailedException;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TextInputControl;
 import parsers.RegexHelper;
 import parsers.SimulateParser;
@@ -11,17 +12,20 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by rasmu on 07/02/2017.
  */
 public class UPPAALExecutor {
     private static boolean cancelled = false;
-    private static Collection<CompletableFuture<SimulateOutput>> futures = new ArrayList<>();
+    private static Collection<CompletableFuture<SimulateOutput>> futures = new ConcurrentLinkedQueue<>();
     private static Collection<Process> verifytaProcesses = new ArrayList<>();
+    private static SimpleBooleanProperty simulationsActive = new SimpleBooleanProperty(false);
 
     public static CompletableFuture<SimulateOutput> startUppaalQuery(String modelPath, String query, TextInputControl feedbackCtrl) throws IOException {
         setCancelled(false);
+        simulationsActive.set(true);
         String verifytaLocation = GUIHelper.getVerifytaLocationFromUser();
         if (verifytaLocation == null)
             return null;
@@ -36,8 +40,14 @@ public class UPPAALExecutor {
 
         CompletableFuture<SimulateOutput> simulateOutputCompletableFuture = CompletableFuture.supplyAsync(() -> runUppaal(modelPath, verifytaLocation, queryFile.getPath(), simulateCount, feedbackCtrl));
         futures.add(simulateOutputCompletableFuture);
-        simulateOutputCompletableFuture.thenApply(p -> futures.remove(simulateOutputCompletableFuture));
+        simulateOutputCompletableFuture.thenApply(p -> handleFutureDone(simulateOutputCompletableFuture));
         return simulateOutputCompletableFuture;
+    }
+
+    private static boolean handleFutureDone(CompletableFuture<SimulateOutput> sim) {
+        boolean returnval = futures.remove(sim);
+        simulationsActive.set(!futures.isEmpty());
+        return returnval;
     }
 
     public static void cancelProcesses() {
@@ -49,6 +59,7 @@ public class UPPAALExecutor {
             p.destroy();
         }
         verifytaProcesses.clear();
+        simulationsActive.set(false);
     }
 
     private static void setCancelled(boolean cancelled) {
@@ -100,5 +111,13 @@ public class UPPAALExecutor {
                     p.println(line);
             }
         }).start();
+    }
+
+    public static boolean isSimulationsActive() {
+        return simulationsActive.get();
+    }
+
+    public static SimpleBooleanProperty simulationsActiveProperty() {
+        return simulationsActive;
     }
 }

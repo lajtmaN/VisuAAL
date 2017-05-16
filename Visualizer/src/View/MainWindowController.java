@@ -36,6 +36,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 public class MainWindowController implements Initializable {
+    @FXML public Button cancelButton;
     @FXML private ProgressIndicator simulationProgress;
     @FXML private TextArea txtUppaalOutput;
     @FXML private TextField txtSimulationName;
@@ -85,6 +86,7 @@ public class MainWindowController implements Initializable {
         initializeOutputVarsTable();
         initializeWidths();
         initializeDynamicTable();
+        cancelButton.disableProperty().bind(UPPAALExecutor.simulationsActiveProperty().not());
     }
 
     private void initializeDynamicTable() {

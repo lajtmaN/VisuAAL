@@ -123,7 +123,7 @@
                    <HBox alignment="CENTER" spacing="30.0" style="-fx-border-width: 1 0 0 0; -fx-border-color: black" GridPane.halignment="CENTER" GridPane.rowIndex="2">
                        <TextField fx:id="txtSimulationName" alignment="CENTER" maxWidth="200.0" promptText="Simulation Name" />
                        <Button mnemonicParsing="false" onAction="#runSimulationQuery" prefWidth="200.0" text="Run Simulation Query in UPPAAL" />
-                        <Button mnemonicParsing="false" onAction="#cancelSimulations" text="Cancel All Simulations" />
+                        <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#cancelSimulations" text="Cancel All Simulations"/>
                         <padding>
                            <Insets top="10.0" />
                         </padding>
