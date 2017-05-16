@@ -69,6 +69,7 @@ public class UPPAALExecutor {
             redirect(p.getInputStream(), new PrintStream(buffer), new PrintStreamRedirector(feedbackCtrl));
 
             p.waitFor();
+            verifytaProcesses.remove(p);
 
             if(isCancelled())
                 return null;
@@ -76,11 +77,13 @@ public class UPPAALExecutor {
             if (p.exitValue() > 0)
                 throw new UPPAALFailedException();
 
+
+
             String uppaalOutput = new String(buffer.toByteArray(), StandardCharsets.UTF_8);
             if (uppaalOutput.length() == 0)
                 return null;
 
-            verifytaProcesses.remove(p);
+
             List<String> lines = Arrays.asList(uppaalOutput.split("\n"));
             long endTime = System.currentTimeMillis();
             feedbackCtrl.setText( feedbackCtrl.getText()+"This took: "+String.valueOf(endTime-startTime)+" ms");
