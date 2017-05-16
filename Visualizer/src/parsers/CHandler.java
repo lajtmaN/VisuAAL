@@ -129,8 +129,11 @@ public class CHandler {
     public static UPPAALTopology getTopology(String decls) throws Exception {
         ArrayList<CVar> vars = VariableParser.getInstantiations(decls);
         Optional<CVar> topologyVar = vars.stream().filter(p -> p.getName().equals("CONFIG_connected")).findFirst();
-        if(!topologyVar.isPresent()){
+        if (!topologyVar.isPresent()){
             throw new Exception("Could not find any topology in the model. The topology should be named CONFIG_connected[CONFIG_nr_nodes][CONFIG_nr_nodes]");
+        }
+        if (topologyVar.get().isInFuncBody()) {
+            throw new Exception("The topology must not be defined in a function. It should be placed in global scope");
         }
         String definitionString = topologyVar.get().getValue();
         if(definitionString != null) {
