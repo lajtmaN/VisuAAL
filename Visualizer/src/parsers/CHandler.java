@@ -130,7 +130,7 @@ public class CHandler {
         ArrayList<CVar> vars = VariableParser.getInstantiations(decls);
         Optional<CVar> topologyVar = vars.stream().filter(p -> p.getName().equals("CONFIG_connected")).findFirst();
         if (!topologyVar.isPresent()){
-            throw new Exception("Could not find any topology in the model. The topology should be named CONFIG_connected[CONFIG_nr_nodes][CONFIG_nr_nodes]");
+            throw new Exception("Could not find any topology in the model. The topology should be named CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES]");
         }
         if (topologyVar.get().isInFuncBody()) {
             throw new Exception("The topology must not be defined in a function. It should be placed in global scope");
@@ -215,34 +215,34 @@ public class CHandler {
     }
 
     public static String StringUPPAALTopology(UPPAALTopology top) {
-        String CTopology = "";
+        StringBuilder CTopology = new StringBuilder();
         if(top != null) {
-            CTopology = "{\n";
+            CTopology.append("{\n");
             top.sort(UPPAALEdge::compareTo);
 
             int topIndex = 0;
             UPPAALEdge edge = top.get(0);
             for (int i = 0; i < top.getNumberOfNodes(); i++) {
-                CTopology += "{";
+                CTopology.append("{");
                 for (int j = 0; j < top.getNumberOfNodes(); j++) {
                     if (edge.getSourceAsInt() == i && edge.getDestinationAsInt() == j) {
-                        CTopology += "1";
+                        CTopology.append("1");
                         if (topIndex < top.size() - 1) {
                             edge = top.get(++topIndex);
                         }
                     } else
-                        CTopology += "0";
+                        CTopology.append("0");
 
                     if (j < top.getNumberOfNodes() - 1)
-                        CTopology += ",";
+                        CTopology.append(",");
                 }
-                CTopology += "}";
+                CTopology.append("}");
                 if (i < top.getNumberOfNodes() - 1)
-                    CTopology += ",\n";
+                    CTopology.append(",\n");
                 else
-                    CTopology += "\n}";
+                    CTopology.append("\n}");
             }
         }
-        return CTopology;
+        return CTopology.toString();
     }
 }
