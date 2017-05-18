@@ -3,7 +3,8 @@
 <nta>
 	<declaration>// Place global declarations here.
 typedef int[0,2] id_t;
-int CONFIG_connected[2][2];</declaration>
+const int CONFIG_NR_NODES = 2;
+int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES];</declaration>
 	<template>
 		<name x="5" y="5">Node</name>
 		<parameter>const id_t id</parameter>

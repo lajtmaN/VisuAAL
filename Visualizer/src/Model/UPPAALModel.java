@@ -72,10 +72,13 @@ public class UPPAALModel implements Externalizable, Cloneable {
         }
 
         if (updateNrNodes) { //Only if nr_nodes has changed, we need to reload these.
-            allConfigVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALConfigConstants(modelPath));
-            processes = UPPAALParser.getUPPAALProcesses(modelPath, allConfigVars);
+            try {
+                allConfigVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALConfigConstants(modelPath));
+                processes = UPPAALParser.getUPPAALProcesses(modelPath, allConfigVars);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
     public ObservableList<CVar> getAllConfigVars() {

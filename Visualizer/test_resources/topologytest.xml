@@ -2,9 +2,10 @@
 	<declaration>// Place global declarations here.
 
 clock x;
+const int CONFIG_NR_NODES = 9;
 const int CONFIG_TESTING_CONSTANT = 1337;
 
-int CONFIG_connected[9][9] = {
+int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
     {0, 1, 0, 1, 0, 0, 0, 0, 0}, 
     {1, 0, 1, 0, 1, 0, 0, 0, 0}, 
     {0, 1, 0, 0, 0, 1, 0, 0, 0}, 

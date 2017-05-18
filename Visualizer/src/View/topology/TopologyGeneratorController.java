@@ -165,6 +165,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
     public void updateGlobalOptions(ActionEvent actionEvent) {
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
+        autoResize();
     }
 
     private UPPAALTopology lastGeneratedTopology;
