@@ -126,7 +126,7 @@ public class GPSLogNodes {
         List<GPSLogEntry> seedEntries = nodes.values().stream().map(nodes -> nodes.first()).collect(Collectors.toList());
         seedEntries.forEach(source ->
             source.neighbors.forEach(neighbor ->
-                uppaalTopology.add(new UPPAALEdge(String.valueOf(source.nodeId), String.valueOf(neighbor)))));
+                uppaalTopology.add(new UPPAALEdge(String.valueOf(source.nodeId), String.valueOf(neighbor.neighborNodeID)))));
     }
 
     private Point getLocationRelativeToBounds(GPSLogEntry node) throws Exception {

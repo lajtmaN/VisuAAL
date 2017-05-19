@@ -309,8 +309,8 @@ public class MainWindowController implements Initializable {
         out.thenAccept(simulations -> {
             simulationProgress.setVisible(false);
             if (simulations != null) {
-                if(topologyGeneratorController.getSimulationMoveNodePoints() != null)
-                    simulations.addAndSortSimulationPoints(topologyGeneratorController.getSimulationMoveNodePoints(),
+                if(topologyGeneratorController.getGPSLogRelatedSimulationPoints() != null)
+                    simulations.addAndSortSimulationPoints(topologyGeneratorController.getGPSLogRelatedSimulationPoints(),
                             topologyGeneratorController.getLatLngBounds());
                 Platform.runLater(() -> addNewResults(simulationName, simulations));
                 simulations.save(simulationName);
