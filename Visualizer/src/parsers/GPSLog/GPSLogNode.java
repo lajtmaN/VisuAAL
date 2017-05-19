@@ -28,20 +28,20 @@ public class GPSLogNode extends ArrayList<GPSLogEntry> {
         return super.add(gpsLogEntry);
     }
 
-    public double min(Function<GPSLogEntry, Double> mapper) {
+    public double min(Function<GPSLogEntry, Number> mapper) {
         double minScore = Double.MAX_VALUE;
         for (GPSLogEntry node : this) {
-            if (mapper.apply(node) < minScore)
-                minScore = mapper.apply(node);
+            if (mapper.apply(node).doubleValue() < minScore)
+                minScore = mapper.apply(node).doubleValue();
         }
         return minScore;
     }
 
-    public double max(Function<GPSLogEntry, Double> mapper) {
+    public double max(Function<GPSLogEntry, Number> mapper) {
         double maxScore = Double.MIN_VALUE;
         for (GPSLogEntry node : this) {
-            if (mapper.apply(node) > maxScore)
-                maxScore = mapper.apply(node);
+            if (mapper.apply(node).doubleValue() > maxScore)
+                maxScore = mapper.apply(node).doubleValue();
         }
         return maxScore;
     }

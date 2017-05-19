@@ -55,6 +55,16 @@ public class GPSLogNodes {
         return bounds;
     }
 
+    public void setEarliestTimestampAsZeroOnAllEntries() {
+        if (nodes.values().isEmpty())
+            return;
+
+        int lowestTimestamp = minValueFromList(n -> n.timestamp).intValue();
+        if (lowestTimestamp > 0) {
+            nodes.values().forEach(nodes -> nodes.forEach(entry -> entry.timestamp -= lowestTimestamp));
+        }
+    }
+
     private LatLng southWestBounds() {
         //Lat is y
         //Lng is x
@@ -70,7 +80,7 @@ public class GPSLogNodes {
         return new LatLng(north, east);
     }
 
-    private Double minValueFromList(Function<GPSLogEntry, Double> mapper) {
+    private Double minValueFromList(Function<GPSLogEntry, Number> mapper) {
         double minScore = Double.MAX_VALUE;
         for (GPSLogNode nodeList : nodes.values()) {
             double minInList = nodeList.min(mapper);
@@ -80,7 +90,7 @@ public class GPSLogNodes {
         return minScore;
     }
 
-    private Double maxValueFromList(Function<GPSLogEntry, Double> mapper) {
+    private Double maxValueFromList(Function<GPSLogEntry, Number> mapper) {
         double maxScore = Double.MIN_VALUE;
         for (GPSLogNode nodeList : nodes.values()) {
             double maxInList = nodeList.max(mapper);

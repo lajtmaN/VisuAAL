@@ -241,6 +241,20 @@ public class GPSLogParserTest {
         assertEquals(587.776382242929, points.get(8).getPointValue().y, 0.001);
     }
 
+    @Test
+    public void usesLowestTimestampAsZero() throws IOException {
+        File exampleLogFile = new File("test_resources/gpslog_with_realistic_timestamps.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(exampleLogFile);
+
+        int actualTimestampNode0 = loadedNodes.getNode(0).get(0).timestamp;
+        int actualTimestampNode1 = loadedNodes.getNode(1).get(0).timestamp;
+        int actualTimestampNode2 = loadedNodes.getNode(2).get(0).timestamp;
+
+        assertEquals(1952, actualTimestampNode0);
+        assertEquals(600, actualTimestampNode1);
+        assertEquals(0, actualTimestampNode2);
+    }
+
     private void assertContainsNeighbors(GPSLogEntry node, Integer... neighbors) {
         for (Integer neighbor : neighbors)
             assertTrue(node.neighborNodeIds().contains(neighbor));
