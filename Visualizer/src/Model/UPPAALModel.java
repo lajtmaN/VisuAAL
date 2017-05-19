@@ -18,6 +18,7 @@ import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -71,10 +72,13 @@ public class UPPAALModel implements Externalizable, Cloneable {
         }
 
         if (updateNrNodes) { //Only if nr_nodes has changed, we need to reload these.
-            allConfigVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALConfigConstants(modelPath));
-            processes = UPPAALParser.getUPPAALProcesses(modelPath, allConfigVars);
+            try {
+                allConfigVars = FXCollections.observableArrayList(UPPAALParser.getUPPAALConfigConstants(modelPath));
+                processes = UPPAALParser.getUPPAALProcesses(modelPath, allConfigVars);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
     public ObservableList<CVar> getAllConfigVars() {
@@ -107,9 +111,16 @@ public class UPPAALModel implements Externalizable, Cloneable {
             return null;
 
         simulateOutput.exceptionally(throwable -> {
-            Platform.runLater(() -> GUIHelper.showError(throwable.getMessage()));
+            if(throwable.getClass() == CancellationException.class ||
+                    (throwable.getCause() != null && throwable.getCause().getClass() == CancellationException.class)){
+                feedbackCtrl.setText(feedbackCtrl.getText() + "Simulation cancelled successfully.\n");
+            }
+            else {
+                Platform.runLater(() -> GUIHelper.showError(throwable.getMessage()));
+            }
             return null;
         });
+        FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
 
         return simulateOutput.thenApply(output -> {
             if (output == null)
@@ -119,8 +130,6 @@ public class UPPAALModel implements Externalizable, Cloneable {
                 GUIHelper.showError(output.getErrorDescription());
                 return null;
             }
-
-            FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
 
             List<Simulation> simulationPoints = output.zip(vars);
             return new Simulations(this, query, simulationPoints);

@@ -13,7 +13,7 @@
 
 <Accordion fx:id="root" prefWidth="260" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.simulation.SimulationMenuController">
    <panes>
-       <TitledPane text="Display" fx:id="vqPane">
+       <TitledPane fx:id="vqPane" text="Display">
            <content>
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="5000.0" prefWidth="260.0">
                     <GridPane prefHeight="5000">
@@ -24,11 +24,18 @@
                           <Button mnemonicParsing="false" onAction="#showVQHelp" prefHeight="30.0" text="VQ Help" ButtonBar.buttonData="HELP" GridPane.rowIndex="0" />
                      </buttons>
                   </ButtonBar>
-                        <ListView fx:id="lstDisplayOptions" onKeyPressed="#editVQ" layoutY="81.0" prefHeight="5000.0" prefWidth="260.0" GridPane.rowIndex="2" />
+                    <ListView fx:id="lstDisplayOptions" layoutY="81.0" onKeyPressed="#editVQ" prefHeight="5000.0" prefWidth="260.0" GridPane.rowIndex="2" />
+                    <ButtonBar fx:id="btnBarExportImportVQ" GridPane.rowIndex="3">
+                        <buttons>
+                            <Button text="Export VQs" onAction="#exportAllVq"/>
+                            <Button text="Import VQs" onAction="#importVqsFromFile"/>
+                        </buttons>
+                    </ButtonBar>
                   <columnConstraints>
                      <ColumnConstraints />
                   </columnConstraints>
                   <rowConstraints>
+                     <RowConstraints />
                      <RowConstraints />
                      <RowConstraints />
                      <RowConstraints />
@@ -37,12 +44,18 @@
                </AnchorPane>
            </content>
        </TitledPane>
-       <TitledPane text="Simulations" fx:id="simulationPane">
+       <TitledPane fx:id="simulationPane" text="Simulations">
            <content>
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="5000.0" prefWidth="260.0">
                    <children>
                        <GridPane fx:id="gridpane">
-                           <ListView fx:id="lstSimulationOptions" prefHeight="500.0" prefWidth="260.0" />
+                           <ListView fx:id="lstSimulationOptions" prefHeight="5000.0" prefWidth="260.0" />
+                     <columnConstraints>
+                        <ColumnConstraints />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                     </rowConstraints>
                        </GridPane>
                    </children>
                </AnchorPane>
@@ -52,7 +65,7 @@
            <content>
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="5000.0" prefWidth="260.0">
                    <children>
-                       <ListView fx:id="lstExportOptions" prefHeight="200.0" prefWidth="260.0" />
+                       <ListView fx:id="lstExportOptions" prefHeight="5000.0" prefWidth="260.0" />
                    </children>
                </AnchorPane>
            </content>

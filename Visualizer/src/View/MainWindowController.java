@@ -1,14 +1,12 @@
 package View;
 
-import Helpers.ExtensionFilters;
-import Helpers.FileHelper;
-import Helpers.GUIHelper;
-import Helpers.QueryGenerator;
+import Helpers.*;
 import Model.*;
 import View.simulation.SimulationResultController;
 import View.topology.TopologyGeneratorController;
 import javafx.application.Platform;
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
@@ -33,11 +31,12 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 public class MainWindowController implements Initializable {
+    @FXML public Button cancelButton;
     @FXML private ProgressIndicator simulationProgress;
     @FXML private TextArea txtUppaalOutput;
     @FXML private TextField txtSimulationName;
@@ -87,6 +86,7 @@ public class MainWindowController implements Initializable {
         initializeOutputVarsTable();
         initializeWidths();
         initializeDynamicTable();
+        cancelButton.disableProperty().bind(UPPAALExecutor.simulationsActiveProperty().not());
     }
 
     private void initializeDynamicTable() {
@@ -300,8 +300,10 @@ public class MainWindowController implements Initializable {
         CompletableFuture<Simulations> out = uppaalModel.runQuery(query, txtUppaalOutput); //Run in uppaal - takes long time
         out.exceptionally(th -> {
             simulationProgress.setVisible(false);
-            Platform.runLater(() -> GUIHelper.showError("Simulations failed: " + System.lineSeparator()+ th.getMessage()));
-            th.printStackTrace();
+            if(th.getCause() != null && th.getCause().getClass() != CancellationException.class) { //ignore cancellation
+                Platform.runLater(() -> GUIHelper.showError("Simulations failed: " + System.lineSeparator() + th.getMessage()));
+                th.printStackTrace();
+            }
             return null;
         });
         out.thenAccept(simulations -> {
@@ -376,4 +378,7 @@ public class MainWindowController implements Initializable {
         chkUseRandomTopology.switchOnProperty().set(active);
     }
 
+    public void cancelSimulations(ActionEvent actionEvent) {
+        UPPAALExecutor.cancelProcesses();
+    }
 }

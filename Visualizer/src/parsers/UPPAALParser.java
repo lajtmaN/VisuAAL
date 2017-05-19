@@ -1,7 +1,6 @@
 package parsers;
 
 import Model.*;
-import javafx.collections.FXCollections;
 import javafx.util.Pair;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -20,14 +19,18 @@ import java.util.stream.Collectors;
  */
 public class UPPAALParser {
 
-    public static ArrayList<CVar> getUPPAALConfigConstants(String uppaalFilename) {
-        try {
-            XmlHandler handler = new XmlHandler(uppaalFilename);
-            return CHandler.getConfigVariables(handler.getAllDeclarations());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static ArrayList<CVar> getUPPAALConfigConstants(String uppaalFilename) throws Exception {
+        XmlHandler handler = new XmlHandler(uppaalFilename);
+        ArrayList<CVar> allConfigVars = CHandler.getConfigVariables(handler.getAllDeclarations());
+        checkIfConfigNrNodesIsIncluded(allConfigVars);
+        return allConfigVars;
+    }
+
+    private static void checkIfConfigNrNodesIsIncluded(ArrayList<CVar> allConfigVars) throws Exception {
+        allConfigVars.stream()
+                .filter(c -> c.getName().equals("CONFIG_NR_NODES"))
+                .findFirst()
+                .orElseThrow(() -> new Exception("Could not find a variable called CONFIG_NR_NODES"));
     }
 
     public static void updateUPPAALConfigConstants(String uppaalFilename, Collection<CVar> cvarsWithNewVal ) {
@@ -163,7 +166,7 @@ public class UPPAALParser {
         return null;
     }
 
-    public static List<CVar> getUPPAALDynamicUpdateCandidates(String modelPath) {
+    public static List<CVar> getUPPAALDynamicUpdateCandidates(String modelPath) throws Exception {
         return getUPPAALConfigConstants(modelPath).stream().filter(p -> !p.getIsConst() && p.getScope() == null && !p.isInFuncBody()).collect(Collectors.toList());
     }
 }

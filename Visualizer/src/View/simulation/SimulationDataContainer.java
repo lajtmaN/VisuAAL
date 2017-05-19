@@ -52,7 +52,7 @@ public class SimulationDataContainer extends GridPane {
         //Prevent JavaFX from throwing illegalStateExceptions
         Platform.runLater(() -> {
             for(String key : labels.keySet()){
-                labels.get(key).setText(String.valueOf(nodeVariableMapper.get(nodeId).get(key)));
+                setLabelValue(labels.get(key), nodeVariableMapper.get(nodeId).get(key));
             }
             nodeIdLabel.setText("Node " + nodeId);
             currentNodeId = nodeId;
@@ -74,11 +74,19 @@ public class SimulationDataContainer extends GridPane {
     public void updateVariable(int nodeId, String variable, double value) {
         try {
             nodeVariableMapper.get(nodeId).put(variable, value);
-            if(nodeId == currentNodeId)
-                labels.get(variable).setText(String.valueOf(value));
+            if(nodeId == currentNodeId) {
+                setLabelValue(labels.get(variable), value);
+            }
         }
         catch (Exception e) {
             throw new IllegalArgumentException(String.format("Could not update the variable (%s) on Node %d", variable, nodeId));
         }
+    }
+
+    private void setLabelValue(Label label, double value) {
+        if(String.valueOf(value).length() > 12)
+            label.setText(String.format("%6.3e", value));
+        else
+            label.setText(String.valueOf(value));
     }
 }

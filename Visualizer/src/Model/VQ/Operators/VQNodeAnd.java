@@ -2,14 +2,18 @@ package Model.VQ.Operators;
 
 import Model.VQ.VQNodeBinaryOperator;
 
+import java.util.concurrent.Callable;
+
 /**
  * Created by batto on 10-Apr-17.
  */
 public class VQNodeAnd extends VQNodeBinaryOperator {
     @Override
-    protected double calculateOperator(double v1, double v2) throws Exception {
-        if(v1 != 0 && v2 != 0)
-            return 1;
-        return 0;
+    protected double calculateOperator(Callable<Double> v1, Callable<Double> v2) throws Exception {
+        if(v1.call() == 0)
+            return 0;
+        if(v2.call() == 0)
+            return 0;
+        return 1;
     }
 }

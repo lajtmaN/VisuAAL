@@ -13,7 +13,7 @@ public class ExportTopologyOption extends SimulationOption {
 
     @Override
     public String getDescription() {
-        return "Export Topology...";
+        return "Incidence Matrix for Topology...";
     }
 
     @Override

@@ -87,18 +87,6 @@ public class vqBaseListener implements vqListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNat(vqParser.NatContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNat(vqParser.NatContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterBool(vqParser.BoolContext ctx) { }
 	/**
 	 * {@inheritDoc}

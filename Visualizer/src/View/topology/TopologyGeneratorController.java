@@ -1,9 +1,6 @@
 package View.topology;
 
-import Helpers.ExtensionFilters;
-import Helpers.FileHelper;
-import Helpers.GUIHelper;
-import Helpers.OptionsHelper;
+import Helpers.*;
 import Model.Settings;
 import Model.SimulationMoveNodePoint;
 import Model.UPPAALTopology;
@@ -24,7 +21,6 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.stage.FileChooser;
 import org.graphstream.graph.Graph;
 import parsers.GPSLog.GPSLogParser;
 import parsers.GPSLog.GPSLogNodes;
@@ -169,6 +165,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
     public void updateGlobalOptions(ActionEvent actionEvent) {
         setGridSize(topologyGenerator.getOptions().getCellX(), topologyGenerator.getOptions().getCellY());
+        autoResize();
     }
 
     private UPPAALTopology lastGeneratedTopology;
@@ -295,5 +292,18 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         chkShowGridSettings.switchOnProperty().set(false);
 
         MainWindowController.getInstance().enableDisableUseTopologyFromTopologyGenerator(true);
+    }
+
+    public void saveIncidenseMatrix(ActionEvent actionEvent) {
+        if (lastGeneratedTopology == null) {
+            GUIHelper.showInformation("No topology has been generated yet");
+            return;
+        }
+        File saveFile = FileHelper.chooseFileToSave(ExtensionFilters.TopologySerializationFilter);
+        if (saveFile == null)
+            return;
+
+        TopologyHelper.saveTopology(saveFile, lastGeneratedTopology);
+        GUIHelper.showInformation("Successfully saved");
     }
 }

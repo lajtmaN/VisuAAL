@@ -4,11 +4,8 @@ import Model.UPPAALProcess;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import parsers.Declaration.ANTLRGenerated.uppaalBaseListener;
 import parsers.Declaration.ANTLRGenerated.uppaalParser;
-import parsers.RegexHelper;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by rasmu on 23/03/2017.

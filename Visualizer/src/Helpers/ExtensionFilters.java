@@ -13,4 +13,6 @@ public class ExtensionFilters {
     public static FileChooser.ExtensionFilter VerifytaExtensionFilter = new FileChooser.ExtensionFilter("Verifyta executable file", "verifyta*");
     public static FileChooser.ExtensionFilter GPSLogExtensionFilter = new FileChooser.ExtensionFilter("GPS Log", "*.txt");
     public static FileChooser.ExtensionFilter TopologySerializationFilter = new FileChooser.ExtensionFilter("Topology", "*.topology");
+    public static FileChooser.ExtensionFilter VQFilter = new FileChooser.ExtensionFilter("VQ File", "*.vq");
+
 }

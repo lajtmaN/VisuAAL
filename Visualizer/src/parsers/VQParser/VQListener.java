@@ -46,11 +46,11 @@ public class VQListener extends vqBaseListener {
         parseTree.setFirstColor(firstGradient.ID().getText());
         parseTree.setSecondColor(secondGradient.ID().getText());
 
-        if(firstGradient.NAT() != null)
-            parseTree.setFirstGradient(Double.parseDouble(firstGradient.NAT().getText()),
+        if(firstGradient.FLOAT() != null)
+            parseTree.setFirstGradient(Double.parseDouble(firstGradient.FLOAT().getText()),
                 firstGradient.NEG() != null);
-        if(secondGradient.NAT() != null)
-            parseTree.setSecondGradient(Double.parseDouble(secondGradient.NAT().getText()),
+        if(secondGradient.FLOAT() != null)
+            parseTree.setSecondGradient(Double.parseDouble(secondGradient.FLOAT().getText()),
                 secondGradient.NEG() != null);
         ensureAndLogError(parseTree.getFirstGradient() < parseTree.getSecondGradient(), "First gradient value must be less than second gradient value");
     }
@@ -67,7 +67,7 @@ public class VQListener extends vqBaseListener {
         VQColors colors = new VQColors();
         for(vqParser.ColorContext color : ctx.color()) {
             if(color != null) {
-                int value = Integer.parseInt(color.NAT().getText());
+                double value = Double.parseDouble(color.FLOAT().getText());
                 if(color.NEG() != null)
                     value = -value;
                 colors.addColor(color.ID().getText(), value);
@@ -195,12 +195,6 @@ public class VQListener extends vqBaseListener {
         } else {
             ensureAndLogError(false, "Variable \""+ id +"\" does not exist in scope \"" + scope+"\"");
         }
-    }
-
-    @Override
-    public void enterNat(vqParser.NatContext ctx) {
-        super.enterNat(ctx);
-        addNewChild(new VQNodeValue(Double.valueOf(ctx.NAT().getText())));
     }
 
     @Override

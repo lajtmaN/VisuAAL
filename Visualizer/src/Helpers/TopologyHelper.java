@@ -23,4 +23,23 @@ public class TopologyHelper {
         if (f != null)
             saveTopology(f, topology);
     }
+
+    public static UPPAALTopology loadFromIncidenseMatrix(File fileToLoadFrom) {
+        StringBuilder lines = new StringBuilder();
+        String line;
+        try (
+                InputStream fis = new FileInputStream(fileToLoadFrom);
+                InputStreamReader isr = new InputStreamReader(fis);
+                BufferedReader br = new BufferedReader(isr);
+        ) {
+            while ((line = br.readLine()) != null) {
+                lines.append(line).append("\n");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return CHandler.getTopologyFromInstantiation(lines.toString());
+    }
 }
