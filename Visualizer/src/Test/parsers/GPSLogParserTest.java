@@ -22,14 +22,14 @@ public class GPSLogParserTest {
 
     @Test
     public void parseLineWithOneNeighbor() {
-        String line = "0; 0; 57.0109391; 9.9945777; 1";
+        String line = "0; 0; 57.0109391; 9.9945777; 1 -60";
         GPSLogEntry actual = new GPSLogLineParser(line).parse();
         assertEquals(0, actual.timestamp);
         assertEquals(0, actual.nodeId);
         assertEquals(57.0109391, actual.location.lat, GPS_PRECISION);
         assertEquals(9.9945777,  actual.location.lng, GPS_PRECISION);
         assertEquals(1, actual.neighbors.size());
-        assertEquals(1,(int) actual.neighbors.get(0)); //The int cast is just to tell compiler not to use object equals
+        assertNeighborNodeIdAndRSSIEqualsActual(1, -60, actual.neighbors.get(0));
     }
 
     @Test
@@ -45,28 +45,36 @@ public class GPSLogParserTest {
 
     @Test
     public void parseLineWithMultipleNeighbor() {
-        String line = "0;9811          ; 50.16541871 ; 19.956117;1 2 3 4 54";
+        String line = "0;9811          ; 50.16541871 ; 19.956117;1 -100 2 45 3 -7 4 -7800 54 -87";
         GPSLogEntry actual = new GPSLogLineParser(line).parse();
         assertEquals(0, actual.timestamp);
         assertEquals(9811, actual.nodeId);
         assertEquals(50.16541871, actual.location.lat, GPS_PRECISION);
         assertEquals(19.956117,  actual.location.lng, GPS_PRECISION);
         assertEquals(5, actual.neighbors.size());
-        assertEquals(1,(int) actual.neighbors.get(0));
-        assertEquals(2,(int) actual.neighbors.get(1));
-        assertEquals(3,(int) actual.neighbors.get(2));
-        assertEquals(4,(int) actual.neighbors.get(3));
-        assertEquals(54,(int) actual.neighbors.get(4));
+        assertNeighborNodeIdAndRSSIEqualsActual(1, -100, actual.neighbors.get(0));
+        assertNeighborNodeIdAndRSSIEqualsActual(2, 45, actual.neighbors.get(1));
+        assertNeighborNodeIdAndRSSIEqualsActual(3, -7, actual.neighbors.get(2));
+        assertNeighborNodeIdAndRSSIEqualsActual(4, -7800, actual.neighbors.get(3));
+        assertNeighborNodeIdAndRSSIEqualsActual(54, -87, actual.neighbors.get(4));
     }
 
     @Test
     public void ignoreItselfInNeighborList() {
-        String line = "0; 0; 57.0; 9.9; 0 0 1 1 2";
+        String line = "0; 0; 57.0; 9.9; 0 -50 0 -40";
+        GPSLogEntry actual = new GPSLogLineParser(line).parse();
+        assertEquals(0, actual.nodeId);
+        assertEquals(0, actual.neighbors.size());
+    }
+
+    @Test
+    public void alwaysUseLatestNeighborDeclIfMultipleDefined() {
+        String line = "0; 0; 57.0; 9.9; 1 -4 1 -8 2 -100";
         GPSLogEntry actual = new GPSLogLineParser(line).parse();
         assertEquals(0, actual.nodeId);
         assertEquals(2, actual.neighbors.size());
-        assertEquals(1,(int) actual.neighbors.get(0));
-        assertEquals(2,(int) actual.neighbors.get(1));
+        assertNeighborNodeIdAndRSSIEqualsActual(1, -8, actual.neighbors.get(0));
+        assertNeighborNodeIdAndRSSIEqualsActual(2, -100, actual.neighbors.get(1));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -81,6 +89,12 @@ public class GPSLogParserTest {
         new GPSLogLineParser(line).parse();
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void throwOnNoRSSIForNeighbor() {
+        String line = "3120; 0; 1.2; 1; 1";
+        new GPSLogLineParser(line).parse();
+    }
+
     @Test
     public void parseCommentReturnsNull() {
         String line = "// this is a comment";
@@ -90,7 +104,7 @@ public class GPSLogParserTest {
 
     @Test
     public void GpsLogParserCanParseLine() {
-        String line = "5; 0; 57.0109391; 9.9945777; 1";
+        String line = "5; 0; 57.0109391; 9.9945777; 1 -10";
         GPSLogEntry expected = new GPSLogLineParser(line).parse();
         GPSLogEntry actual = GPSLogParser.parseGPSLogLine(line);
         assertEquals("Timestamp", expected.timestamp, actual.timestamp);
@@ -102,14 +116,14 @@ public class GPSLogParserTest {
 
     @Test
     public void canParseLocationWithNegativeValues() {
-        String line = "9865; 0; 47.6097; -122.3331; 1";
+        String line = "9865; 0; 47.6097; -122.3331; 1 5";
         GPSLogEntry actual = new GPSLogLineParser(line).parse();
         assertEquals(9865, actual.timestamp);
         assertEquals(0, actual.nodeId);
         assertEquals(47.6097, actual.location.lat, GPS_PRECISION);
         assertEquals(-122.3331,  actual.location.lng, GPS_PRECISION);
         assertEquals(1, actual.neighbors.size());
-        assertEquals(1,(int) actual.neighbors.get(0)); //The int cast is just to tell compiler not to use object equals
+        assertNeighborNodeIdAndRSSIEqualsActual(1, 5, actual.neighbors.get(0));
     }
 
     @Test
@@ -184,7 +198,6 @@ public class GPSLogParserTest {
         File exampleLogFile = new File("test_resources/gpslog_with_updates.txt");
         GPSLogNodes loadedNodes = GPSLogParser.parse(exampleLogFile);
         List<TemplateUpdate> updates = loadedNodes.getTopologyChanges();
-        assertEquals(8, updates.size());
 
         TemplateUpdate expected1 = new TemplateUpdate("CONFIG_connected[0][1]", "1", 0);
         TemplateUpdate expected2 = new TemplateUpdate("CONFIG_connected[1][0]", "1", 0);
@@ -203,6 +216,8 @@ public class GPSLogParserTest {
         assertTrue(expected6.getVariableName(), updates.contains(expected6));
         assertTrue(expected7.getVariableName(), updates.contains(expected7));
         assertTrue(expected8.getVariableName(), updates.contains(expected8));
+
+        assertEquals(8, updates.size());
     }
 
     @Test
@@ -228,6 +243,11 @@ public class GPSLogParserTest {
 
     private void assertContainsNeighbors(GPSLogEntry node, Integer... neighbors) {
         for (Integer neighbor : neighbors)
-            assertTrue(node.neighbors.contains(neighbor));
+            assertTrue(node.neighborNodeIds().contains(neighbor));
+    }
+
+    private void assertNeighborNodeIdAndRSSIEqualsActual(int neighborNodeId, int rssi, GPSLogNeighbor actual) {
+        assertEquals(neighborNodeId, actual.neighborNodeID);
+        assertEquals(rssi, actual.rssi);
     }
 }
