@@ -1,5 +1,6 @@
 package parsers;
 
+import Model.SimulationEdgePoint;
 import Model.SimulationMoveNodePoint;
 import Model.TemplateUpdate;
 import Model.topology.LatLng;
@@ -253,6 +254,20 @@ public class GPSLogParserTest {
         assertEquals(1952, actualTimestampNode0);
         assertEquals(600, actualTimestampNode1);
         assertEquals(0, actualTimestampNode2);
+    }
+
+    @Test
+    public void generateRSSISimulationPointsFromLog() throws IOException {
+        File exampleLogFile = new File("test_resources/gpslog.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(exampleLogFile);
+        List<SimulationEdgePoint> actual = new GPSLogSimulationPointGenerator(loadedNodes).generateRSSISimulationPoints();
+
+        assertEquals(-60, actual.get(0).getValue(), 0.001);
+        assertEquals(-4, actual.get(1).getValue(), 0.001);
+        assertEquals(-97, actual.get(2).getValue(), 0.001);
+        assertEquals(-40, actual.get(3).getValue(), 0.001);
+
+        assertEquals(4, actual.size());
     }
 
     private void assertContainsNeighbors(GPSLogEntry node, Integer... neighbors) {
