@@ -1,0 +1,1426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+// Number of nodes +1
+const int CONFIG_NR_NODES=12;
+const int N=CONFIG_NR_NODES+1;
+const int M=10; //Maximum sequence number +1
+const int time_sending=40;
+const int CONFIG_time_spread=5;
+const int CONFIG_time_between_rreq=40;
+typedef int[0,CONFIG_NR_NODES-1] id_t;
+const int CONFIG_MAX_HOP_LIMIT=10;
+
+typedef int[0,N-1] IP; //Set of all ip numbers
+typedef int[0,M-1] SQN;// Set of all sequence numbers
+typedef int[0,4] MSGTYPE;
+typedef bool ARR_IP[N];
+typedef SQN ARR_SQN[N];
+typedef int ARR_DIST[N];
+
+//channels
+urgent broadcast chan imsg[N];
+urgent broadcast chan newpkt[N][N];
+broadcast chan pkt[N][N], rrep[N][N];
+broadcast chan rerr[N], rreq[N];
+urgent broadcast chan tau[N];
+int OUTPUT_idle[CONFIG_NR_NODES+1];
+
+int nodebuffersize[N];// check if all messages are handled (all queues are empty&amp;amp;&amp;amp;all nodes are idle again
+
+bool emptybuffers(){
+  for(i: int[0,N-2]){
+    if(nodebuffersize[i]&gt;0||!OUTPUT_idle[i]){
+      return 0;
+    }
+  }
+  return 1;
+}
+
+// the topology
+int CONFIG_connected[CONFIG_NR_NODES][CONFIG_NR_NODES] = {
+{0,1,0,1,0,0,0,0,0,0,0,0},
+{1,0,1,0,1,0,0,0,0,0,0,0},
+{0,1,0,0,0,1,0,0,0,0,0,0},
+{1,0,0,0,1,0,1,0,0,0,0,0},
+{0,1,0,1,0,1,0,1,0,0,0,0},
+{0,0,1,0,1,0,0,0,1,0,0,0},
+{0,0,0,1,0,0,0,1,0,1,0,0},
+{0,0,0,0,1,0,1,0,1,0,1,0},
+{0,0,0,0,0,1,0,1,0,0,0,1},
+{0,0,0,0,0,0,1,0,0,0,1,0},
+{0,0,0,0,0,0,0,1,0,1,0,1},
+{0,0,0,0,0,0,0,0,1,0,1,0}
+};
+
+bool isconnected(IP i, IP j) {
+  if(i == N-1 || j == N-1) {
+    return false;
+  }
+  return(CONFIG_connected[i][j]==1);
+}
+
+// the definition of messages
+const MSGTYPE NONE=0;
+const MSGTYPE PKT=1;
+const MSGTYPE RREQ=2;
+const MSGTYPE RREP=3;
+const MSGTYPE RERR=4;
+
+typedef struct                           //routing table entry 
+{ SQN tsn;       //destination sequence number
+  IP nhop;       // nexthop (is 0 if no route)
+  bool f_flag;   //route.forward flag
+  bool b_flag;   //route.broken flag
+  int dist;      //number of hops
+} rtentry;
+
+rtentry art[N][N];  // Maps a dip to a rtentry
+
+
+
+
+typedef struct { //content of a message
+MSGTYPE msgtype;
+IP sip;         //sender ip
+//IP dip;       //destination ip(nexthop!!!), not needed
+int hop_limit;  //hop limit
+int tip;        //target ip
+SQN tsn;        //last known DYMO sqn of tip (optional)
+int oip;        //originator ip
+SQN osn;        //originator sequence number
+int odist;      //distance to originator ---optional
+// "inodes"
+//bool[N] ips;  //intermediate nodes visited --- no nesting, to be handled externally
+//SQN[N]  sqns; //sqn for intermediate nodes visited --- no nesting, to be handled externally
+//int[N]  dists;//distances for intermediate nodes visited --- no nesting, to be handled externally
+} MSG;
+
+
+rtentry update(rtentry oldentry, SQN sqn, IP sip, int dist, MSGTYPE msgtype){
+ rtentry newentry;
+ if(oldentry.nhop==0){  // no entry exists
+   newentry.tsn=sqn;
+   newentry.nhop=sip; 
+   newentry.f_flag=1;
+   newentry.b_flag=0;
+   newentry.dist=dist;
+ }else{
+ if(sqn&lt;oldentry.tsn || //incoming info is stale
+    (sqn==oldentry.tsn &amp;&amp; (dist&gt;oldentry.dist+1 || dist==0 || oldentry.dist==0)) || //loop possible
+    (sqn==oldentry.tsn &amp;&amp; ((dist==oldentry.dist+1 &amp;&amp; !oldentry.b_flag)||(dist==oldentry.dist &amp;&amp; msgtype==RREQ &amp;&amp; !oldentry.b_flag)))
+   ){
+   newentry=oldentry;
+ }else{
+   newentry.tsn=sqn;
+   newentry.nhop=sip; 
+   newentry.f_flag=1;
+   newentry.b_flag=0;
+   newentry.dist=dist;
+ }}
+ return newentry;
+}
+
+
+// meta variables for copying messages. Sender copies from xlocal to xglobal, 
+// receiver copies from xglobal to xlocal.
+meta MSG msg_global;  
+meta ARR_IP ips_global;
+meta ARR_SQN sqns_global;
+meta ARR_DIST dists_global;
+
+
+bool loopsearch(IP i,IP d, bool &amp;inter[N]){
+  IP ip = i;
+  while(art[ip][d].nhop!=0){
+    if (inter[art[ip][d].nhop])
+      return true; //intermediate node already seen-&gt;loop!
+    else{
+      inter[art[ip][d].nhop]=1;
+      ip=art[ip][d].nhop;
+    }
+  }
+  return false;//no loop between i and d
+}
+
+//there might be a way to do it more efficient (using "backtracking")
+bool loopfree(){
+  bool oips[N]; //oips is for speed up only; it keeps track of nodes visited while searching for a loop from i to d
+  bool inter[N];
+  for(dip: int[0,N-2]){
+    for(oip: int[0,N-2]){
+//      for(i: int[1,N-1]){//copy ips that have been visited in the last run (speed up)
+//        if(inter[i])oips[i]=1;
+//      }
+      if(!oips[oip]){//oip not yet visited
+        oips[oip]=1;
+  //      for(i: int[1,N-1]) inter[i]=0;
+  //      inter[oip]=1;
+        if(loopsearch(oip,dip,inter)){
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+//determine "knowledge" stored in the routing table
+int total_knowledge(){
+  int ssum=0;
+  for(i: int[0,N-2]){
+    for(j: int[0,N-2]){
+      if(art[i][j].nhop!=0){
+        ssum++;
+      }
+    }
+  }
+  return ssum;
+}
+
+
+
+
+
+</declaration>
+	<template>
+		<name x="5" y="5">dymo</name>
+		<parameter>const id_t ip</parameter>
+		<declaration>// Place local declarations here.
+MSG msg_local;     // current message
+ARR_IP ips_local;
+ARR_SQN sqns_local;
+ARR_DIST dists_local;
+SQN sn=1;          // local sequence number
+IP tiptmp;
+int OUTPUT_queues[CONFIG_NR_NODES+1];     // counts the number of pending packets per destination
+bool pending[N];     // stores the pending flag  per destination
+bool deliver=0;
+clock clk;
+
+void set_unodes(IP tip){
+  for(sip: int[0,N-2]){
+    if(art[ip][sip].nhop!=0 &amp;&amp; art[ip][sip].nhop==art[ip][tip].nhop){
+      ips_local[sip]=1;
+      sqns_local[sip]=art[ip][sip].tsn;
+    }
+    else{
+      ips_local[sip]=0;
+      sqns_local[sip]=0;
+    }
+  }
+}
+
+void set_unodes_err(IP sip){
+  for(sip: int[0,N-2]){
+    if(ips_local[ip]==1){
+      if(!(art[ip][sip].nhop!=0 &amp;&amp; art[ip][sip].nhop==sip &amp;&amp; art[ip][sip].tsn&lt;=sqns_local[sip])){
+        ips_local[ip]=0;
+        sqns_local[ip]=0;
+    }
+  }
+}}
+
+bool unodes_empty(){
+  for(sip: int[0,N-2]){
+    if(ips_local[sip]==1) return false;
+  }
+  return true;
+}
+
+void dist_inc(){
+  for(sip: int[0,N-2]){
+    if(ips_local[sip]==1){
+      dists_local[sip]++;
+    }
+  } 
+}
+
+void add_inodes(IP sip, SQN sn, int dist){
+  ips_local[sip]=1;
+  sqns_local[sip]=sn;
+  dists_local[sip]=dist;
+}
+
+
+void upd_inter(){
+  for(sip: int[0,N-2]){
+    if(ips_local[sip]==1){
+      art[ip][sip]=update(art[ip][sip],sqns_local[sip],msg_local.sip,dists_local[sip],msg_local.msgtype);
+    }
+  }
+}
+
+void invalidate(){
+  for(sip: int[0,N-2]){
+    if(ips_local[sip]!=0){
+      art[ip][sip].f_flag=0;
+      art[ip][sip].b_flag=1;
+    }
+  }
+}
+
+void empty_locals(){
+  for(sip: int[0,N-2]){
+    ips_local[sip]=0;
+    sqns_local[sip]=0;
+    dists_local[sip]=0;
+  }
+}
+
+
+
+
+
+//message creations
+void createpkt(//IP sip,      //sender ip
+               IP tip,     //target ip
+               IP oip      //originator ip
+){
+  msg_global.msgtype=PKT;
+  msg_global.sip=0;
+  msg_global.hop_limit=0;
+  msg_global.tip=tip;
+  msg_global.tsn=0;
+  msg_global.oip=oip;
+  msg_global.osn=0;
+  msg_global.odist=0;
+  for(sip: int[0,N-2]){
+    ips_global[sip]=0;
+    sqns_global[sip]=0;
+    dists_global[sip]=0; 
+  }
+}
+
+void createerr(IP sip,            //sender ip
+               int hoplimit     //hop_limit
+){
+  msg_global.msgtype=RERR;
+  msg_global.sip=sip;
+  msg_global.hop_limit=hoplimit;
+  msg_global.tip=0;
+  msg_global.tsn=0;
+  msg_global.oip=0;
+  msg_global.osn=0;
+  msg_global.odist=0;
+  for(aip: int[0,N-2]){
+    ips_global[aip]=ips_local[aip];
+    sqns_global[aip]=sqns_local[aip];
+    dists_global[aip]=0; 
+  }
+}
+
+void createerr_spec(IP sip,            //sender ip
+               int hoplimit,     //hop_limit
+               IP tip
+){
+  msg_global.msgtype=RERR;
+  msg_global.sip=sip;
+  msg_global.hop_limit=hoplimit;
+  msg_global.tip=0;
+  msg_global.tsn=0;
+  msg_global.oip=0;
+  msg_global.osn=0;
+  msg_global.odist=0;
+  for(aip: int[0,N-2]){
+    if(art[ip][aip].nhop!=0 &amp;&amp; art[ip][aip].nhop==art[ip][tip].nhop){
+      ips_global[aip]=1;
+      sqns_global[aip]=art[ip][aip].tsn;
+      dists_global[aip]=0;
+    }
+    else{
+      ips_global[aip]=0;
+      sqns_global[aip]=0;
+      dists_global[aip]=0;
+    }
+  }
+  for(aip: int[0,N-2]){
+    if(ips_global[aip]!=0){
+      art[ip][aip].f_flag=0;
+      art[ip][aip].b_flag=1;
+    }
+  }
+}
+
+
+
+void createrreq(IP sip,    //sender ip
+                int hoplimit, 
+                IP tip,
+                SQN tsn, 
+                IP oip,
+                SQN osn, 
+                int odist
+){
+  msg_global.msgtype=RREQ;
+  msg_global.sip=sip;
+  msg_global.hop_limit=hoplimit;
+  msg_global.tip=tip;
+  msg_global.tsn=tsn;
+  msg_global.oip=oip;
+  msg_global.osn=osn;
+  msg_global.odist=odist;
+  for(aip: int[0,N-1]){
+    ips_global[aip]=ips_local[aip];
+    sqns_global[aip]=sqns_local[aip];
+    dists_global[aip]=dists_local[aip]; 
+  }
+}
+
+void createrrep(IP sip,    //sender ip
+                int hoplimit, 
+                IP tip,
+                SQN tsn, 
+                IP oip,
+                SQN osn, 
+                int odist
+){
+  createrreq(sip,hoplimit,tip,tsn,oip,osn,odist);
+  msg_global.msgtype=RREP;
+}
+
+void createrrep_spec(IP sip,    //sender ip
+                int hoplimit, 
+                IP tip,
+                SQN tsn, 
+                IP oip,
+                SQN osn, 
+                int odist,
+                IP in_ip,
+                SQN in_sqn,
+                int in_dist
+){
+  msg_global.msgtype=RREP;
+  msg_global.sip=sip;
+  msg_global.hop_limit=hoplimit;
+  msg_global.tip=tip;
+  msg_global.tsn=tsn;
+  msg_global.oip=oip;
+  msg_global.osn=osn;
+  msg_global.odist=odist;
+  for(aip: int[0,N-1]){
+    ips_global[aip]=0;
+    sqns_global[aip]=0;
+    dists_global[aip]=0; 
+  }
+  ips_global[in_ip]=1;
+  sqns_global[in_ip]=in_sqn;
+  dists_global[in_ip]=in_dist;
+}
+
+
+//receive message
+void receive_msg(){
+  msg_local.msgtype=msg_global.msgtype;
+  msg_local.sip=msg_global.sip;
+  msg_local.hop_limit=msg_global.hop_limit;
+  msg_local.tip=msg_global.tip;
+  msg_local.tsn=msg_global.tsn;
+  msg_local.oip=msg_global.oip;
+  msg_local.osn=msg_global.osn;
+  msg_local.odist=msg_global.odist;
+  for(aip: int[0,N-1]){
+    ips_local[aip]=ips_global[aip];
+    sqns_local[aip]=sqns_global[aip];
+    dists_local[aip]=dists_global[aip]; 
+  }
+}
+
+//delete message
+void delete_msg(){
+  msg_local.msgtype=NONE;
+  msg_local.sip=0;
+  msg_local.hop_limit=0;
+  msg_local.tip=0;
+  msg_local.tsn=0;
+  msg_local.oip=0;
+  msg_local.osn=0;
+  msg_local.odist=0;
+  for(aip: int[0,N-1]){
+    ips_local[aip]=0;
+    sqns_local[aip]=0;
+    dists_local[aip]=0; 
+  }
+  OUTPUT_idle[ip]=1;
+}
+
+
+
+//look ahead
+IP oipnhop(MSGTYPE msgt){
+  return update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,msgt).nhop;
+}
+
+</declaration>
+		<location id="id0" x="-848" y="1488">
+			<label kind="invariant" x="-928" y="1504">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id1" x="-848" y="1016">
+			<label kind="invariant" x="-840" y="880">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id2" x="856" y="-328">
+			<label kind="invariant" x="846" y="-313">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id3" x="872" y="640">
+			<label kind="invariant" x="592" y="640">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id4" x="872" y="832">
+			<label kind="invariant" x="592" y="832">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id5" x="872" y="424">
+			<label kind="invariant" x="584" y="424">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread &amp;&amp;
+isconnected(ip,oipnhop(RREP))</label>
+		</location>
+		<location id="id6" x="-872" y="1736">
+			<label kind="invariant" x="-936" y="1712">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id7" x="-912" y="1288">
+			<label kind="invariant" x="-656" y="1256">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id8" x="-848" y="1288">
+			<label kind="invariant" x="-656" y="1256">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id9" x="-848" y="872">
+			<label kind="invariant" x="-840" y="864">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread &amp;&amp; isconnected(ip,art[ip][msg_local.tip].nhop)</label>
+		</location>
+		<location id="id10" x="-872" y="656">
+			<label kind="invariant" x="-920" y="640">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id11" x="-912" y="872">
+			<label kind="invariant" x="-928" y="840">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread &amp;&amp; isconnected(ip,oipnhop(RREQ))</label>
+		</location>
+		<location id="id12" x="-872" y="-1200">
+			<label kind="invariant" x="-856" y="-1200">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id13" x="-872" y="-848">
+			<label kind="invariant" x="-856" y="-848">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id14" x="-872" y="-1016">
+			<label kind="invariant" x="-856" y="-1016">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id15" x="-872" y="-520">
+			<label kind="invariant" x="-856" y="-520">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id16" x="-872" y="-344">
+			<label kind="invariant" x="-856" y="-344">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread &amp;&amp; 
+isconnected(ip,art[ip][msg_local.tip].nhop)</label>
+		</location>
+		<location id="id17" x="-872" y="416">
+			<label kind="invariant" x="-888" y="392">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread &amp;&amp; isconnected(ip,oipnhop(RREQ))</label>
+		</location>
+		<location id="id18" x="480" y="-120">
+			<name x="470" y="-150">RERR_pro</name>
+			<committed/>
+		</location>
+		<location id="id19" x="-328" y="-416">
+			<label kind="invariant" x="-312" y="-416">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id20" x="-480" y="0">
+			<name x="-490" y="-30">RREQ_pro</name>
+			<committed/>
+		</location>
+		<location id="id21" x="480" y="0">
+			<name x="470" y="-30">RREP_pro</name>
+			<committed/>
+		</location>
+		<location id="id22" x="-480" y="-128">
+			<name x="-490" y="-158">PKT_pro</name>
+			<committed/>
+		</location>
+		<location id="id23" x="0" y="0">
+			<name x="-10" y="-30">DYMO_pro</name>
+		</location>
+		<location id="id24" x="-328" y="-592">
+			<label kind="invariant" x="-312" y="-592">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id25" x="272" y="-416">
+			<label kind="invariant" x="168" y="-408">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<init ref="id23"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-824" y="1384">!isconnected(ip,art[ip][msg_local.tip].nhop) &amp;&amp;
+clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-824" y="1416">rerr[ip]!</label>
+			<label kind="assignment" x="-824" y="1432">set_unodes(art[ip][msg_local.tip].nhop),
+invalidate(),
+createerr(ip,10),
+delete_msg()</label>
+			<nail x="-248" y="1488"/>
+			<nail x="-248" y="792"/>
+			<nail x="-248" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-1232" y="1360">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread &amp;&amp;
+isconnected(ip,art[ip][msg_local.tip].nhop)</label>
+			<label kind="synchronisation" x="-912" y="1184">rerr[ip]!</label>
+			<label kind="assignment" x="-912" y="1200">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ),
+dist_inc(),
+upd_inter(),
+sn=sn+1,
+createerr_spec(ip,10,msg_local.tip),
+clk=0</label>
+			<nail x="-888" y="1320"/>
+			<nail x="-888" y="1488"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-832" y="944">!isconnected(ip,art[ip][msg_local.tip].nhop) &amp;&amp;
+clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-832" y="968">rerr[ip]!</label>
+			<label kind="assignment" x="-832" y="984">set_unodes(art[ip][msg_local.tip].nhop),
+invalidate(),
+createerr(ip,10),
+delete_msg()</label>
+			<nail x="-848" y="1048"/>
+			<nail x="-248" y="1048"/>
+			<nail x="-248" y="352"/>
+			<nail x="-248" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-1104" y="920">!isconnected(ip,art[ip][msg_local.tip].nhop)</label>
+			<label kind="assignment" x="-880" y="936">clk=0</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-1160" y="888">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread &amp;&amp; 
+!isconnected(ip,art[ip][msg_local.tip].nhop)</label>
+			<label kind="synchronisation" x="-920" y="736">rrep[ip][oipnhop(RREQ)]!</label>
+			<label kind="assignment" x="-920" y="752">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ),
+dist_inc(),
+upd_inter(),
+sn=sn+1,
+//inodes remains unchanged
+createrrep_spec(ip,10,msg_local.oip,msg_local.osn,ip,sn,0,msg_local.tip,art[ip][msg_local.tip].tsn,art[ip][msg_local.tip].dist),
+clk=0</label>
+			<nail x="-880" y="896"/>
+			<nail x="-880" y="1016"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-972" y="1050">!isconnected(ip,oipnhop(RREQ))</label>
+			<label kind="assignment" x="-976" y="1064">clk=0</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id10"/>
+			<label kind="guard" x="-1088" y="424">!isconnected(ip,oipnhop(RREQ))</label>
+			<label kind="assignment" x="-1088" y="440">clk=0</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id3"/>
+			<label kind="guard" x="872" y="512">!isconnected(ip,oipnhop(RREP))</label>
+			<label kind="assignment" x="872" y="544">clk=0</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id15"/>
+			<label kind="guard" x="-872" y="-392">!isconnected(ip,art[ip][msg_local.tip].nhop)</label>
+			<label kind="assignment" x="-872" y="-376">clk=0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id23"/>
+			<label kind="guard" x="568" y="-358">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="416" y="-296">rerr[ip]!</label>
+			<label kind="assignment" x="416" y="-280">invalidate(),
+createerr(ip,msg_local.hop_limit-1),
+delete_msg()</label>
+			<nail x="400" y="-328"/>
+			<nail x="400" y="-224"/>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id2"/>
+			<label kind="guard" x="416" y="-312">!unodes_empty() &amp;&amp; msg_local.hop_limit&gt;1</label>
+			<nail x="944" y="-120"/>
+			<nail x="944" y="-328"/>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id23"/>
+			<label kind="guard" x="632" y="-160">unodes_empty() || msg_local.hop_limit&lt;=1</label>
+			<label kind="assignment" x="632" y="-144">delete_msg()</label>
+			<nail x="944" y="-120"/>
+			<nail x="944" y="-224"/>
+			<nail x="400" y="-224"/>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id23"/>
+			<label kind="guard" x="232" y="872">art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP)
+&amp;&amp; msg_local.tip!=ip
+&amp;&amp; (art[ip][msg_local.tip].nhop==0 || msg_local.hop_limit&lt;=1)</label>
+			<label kind="assignment" x="232" y="920">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP),
+dist_inc(),
+upd_inter(),
+delete_msg()</label>
+			<nail x="944" y="0"/>
+			<nail x="944" y="984"/>
+			<nail x="208" y="984"/>
+			<nail x="208" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id23"/>
+			<label kind="guard" x="480" y="816">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="232" y="728">rerr[ip]!</label>
+			<label kind="assignment" x="232" y="744">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP),
+dist_inc(),
+upd_inter(),
+createerr_spec(ip,10,msg_local.tip),
+delete_msg()</label>
+			<nail x="208" y="832"/>
+			<nail x="208" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id4"/>
+			<label kind="guard" x="232" y="680">art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP)
+&amp;&amp; msg_local.tip!=ip
+&amp;&amp; art[ip][msg_local.tip].nhop!=0 &amp;&amp; !art[ip][msg_local.tip].f_flag &amp;&amp; msg_local.hop_limit&gt;1</label>
+			<nail x="944" y="0"/>
+			<nail x="944" y="832"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id23"/>
+			<label kind="guard" x="488" y="624">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="224" y="512">rerr[ip]!</label>
+			<label kind="assignment" x="224" y="528">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP),
+dist_inc(),
+upd_inter(),
+set_unodes(msg_local.tip),
+invalidate(),
+createerr(ip,10),
+delete_msg()</label>
+			<nail x="208" y="640"/>
+			<nail x="208" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id3"/>
+			<label kind="guard" x="224" y="456">art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP)
+&amp;&amp; msg_local.tip!=ip
+&amp;&amp; art[ip][msg_local.tip].nhop!=0 &amp;&amp; art[ip][msg_local.tip].f_flag &amp;&amp; msg_local.hop_limit&gt;1
+&amp;&amp; !isconnected(ip,oipnhop(RREP))</label>
+			<nail x="944" y="0"/>
+			<nail x="944" y="640"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id23"/>
+			<label kind="guard" x="488" y="408">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="224" y="312">rrep[ip][msg_local.tip]!</label>
+			<label kind="assignment" x="224" y="328">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP),
+dist_inc(),
+upd_inter(),
+add_inodes(ip,sn,0),
+createrrep(ip,msg_local.hop_limit-1,msg_local.tip,msg_local.tsn,msg_local.oip,msg_local.osn,msg_local.odist+1),
+delete_msg()</label>
+			<nail x="208" y="424"/>
+			<nail x="208" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id5"/>
+			<label kind="guard" x="224" y="256">art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP)
+&amp;&amp; msg_local.tip!=ip
+&amp;&amp; art[ip][msg_local.tip].nhop!=0 &amp;&amp; art[ip][msg_local.tip].f_flag &amp;&amp; msg_local.hop_limit&gt;1
+&amp;&amp; isconnected(ip,oipnhop(RREP))</label>
+			<nail x="944" y="0"/>
+			<nail x="944" y="424"/>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id23"/>
+			<label kind="guard" x="224" y="112">art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP)
+&amp;&amp; msg_local.tip==ip</label>
+			<label kind="assignment" x="224" y="144">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP),
+dist_inc(),
+upd_inter(),
+pending[msg_local.tip]=0,
+delete_msg()</label>
+			<nail x="944" y="0"/>
+			<nail x="944" y="224"/>
+			<nail x="208" y="224"/>
+			<nail x="208" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id23"/>
+			<label kind="guard" x="224" y="32">art[ip][msg_local.oip]==update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREP)</label>
+			<label kind="assignment" x="224" y="48">dist_inc(),
+upd_inter(),
+delete_msg()</label>
+			<nail x="944" y="0"/>
+			<nail x="944" y="96"/>
+			<nail x="208" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-936" y="1768">msg_local.oip!=ip &amp;&amp;
+art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ) &amp;&amp;
+msg_local.tip!=ip &amp;&amp;
+(art[ip][msg_local.tip].nhop==0 || art[ip][msg_local.tip].tsn&lt;=msg_local.tsn) &amp;&amp;
+msg_local.hop_limit&lt;=1</label>
+			<label kind="assignment" x="-936" y="1840">delete_msg()</label>
+			<nail x="-944" y="0"/>
+			<nail x="-944" y="1864"/>
+			<nail x="-248" y="1864"/>
+			<nail x="-248" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-664" y="1712">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-936" y="1608">rreq[ip]!</label>
+			<label kind="assignment" x="-936" y="1624">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ),
+dist_inc(),
+upd_inter(),
+add_inodes(ip,sn,0),
+createrreq(ip,msg_local.hop_limit-1,msg_local.tip,msg_local.tsn,msg_local.oip,msg_local.osn,msg_local.odist+1),
+delete_msg()</label>
+			<nail x="-248" y="1736"/>
+			<nail x="-248" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-936" y="1536">msg_local.oip!=ip &amp;&amp;
+art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ) &amp;&amp;
+msg_local.tip!=ip &amp;&amp;
+(art[ip][msg_local.tip].nhop==0 || art[ip][msg_local.tip].tsn&lt;=msg_local.tsn) &amp;&amp;
+msg_local.hop_limit&gt;1</label>
+			<nail x="-944" y="0"/>
+			<nail x="-944" y="1736"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-800" y="1280">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-800" y="1296">rrep[ip][art[ip][msg_local.tip].nhop]!</label>
+			<label kind="assignment" x="-800" y="1312">add_inodes(msg_local.oip,msg_local.osn,msg_local.odist+1),
+createrrep(ip,10,msg_local.tip,msg_local.tsn,ip,sn,0),
+delete_msg()</label>
+			<nail x="-800" y="1360"/>
+			<nail x="-248" y="1360"/>
+			<nail x="-248" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-824" y="1224">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread &amp;&amp;
+isconnected(ip,art[ip][msg_local.tip].nhop)</label>
+			<label kind="synchronisation" x="-912" y="1184">rerr[ip]!</label>
+			<label kind="assignment" x="-912" y="1200">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ),
+dist_inc(),
+upd_inter(),
+sn=sn+1,
+createerr_spec(ip,10,msg_local.tip),
+clk=0</label>
+			<nail x="-888" y="1288"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-936" y="1112">msg_local.oip!=ip &amp;&amp;
+art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ) &amp;&amp;
+msg_local.tip!=ip &amp;&amp;
+art[ip][msg_local.tip].nhop!=0 &amp;&amp; art[ip][msg_local.tip].tsn&gt;msg_local.tsn &amp;&amp;
+!isconnected(ip,oipnhop(RREQ))</label>
+			<nail x="-944" y="0"/>
+			<nail x="-944" y="1288"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-544" y="912">isconnected(ip,art[ip][msg_local.tip].nhop) &amp;&amp; 
+clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-544" y="936">rrep[ip][art[ip][msg_local.tip].nhop]!</label>
+			<label kind="assignment" x="-544" y="952">add_inodes(msg_local.oip,msg_local.osn,msg_local.odist+1),
+createrrep(ip,10,msg_local.tip,msg_local.tsn,ip,sn,0),
+delete_msg()</label>
+			<nail x="-816" y="912"/>
+			<nail x="-248" y="912"/>
+			<nail x="-248" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-768" y="776">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread &amp;&amp; 
+isconnected(ip,art[ip][msg_local.tip].nhop)</label>
+			<label kind="synchronisation" x="-920" y="736">rrep[ip][oipnhop(RREQ)]!</label>
+			<label kind="assignment" x="-920" y="752">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ),
+dist_inc(),
+upd_inter(),
+sn=sn+1,
+//inodes remains unchanged
+createrrep_spec(ip,10,msg_local.oip,msg_local.osn,ip,sn,0,msg_local.tip,art[ip][msg_local.tip].tsn,art[ip][msg_local.tip].dist),
+clk=0</label>
+			<nail x="-888" y="872"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-936" y="664">msg_local.oip!=ip &amp;&amp;
+art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ) &amp;&amp;
+msg_local.tip!=ip &amp;&amp;
+art[ip][msg_local.tip].nhop!=0 &amp;&amp; art[ip][msg_local.tip].tsn&gt;msg_local.tsn &amp;&amp; 
+isconnected(ip,oipnhop(RREQ))</label>
+			<nail x="-944" y="0"/>
+			<nail x="-944" y="872"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-648" y="640">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-936" y="504">rerr[ip]!</label>
+			<label kind="assignment" x="-936" y="520">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ),
+dist_inc(),
+upd_inter(),
+sn=sn+1,
+set_unodes(msg_local.oip),
+invalidate(),
+createerr(ip,10),
+delete_msg()</label>
+			<nail x="-248" y="656"/>
+			<nail x="-248" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id10"/>
+			<label kind="guard" x="-936" y="448">msg_local.oip!=ip &amp;&amp;
+art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ) &amp;&amp;
+msg_local.tip==ip &amp;&amp;
+!isconnected(ip,oipnhop(RREQ))</label>
+			<nail x="-944" y="0"/>
+			<nail x="-944" y="656"/>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-848" y="416">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-936" y="280">rrep[ip][oipnhop(RREQ)]!</label>
+			<label kind="assignment" x="-936" y="296">art[ip][msg_local.oip]=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ),
+dist_inc(),
+upd_inter(),
+sn=sn+1,
+empty_locals(),
+createrrep(ip,10,msg_local.oip,msg_local.osn,ip,sn,0),
+delete_msg()</label>
+			<nail x="-248" y="416"/>
+			<nail x="-248" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id17"/>
+			<label kind="guard" x="-936" y="216">msg_local.oip!=ip &amp;&amp;
+art[ip][msg_local.oip]!=update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ) &amp;&amp;
+msg_local.tip==ip &amp;&amp; 
+isconnected(ip,oipnhop(RREQ))</label>
+			<nail x="-944" y="0"/>
+			<nail x="-944" y="416"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-936" y="128">msg_local.oip!=ip &amp;&amp;
+art[ip][msg_local.oip]==update(art[ip][msg_local.oip],msg_local.osn,msg_local.sip,msg_local.odist+1,RREQ)</label>
+			<label kind="assignment" x="-936" y="160">dist_inc(),
+upd_inter(),
+delete_msg()</label>
+			<nail x="-944" y="0"/>
+			<nail x="-944" y="208"/>
+			<nail x="-248" y="208"/>
+			<nail x="-248" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-712" y="-1224">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-936" y="-1136">rerr[ip]!</label>
+			<label kind="assignment" x="-936" y="-1120">empty_locals(),
+ips_local[msg_local.tip]=1,
+sqns_local[msg_local.tip]=0,
+createerr(ip,10),
+delete_msg()</label>
+			<nail x="-440" y="-1200"/>
+			<nail x="-440" y="-224"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-936" y="-1184">msg_local.tip!=ip &amp;&amp;
+(art[ip][msg_local.tip].nhop==0 || !art[ip][msg_local.tip].f_flag) &amp;&amp;
+msg_local.oip!=ip &amp;&amp; art[ip][msg_local.tip].nhop==0</label>
+			<nail x="-944" y="-128"/>
+			<nail x="-944" y="-1200"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-712" y="-1040">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-936" y="-952">rerr[ip]!</label>
+			<label kind="assignment" x="-936" y="-936">set_unodes(msg_local.tip),
+invalidate(),
+createerr(ip,10),
+delete_msg()</label>
+			<nail x="-440" y="-1016"/>
+			<nail x="-440" y="-224"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-936" y="-1000">msg_local.tip!=ip &amp;&amp;
+(art[ip][msg_local.tip].nhop==0 || !art[ip][msg_local.tip].f_flag) &amp;&amp;
+msg_local.oip!=ip &amp;&amp; art[ip][msg_local.tip].nhop!=0</label>
+			<nail x="-944" y="-128"/>
+			<nail x="-944" y="-1016"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-712" y="-872">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-936" y="-784">rreq[ip]!</label>
+			<label kind="assignment" x="-936" y="-752">sn=sn+1,
+pending[msg_local.tip]=1,
+empty_locals(),
+createrreq(ip,10,msg_local.tip,art[ip][msg_local.tip].tsn,ip,sn,0),
+delete_msg()</label>
+			<nail x="-440" y="-848"/>
+			<nail x="-440" y="-224"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-936" y="-832">msg_local.tip!=ip &amp;&amp;
+(art[ip][msg_local.tip].nhop==0 || !art[ip][msg_local.tip].f_flag) &amp;&amp;
+msg_local.oip==ip &amp;&amp; OUTPUT_queues[msg_local.tip]==0</label>
+			<label kind="assignment" x="-936" y="-768">OUTPUT_queues[msg_local.tip]++</label>
+			<nail x="-944" y="-128"/>
+			<nail x="-944" y="-848"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-936" y="-632">msg_local.tip!=ip &amp;&amp;
+(art[ip][msg_local.tip].nhop==0 || !art[ip][msg_local.tip].f_flag) &amp;&amp;
+msg_local.oip==ip &amp;&amp; OUTPUT_queues[msg_local.tip]&gt;0</label>
+			<label kind="assignment" x="-936" y="-584">OUTPUT_queues[msg_local.tip]++,
+delete_msg()</label>
+			<nail x="-944" y="-128"/>
+			<nail x="-944" y="-640"/>
+			<nail x="-440" y="-640"/>
+			<nail x="-440" y="-224"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-720" y="-544">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-936" y="-472">rerr[ip]!</label>
+			<label kind="assignment" x="-936" y="-456">set_unodes(msg_local.tip),
+invalidate(),
+createerr(ip,10),
+delete_msg()</label>
+			<nail x="-440" y="-520"/>
+			<nail x="-440" y="-224"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id15"/>
+			<label kind="guard" x="-936" y="-504">msg_local.tip!=ip &amp;&amp; art[ip][msg_local.tip].nhop!=0 &amp;&amp; 
+art[ip][msg_local.tip].f_flag &amp;&amp; !isconnected(ip,art[ip][msg_local.tip].nhop)</label>
+			<nail x="-944" y="-128"/>
+			<nail x="-944" y="-520"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-936" y="-216">msg_local.tip==ip</label>
+			<label kind="assignment" x="-936" y="-200">deliver=1,
+delete_msg()</label>
+			<nail x="-944" y="-128"/>
+			<nail x="-944" y="-224"/>
+			<nail x="-440" y="-224"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-712" y="-368">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-936" y="-272">pkt[ip][art[ip][msg_local.tip].nhop]!</label>
+			<label kind="assignment" x="-936" y="-256">createpkt(msg_local.tip,msg_local.oip),
+delete_msg()</label>
+			<nail x="-440" y="-344"/>
+			<nail x="-440" y="-224"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-936" y="-304">msg_local.tip!=ip &amp;&amp; art[ip][msg_local.tip].nhop!=0 &amp;&amp; 
+art[ip][msg_local.tip].f_flag &amp;&amp; isconnected(ip,art[ip][msg_local.tip].nhop)</label>
+			<nail x="-944" y="-128"/>
+			<nail x="-944" y="-344"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-928" y="56">msg_local.oip==ip</label>
+			<label kind="assignment" x="-928" y="72">delete_msg()</label>
+			<nail x="-944" y="0"/>
+			<nail x="-944" y="96"/>
+			<nail x="-248" y="96"/>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id23"/>
+			<label kind="guard" x="152" y="-448">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="24" y="-320">rreq[ip]!</label>
+			<label kind="assignment" x="24" y="-232">empty_locals(),
+createrreq(ip,10,tiptmp,art[ip][tiptmp].tsn,ip,sn,0),
+OUTPUT_idle[ip]=1</label>
+			<nail x="0" y="-416"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id25"/>
+			<label kind="select" x="24" y="-400">tip:IP</label>
+			<label kind="guard" x="24" y="-384">msg_local.msgtype==NONE &amp;&amp;
+OUTPUT_queues[tip]&gt;0 &amp;&amp; art[ip][tip].nhop!=0 &amp;&amp;
+(!art[ip][tip].f_flag || art[ip][tip].b_flag) &amp;&amp;
+!pending[tip]</label>
+			<label kind="synchronisation" x="-56" y="320">tau[ip]!</label>
+			<label kind="assignment" x="24" y="-304">tiptmp=tip,
+sn=sn+1,
+pending[tip]=1,
+clk=0,
+OUTPUT_idle[ip]=0</label>
+			<nail x="344" y="-240"/>
+			<nail x="344" y="-416"/>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-264" y="-608">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-376" y="-512">pkt[ip][art[ip][tiptmp].nhop]!</label>
+			<label kind="assignment" x="-376" y="-496">OUTPUT_queues[tiptmp]--,
+createpkt(tiptmp,ip),
+OUTPUT_idle[ip]=1</label>
+			<nail x="0" y="-592"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id24"/>
+			<label kind="select" x="-376" y="-576">tip:IP</label>
+			<label kind="guard" x="-376" y="-560">msg_local.msgtype==NONE &amp;&amp;
+OUTPUT_queues[tip]&gt;0 &amp;&amp; art[ip][tip].nhop!=0 &amp;&amp;
+art[ip][tip].f_flag &amp;&amp; !art[ip][tip].b_flag</label>
+			<label kind="synchronisation" x="-56" y="320">tau[ip]!</label>
+			<label kind="assignment" x="-376" y="-456">tiptmp=tip, clk=0, OUTPUT_idle[ip]=0</label>
+			<nail x="-392" y="-240"/>
+			<nail x="-392" y="-592"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id22"/>
+			<label kind="guard" x="-456" y="-104">msg_local.msgtype==PKT</label>
+			<label kind="synchronisation" x="-56" y="320">tau[ip]!</label>
+			<label kind="assignment" x="-300" y="-64">clk=0</label>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-264" y="-432">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+			<label kind="synchronisation" x="-344" y="-296">rerr[ip]!</label>
+			<label kind="assignment" x="-344" y="-280">set_unodes(tiptmp),
+invalidate(),
+createerr(ip,10),
+empty_locals(),
+OUTPUT_idle[ip]=1</label>
+			<nail x="0" y="-416"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id19"/>
+			<label kind="select" x="-344" y="-368">tip:IP</label>
+			<label kind="guard" x="-344" y="-352">msg_local.msgtype==NONE &amp;&amp;
+OUTPUT_queues[tip]&gt;0 &amp;&amp; art[ip][tip].nhop!=0 &amp;&amp;
+art[ip][tip].f_flag &amp;&amp; !art[ip][tip].b_flag &amp;&amp;
+!isconnected(ip,art[ip][tip].nhop)</label>
+			<label kind="synchronisation" x="-56" y="320">tau[ip]!</label>
+			<label kind="assignment" x="-312" y="-208">tiptmp=tip, clk=0, OUTPUT_idle[ip]=0</label>
+			<nail x="-392" y="-240"/>
+			<nail x="-392" y="-416"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-456" y="0">msg_local.msgtype==RREQ</label>
+			<label kind="synchronisation" x="-300" y="-15">tau[ip]!</label>
+			<label kind="assignment" x="-456" y="16">clk=0</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id21"/>
+			<label kind="guard" x="72" y="0">msg_local.msgtype==RREP</label>
+			<label kind="synchronisation" x="-56" y="320">tau[ip]!</label>
+			<label kind="assignment" x="72" y="16">clk=0</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id18"/>
+			<label kind="guard" x="272" y="-88">msg_local.msgtype==RERR</label>
+			<label kind="synchronisation" x="-56" y="320">tau[ip]!</label>
+			<label kind="assignment" x="256" y="-72">set_unodes_err(msg_local.sip),
+clk=0</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-112" y="144">msg_local.msgtype==NONE</label>
+			<label kind="synchronisation" x="-112" y="160">imsg[ip]?</label>
+			<label kind="assignment" x="-112" y="176">receive_msg(),
+OUTPUT_idle[ip]=0</label>
+			<nail x="-112" y="144"/>
+			<nail x="96" y="144"/>
+		</transition>
+	</template>
+	<template>
+		<name>queue</name>
+		<parameter>const id_t ip</parameter>
+		<declaration>MSG msg_local[M];     // Last M local copies of incoming messages
+ARR_IP ips_local[M];
+ARR_SQN sqns_local[M];
+ARR_DIST dists_local[M];
+
+//int buffersize=0;
+
+void addmsg(MSG msg){
+  msg_local[nodebuffersize[ip]]=msg;
+
+  for(ip: int[0,N-2]){
+    ips_local[nodebuffersize[ip]][ip]=ips_global[ip];
+    sqns_local[nodebuffersize[ip]][ip]=sqns_global[ip];
+    dists_local[nodebuffersize[ip]][ip]=dists_global[ip];
+  }
+  //buffersize++;
+  nodebuffersize[ip]++;//=buffersize;
+}
+
+MSGTYPE nextmsg(){
+  return msg_local[M-1].msgtype;
+}
+
+MSG createpkt(IP tip,
+              IP oip
+){
+  MSG msg;
+  msg.msgtype=PKT;
+  msg.sip=oip;
+  msg.hop_limit=0;     
+  msg.tip=tip;
+  msg.tsn=0;
+  msg.oip=oip;  
+  msg.osn=0;  
+  msg.odist=0;
+
+return msg;
+}
+
+
+
+void create_msg(){
+  msg_global=msg_local[M-1];
+  for(ip: int[0,N-2]){
+    ips_local[M-1][ip]=ips_global[ip];
+    sqns_local[M-1][ip]=sqns_global[ip];
+    dists_local[M-1][ip]=dists_global[ip];   
+  }
+}
+
+MSG emptymsg(){
+MSG msg;
+return msg;
+}
+
+void delete_msg(){
+  for(i: int[1,M-1]){
+    msg_local[i-1]=msg_local[i];
+    ips_local[i-1]=ips_local[i];
+    sqns_local[i-1]=sqns_local[i];
+    dists_local[i-1]=dists_local[i];    
+    msg_local[M-2]=emptymsg();
+    for(ip: int[0,N-2]){
+      ips_local[M-2][ip]=0;
+      sqns_local[M-2][ip]=0;
+      dists_local[M-2][ip]=0;
+    }
+}
+  //buffersize--;
+  nodebuffersize[ip]--;//=buffersize;
+}
+</declaration>
+		<location id="id26" x="0" y="0">
+		</location>
+		<init ref="id26"/>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id26"/>
+			<label kind="guard" x="-192" y="24">nextmsg()!=0 &amp;&amp; OUTPUT_idle[ip]</label>
+			<label kind="synchronisation" x="-192" y="40">imsg[ip]!</label>
+			<label kind="assignment" x="-192" y="56">create_msg(),
+delete_msg()</label>
+			<nail x="-24" y="16"/>
+			<nail x="-200" y="16"/>
+			<nail x="-200" y="96"/>
+			<nail x="-16" y="96"/>
+			<nail x="-16" y="24"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id26"/>
+			<label kind="select" x="24" y="-88">sip:IP</label>
+			<label kind="guard" x="24" y="-72">isconnected(sip,ip)</label>
+			<label kind="synchronisation" x="24" y="-56">rerr[sip]?</label>
+			<label kind="assignment" x="24" y="-40">addmsg(msg_global)</label>
+			<nail x="24" y="-16"/>
+			<nail x="200" y="-16"/>
+			<nail x="200" y="-96"/>
+			<nail x="16" y="-96"/>
+			<nail x="16" y="-24"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id26"/>
+			<label kind="select" x="216" y="-32">sip:IP</label>
+			<label kind="guard" x="216" y="-16">isconnected(sip,ip)</label>
+			<label kind="synchronisation" x="216" y="0">pkt[sip][ip]?</label>
+			<label kind="assignment" x="216" y="16">addmsg(msg_global)</label>
+			<nail x="40" y="-8"/>
+			<nail x="208" y="-8"/>
+			<nail x="208" y="-40"/>
+			<nail x="400" y="-40"/>
+			<nail x="400" y="40"/>
+			<nail x="208" y="40"/>
+			<nail x="208" y="8"/>
+			<nail x="40" y="8"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id26"/>
+			<label kind="select" x="-192" y="-88">sip:IP</label>
+			<label kind="guard" x="-192" y="-72">isconnected(sip,ip)</label>
+			<label kind="synchronisation" x="-192" y="-56">rrep[sip][ip]?</label>
+			<label kind="assignment" x="-192" y="-40">addmsg(msg_global)</label>
+			<nail x="-24" y="-16"/>
+			<nail x="-200" y="-16"/>
+			<nail x="-200" y="-96"/>
+			<nail x="-16" y="-96"/>
+			<nail x="-16" y="-32"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id26"/>
+			<label kind="select" x="-384" y="-32">sip:IP</label>
+			<label kind="guard" x="-384" y="-16">isconnected(sip,ip)</label>
+			<label kind="synchronisation" x="-384" y="0">rreq[sip]?</label>
+			<label kind="assignment" x="-384" y="16">addmsg(msg_global)</label>
+			<nail x="-40" y="-8"/>
+			<nail x="-208" y="-8"/>
+			<nail x="-208" y="-40"/>
+			<nail x="-392" y="-40"/>
+			<nail x="-392" y="40"/>
+			<nail x="-208" y="40"/>
+			<nail x="-208" y="8"/>
+			<nail x="-40" y="8"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id26"/>
+			<label kind="select" x="24" y="24">tip:IP</label>
+			<label kind="synchronisation" x="24" y="40">newpkt[ip][tip]?</label>
+			<label kind="assignment" x="24" y="56">addmsg(createpkt(tip,ip))</label>
+			<nail x="24" y="16"/>
+			<nail x="200" y="16"/>
+			<nail x="200" y="96"/>
+			<nail x="16" y="96"/>
+			<nail x="16" y="24"/>
+		</transition>
+	</template>
+	<template>
+		<name>tester</name>
+		<declaration>clock clk;
+void initialise_idle(){
+  for(i: int[0,N-2]){
+    OUTPUT_idle[i]=1;
+  }
+}</declaration>
+		<location id="id27" x="-680" y="-160">
+			<committed/>
+		</location>
+		<location id="id28" x="-72" y="-160">
+		</location>
+		<location id="id29" x="-280" y="-160">
+			<label kind="invariant" x="-290" y="-145">clk&lt;=CONFIG_time_between_rreq+CONFIG_time_spread</label>
+		</location>
+		<location id="id30" x="168" y="-160">
+			<name x="158" y="-190">final</name>
+		</location>
+		<location id="id31" x="-512" y="-160">
+		</location>
+		<init ref="id27"/>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-264" y="-192">clk&gt;=CONFIG_time_between_rreq-CONFIG_time_spread</label>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id31"/>
+			<label kind="assignment" x="-652" y="-160">initialise_idle()</label>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id30"/>
+			<label kind="synchronisation" x="-32" y="-184">newpkt[1][3]!</label>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id29"/>
+			<label kind="synchronisation" x="-456" y="-184">newpkt[1][7]!</label>
+			<label kind="assignment" x="-456" y="-160">clk=0</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+/*
+a1=dymo(1,art[1]);
+a1q=queue(1);
+a2=dymo(2,art[2]);
+a2q=queue(2);
+a3=dymo(3,art[3]);
+a3q=queue(3);
+
+system tester,a1,a1q,a2,a2q,a3,a3q;
+*/
+system tester, dymo, queue;</system>
+	<queries>
+		<query>
+			<formula>simulate 1 [&lt;=1000] {dymo(0).OUTPUT_queues[0],dymo(0).OUTPUT_queues[1],dymo(0).OUTPUT_queues[2],dymo(0).OUTPUT_queues[3],dymo(0).OUTPUT_queues[4],dymo(0).OUTPUT_queues[5],dymo(0).OUTPUT_queues[6],dymo(0).OUTPUT_queues[7],dymo(0).OUTPUT_queues[8],dymo(0).OUTPUT_queues[9],dymo(0).OUTPUT_queues[10],dymo(0).OUTPUT_queues[11],dymo(1).OUTPUT_queues[0],dymo(1).OUTPUT_queues[1],dymo(1).OUTPUT_queues[2],dymo(1).OUTPUT_queues[3],dymo(1).OUTPUT_queues[4],dymo(1).OUTPUT_queues[5],dymo(1).OUTPUT_queues[6],dymo(1).OUTPUT_queues[7],dymo(1).OUTPUT_queues[8],dymo(1).OUTPUT_queues[9],dymo(1).OUTPUT_queues[10],dymo(1).OUTPUT_queues[11],dymo(2).OUTPUT_queues[0],dymo(2).OUTPUT_queues[1],dymo(2).OUTPUT_queues[2],dymo(2).OUTPUT_queues[3],dymo(2).OUTPUT_queues[4],dymo(2).OUTPUT_queues[5],dymo(2).OUTPUT_queues[6],dymo(2).OUTPUT_queues[7],dymo(2).OUTPUT_queues[8],dymo(2).OUTPUT_queues[9],dymo(2).OUTPUT_queues[10],dymo(2).OUTPUT_queues[11],dymo(3).OUTPUT_queues[0],dymo(3).OUTPUT_queues[1],dymo(3).OUTPUT_queues[2],dymo(3).OUTPUT_queues[3],dymo(3).OUTPUT_queues[4],dymo(3).OUTPUT_queues[5],dymo(3).OUTPUT_queues[6],dymo(3).OUTPUT_queues[7],dymo(3).OUTPUT_queues[8],dymo(3).OUTPUT_queues[9],dymo(3).OUTPUT_queues[10],dymo(3).OUTPUT_queues[11],dymo(4).OUTPUT_queues[0],dymo(4).OUTPUT_queues[1],dymo(4).OUTPUT_queues[2],dymo(4).OUTPUT_queues[3],dymo(4).OUTPUT_queues[4],dymo(4).OUTPUT_queues[5],dymo(4).OUTPUT_queues[6],dymo(4).OUTPUT_queues[7],dymo(4).OUTPUT_queues[8],dymo(4).OUTPUT_queues[9],dymo(4).OUTPUT_queues[10],dymo(4).OUTPUT_queues[11],dymo(5).OUTPUT_queues[0],dymo(5).OUTPUT_queues[1],dymo(5).OUTPUT_queues[2],dymo(5).OUTPUT_queues[3],dymo(5).OUTPUT_queues[4],dymo(5).OUTPUT_queues[5],dymo(5).OUTPUT_queues[6],dymo(5).OUTPUT_queues[7],dymo(5).OUTPUT_queues[8],dymo(5).OUTPUT_queues[9],dymo(5).OUTPUT_queues[10],dymo(5).OUTPUT_queues[11],dymo(6).OUTPUT_queues[0],dymo(6).OUTPUT_queues[1],dymo(6).OUTPUT_queues[2],dymo(6).OUTPUT_queues[3],dymo(6).OUTPUT_queues[4],dymo(6).OUTPUT_queues[5],dymo(6).OUTPUT_queues[6],dymo(6).OUTPUT_queues[7],dymo(6).OUTPUT_queues[8],dymo(6).OUTPUT_queues[9],dymo(6).OUTPUT_queues[10],dymo(6).OUTPUT_queues[11],dymo(7).OUTPUT_queues[0],dymo(7).OUTPUT_queues[1],dymo(7).OUTPUT_queues[2],dymo(7).OUTPUT_queues[3],dymo(7).OUTPUT_queues[4],dymo(7).OUTPUT_queues[5],dymo(7).OUTPUT_queues[6],dymo(7).OUTPUT_queues[7],dymo(7).OUTPUT_queues[8],dymo(7).OUTPUT_queues[9],dymo(7).OUTPUT_queues[10],dymo(7).OUTPUT_queues[11],dymo(8).OUTPUT_queues[0],dymo(8).OUTPUT_queues[1],dymo(8).OUTPUT_queues[2],dymo(8).OUTPUT_queues[3],dymo(8).OUTPUT_queues[4],dymo(8).OUTPUT_queues[5],dymo(8).OUTPUT_queues[6],dymo(8).OUTPUT_queues[7],dymo(8).OUTPUT_queues[8],dymo(8).OUTPUT_queues[9],dymo(8).OUTPUT_queues[10],dymo(8).OUTPUT_queues[11],dymo(9).OUTPUT_queues[0],dymo(9).OUTPUT_queues[1],dymo(9).OUTPUT_queues[2],dymo(9).OUTPUT_queues[3],dymo(9).OUTPUT_queues[4],dymo(9).OUTPUT_queues[5],dymo(9).OUTPUT_queues[6],dymo(9).OUTPUT_queues[7],dymo(9).OUTPUT_queues[8],dymo(9).OUTPUT_queues[9],dymo(9).OUTPUT_queues[10],dymo(9).OUTPUT_queues[11],dymo(10).OUTPUT_queues[0],dymo(10).OUTPUT_queues[1],dymo(10).OUTPUT_queues[2],dymo(10).OUTPUT_queues[3],dymo(10).OUTPUT_queues[4],dymo(10).OUTPUT_queues[5],dymo(10).OUTPUT_queues[6],dymo(10).OUTPUT_queues[7],dymo(10).OUTPUT_queues[8],dymo(10).OUTPUT_queues[9],dymo(10).OUTPUT_queues[10],dymo(10).OUTPUT_queues[11],dymo(11).OUTPUT_queues[0],dymo(11).OUTPUT_queues[1],dymo(11).OUTPUT_queues[2],dymo(11).OUTPUT_queues[3],dymo(11).OUTPUT_queues[4],dymo(11).OUTPUT_queues[5],dymo(11).OUTPUT_queues[6],dymo(11).OUTPUT_queues[7],dymo(11).OUTPUT_queues[8],dymo(11).OUTPUT_queues[9],dymo(11).OUTPUT_queues[10],dymo(11).OUTPUT_queues[11]
+}
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>
