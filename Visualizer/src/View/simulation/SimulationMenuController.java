@@ -196,12 +196,12 @@ public class SimulationMenuController {
     }
 
     private String examplesOnVQ() throws IOException, URISyntaxException {
-        File pathToShortVQHelp = new File(getClass().getClassLoader().getResource("vq_help_short.txt").getFile());
+        File pathToShortVQHelp = new File(getClass().getClassLoader().getResource("vq_help_short.txt").toURI());
         return String.join(System.lineSeparator(), Files.readAllLines(pathToShortVQHelp.toPath()));
     }
 
     private String getDetailedVQHelp() throws IOException, URISyntaxException {
-        File pathToVQHelp = new File(getClass().getClassLoader().getResource("vq_help.txt").getFile());
+        File pathToVQHelp = new File(getClass().getClassLoader().getResource("vq_help.txt").toURI());
         return String.join(System.lineSeparator(), Files.readAllLines(pathToVQHelp.toPath()));
     }
 
