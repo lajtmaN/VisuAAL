@@ -20,7 +20,7 @@ public class Main extends Application {
         Scene scene = new Scene(root, 900, 650);
         scene.getStylesheets().add(getClass().getResource("textfield-error.css").toExternalForm());
 
-        primaryStage.setTitle("UPPAAL Visualization Application");
+        primaryStage.setTitle("VisuAAL");
         primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream("icon/icon.png")));
