@@ -45,7 +45,15 @@ public class GPSLogSimulationPointGenerator {
 
     private void addPreviousValues() {
         for (int i = 0; i < generatedPoints.size(); i++) {
-            double prevValue = generatedPoints.get(i >= 1 ? i-1 : i).getValue();
+            double prevValue = generatedPoints.get(i).getValue();
+            int j = i;
+            while(j > 0) {
+                if(generatedPoints.get(i).getEdgeIdentifier().equals(generatedPoints.get(j).getEdgeIdentifier())) {
+                    prevValue = generatedPoints.get(j).getValue();
+                    break;
+                }
+                j--;
+            }
             generatedPoints.get(i).setPreviousValue(prevValue);
         }
     }

@@ -176,11 +176,17 @@ public class GPSLogNodes {
 
     private void setPreviousValues(List<SimulationMoveNodePoint> nodes) {
         nodes.sort(SimulationPoint::compareTo);
-        for(int i = 0; i < nodes.size(); i++) {
-            if(i >= 1)
-                nodes.get(i).setPreviousPointValue(nodes.get(i-1).getPointValue());
-            else
-                nodes.get(i).setPreviousPointValue(nodes.get(i).getPointValue());
+        for (int i = 0; i < nodes.size(); i++) {
+            Point prevValue = nodes.get(i).getPointValue();
+            int j = i-1;
+            while(j >= 0) {
+                if(nodes.get(i).getIdentifier().equals(nodes.get(j).getIdentifier())) {
+                    prevValue = nodes.get(j).getPointValue();
+                    break;
+                }
+                j--;
+            }
+            nodes.get(i).setPreviousPointValue(prevValue);
         }
     }
 
