@@ -425,10 +425,11 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
         observers.remove(observer);
     }
 
-    public void addAndSortSimulationPoints(List<SimulationMoveNodePoint> simulationMoveNodePoints, LatLngBounds latLngBounds) {
+    public void addAndSortSimulationPoints(List<SimulationPoint> simulationPointsToAdd, LatLngBounds latLngBounds) {
         this.latLngBounds = latLngBounds;
+        addRSSIAsOutputVariable(simulationPointsToAdd);
         for(Simulation s : this.simulations) {
-            s.simulationPoints.addAll(simulationMoveNodePoints);
+            s.simulationPoints.addAll(simulationPointsToAdd);
             s.simulationPoints.sort((o1, o2) -> {
                 if (o1.getClock() < o2.getClock())
                     return -1;
@@ -442,6 +443,15 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             });
         }
         markNodeLocationAt0();
+    }
+
+    private void addRSSIAsOutputVariable(List<SimulationPoint> simulationPointsToAdd) {
+        Optional<SimulationPoint> anRssiSimPoint = simulationPointsToAdd.stream().filter(pt -> pt.getIdentifier().contains("OUTPUT_RSSI")).findAny();
+        if (anRssiSimPoint.isPresent()) {
+            OutputVariable rssiOutputVar = new OutputVariable("OUTPUT_RSSI");
+            rssiOutputVar.setEdgeData(true);
+            getOutputVariables().add(rssiOutputVar);
+        }
     }
 
     public LatLngBounds getLatLngBounds() {

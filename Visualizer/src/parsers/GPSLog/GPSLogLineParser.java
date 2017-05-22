@@ -2,11 +2,14 @@ package parsers.GPSLog;
 
 import Helpers.StringHelper;
 import Model.topology.LatLng;
+import com.sun.org.apache.regexp.internal.RE;
 import parsers.RegexHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -19,7 +22,7 @@ public class GPSLogLineParser {
     private int timestamp;
     private int nodeId;
     private LatLng gpsLocation;
-    private List<Integer> neighbors;
+    private List<GPSLogNeighbor> neighbors;
 
     public GPSLogLineParser(String gpsLogLine) {
         this.gpsLogLine = gpsLogLine;
@@ -97,21 +100,50 @@ public class GPSLogLineParser {
     }
 
     private void parseNeighbors() throws IllegalArgumentException {
-        if (gpsLogLineParts.length < 5) {
-            this.neighbors = new ArrayList<>();
-        }
-        else {
-            String rawText = gpsLogLineParts[4];
-            String[] neighborIds = rawText.split("\\s+");
-            this.neighbors = Arrays.stream(neighborIds).map(this::parseNeighbor).distinct().collect(Collectors.toList());
-            this.neighbors.removeIf(n -> n == this.nodeId);
+        this.neighbors = new ArrayList<>();
+        if (gpsLogLineParts.length < 5)
+            return;
+
+        String rawText = gpsLogLineParts[4];
+        assertAllNeighborsGotRSSI(rawText);
+        parseNeighborPairs(rawText);
+        removeMyselfFromNeighborList();
+    }
+
+    private void assertAllNeighborsGotRSSI(String rawText) {
+        String[] splitted = rawText.split("\\s+");
+        if (splitted.length % 2 != 0)
+            throw new IllegalArgumentException("Could not assume a RSSI for all neighbors");
+    }
+
+    private void parseNeighborPairs(String allRelationsFromLogFile) {
+        String neighborRssiPairRegex = "(\\d+) (-?\\d+)";
+        Matcher matcher = Pattern.compile(neighborRssiPairRegex).matcher(allRelationsFromLogFile);
+        while (matcher.find()) {
+            String neighborId = matcher.group(1);
+            String rssi = matcher.group(2);
+            AddNeighbor(parseNeighbor(neighborId, rssi));
         }
     }
 
-    private int parseNeighbor(String neighborId) {
+    private void removeMyselfFromNeighborList() {
+        this.neighbors.removeIf(n -> n.neighborNodeID == this.nodeId);
+    }
+
+    private void AddNeighbor(GPSLogNeighbor newGpsLogNeighbor) {
+        this.neighbors.removeIf(n -> n.neighborNodeID == newGpsLogNeighbor.neighborNodeID);
+        this.neighbors.add(newGpsLogNeighbor);
+    }
+
+    private GPSLogNeighbor parseNeighbor(String neighborId, String rssi) {
         if (!RegexHelper.isValidInt(neighborId))
             throw new IllegalArgumentException("Expected a node id as Integer in the neighbor list, but got '" + neighborId + "'");
+        if (!RegexHelper.isValidInt(rssi))
+            throw new IllegalArgumentException("Expected a neighbor rssi as Integer, but got '" + rssi + "'");
 
-        return Integer.parseInt(neighborId);
+        Integer parsedNodeId = Integer.parseInt(neighborId);
+        Integer parsedRssi = Integer.parseInt(rssi);
+
+        return new GPSLogNeighbor(parsedNodeId, parsedRssi);
     }
 }

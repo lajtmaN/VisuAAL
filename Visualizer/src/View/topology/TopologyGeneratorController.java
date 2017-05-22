@@ -2,7 +2,7 @@ package View.topology;
 
 import Helpers.*;
 import Model.Settings;
-import Model.SimulationMoveNodePoint;
+import Model.SimulationPoint;
 import Model.UPPAALTopology;
 import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
@@ -24,6 +24,7 @@ import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
 import parsers.GPSLog.GPSLogParser;
 import parsers.GPSLog.GPSLogNodes;
+import parsers.GPSLog.GPSLogSimulationPointGenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
     private TopologyGenerator topologyGenerator;
     private ArrayList<CellOptionsController> cellOptionsList;
-    private List<SimulationMoveNodePoint> simulationMoveNodePoints;
+    private List<SimulationPoint> gpsRelatedSimulationPoints;
     private LatLngBounds latLngBounds;
 
     @Override
@@ -173,7 +174,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         /*File backgroundImageFile = new File("simulations/background.png");
          *topologyViewerController.getMapSnapshot(backgroundImageFile); */
         MainWindowController.getInstance().enableDisableUseTopologyFromTopologyGenerator(true);
-        simulationMoveNodePoints = null;
+        gpsRelatedSimulationPoints = null;
         lastGeneratedTopology = topologyGenerator.generateUppaalTopology(topologyViewerController.getMapBounds());
         lastGeneratedTopology.setBounds(topologyViewerController.getMapBounds());
     }
@@ -224,7 +225,10 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
             this.latLngBounds = nodes.getBounds();
             UPPAALTopology loadedTopology = nodes.generateUPPAALTopologyWithBounds(topologyViewerController.getMapBounds());
 
-            simulationMoveNodePoints = nodes.generateSimulationMoveNodePoints();
+            gpsRelatedSimulationPoints = new ArrayList<>();
+            gpsRelatedSimulationPoints.addAll(nodes.generateSimulationMoveNodePoints());
+            if (GUIHelper.showPrompt("Do you want to include a new output variable displaying the RSSI? You can access it through the VQ using OUTPUT_RSSI"))
+                gpsRelatedSimulationPoints.addAll(new GPSLogSimulationPointGenerator(nodes).generateRSSISimulationPoints());
 
             loadedTopology.updateGraph();
             showGraph(loadedTopology.getGraph(), false); //We will not detect when nodes are moved because listener is null
@@ -237,11 +241,12 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
         }
         catch (Exception e) {
             GUIHelper.showError("Could not load the GPS Log file." + System.lineSeparator() + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    public List<SimulationMoveNodePoint> getSimulationMoveNodePoints() {
-        return simulationMoveNodePoints;
+    public List<SimulationPoint> getGPSLogRelatedSimulationPoints() {
+        return gpsRelatedSimulationPoints;
     }
 
     public LatLngBounds getLatLngBounds() {
