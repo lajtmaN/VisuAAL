@@ -156,19 +156,13 @@ public class SimulationMenuController {
     }
 
     public void showVQHelp(ActionEvent actionEvent) {
-        try {
             String vqHelpDescription = getDetailedVQHelp();
-
             String vqShortHelp = getShortVQHelp();
 
             GUIHelper.showExtendedInformation("VQ Help", vqShortHelp, vqHelpDescription);
-        } catch (Exception e) {
-            GUIHelper.showError("Could not retrieve VQ Help");
-            e.printStackTrace();
-        }
     }
 
-    private String getShortVQHelp() throws IOException, URISyntaxException {
+    private String getShortVQHelp(){
         return overviewOfAvailableVariables()
                 + System.lineSeparator()
                 + examplesOnVQ();
@@ -195,14 +189,12 @@ public class SimulationMenuController {
         return helpTextBuilder.toString();
     }
 
-    private String examplesOnVQ() throws IOException, URISyntaxException {
-        File pathToShortVQHelp = new File(getClass().getClassLoader().getResource("vq_help_short.txt").toURI());
-        return String.join(System.lineSeparator(), Files.readAllLines(pathToShortVQHelp.toPath()));
+    private String examplesOnVQ() {
+        return GUIHelper.ShortVQHelp;
     }
 
-    private String getDetailedVQHelp() throws IOException, URISyntaxException {
-        File pathToVQHelp = new File(getClass().getClassLoader().getResource("vq_help.txt").toURI());
-        return String.join(System.lineSeparator(), Files.readAllLines(pathToVQHelp.toPath()));
+    private String getDetailedVQHelp() {
+        return GUIHelper.VQHelp;
     }
 
     public void editVQ(KeyEvent keyEvent) {
