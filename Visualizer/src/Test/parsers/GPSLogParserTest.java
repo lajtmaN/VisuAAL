@@ -270,6 +270,26 @@ public class GPSLogParserTest {
         assertEquals(4, actual.size());
     }
 
+    @Test
+    public void generateRSSISimulationPointsFromLogNonZero_check() throws IOException {
+        File exampleLogFile = new File("test_resources/gpslog_nonZero.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(exampleLogFile);
+        List<SimulationEdgePoint> actual = new GPSLogSimulationPointGenerator(loadedNodes).generateRSSISimulationPoints();
+
+        assertEquals(-60, actual.get(0).getValue(), 0.001);
+        assertEquals(-4, actual.get(1).getValue(), 0.001);
+        assertEquals(-97, actual.get(2).getValue(), 0.001);
+        assertEquals(-40, actual.get(3).getValue(), 0.001);
+        assertEquals(-60, actual.get(0).getPreviousValue(), 0.001);
+        assertEquals(-4, actual.get(1).getPreviousValue(), 0.001);
+        assertEquals(-97, actual.get(2).getPreviousValue(), 0.001);
+        assertEquals(-40, actual.get(3).getPreviousValue(), 0.001);
+
+        assertEquals(4, actual.size());
+    }
+
+
+
     private void assertContainsNeighbors(GPSLogEntry node, Integer... neighbors) {
         for (Integer neighbor : neighbors)
             assertTrue(node.neighborNodeIds().contains(neighbor));
