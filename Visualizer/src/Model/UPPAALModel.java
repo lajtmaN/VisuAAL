@@ -120,8 +120,9 @@ public class UPPAALModel implements Externalizable, Cloneable {
             }
             return null;
         });
-        FilteredList<OutputVariable> vars = getOutputVars().filtered(outputVariable -> outputVariable.getIsSelected());
-
+        List<OutputVariable> vars = getOutputVars().stream().
+                filter(outputVariable -> outputVariable.getIsSelected()).collect(Collectors.toList());
+        
         return simulateOutput.thenApply(output -> {
             if (output == null)
                 return null;
