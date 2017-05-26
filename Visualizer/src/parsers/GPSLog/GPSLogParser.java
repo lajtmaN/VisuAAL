@@ -23,6 +23,7 @@ public class GPSLogParser {
                 .map(GPSLogParser::parseGPSLogLine)
                 .filter(c -> c != null)
                 .collect(Collectors.toList()));
+        nodes.setEarliestTimestampAsZeroOnAllEntries();
 
         return nodes;
     }

@@ -55,6 +55,16 @@ public class GPSLogNodes {
         return bounds;
     }
 
+    public void setEarliestTimestampAsZeroOnAllEntries() {
+        if (nodes.values().isEmpty())
+            return;
+
+        int lowestTimestamp = minValueFromList(n -> n.timestamp).intValue();
+        if (lowestTimestamp > 0) {
+            nodes.values().forEach(nodes -> nodes.forEach(entry -> entry.timestamp -= lowestTimestamp));
+        }
+    }
+
     private LatLng southWestBounds() {
         //Lat is y
         //Lng is x
@@ -70,7 +80,7 @@ public class GPSLogNodes {
         return new LatLng(north, east);
     }
 
-    private Double minValueFromList(Function<GPSLogEntry, Double> mapper) {
+    private Double minValueFromList(Function<GPSLogEntry, Number> mapper) {
         double minScore = Double.MAX_VALUE;
         for (GPSLogNode nodeList : nodes.values()) {
             double minInList = nodeList.min(mapper);
@@ -80,7 +90,7 @@ public class GPSLogNodes {
         return minScore;
     }
 
-    private Double maxValueFromList(Function<GPSLogEntry, Double> mapper) {
+    private Double maxValueFromList(Function<GPSLogEntry, Number> mapper) {
         double maxScore = Double.MIN_VALUE;
         for (GPSLogNode nodeList : nodes.values()) {
             double maxInList = nodeList.max(mapper);
@@ -116,7 +126,7 @@ public class GPSLogNodes {
         List<GPSLogEntry> seedEntries = nodes.values().stream().map(nodes -> nodes.first()).collect(Collectors.toList());
         seedEntries.forEach(source ->
             source.neighbors.forEach(neighbor ->
-                uppaalTopology.add(new UPPAALEdge(String.valueOf(source.nodeId), String.valueOf(neighbor)))));
+                uppaalTopology.add(new UPPAALEdge(String.valueOf(source.nodeId), String.valueOf(neighbor.neighborNodeID)))));
     }
 
     private Point getLocationRelativeToBounds(GPSLogEntry node) throws Exception {
@@ -166,11 +176,17 @@ public class GPSLogNodes {
 
     private void setPreviousValues(List<SimulationMoveNodePoint> nodes) {
         nodes.sort(SimulationPoint::compareTo);
-        for(int i = 0; i < nodes.size(); i++) {
-            if(i >= 1)
-                nodes.get(i).setPreviousPointValue(nodes.get(i-1).getPointValue());
-            else
-                nodes.get(i).setPreviousPointValue(nodes.get(i).getPointValue());
+        for (int i = 0; i < nodes.size(); i++) {
+            Point prevValue = nodes.get(i).getPointValue();
+            int j = i-1;
+            while(j >= 0) {
+                if(nodes.get(i).getIdentifier().equals(nodes.get(j).getIdentifier())) {
+                    prevValue = nodes.get(j).getPointValue();
+                    break;
+                }
+                j--;
+            }
+            nodes.get(i).setPreviousPointValue(prevValue);
         }
     }
 

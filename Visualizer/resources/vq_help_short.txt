@@ -1,6 +1,0 @@
-Following is a number of examples of VQs:
-
-[white, red] Node.OUTPUT_error
-[black, green:*] OUTPUT_ready ? 0 : 1
-[ghostwhite, black:1000] OUTPUT_elements_in_queue
-[red:1, blue:2, green:3, black:*] node.OUTPUT_mode + gateway.OUTPUT_mode

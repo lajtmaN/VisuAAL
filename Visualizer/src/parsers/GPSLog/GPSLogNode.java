@@ -5,6 +5,7 @@ import Model.TemplateUpdate;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by lajtman on 01-05-2017.
@@ -27,20 +28,20 @@ public class GPSLogNode extends ArrayList<GPSLogEntry> {
         return super.add(gpsLogEntry);
     }
 
-    public double min(Function<GPSLogEntry, Double> mapper) {
+    public double min(Function<GPSLogEntry, Number> mapper) {
         double minScore = Double.MAX_VALUE;
         for (GPSLogEntry node : this) {
-            if (mapper.apply(node) < minScore)
-                minScore = mapper.apply(node);
+            if (mapper.apply(node).doubleValue() < minScore)
+                minScore = mapper.apply(node).doubleValue();
         }
         return minScore;
     }
 
-    public double max(Function<GPSLogEntry, Double> mapper) {
+    public double max(Function<GPSLogEntry, Number> mapper) {
         double maxScore = Double.MIN_VALUE;
         for (GPSLogEntry node : this) {
-            if (mapper.apply(node) > maxScore)
-                maxScore = mapper.apply(node);
+            if (mapper.apply(node).doubleValue() > maxScore)
+                maxScore = mapper.apply(node).doubleValue();
         }
         return maxScore;
     }
@@ -61,14 +62,14 @@ public class GPSLogNode extends ArrayList<GPSLogEntry> {
         this.sort(GPSLogEntry::compareTo);
 
         List<TemplateUpdate> updates = new ArrayList<>();
-        List<Integer> currentNeighbors = new ArrayList<>();
+        List<Integer> currentNeighborIds = new ArrayList<>();
         for (GPSLogEntry entry : this) {
-            List<Pair<Integer, String>> neighborUpdates = newNeighborConnections(entry, currentNeighbors);
+            List<Pair<Integer, String>> neighborUpdates = newNeighborConnections(entry, currentNeighborIds);
             for (Pair<Integer, String> p : neighborUpdates) {
                 String variableName = String.format("CONFIG_connected[%d][%d]", this.nodeId, p.getFirst());
                 updates.add(new TemplateUpdate(variableName, p.getSecond(), entry.timestamp));
             }
-            currentNeighbors = entry.neighbors;
+            currentNeighborIds = entry.neighborNodeIds();
         }
         return updates;
     }
@@ -76,12 +77,12 @@ public class GPSLogNode extends ArrayList<GPSLogEntry> {
     private List<Pair<Integer, String>> newNeighborConnections(GPSLogEntry entry, List<Integer> lastTimeNeighbors) {
         List<Pair<Integer, String>> neighborsToUpdate = new ArrayList<>();
 
-        for(int curNeighbor : entry.neighbors) {
+        for(Integer curNeighbor : entry.neighborNodeIds()) {
             if (!lastTimeNeighbors.contains(curNeighbor))
                 neighborsToUpdate.add(new Pair<>(curNeighbor, "1"));
         }
         for (int lastNeighbor : lastTimeNeighbors) {
-            if (!entry.neighbors.contains(lastNeighbor))
+            if (!entry.neighborNodeIds().contains(lastNeighbor))
                 neighborsToUpdate.add(new Pair<>(lastNeighbor, "0"));
         }
 

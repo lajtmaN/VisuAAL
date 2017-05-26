@@ -8,6 +8,7 @@ import Helpers.OptionsHelper;
 import Model.OutputVariable;
 import Model.Simulations;
 import Model.VQ.VQParseTree;
+import View.MainWindowController;
 import View.Options.*;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -22,6 +23,7 @@ import parsers.VQParser.VQParse;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -154,19 +156,13 @@ public class SimulationMenuController {
     }
 
     public void showVQHelp(ActionEvent actionEvent) {
-        try {
             String vqHelpDescription = getDetailedVQHelp();
-
             String vqShortHelp = getShortVQHelp();
 
             GUIHelper.showExtendedInformation("VQ Help", vqShortHelp, vqHelpDescription);
-        } catch (IOException e) {
-            GUIHelper.showError("Could not retrieve VQ Help");
-            e.printStackTrace();
-        }
     }
 
-    private String getShortVQHelp() throws IOException {
+    private String getShortVQHelp(){
         return overviewOfAvailableVariables()
                 + System.lineSeparator()
                 + examplesOnVQ();
@@ -193,14 +189,12 @@ public class SimulationMenuController {
         return helpTextBuilder.toString();
     }
 
-    private String examplesOnVQ() throws IOException {
-        File pathToShortVQHelp = new File("resources/vq_help_short.txt");
-        return String.join(System.lineSeparator(), Files.readAllLines(pathToShortVQHelp.toPath()));
+    private String examplesOnVQ() {
+        return GUIHelper.ShortVQHelp;
     }
 
-    private String getDetailedVQHelp() throws IOException {
-        File pathToVQHelp = new File("resources/vq_help.txt");
-        return String.join(System.lineSeparator(), Files.readAllLines(pathToVQHelp.toPath()));
+    private String getDetailedVQHelp() {
+        return GUIHelper.VQHelp;
     }
 
     public void editVQ(KeyEvent keyEvent) {
