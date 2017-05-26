@@ -275,24 +275,31 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
         lastGeneratedTopology = UPPAALTopology.load(fileToLoad);
 
-        chkShowMap.switchOnProperty().set(true);
-
-        //Map will "snap" to bounds. Thus, bounds must be slightly (10%) smaller than what they really are.
         this.latLngBounds = lastGeneratedTopology.getBounds();
         LatLngBounds bounds = lastGeneratedTopology.getBounds();
-        double width   = bounds.getNorthEast().lat - bounds.getSouthWest().lat,
-                height = bounds.getNorthEast().lng - bounds.getSouthWest().lng;
-        double ratio = 0.1;
-        bounds.getNorthEast().lat -= ratio*width;
-        bounds.getNorthEast().lng -= ratio*height;
-        bounds.getSouthWest().lat += ratio*width;
-        bounds.getSouthWest().lng += ratio*height;
-        topologyViewerController.setMapBounds(bounds);
+        if(bounds != null) {
+            chkShowMap.switchOnProperty().set(true);
 
-        lastGeneratedTopology.updateGraph();
-        showGraph(lastGeneratedTopology.getGraph(), true);
+            //Map will "snap" to bounds. Thus, bounds must be slightly (10%) smaller than what they really are.
+            double width   = bounds.getNorthEast().lat - bounds.getSouthWest().lat,
+                    height = bounds.getNorthEast().lng - bounds.getSouthWest().lng;
+            double ratio = 0.1;
+            bounds.getNorthEast().lat -= ratio*width;
+            bounds.getNorthEast().lng -= ratio*height;
+            bounds.getSouthWest().lat += ratio*width;
+            bounds.getSouthWest().lng += ratio*height;
+            topologyViewerController.setMapBounds(bounds);
+            topologyViewerController.panTo(lastGeneratedTopology.getBounds());
+            lastGeneratedTopology.updateGraph();
+            showGraph(lastGeneratedTopology.getGraph(), true);
+        }
+        else {
+            lastGeneratedTopology.updateGraph();
+            showGraph(lastGeneratedTopology.getGraph(), true);
+            chkShowMap.switchOnProperty().set(false);
+            topologyViewerController.resetViewPort();
+        }
 
-        topologyViewerController.panTo(lastGeneratedTopology.getBounds());
         chkFreezeMap.switchOnProperty().set(true);
         chkShowGridSettings.switchOnProperty().set(false);
 

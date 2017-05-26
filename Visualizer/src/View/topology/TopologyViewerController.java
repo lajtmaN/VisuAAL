@@ -217,4 +217,11 @@ public class TopologyViewerController implements Initializable, MapComponentInit
     public void panTo(LatLngBounds destination){
         map.panToBounds(destination.getAsLatLongBounds());
     }
+
+    public void resetViewPort() {
+        SwingUtilities.invokeLater(() -> {
+            swingView.getCamera().resetView();
+            }
+        );
+    }
 }
