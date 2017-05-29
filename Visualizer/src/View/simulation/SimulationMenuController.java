@@ -68,6 +68,7 @@ public class SimulationMenuController {
 
     private void addOptionsToListViews() {
         lstExportOptions.getItems().add(new ExportTopologyOption(currentSimulations));
+        lstExportOptions.getItems().add(new ExportStaticTopologyOption(currentSimulations));
 
         for (int i = 0; i < currentSimulations.getNumberOfSimulations(); i++) {
             lstSimulationOptions.getItems().add(new ShowHideSimulationOption(currentSimulations, i));
