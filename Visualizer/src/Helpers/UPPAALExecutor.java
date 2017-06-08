@@ -8,9 +8,13 @@ import parsers.RegexHelper;
 import parsers.SimulateParser;
 import parsers.UPPAALParser;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -76,8 +80,10 @@ public class UPPAALExecutor {
             long startTime = System.currentTimeMillis();
             Process p = builder.start();
             verifytaProcesses.add(p);
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            redirect(p.getInputStream(), new PrintStream(buffer), new PrintStreamRedirector(feedbackCtrl));
+
+            //TODO: Maybe this output should be serialized incase errors happen later.
+            PrintStreamList printStreamList = new PrintStreamList();
+            redirect(p.getInputStream(), printStreamList, new PrintStreamRedirector(feedbackCtrl));
 
             p.waitFor();
             verifytaProcesses.remove(p);
@@ -88,17 +94,12 @@ public class UPPAALExecutor {
             if (p.exitValue() > 0)
                 throw new UPPAALFailedException();
 
-
-
-            String uppaalOutput = new String(buffer.toByteArray(), StandardCharsets.UTF_8);
-            if (uppaalOutput.length() == 0)
+            if (printStreamList.getLines().size() == 0)
                 return null;
 
-
-            List<String> lines = Arrays.asList(uppaalOutput.split("\n"));
             long endTime = System.currentTimeMillis();
             feedbackCtrl.setText( feedbackCtrl.getText()+"This took: "+String.valueOf(endTime-startTime)+" ms");
-            return SimulateParser.parse(lines, simulateCount);
+            return SimulateParser.parse(printStreamList.getLines(), simulateCount);
 
         } catch (InterruptedException | IOException e) {
             return null;

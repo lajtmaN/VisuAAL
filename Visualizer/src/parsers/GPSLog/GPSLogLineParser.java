@@ -2,15 +2,12 @@ package parsers.GPSLog;
 
 import Helpers.StringHelper;
 import Model.topology.LatLng;
-import com.sun.org.apache.regexp.internal.RE;
 import parsers.RegexHelper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Created by lajtman on 25-04-2017.
