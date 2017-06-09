@@ -19,6 +19,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import org.graphstream.graph.Graph;
@@ -254,7 +255,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
     }
 
     public void saveTopology(ActionEvent actionEvent) {
-        if (lastGeneratedTopology == null) {
+        if (!anyActiveTopoolgy()) {
             GUIHelper.showInformation("No topology has been generated yet");
             return;
         }
@@ -307,7 +308,7 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
     }
 
     public void saveIncidenseMatrix(ActionEvent actionEvent) {
-        if (lastGeneratedTopology == null) {
+        if (!anyActiveTopoolgy()) {
             GUIHelper.showInformation("No topology has been generated yet");
             return;
         }
@@ -317,5 +318,13 @@ public class TopologyGeneratorController implements Initializable, NodeMovedEven
 
         TopologyHelper.saveTopology(saveFile, lastGeneratedTopology);
         GUIHelper.showInformation("Successfully saved");
+    }
+
+    public Image getScreenshotOfCurrentlyShownMap() {
+        return topologyViewerController.getMapSnapshot();
+    }
+
+    public boolean anyActiveTopoolgy() {
+        return lastGeneratedTopology != null;
     }
 }

@@ -62,8 +62,8 @@ public class MainWindowController implements Initializable {
     @FXML private Tab configurationTab;
     @FXML private Button saveModelButton;
     @FXML private ToggleSwitch chkUseRandomTopology;
-    @FXML private TopologyGeneratorController topologyGeneratorController;
     @FXML private Tab topologyGeneratorTab;
+    @FXML public TopologyGeneratorController topologyGeneratorController;
 
     private UPPAALModel uppaalModel;
     public boolean constantsChanged;

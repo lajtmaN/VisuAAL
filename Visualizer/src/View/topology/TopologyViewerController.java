@@ -1,28 +1,28 @@
 package View.topology;
 
-import Helpers.GUIHelper;
 import Helpers.GoogleMapsHelper;
 import Helpers.Pair;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
-import View.MainWindowController;
+import View.ImageViewPane;
 import View.simulation.MouseClickListener;
 import View.simulation.SimulationDataContainer;
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
 import com.lynden.gmapsfx.MapReadyListener;
-import com.lynden.gmapsfx.javascript.object.*;
+import com.lynden.gmapsfx.javascript.object.GoogleMap;
+import com.lynden.gmapsfx.javascript.object.LatLong;
+import com.lynden.gmapsfx.javascript.object.MapOptions;
+import com.lynden.gmapsfx.javascript.object.MapTypeIdEnum;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.ViewPanel;
@@ -33,7 +33,6 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.ResourceBundle;
 
 /**
@@ -41,7 +40,7 @@ import java.util.ResourceBundle;
  */
 public class TopologyViewerController implements Initializable, MapComponentInitializedListener, MapReadyListener {
     @FXML private SwingNode graphStreamNode;
-    @FXML private ImageView backgroundView;
+    @FXML private ImageViewPane backgroundView;
     public StackPane rootPane;
 
     private BooleanProperty showMap = new SimpleBooleanProperty(true);
@@ -181,21 +180,24 @@ public class TopologyViewerController implements Initializable, MapComponentInit
         initialized.set(true);
     }
 
-    public void getMapSnapshot(File imageFile) throws IOException {
-        WritableImage image = mapView.snapshot(new SnapshotParameters(), null);
-        ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", imageFile);
+    public void saveMapSnapshot(File saveToFile) throws IOException {
+        ImageIO.write(SwingFXUtils.fromFXImage(getMapSnapshot(), null), "png", saveToFile);
+    }
+
+    public Image getMapSnapshot() {
+        return mapView.snapshot(new SnapshotParameters(), null);
     }
 
     /**
      *
-     * @param image
-     * @deprecated Resizing does not work as expected currently, and thus this should
-     * not be used. Will be needed in future.
+     * @param image the image to show as background
      */
-    @Deprecated
     public void setBackgroundImage(Image image) {
-        backgroundView.imageProperty().set(image);
-        rootPane.resize(backgroundView.getBoundsInLocal().getWidth(), backgroundView.getBoundsInLocal().getHeight());
+        backgroundView.getImageView().imageProperty().set(image);
+        backgroundView.getImageView().setPreserveRatio(true);
+
+        Bounds parentBounds = rootPane.getBoundsInLocal();
+        backgroundView.resize(parentBounds.getWidth(), parentBounds.getHeight());
         setShowBackgroundImage(true);
     }
 

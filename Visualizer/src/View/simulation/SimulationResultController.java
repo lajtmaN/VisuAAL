@@ -1,10 +1,10 @@
 package View.simulation;
 
-import Helpers.GUIHelper;
 import Helpers.GoogleMapsHelper;
 import Model.SimulationNodePoint;
 import Model.SimulationPoint;
 import Model.Simulations;
+import Model.UPPAALTopology;
 import View.DoubleTextField;
 import View.MainWindowController;
 import View.topology.TopologyViewerController;
@@ -19,14 +19,13 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 import java.net.URL;
-import java.io.*;
-import java.nio.file.Files;
 import java.util.ResourceBundle;
 
 /**
@@ -102,10 +101,22 @@ public class SimulationResultController implements Initializable, VariableUpdate
         resizeTopologyViewer();
 
         //TODO: Add background if needed
+
         boolean autolayout = !currentSimulations.getTopology().nodesHasSpecificLocations();
         topologyViewerController.showGraph(currentSimulations.getGraph(), autolayout, nodeVarGridPane);
         if(currentSimulations.getLatLngBounds() != null)
             topologyViewerController.setGraphViewport(GoogleMapsHelper.calculateSizeInMeters(currentSimulations.getLatLngBounds()));
+
+
+        boolean anyActiveTopology = MainWindowController.getInstance().topologyGeneratorController.anyActiveTopoolgy();
+        if (anyActiveTopology) { //assumes that we used the topology directly from topology generator. will not work with save
+            UPPAALTopology currentTopology = MainWindowController.getInstance().topologyGeneratorController.generateTopology(false);
+            if (currentTopology.getNumberOfNodes() == currentSimulations.getTopology().getNumberOfNodes()) {
+                Image currentBackgroundInTopologyGenerator =
+                        MainWindowController.getInstance().topologyGeneratorController.getScreenshotOfCurrentlyShownMap();
+                topologyViewerController.setBackgroundImage(currentBackgroundInTopologyGenerator);
+            }
+        }
     }
 
     private void resizeTopologyViewer() {
