@@ -2,6 +2,7 @@ package Model;
 
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
+import Helpers.Pair;
 import Model.VQ.VQParseTree;
 import Model.topology.LatLngBounds;
 import View.simulation.VariableUpdateObserver;
@@ -51,6 +52,8 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
     private Simulation getSimulation(int simId) {
         return simulations.get(simId);
     }
+
+    public Simulation getShownSimulation() {return shownSimulation;}
 
     public Graph getGraph() {
         return getTopology().getGraph();

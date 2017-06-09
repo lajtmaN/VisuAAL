@@ -1,5 +1,6 @@
 package parsers.VQParser;
 
+import Helpers.Pair;
 import Model.VQ.*;
 import Model.VQ.Operators.*;
 import View.IntegerTextField;
@@ -8,16 +9,17 @@ import parsers.VQParser.Generated.vqBaseListener;
 import parsers.VQParser.Generated.vqParser;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by batto on 10-Apr-17.
  */
 public class VQListener extends vqBaseListener {
-    private Collection<String> variables;
+    private Map<String, Pair<Double, Double>> variables;
     private VQParseTree parseTree = new VQParseTree();
     private VQNode currentNode;
 
-    public VQListener(Collection<String> variables) {
+    public VQListener(Map<String, Pair<Double, Double>> variables) {
         this.variables = variables;
     }
 
@@ -49,9 +51,27 @@ public class VQListener extends vqBaseListener {
         if(firstGradient.FLOAT() != null)
             parseTree.setFirstGradient(Double.parseDouble(firstGradient.FLOAT().getText()),
                 firstGradient.NEG() != null);
+        else if(firstGradient.minVar() != null){
+            Double value = variables.get(firstGradient.minVar().ID().getText()).getFirst();
+            parseTree.setFirstGradient(value, value < 0);
+        }
+        else if(firstGradient.maxVar() != null){
+            Double value = variables.get(firstGradient.maxVar().ID().getText()).getSecond();
+            parseTree.setFirstGradient(value, value < 0);
+        }
+
         if(secondGradient.FLOAT() != null)
             parseTree.setSecondGradient(Double.parseDouble(secondGradient.FLOAT().getText()),
                 secondGradient.NEG() != null);
+        else if(secondGradient.minVar() != null){
+            Double value = variables.get(secondGradient.minVar().ID().getText()).getFirst();
+            parseTree.setSecondGradient(value, value < 0);
+        }
+        else if(secondGradient.maxVar() != null){
+            Double value = variables.get(secondGradient.maxVar().ID().getText()).getSecond();
+            parseTree.setSecondGradient(value, value < 0);
+        }
+
         ensureAndLogError(parseTree.getFirstGradient() < parseTree.getSecondGradient(), "First gradient value must be less than second gradient value");
     }
 
@@ -173,7 +193,7 @@ public class VQListener extends vqBaseListener {
         String id = ctx.ID().getText();
         parseTree.addUsedVariable(id);
 
-        if(variables.contains(id)) {
+        if(variables.containsKey(id)) {
             VQNodeId node = new VQNodeId(id);
             addNewChild(node);
         } else {
@@ -189,7 +209,7 @@ public class VQListener extends vqBaseListener {
         String scopedVar = scope+"."+id;
         parseTree.addUsedVariable(scopedVar);
 
-        if(variables.contains(scopedVar)) {
+        if(variables.containsKey(scopedVar)) {
             VQNodeId node = new VQNodeId(scopedVar);
             addNewChild(node);
         } else {

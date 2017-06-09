@@ -146,7 +146,8 @@ public class SimulationMenuController {
     }
 
     private void validateVQ(String vqString) {
-        VQParseTree parsedTree = VQParse.parse(vqString, currentSimulations.getOutputVariables());
+        VQParseTree parsedTree = VQParse.parse(vqString, currentSimulations.getOutputVariables(),
+                currentSimulations.getShownSimulation().getMinMaxValueMap());
         boolean hasError = vqString.length() > 0 && !parsedTree.isValid();
         txtNewVQ.pseudoClassStateChanged(errorClass, hasError);
         btnAddNewVQ.setDisable(hasError || vqString.length() == 0);
@@ -230,7 +231,8 @@ public class SimulationMenuController {
             int unsuccessfullyParsed = 0;
             List<String> rawVQs = Files.readAllLines(fileToLoad.toPath());
             for (String rawVQ : rawVQs) {
-                VQParseTree parsedTree = VQParse.parse(rawVQ, currentSimulations.getOutputVariables());
+                VQParseTree parsedTree = VQParse.parse(rawVQ, currentSimulations.getOutputVariables(),
+                        currentSimulations.getShownSimulation().getMinMaxValueMap());
                 boolean hasError = rawVQ.length() > 0 && !parsedTree.isValid();
                 if (!hasError) {
                     successfullyAdded++;

@@ -1,9 +1,11 @@
 package Helpers;
 
+import java.io.Serializable;
+
 /**
  * Created by batto on 09-Mar-17.
  */
-public class Pair<T, T1> {
+public class Pair<T, T1> implements Serializable {
     private T first;
     private T1 second;
 

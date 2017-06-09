@@ -37,6 +37,26 @@ public interface vqListener extends ParseTreeListener {
 	 */
 	void exitOneGradient(vqParser.OneGradientContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link vqParser#minVar}.
+	 * @param ctx the parse tree
+	 */
+	void enterMinVar(vqParser.MinVarContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link vqParser#minVar}.
+	 * @param ctx the parse tree
+	 */
+	void exitMinVar(vqParser.MinVarContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link vqParser#maxVar}.
+	 * @param ctx the parse tree
+	 */
+	void enterMaxVar(vqParser.MaxVarContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link vqParser#maxVar}.
+	 * @param ctx the parse tree
+	 */
+	void exitMaxVar(vqParser.MaxVarContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link vqParser#colors}.
 	 * @param ctx the parse tree
 	 */

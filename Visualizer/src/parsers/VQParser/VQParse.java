@@ -1,5 +1,6 @@
 package parsers.VQParser;
 
+import Helpers.Pair;
 import Model.OutputVariable;
 import Model.VQ.VQParseTree;
 import org.antlr.v4.runtime.*;
@@ -8,7 +9,9 @@ import parsers.VQParser.Generated.vqLexer;
 import parsers.VQParser.Generated.vqParser;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -23,13 +26,27 @@ public class VQParse {
         return new vqParser(commonTokenStream);
     }
 
+    @Deprecated
     public static VQParseTree parse(String vq, List<OutputVariable> outputVariables) {
-        VQParseTree parsedVQ = syntaxCheck(vq, outputVariables.stream().map(OutputVariable::toString).collect(Collectors.toList()));
+        return parse(vq, outputVariables, null);
+    }
+
+    public static VQParseTree parse(String vq, List<OutputVariable> outputVariables, Map<String, Pair<Double, Double>> minMaxMap) {
+        VQParseTree parsedVQ =
+                minMaxMap == null ? syntaxCheck(vq, outputVariables.stream().map(OutputVariable::toString).collect(Collectors.toList()))
+                                  : syntaxCheck(vq, minMaxMap);
         parsedVQ.calculateVQType(outputVariables);
         return parsedVQ;
     }
 
+    @Deprecated
     public static VQParseTree syntaxCheck(String input, Collection<String> variables) {
+        Map<String, Pair<Double, Double>> varMap = new HashMap<>();
+        variables.forEach(s -> varMap.put(s, new Pair<>(0.0,1.0)));
+        return syntaxCheck(input, varMap);
+    }
+
+    public static VQParseTree syntaxCheck(String input, Map<String, Pair<Double, Double>> variables) {
         vqParser parser = setupParser(input);
         final String[] parseError = {null};//Yes... this is ugly. But it works :-)
 

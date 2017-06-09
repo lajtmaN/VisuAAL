@@ -16,7 +16,7 @@ public class VQOption extends EnableDisableSimulationOption {
     public VQOption(Simulations simulations, String rawVQ) {
         super(simulations);
         rawVQExpression = rawVQ;
-        VQParseTree parsed = VQParse.parse(rawVQ, simulations.getOutputVariables());
+        VQParseTree parsed = VQParse.parse(rawVQ, simulations.getOutputVariables(), simulations.getShownSimulation().getMinMaxValueMap());
         parsedVQ = parsed;
         type = parsed.getType();
     }

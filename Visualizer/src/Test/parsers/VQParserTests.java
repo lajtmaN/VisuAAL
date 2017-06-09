@@ -1,5 +1,6 @@
 package parsers;
 
+import Helpers.Pair;
 import Model.OutputVariable;
 import Model.VQ.VQParseTree;
 import org.junit.Test;
@@ -468,26 +469,51 @@ public class VQParserTests {
 
         assertEquals(1, value, 0.01);
     }
+
+    @Test
+    public void minMaxSpecTest() throws Exception {
+        String vq = "[red:min(x), blue:max(x)] x\n";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 0.0);
+
+
+
+        VQParseTree tree = VQParse.syntaxCheck(vq, map.keySet());
+        double value = tree.getExpressionValue(map);
+
+        assertEquals(0, value, 0.01);
+    }
+
+    @Test
+    public void minMaxSetMinMax() throws Exception {
+        String vq = "[red:min(x), blue:max(x)] x\n";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 0.0);
+
+        HashMap<String, Pair<Double, Double>> minMaxMap = new HashMap<>();
+        minMaxMap.put("x", new Pair<>(-1.0, 2.0));
+
+        VQParseTree tree = VQParse.syntaxCheck(vq, minMaxMap);
+        double value = tree.getExpressionValue(map);
+
+        assertEquals(0, value, 0.01);
+    }
+
+    @Test
+    public void minMax_MaxMinOrderInconsistent() throws Exception {
+        String vq = "[red:max(x), blue:min(x)] x\n";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 0.0);
+
+        HashMap<String, Pair<Double, Double>> minMaxMap = new HashMap<>();
+        minMaxMap.put("x", new Pair<>(-1.0, 2.0));
+
+        VQParseTree tree = VQParse.syntaxCheck(vq, minMaxMap);
+        double value = tree.getExpressionValue(map);
+
+        assertFalse(tree.isValid());
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

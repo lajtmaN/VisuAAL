@@ -7,7 +7,16 @@ gradient
 
 oneGradient 
       : ID ':' NEG? FLOAT
-      | ID;
+	  | ID ':' minVar
+	  | ID ':' maxVar
+	  | ID
+	  ;
+
+minVar
+	  : 'min' '(' ID ')' ;
+
+maxVar
+	  : 'max' '(' ID ')' ;
 
 colors
       : '[' color+ ID ':' '*' ']';
