@@ -100,14 +100,22 @@ public class SimulationResultController implements Initializable, VariableUpdate
         topologyViewerController.setShowMap(false);
         resizeTopologyViewer();
 
-        //TODO: Add background if needed
-
         boolean autolayout = !currentSimulations.getTopology().nodesHasSpecificLocations();
         topologyViewerController.showGraph(currentSimulations.getGraph(), autolayout, nodeVarGridPane);
         if(currentSimulations.getLatLngBounds() != null)
             topologyViewerController.setGraphViewport(GoogleMapsHelper.calculateSizeInMeters(currentSimulations.getLatLngBounds()));
 
+        applyBackground();
+    }
 
+    private void resizeTopologyViewer() {
+        double height = MainWindowController.getInstance().getTabHeight() - timeSlider.getPrefHeight() - play.getPrefHeight();
+        double width = MainWindowController.getInstance().getTabWidth() - simulationMenuController.root.getPrefWidth();
+        topologyViewerController.rootPane.setMaxSize(width, height);
+        topologyViewerController.rootPane.setMinSize(width, height);
+    }
+
+    private void applyBackground() {
         boolean anyActiveTopology = MainWindowController.getInstance().topologyGeneratorController.anyActiveTopoolgy();
         if (anyActiveTopology) { //assumes that we used the topology directly from topology generator. will not work with save
             UPPAALTopology currentTopology = MainWindowController.getInstance().topologyGeneratorController.generateTopology(false);
@@ -117,13 +125,6 @@ public class SimulationResultController implements Initializable, VariableUpdate
                 topologyViewerController.setBackgroundImage(currentBackgroundInTopologyGenerator);
             }
         }
-    }
-
-    private void resizeTopologyViewer() {
-        double height = MainWindowController.getInstance().getTabHeight() - timeSlider.getPrefHeight() - play.getPrefHeight();
-        double width = MainWindowController.getInstance().getTabWidth() - simulationMenuController.root.getPrefWidth();
-        topologyViewerController.rootPane.setMaxSize(width, height);
-        topologyViewerController.rootPane.setMinSize(width, height);
     }
 
     private void handleCurrentTimeChanged(Number newTime, Number oldTime) {
