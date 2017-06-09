@@ -516,4 +516,36 @@ public class VQParserTests {
 
         assertFalse(tree.isValid());
     }
+
+    @Test
+    public void minMax_onlyOneDefined() throws Exception {
+        String vq = "[red:0, blue:min(x)] x\n";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 2.0);
+
+        HashMap<String, Pair<Double, Double>> minMaxMap = new HashMap<>();
+        minMaxMap.put("x", new Pair<>(4.0, 8.0));
+
+        VQParseTree tree = VQParse.syntaxCheck(vq, minMaxMap);
+        double value = tree.getExpressionValue(map);
+
+        assertEquals(2.0,value, 0.001);
+    }
+
+    @Test
+    public void minMax_onlyOneDefined2() throws Exception {
+        String vq = "[red:max(x), blue:10] x\n";
+
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("x", 8.0);
+
+        HashMap<String, Pair<Double, Double>> minMaxMap = new HashMap<>();
+        minMaxMap.put("x", new Pair<>(4.0, 8.0));
+
+        VQParseTree tree = VQParse.syntaxCheck(vq, minMaxMap);
+        double value = tree.getExpressionValue(map);
+
+        assertEquals(8.0,value, 0.001);
+    }
 }
