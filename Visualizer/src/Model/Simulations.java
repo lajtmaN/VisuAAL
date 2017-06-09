@@ -2,7 +2,6 @@ package Model;
 
 import Helpers.FileHelper;
 import Helpers.GUIHelper;
-import Helpers.Pair;
 import Model.VQ.VQParseTree;
 import Model.topology.LatLngBounds;
 import View.simulation.VariableUpdateObserver;
@@ -23,7 +22,6 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
     private final List<Simulation> simulations;
     private GraphValueMapper graphValueMapper = new GraphValueMapper();
     private VQParseTree parseTreeNode, parseTreeEdge;
-
     private Simulation shownSimulation;
     transient private ArrayList<VariableUpdateObserver> observers = new ArrayList<>();
 
@@ -52,8 +50,6 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
     private Simulation getSimulation(int simId) {
         return simulations.get(simId);
     }
-
-    public Simulation getShownSimulation() {return shownSimulation;}
 
     public Graph getGraph() {
         return getTopology().getGraph();
@@ -459,5 +455,14 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
 
     public LatLngBounds getLatLngBounds() {
         return latLngBounds;
+    }
+
+
+    public List<Simulation> getSimulations() {
+        return simulations;
+    }
+
+    public Simulation getShownSimulation() {
+        return shownSimulation;
     }
 }

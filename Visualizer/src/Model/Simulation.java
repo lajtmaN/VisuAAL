@@ -1,10 +1,7 @@
 package Model;
 
-import Helpers.Pair;
-
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by lajtman on 28-03-2017.

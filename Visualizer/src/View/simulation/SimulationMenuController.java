@@ -55,10 +55,10 @@ public class SimulationMenuController {
 
         simMap = new HashMap<>();
 
-        for (int i = 0; i < currentSimulations.getNumberOfSimulations(); i++) {
-            simMap.putIfAbsent(currentSimulations.getShownSimulation(), new HashMap<>());
-            Map<String, Pair<Double, Double>> minMaxValueMap = simMap.get(currentSimulations.getShownSimulation());
-            for (SimulationPoint p : currentSimulations.getShownSimulation().getSimulationPoints()) {
+        for (Simulation sim : currentSimulations.getSimulations()) {
+            simMap.putIfAbsent(sim, new HashMap<>());
+            Map<String, Pair<Double, Double>> minMaxValueMap = simMap.get(sim);
+            for (SimulationPoint p : sim.getSimulationPoints()) {
                 minMaxValueMap.putIfAbsent(p.getTrimmedIdentifier(), new Pair<>(0.0, 0.0));
                 Pair<Double, Double> minmax = minMaxValueMap.get(p.getTrimmedIdentifier());
                 if (p.getValue() < minmax.getFirst()) {
