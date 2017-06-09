@@ -3,7 +3,6 @@ package Model;
 import Helpers.Pair;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,22 +12,10 @@ import java.util.Map;
 public class Simulation implements Serializable {
     private int currentSimulationIndex = 0;
 
-    private Map<String, Pair<Double, Double>> minMaxValueMap;
     protected List<SimulationPoint> simulationPoints;
 
     public Simulation(List<SimulationPoint> points) {
         this.simulationPoints = points;
-        minMaxValueMap = new HashMap<>();
-        for(SimulationPoint p : points) {
-            minMaxValueMap.putIfAbsent(p.getTrimmedIdentifier(), new Pair<> (0.0,0.0));
-            Pair<Double, Double> minmax = minMaxValueMap.get(p.getTrimmedIdentifier());
-            if(p.getValue() < minmax.getFirst()){
-                minmax.setFirst(p.getValue());
-            }
-            if(p.getValue() > minmax.getSecond()){
-                minmax.setSecond(p.getValue());
-            }
-        }
     }
 
     public void initialize(double modelTimeUnit) {
@@ -41,10 +28,6 @@ public class Simulation implements Serializable {
                 p.setClock(p.getClock() * modelTimeUnit);
             }
         }
-    }
-
-    public Map<String, Pair<Double, Double>> getMinMaxValueMap() {
-        return minMaxValueMap;
     }
 
     @Override

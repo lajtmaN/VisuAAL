@@ -2,6 +2,8 @@ package View.simulation;
 
 import Helpers.GUIHelper;
 import Helpers.GoogleMapsHelper;
+import Helpers.Pair;
+import Model.Simulation;
 import Model.SimulationNodePoint;
 import Model.SimulationPoint;
 import Model.Simulations;
@@ -27,6 +29,8 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.io.*;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -45,6 +49,7 @@ public class SimulationResultController implements Initializable, VariableUpdate
     @FXML private TopologyViewerController topologyViewerController;
 
     private Simulations currentSimulations;
+
     private Timeline timeline;
 
     @Override

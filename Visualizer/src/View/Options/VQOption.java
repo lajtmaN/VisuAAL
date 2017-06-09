@@ -1,8 +1,12 @@
 package View.Options;
 
+import Helpers.Pair;
+import Model.Simulation;
 import Model.Simulations;
 import Model.VQ.VQParseTree;
 import parsers.VQParser.VQParse;
+
+import java.util.Map;
 
 /**
  * Created by lajtman on 12-04-2017.
@@ -13,10 +17,10 @@ public class VQOption extends EnableDisableSimulationOption {
     private VQParseTree parsedVQ;
     private VQParseTree.VQType type;
 
-    public VQOption(Simulations simulations, String rawVQ) {
+    public VQOption(Simulations simulations, String rawVQ, Map<String, Pair<Double, Double>> minmaxMap) {
         super(simulations);
         rawVQExpression = rawVQ;
-        VQParseTree parsed = VQParse.parse(rawVQ, simulations.getOutputVariables(), simulations.getShownSimulation().getMinMaxValueMap());
+        VQParseTree parsed = VQParse.parse(rawVQ, simulations.getOutputVariables(), minmaxMap);
         parsedVQ = parsed;
         type = parsed.getType();
     }

@@ -1,11 +1,10 @@
 package View.simulation;
 
 
-import Helpers.ExtensionFilters;
-import Helpers.FileHelper;
-import Helpers.GUIHelper;
-import Helpers.OptionsHelper;
+import Helpers.*;
 import Model.OutputVariable;
+import Model.Simulation;
+import Model.SimulationPoint;
 import Model.Simulations;
 import Model.VQ.VQParseTree;
 import View.MainWindowController;
@@ -25,7 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -45,10 +46,29 @@ public class SimulationMenuController {
     @FXML private ListView<SimulationOption> lstExportOptions;
 
     private Simulations currentSimulations;
+
+    private Map<Simulation, Map<String, Pair<Double, Double>>> simMap;
     private static double tabHeight = 25;
 
     public void loadWithSimulation(Simulations currentSimulations) {
         this.currentSimulations = currentSimulations;
+
+        simMap = new HashMap<>();
+
+        for (int i = 0; i < currentSimulations.getNumberOfSimulations(); i++) {
+            simMap.putIfAbsent(currentSimulations.getShownSimulation(), new HashMap<>());
+            Map<String, Pair<Double, Double>> minMaxValueMap = simMap.get(currentSimulations.getShownSimulation());
+            for (SimulationPoint p : currentSimulations.getShownSimulation().getSimulationPoints()) {
+                minMaxValueMap.putIfAbsent(p.getTrimmedIdentifier(), new Pair<>(0.0, 0.0));
+                Pair<Double, Double> minmax = minMaxValueMap.get(p.getTrimmedIdentifier());
+                if (p.getValue() < minmax.getFirst()) {
+                    minmax.setFirst(p.getValue());
+                }
+                if (p.getValue() > minmax.getSecond()) {
+                    minmax.setSecond(p.getValue());
+                }
+            }
+        }
         addOptionsToListViews();
         initializeExportOptions();
         initializeDisplayOptions();
@@ -126,7 +146,7 @@ public class SimulationMenuController {
         if (newVQ.length() <= 0 || txtNewVQ.getPseudoClassStates().contains(errorClass))
             return;
 
-        VQOption option = new VQOption(currentSimulations, newVQ);
+        VQOption option = new VQOption(currentSimulations, newVQ, simMap.get(currentSimulations.getShownSimulation()));
         lstDisplayOptions.getItems().add(option);
         txtNewVQ.setText("");
 
@@ -147,7 +167,7 @@ public class SimulationMenuController {
 
     private void validateVQ(String vqString) {
         VQParseTree parsedTree = VQParse.parse(vqString, currentSimulations.getOutputVariables(),
-                currentSimulations.getShownSimulation().getMinMaxValueMap());
+                simMap.get(currentSimulations.getShownSimulation()));
         boolean hasError = vqString.length() > 0 && !parsedTree.isValid();
         txtNewVQ.pseudoClassStateChanged(errorClass, hasError);
         btnAddNewVQ.setDisable(hasError || vqString.length() == 0);
@@ -232,11 +252,11 @@ public class SimulationMenuController {
             List<String> rawVQs = Files.readAllLines(fileToLoad.toPath());
             for (String rawVQ : rawVQs) {
                 VQParseTree parsedTree = VQParse.parse(rawVQ, currentSimulations.getOutputVariables(),
-                        currentSimulations.getShownSimulation().getMinMaxValueMap());
+                        simMap.get(currentSimulations.getShownSimulation()));
                 boolean hasError = rawVQ.length() > 0 && !parsedTree.isValid();
                 if (!hasError) {
                     successfullyAdded++;
-                    lstDisplayOptions.getItems().add(new VQOption(currentSimulations, rawVQ));
+                    lstDisplayOptions.getItems().add(new VQOption(currentSimulations, rawVQ, simMap.get(currentSimulations.getShownSimulation())));
                 } else {
                     unsuccessfullyParsed++;
                 }
