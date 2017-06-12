@@ -16,6 +16,7 @@ public class VQParseTree {
     private Collection<String> usedVariables = new ArrayList<>();
     private String parseError = "";
     private VQColors vqColors;
+    private boolean useMin = false, useMax = false;
 
     public enum VQType { Edge, Node, Unknown}
 
@@ -70,6 +71,14 @@ public class VQParseTree {
             this.secondGradient = secondGradient;
     }
 
+    public void setFirstGradient(double firstGradient) {
+        setFirstGradient(firstGradient, false);
+    }
+
+    public void setSecondGradient(double secondGradient) {
+        setSecondGradient(secondGradient, false);
+    }
+
     public void setFirstColor(String firstColor) {
         this.firstColor = firstColor;
     }
@@ -116,6 +125,22 @@ public class VQParseTree {
 
     public void setVqColors(VQColors vqColors) {
         this.vqColors = vqColors;
+    }
+
+    public boolean useMin() {
+        return useMin;
+    }
+
+    public void setUseMin(boolean useMin) {
+        this.useMin = useMin;
+    }
+
+    public boolean useMax() {
+        return useMax;
+    }
+
+    public void setUseMax(boolean useMax) {
+        this.useMax = useMax;
     }
 
     public String getParseError() {

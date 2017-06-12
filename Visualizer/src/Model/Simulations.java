@@ -216,7 +216,67 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
 
     public void showSimulation(int simulationId) {
         shownSimulation = getSimulation(simulationId);
+        calculateMinMax();
         resetToCurrentTime();
+    }
+
+    private void calculateMinMax() {
+        double nodeMax = Integer.MIN_VALUE, nodeMin = Integer.MAX_VALUE,
+            edgeMax = Integer.MIN_VALUE, edgeMin = Integer.MAX_VALUE;
+        double value;
+
+        boolean needEdgeMinMax = parseTreeEdge != null && (parseTreeEdge.useMin() || parseTreeEdge.useMax()),
+                needNodeMinMax = parseTreeNode != null && (parseTreeNode.useMin() || parseTreeNode.useMax());
+
+        if(!needEdgeMinMax && !needNodeMinMax)
+            return;
+
+        try {
+            for (SimulationPoint sp : shownSimulation.getSimulationPoints()) {
+                if (needEdgeMinMax && validEdgeSimPoint(sp) && parseTreeEdge != null) {
+                    SimulationEdgePoint sep = (SimulationEdgePoint) sp;
+                    graphValueMapper.updateNodeVariable(sep.getEdgeIdentifier(), sp.getScopedIdentifier(), sp.getValue());
+                    value = parseTreeEdge.getExpressionValue(graphValueMapper.getNodeOrEdgeVariableMap(sep.getEdgeIdentifier()));
+                    if(value < edgeMin)
+                        edgeMin = value;
+                    if(value > edgeMax)
+                        edgeMax = value;
+                }
+                else if (needNodeMinMax && validNodeSimPoint(sp) && parseTreeNode != null) {
+                    SimulationNodePoint snp = (SimulationNodePoint) sp;
+                    String nodeId = String.valueOf(snp.getNodeId());
+                    graphValueMapper.updateNodeVariable(nodeId, sp.getScopedIdentifier(), sp.getValue());
+                    value = parseTreeNode.getExpressionValue(graphValueMapper.getNodeOrEdgeVariableMap(nodeId));
+                    if(value < nodeMin)
+                        nodeMin = value;
+                    if(value > nodeMax)
+                        nodeMax = value;
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(parseTreeEdge != null) {
+            if(edgeMax <= edgeMin)
+                GUIHelper.showAlert(Alert.AlertType.WARNING, "The maximum edge value is smaller than the minimum edge value. Defaults to 0 as minimum and 1 as maximum");
+            else
+                setMinMaxAsGradient(parseTreeEdge, edgeMax, edgeMin);
+        }
+        if(parseTreeNode != null) {
+            if(nodeMax <= nodeMin)
+                GUIHelper.showAlert(Alert.AlertType.WARNING, "The maximum node value is smaller than the minimum node value. Defaults to 0 as minimum and 1 as maximum");
+            else
+                setMinMaxAsGradient(parseTreeNode, nodeMax, nodeMin);
+        }
+    }
+
+    private void setMinMaxAsGradient(VQParseTree parseTree, double nodeMax, double nodeMin) {
+        if (parseTree.useMin())
+            parseTree.setFirstGradient(nodeMin, false);
+        if (parseTree.useMax())
+            parseTree.setSecondGradient(nodeMax, false);
     }
 
     public int queryTimeBound() {
@@ -289,6 +349,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
 
     public void setShownEdgeVariable(VQParseTree parsedVQ) {
         parseTreeEdge = parsedVQ;
+        calculateMinMax();
         updateColorsOnTopology();
         resetEdgesToCurrentTime();
         markGraphAtTime(0, getCurrentTime());
@@ -296,6 +357,7 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
 
     public void setShownNodeVariable(VQParseTree parsedVQ) {
         parseTreeNode = parsedVQ;
+        calculateMinMax();
         resetNodesToCurrentTime();
         markGraphAtTime(0, getCurrentTime());
     }
