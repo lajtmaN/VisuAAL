@@ -258,13 +258,13 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
             e.printStackTrace();
         }
 
-        if(parseTreeEdge != null) {
+        if(needEdgeMinMax) {
             if(edgeMax <= edgeMin)
                 GUIHelper.showAlert(Alert.AlertType.WARNING, "The maximum edge value is smaller than the minimum edge value. Defaults to 0 as minimum and 1 as maximum");
             else
                 setMinMaxAsGradient(parseTreeEdge, edgeMax, edgeMin);
         }
-        if(parseTreeNode != null) {
+        if(needNodeMinMax) {
             if(nodeMax <= nodeMin)
                 GUIHelper.showAlert(Alert.AlertType.WARNING, "The maximum node value is smaller than the minimum node value. Defaults to 0 as minimum and 1 as maximum");
             else
@@ -443,23 +443,23 @@ public class Simulations implements Serializable, VariablesUpdateObservable {
     }
 
     public void setMinEdgeValue(double minEdgeValue) {
-        this.minEdgeValue = minEdgeValue;
+        //TODO: MEGA HAX. Used to disable VQS. Cannot create new function, as it will not be backwards compatible with serialized simulations
+        parseTreeEdge = null;
     }
 
     public double getMaxEdgeValue() {
         return maxEdgeValue;
     }
 
-    public void setMaxEdgeValue(double maxEdgeValue) {
-        this.maxEdgeValue = maxEdgeValue;
-    }
+    public void setMaxEdgeValue(double maxEdgeValue) {}
 
     public double getMinNodeValue() {
         return minNodeValue;
     }
 
     public void setMinNodeValue(double minNodeValue) {
-        this.minNodeValue = minNodeValue;
+        //TODO: MEGA HAX. Used to disable VQS. Cannot create new function, as it will not be backwards compatible with serialized simulations
+        parseTreeNode = null;
     }
 
     public double getMaxNodeValue() {
