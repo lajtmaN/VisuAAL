@@ -120,8 +120,6 @@ public class SimulationMenuController {
         });
     }
 
-    //TODO: Fast and ugly hack. Cannot call the disable action when changing variables.
-    public static boolean doGraphReset = true;
     public void addNewVQ(ActionEvent actionEvent) {
         String newVQ = txtNewVQ.getText();
 
@@ -132,6 +130,12 @@ public class SimulationMenuController {
         lstDisplayOptions.getItems().add(option);
         txtNewVQ.setText("");
 
+        setupVQListeners(option);
+    }
+
+    //TODO: Fast and ugly hack. Cannot call the disable action when changing variables.
+    public static boolean doGraphReset = true;
+    private void setupVQListeners(VQOption option) {
         option.onProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue)
                 return;
@@ -238,7 +242,9 @@ public class SimulationMenuController {
                 boolean hasError = rawVQ.length() > 0 && !parsedTree.isValid();
                 if (!hasError) {
                     successfullyAdded++;
-                    lstDisplayOptions.getItems().add(new VQOption(currentSimulations, rawVQ));
+                    VQOption option = new VQOption(currentSimulations, rawVQ);
+                    setupVQListeners(option);
+                    lstDisplayOptions.getItems().add(option);
                 } else {
                     unsuccessfullyParsed++;
                 }
