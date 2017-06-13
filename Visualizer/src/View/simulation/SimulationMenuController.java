@@ -120,6 +120,8 @@ public class SimulationMenuController {
         });
     }
 
+    //TODO: Fast and ugly hack. Cannot call the disable action when changing variables.
+    public static boolean doGraphReset = true;
     public void addNewVQ(ActionEvent actionEvent) {
         String newVQ = txtNewVQ.getText();
 
@@ -134,6 +136,7 @@ public class SimulationMenuController {
             if (!newValue)
                 return;
 
+            doGraphReset = false;
             for (EnableDisableSimulationOption eds : this.lstDisplayOptions.getItems()) {
                 VQOption vqOption = null;
                 if(eds instanceof VQOption)
@@ -142,6 +145,7 @@ public class SimulationMenuController {
                     eds.onProperty().set(false);
                 }
             }
+            doGraphReset = true;
         });
     }
 
