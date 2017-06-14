@@ -33,7 +33,7 @@ public class VQListener extends vqBaseListener {
 
     @Override
     public void enterGradient(vqParser.GradientContext ctx) {
-        super.exitGradient(ctx);
+        super.enterGradient(ctx);
 
         vqParser.OneGradientContext firstGradient = ctx.oneGradient(0),
                                     secondGradient = ctx.oneGradient(1);
@@ -46,13 +46,23 @@ public class VQListener extends vqBaseListener {
         parseTree.setFirstColor(firstGradient.ID().getText());
         parseTree.setSecondColor(secondGradient.ID().getText());
 
+        if(firstGradient.min() != null) {
+            parseTree.setUseMin(true);
+        }
+
+        if(secondGradient.max() != null) {
+            parseTree.setUseMax(true);
+        }
+
         if(firstGradient.FLOAT() != null)
             parseTree.setFirstGradient(Double.parseDouble(firstGradient.FLOAT().getText()),
                 firstGradient.NEG() != null);
         if(secondGradient.FLOAT() != null)
             parseTree.setSecondGradient(Double.parseDouble(secondGradient.FLOAT().getText()),
                 secondGradient.NEG() != null);
-        ensureAndLogError(parseTree.getFirstGradient() < parseTree.getSecondGradient(), "First gradient value must be less than second gradient value");
+
+        if(firstGradient.min() != null || secondGradient.max() != null)
+            ensureAndLogError(parseTree.getFirstGradient() < parseTree.getSecondGradient(), "First gradient value must be less than second gradient value");
     }
 
     @Override
