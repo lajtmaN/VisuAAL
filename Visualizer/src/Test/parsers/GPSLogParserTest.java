@@ -5,7 +5,9 @@ import Model.SimulationMoveNodePoint;
 import Model.TemplateUpdate;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
+import exceptions.GPSLogParseException;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import parsers.GPSLog.*;
 
 import java.io.*;
@@ -288,7 +290,35 @@ public class GPSLogParserTest {
         assertEquals(4, actual.size());
     }
 
+    @Test(expected = GPSLogParseException.class)
+    public void testMiraKinaFile_expectException() throws IOException{
+        File miraKinaLogFile = new File("test_resources/marikina.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(miraKinaLogFile);
+    }
 
+    @Test(expected = GPSLogParseException.class)
+    public void testMiraKinaFile_firstIdsFixed_neigborgsBroken_expectException() throws IOException{
+        File miraKinaLogFile = new File("test_resources/marikina_idsFixed_neighborsBroken.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(miraKinaLogFile);
+    }
+
+    @Test(expected = GPSLogParseException.class)
+    public void testNonConsequtiveNodeIds_expectException() throws IOException{
+        File LogFile = new File("test_resources/gpslog_Non-consequtiveIds.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(LogFile);
+    }
+
+    @Test(expected = GPSLogParseException.class)
+    public void testUnknown_neighbor_expectException() throws IOException{
+        File LogFile = new File("test_resources/gpslog_UnknownNeighbor.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(LogFile);
+    }
+
+    @Test
+    public void testValidGpsLog_expectException() throws IOException{
+        File LogFile = new File("test_resources/gpslog_Valid.txt");
+        GPSLogNodes loadedNodes = GPSLogParser.parse(LogFile);
+    }
 
     private void assertContainsNeighbors(GPSLogEntry node, Integer... neighbors) {
         for (Integer neighbor : neighbors)

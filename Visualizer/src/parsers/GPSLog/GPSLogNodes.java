@@ -6,7 +6,10 @@ import Model.*;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
+import exceptions.GPSLogParseException;
+import scala.Array;
 
+import java.io.InputStream;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -193,5 +196,19 @@ public class GPSLogNodes {
     private SimulationMoveNodePoint generateSimulationMoveNodePoint(GPSLogEntry n) throws Exception {
         Point p = getLocationRelativeToBounds(n);
         return new SimulationMoveNodePoint(String.valueOf(n.nodeId), n.timestamp, p, null);
+    }
+
+    public void validateNodeIds() throws GPSLogParseException {
+        List<Integer> nodeIds = new ArrayList<>(nodes.keySet());
+        for (int i =0; i< nodeIds.size(); i++) {
+            if (!nodes.keySet().contains(i)) //node id did not exist
+                throw new GPSLogParseException(String.format("Node IDs are not consequtive - Found %d nodes: with the following Ids: ",nodeIds.size()) + nodeIds.toString());
+        }
+        for (Integer i : nodes.keySet()) {
+            for (Integer neighbor : nodes.get(i).getAllNeighborsOverTime()) {
+                if(!nodes.keySet().contains(neighbor))
+                    throw new GPSLogParseException(String.format("Node %d has node %d as neigbor, but the latter was not defined as a node!", i, neighbor));
+            }
+        }
     }
 }

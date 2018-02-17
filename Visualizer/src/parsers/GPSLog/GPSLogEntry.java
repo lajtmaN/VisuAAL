@@ -30,4 +30,6 @@ public class GPSLogEntry implements Comparable<GPSLogEntry> {
     public int compareTo(GPSLogEntry other) {
         return Integer.compare(timestamp, other.timestamp);
     }
+
+
 }

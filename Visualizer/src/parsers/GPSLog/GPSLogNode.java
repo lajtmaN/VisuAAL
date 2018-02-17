@@ -88,4 +88,12 @@ public class GPSLogNode extends ArrayList<GPSLogEntry> {
 
         return neighborsToUpdate;
     }
+
+    public List<Integer> getAllNeighborsOverTime() {
+        List<Integer> neigborIds = new ArrayList<>();
+        for (GPSLogEntry e: this) {
+            neigborIds.addAll(e.neighborNodeIds());
+        }
+        return neigborIds;
+    }
 }
