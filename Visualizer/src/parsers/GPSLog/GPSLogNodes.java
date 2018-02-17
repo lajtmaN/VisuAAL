@@ -198,6 +198,10 @@ public class GPSLogNodes {
         return new SimulationMoveNodePoint(String.valueOf(n.nodeId), n.timestamp, p, null);
     }
 
+    /**
+     * Check that node ids start from 0, and that they follow pattern 0,1,2,3...N-1. and that neighbor IDs all refer to valid node ids
+     */
+
     public void validateNodeIds() throws GPSLogParseException {
         List<Integer> nodeIds = new ArrayList<>(nodes.keySet());
         for (int i =0; i< nodeIds.size(); i++) {

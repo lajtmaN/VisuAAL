@@ -7,11 +7,9 @@ import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
 import exceptions.GPSLogParseException;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import parsers.GPSLog.*;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;

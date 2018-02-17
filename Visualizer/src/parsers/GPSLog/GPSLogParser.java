@@ -26,9 +26,6 @@ public class GPSLogParser {
                 .filter(c -> c != null)
                 .collect(Collectors.toList()));
         nodes.setEarliestTimestampAsZeroOnAllEntries();
-        //Check that node ids start from 0, and that they follow pattern 0,1,2,3...N-1.
-
-        //Check that neighbor IDs all refer to valid node ids
         nodes.validateNodeIds();
 
         return nodes;
