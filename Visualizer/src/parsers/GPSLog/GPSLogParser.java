@@ -1,8 +1,7 @@
 package parsers.GPSLog;
 
-import exceptions.GPSLogParseException;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -5,7 +5,6 @@ import Model.TemplateUpdate;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Created by lajtman on 01-05-2017.

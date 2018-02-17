@@ -1,15 +1,12 @@
 package parsers.GPSLog;
 
 import Helpers.GoogleMapsHelper;
-import Helpers.Pair;
 import Model.*;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
 import exceptions.GPSLogParseException;
-import scala.Array;
 
-import java.io.InputStream;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
