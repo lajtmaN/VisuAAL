@@ -5,7 +5,6 @@ import Model.TemplateUpdate;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Created by lajtman on 01-05-2017.
@@ -87,5 +86,13 @@ public class GPSLogNode extends ArrayList<GPSLogEntry> {
         }
 
         return neighborsToUpdate;
+    }
+
+    public List<Integer> getAllNeighborsOverTime() {
+        List<Integer> neigborIds = new ArrayList<>();
+        for (GPSLogEntry e: this) {
+            neigborIds.addAll(e.neighborNodeIds());
+        }
+        return neigborIds;
     }
 }

@@ -1,11 +1,11 @@
 package parsers.GPSLog;
 
 import Helpers.GoogleMapsHelper;
-import Helpers.Pair;
 import Model.*;
 import Model.topology.LatLng;
 import Model.topology.LatLngBounds;
 import Model.topology.generator.CellNode;
+import exceptions.GPSLogParseException;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -193,5 +193,23 @@ public class GPSLogNodes {
     private SimulationMoveNodePoint generateSimulationMoveNodePoint(GPSLogEntry n) throws Exception {
         Point p = getLocationRelativeToBounds(n);
         return new SimulationMoveNodePoint(String.valueOf(n.nodeId), n.timestamp, p, null);
+    }
+
+    /**
+     * Check that node ids start from 0, and that they follow pattern 0,1,2,3...N-1. and that neighbor IDs all refer to valid node ids
+     */
+
+    public void validateNodeIds() throws GPSLogParseException {
+        List<Integer> nodeIds = new ArrayList<>(nodes.keySet());
+        for (int i =0; i< nodeIds.size(); i++) {
+            if (!nodes.keySet().contains(i)) //node id did not exist
+                throw new GPSLogParseException(String.format("Node IDs are not consequtive - Found %d nodes: with the following Ids: ",nodeIds.size()) + nodeIds.toString());
+        }
+        for (Integer i : nodes.keySet()) {
+            for (Integer neighbor : nodes.get(i).getAllNeighborsOverTime()) {
+                if(!nodes.keySet().contains(neighbor))
+                    throw new GPSLogParseException(String.format("Node %d has node %d as neigbor, but the latter was not defined as a node!", i, neighbor));
+            }
+        }
     }
 }

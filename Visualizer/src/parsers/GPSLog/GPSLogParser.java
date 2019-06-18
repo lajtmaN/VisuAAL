@@ -1,6 +1,7 @@
 package parsers.GPSLog;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class GPSLogParser {
                 .filter(c -> c != null)
                 .collect(Collectors.toList()));
         nodes.setEarliestTimestampAsZeroOnAllEntries();
+        nodes.validateNodeIds();
 
         return nodes;
     }
